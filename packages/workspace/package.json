@@ -1,0 +1,17 @@
+{
+  "name": "@vastu/workspace",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Client-heavy workspace: Dockview panels, Mantine UI, Zustand state. (Stub until Phase 1)",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "echo 'workspace: stub, nothing to build'",
+    "lint": "echo 'workspace: stub, nothing to lint'",
+    "typecheck": "echo 'workspace: stub, nothing to typecheck'",
+    "test": "echo 'workspace: stub, nothing to test'"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
+}

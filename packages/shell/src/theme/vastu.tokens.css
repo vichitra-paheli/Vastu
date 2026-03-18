@@ -1,0 +1,231 @@
+/**
+ * Vastu Design System — CSS Custom Properties
+ * Version 0.1 · March 2026
+ *
+ * All tokens use the --v-* prefix to avoid collision with Mantine's --mantine-* tokens.
+ * Light mode values are set on :root. Dark mode values override via [data-mantine-color-scheme='dark'].
+ */
+
+:root {
+  /* ============================================================
+   * BACKGROUND COLORS
+   * ============================================================ */
+  --v-bg-primary: #ffffff;
+  --v-bg-secondary: #f5f5f5;
+  --v-bg-tertiary: #ebebeb;
+  --v-bg-elevated: #ffffff;
+  --v-bg-overlay: rgba(0, 0, 0, 0.4);
+
+  /* ============================================================
+   * TEXT COLORS
+   * ============================================================ */
+  --v-text-primary: #1a1a1a;
+  --v-text-secondary: #666666;
+  --v-text-tertiary: #999999;
+  --v-text-inverse: #ffffff;
+
+  /* ============================================================
+   * BORDER COLORS
+   * ============================================================ */
+  --v-border-default: #e0e0e0;
+  --v-border-subtle: #f0f0f0;
+  --v-border-strong: #cccccc;
+  --v-border-focus: #2378cb;
+
+  /* ============================================================
+   * ACCENT COLORS — UI Chrome
+   * ============================================================ */
+  --v-accent-primary: #2378cb;
+  --v-accent-primary-hover: #1e69b5;
+  --v-accent-primary-light: #2378cb1f;
+  --v-accent-secondary: #5c6b73;
+  --v-accent-tertiary: #c89420;
+  --v-accent-tertiary-light: #c894201f;
+  --v-accent-quaternary: #7b61a6;
+  --v-accent-quaternary-light: #7b61a61f;
+
+  /* ============================================================
+   * STATUS COLORS — Semantic only, never for decoration
+   * ============================================================ */
+  --v-status-success: #1d9e75;
+  --v-status-success-light: #1d9e7515;
+  --v-status-warning: #e8590c;
+  --v-status-warning-light: #e8590c15;
+  --v-status-error: #dc3628;
+  --v-status-error-light: #dc362815;
+  --v-status-info: #2378cb;
+  --v-status-info-light: #2378cb15;
+
+  /* ============================================================
+   * INTERACTIVE STATES
+   * ============================================================ */
+  --v-interactive-hover: #f5f5f5;
+  --v-interactive-pressed: #ebebeb;
+  --v-interactive-disabled: #999999;
+
+  /* ============================================================
+   * TYPOGRAPHY
+   * ============================================================ */
+  --v-font-sans: var(--font-inter, 'Inter', -apple-system, 'Segoe UI', sans-serif);
+  --v-font-mono: var(--font-jetbrains-mono, 'JetBrains Mono', 'SF Mono', 'Consolas', monospace);
+
+  /* Font weights — only 400 and 500 are permitted */
+  --v-font-regular: 400;
+  --v-font-medium: 500;
+
+  /* Type scale */
+  --v-text-xs: 11px;
+  --v-text-sm: 12px;
+  --v-text-md: 14px;
+  --v-text-lg: 16px;
+  --v-text-xl: 20px;
+  --v-text-2xl: 24px;
+  --v-text-3xl: 32px;
+
+  /* Line heights */
+  --v-leading-tight: 1.3;
+  --v-leading-normal: 1.5;
+  --v-leading-relaxed: 1.7;
+
+  /* ============================================================
+   * ICON SIZES
+   * ============================================================ */
+  --v-icon-xs: 14px;
+  --v-icon-sm: 16px;
+  --v-icon-md: 20px;
+  --v-icon-lg: 24px;
+  --v-icon-xl: 32px;
+
+  /* ============================================================
+   * SPACING — Base unit: 4px. All spacing is a multiple of 4.
+   * ============================================================ */
+  --v-space-1: 4px;
+  --v-space-2: 8px;
+  --v-space-3: 12px;
+  --v-space-4: 16px;
+  --v-space-5: 20px;
+  --v-space-6: 24px;
+  --v-space-8: 32px;
+  --v-space-10: 40px;
+
+  /* Aliases for xs/sm/md/lg/xl/2xl/3xl convenience names */
+  --v-space-xs: 4px;
+  --v-space-sm: 8px;
+  --v-space-md: 16px;
+  --v-space-lg: 24px;
+  --v-space-xl: 32px;
+  --v-space-2xl: 40px;
+  --v-space-3xl: 48px;
+
+  /* ============================================================
+   * BORDER RADII
+   * ============================================================ */
+  --v-radius-sm: 2px;
+  --v-radius-md: 4px;
+  --v-radius-lg: 8px;
+  --v-radius-xl: 12px;
+  --v-radius-full: 9999px;
+
+  /* ============================================================
+   * SHADOWS AND ELEVATION — Flat UI, minimal shadow use
+   * ============================================================ */
+  --v-shadow-none: none;
+  --v-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --v-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --v-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --v-shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.16);
+  --v-shadow-focus: 0 0 0 2px #2378cb40;
+
+  /* ============================================================
+   * MOTION — All motion serves orientation, never decoration
+   * ============================================================ */
+  --v-duration-fast: 100ms;
+  --v-duration-normal: 200ms;
+  --v-duration-slow: 300ms;
+  --v-duration-layout: 500ms;
+
+  --v-easing-default: cubic-bezier(0.2, 0, 0.2, 1);
+  --v-ease-default: cubic-bezier(0.2, 0, 0.2, 1);
+  --v-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --v-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --v-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Transition presets */
+  --v-transition-color: color var(--v-duration-fast) var(--v-ease-default);
+  --v-transition-bg: background-color var(--v-duration-fast) var(--v-ease-default);
+  --v-transition-border: border-color var(--v-duration-fast) var(--v-ease-default);
+  --v-transition-shadow: box-shadow var(--v-duration-fast) var(--v-ease-default);
+  --v-transition-transform: transform var(--v-duration-normal) var(--v-ease-default);
+  --v-transition-slide: transform var(--v-duration-slow) var(--v-ease-out);
+  --v-transition-fade: opacity var(--v-duration-normal) var(--v-ease-default);
+  --v-transition-layout: height var(--v-duration-layout) var(--v-ease-default);
+
+  /* ============================================================
+   * Z-INDEX LAYERS — Strict layering to prevent stacking conflicts
+   * ============================================================ */
+  --v-z-base: 0;
+  --v-z-sticky: 10;
+  --v-z-sidebar: 20;
+  --v-z-tray: 30;
+  --v-z-dropdown: 40;
+  --v-z-drawer: 50;
+  --v-z-modal: 60;
+  --v-z-spotlight: 70;
+  --v-z-toast: 80;
+  --v-z-tooltip: 90;
+}
+
+/* ============================================================
+ * DARK MODE — Override tokens for dark color scheme
+ * ============================================================ */
+[data-mantine-color-scheme='dark'] {
+  /* Background */
+  --v-bg-primary: #1a1a1a;
+  --v-bg-secondary: #242424;
+  --v-bg-tertiary: #2e2e2e;
+  --v-bg-elevated: #2a2a2a;
+  --v-bg-overlay: rgba(0, 0, 0, 0.6);
+
+  /* Text */
+  --v-text-primary: #e8e8e8;
+  --v-text-secondary: #a0a0a0;
+  --v-text-tertiary: #6b6b6b;
+  --v-text-inverse: #1a1a1a;
+
+  /* Borders */
+  --v-border-default: #333333;
+  --v-border-subtle: #2a2a2a;
+  --v-border-strong: #444444;
+  --v-border-focus: #2378cb;
+
+  /* Shadows — increased opacity for dark backgrounds */
+  --v-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.09);
+  --v-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+  --v-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.18);
+  --v-shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.24);
+
+  /* Interactive */
+  --v-interactive-hover: #2e2e2e;
+  --v-interactive-pressed: #333333;
+}
+
+/* ============================================================
+ * REDUCED MOTION — Respect user's OS preference
+ * ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* Override duration tokens to 0ms for code that reads them */
+  :root {
+    --v-duration-fast: 0ms;
+    --v-duration-normal: 0ms;
+    --v-duration-slow: 0ms;
+    --v-duration-layout: 0ms;
+  }
+}

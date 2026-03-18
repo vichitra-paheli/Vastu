@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "incremental": true,
+    "paths": {
+      "@vastu/shared": ["./packages/shared/src/index.ts"],
+      "@vastu/shared/*": ["./packages/shared/src/*"],
+      "@vastu/shell": ["./packages/shell/src/index.ts"],
+      "@vastu/shell/*": ["./packages/shell/src/*"]
+    }
+  },
+  "exclude": ["node_modules", "**/node_modules", "**/dist", "**/.next"]
+}
