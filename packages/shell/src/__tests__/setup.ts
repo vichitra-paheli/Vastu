@@ -14,6 +14,17 @@ global.ResizeObserver = vi.fn().mockImplementation(() => ({
  * window.matchMedia polyfill for jsdom.
  * Required by Mantine's color scheme detection and media query hooks.
  */
+/**
+ * URL.createObjectURL polyfill for jsdom.
+ * Required by AvatarUpload.tsx when creating a preview URL for a selected file.
+ */
+if (typeof URL.createObjectURL === 'undefined') {
+  Object.defineProperty(URL, 'createObjectURL', {
+    writable: true,
+    value: vi.fn(() => 'blob:mock-url'),
+  });
+}
+
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: vi.fn().mockImplementation((query: string) => ({

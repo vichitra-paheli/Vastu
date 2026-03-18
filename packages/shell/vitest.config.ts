@@ -9,15 +9,22 @@ export default defineConfig({
     setupFiles: ['./src/__tests__/setup.ts'],
     globals: true,
     passWithNoTests: true,
+    fakeTimers: {
+      // Only fake Date by default; exclude setTimeout/setInterval so that
+      // userEvent interactions don't hang when vi.useFakeTimers() is called.
+      // Tests that need timer control use vi.advanceTimersByTime() which
+      // works with real timers via waitFor polling.
+      toFake: ['Date'],
+    },
   },
   resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@vastu/shared': path.resolve(__dirname, '../shared/src/index.ts'),
-      '@vastu/shared/prisma': path.resolve(__dirname, '../shared/src/prisma/index.ts'),
-      '@vastu/shared/permissions': path.resolve(__dirname, '../shared/src/permissions/index.ts'),
-      '@vastu/shared/types': path.resolve(__dirname, '../shared/src/types/index.ts'),
-      '@vastu/shared/utils': path.resolve(__dirname, '../shared/src/utils/index.ts'),
-    },
+    alias: [
+      { find: '@vastu/shared/prisma', replacement: path.resolve(__dirname, '../shared/src/prisma/index.ts') },
+      { find: '@vastu/shared/permissions', replacement: path.resolve(__dirname, '../shared/src/permissions/index.ts') },
+      { find: '@vastu/shared/types', replacement: path.resolve(__dirname, '../shared/src/types/index.ts') },
+      { find: '@vastu/shared/utils', replacement: path.resolve(__dirname, '../shared/src/utils/index.ts') },
+      { find: '@vastu/shared', replacement: path.resolve(__dirname, '../shared/src/index.ts') },
+      { find: '@', replacement: path.resolve(__dirname, './src') },
+    ],
   },
 });

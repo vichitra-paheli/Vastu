@@ -14,7 +14,7 @@ import { vastuTheme } from '../theme';
 
 export function TestProviders({ children }: { children: React.ReactNode }) {
   return (
-    <MantineProvider theme={vastuTheme}>
+    <MantineProvider theme={vastuTheme} env="test">
       <Notifications position="bottom-right" limit={3} />
       {children}
     </MantineProvider>

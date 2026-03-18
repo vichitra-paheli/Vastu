@@ -9,6 +9,7 @@ export { ResetPasswordForm } from './ResetPasswordForm';
 export { SsoForm } from './SsoForm';
 export { MfaSetupWizard } from './MfaSetupWizard';
 export type { MfaSetupWizardProps } from './MfaSetupWizard';
+export { MfaChallengeForm } from './MfaChallengeForm';
 export { OtpInput } from './OtpInput';
 export type { OtpInputProps } from './OtpInput';
 export { RecoveryCodes } from './RecoveryCodes';
