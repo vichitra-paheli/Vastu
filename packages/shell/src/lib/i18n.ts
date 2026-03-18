@@ -640,6 +640,38 @@ const translations: Record<string, string> = {
   'auditLog.action.export': 'Export',
 
   // ──────────────────────────────────────────────────────────────────────────
+  // Admin — Permissions
+  // ──────────────────────────────────────────────────────────────────────────
+  'permissions.page.title': 'Permissions',
+  'permissions.matrix.resourceColumn': 'Resource',
+  'permissions.action.read': 'View',
+  'permissions.action.update': 'Edit',
+  'permissions.action.delete': 'Delete',
+  'permissions.action.export': 'Export',
+  'permissions.cell.granted': 'Granted',
+  'permissions.cell.denied': 'Denied',
+  'permissions.cell.conditionTooltip': 'Conditional: scope = {scope}',
+  'permissions.legend.title': 'Legend',
+  'permissions.legend.view': 'V = View (read)',
+  'permissions.legend.edit': 'E = Edit (update)',
+  'permissions.legend.delete': 'D = Delete',
+  'permissions.legend.export': 'X = Export',
+  'permissions.legend.granted': 'Granted',
+  'permissions.legend.denied': 'Denied',
+  'permissions.legend.conditional': 'Conditional (scoped)',
+  'permissions.save.button': 'Save changes',
+  'permissions.save.successTitle': 'Permissions saved',
+  'permissions.save.success': 'Role permissions updated successfully.',
+  'permissions.save.errorTitle': 'Failed to save permissions',
+  'permissions.save.confirmTitle': 'Save permission changes',
+  'permissions.save.confirmMessage':
+    'These changes will affect {count} users who hold this role. Changes take effect on their next page load.',
+  'permissions.save.confirmMessageNoUsers':
+    'These changes will take effect on next page load for users with this role.',
+  'permissions.save.confirmLabel': 'Save',
+  'permissions.export.button': 'Export matrix',
+
+  // ──────────────────────────────────────────────────────────────────────────
   // Settings — Appearance
   // ──────────────────────────────────────────────────────────────────────────
   'appearance.title': 'Appearance',

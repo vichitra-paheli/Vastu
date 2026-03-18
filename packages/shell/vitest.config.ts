@@ -9,6 +9,7 @@ export default defineConfig({
     setupFiles: ['./src/__tests__/setup.ts'],
     globals: true,
     passWithNoTests: true,
+    exclude: ['e2e/**', 'node_modules/**'],
     fakeTimers: {
       // Only fake Date by default; exclude setTimeout/setInterval so that
       // userEvent interactions don't hang when vi.useFakeTimers() is called.

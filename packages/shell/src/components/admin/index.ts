@@ -41,3 +41,11 @@ export type { CreateRoleModalProps, CreatedRole } from './CreateRoleModal';
 
 export { EditRoleDrawer } from './EditRoleDrawer';
 export type { EditRoleDrawerProps, EditRoleRole, EditRolePermission } from './EditRoleDrawer';
+
+export { PermissionMatrix } from './PermissionMatrix';
+export type { PermissionMatrixProps } from './PermissionMatrix';
+
+export { PermissionCell } from './PermissionCell';
+export type { PermissionCellProps, CellPermission, BadgeAction } from './PermissionCell';
+
+export { PermissionLegend } from './PermissionLegend';
