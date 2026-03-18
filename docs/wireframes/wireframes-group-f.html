@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vastu — Group F Wireframes (Approved)</title>
+<style>
+  body { font-family: -apple-system, sans-serif; max-width: 1280px; margin: 0 auto; padding: 40px 20px; background: #fafafa; color: #1a1a1a; }
+  h1 { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
+  .subtitle { font-size: 14px; color: #666; margin-bottom: 40px; }
+  .wireframe { background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; margin-bottom: 40px; }
+  .wireframe h2 { font-size: 18px; font-weight: 500; margin: 0 0 4px; }
+  .wireframe p { font-size: 13px; color: #888; margin: 0 0 20px; }
+  .wireframe svg { width: 100%; height: auto; display: block; }
+  .status { display: inline-block; background: #e6f9ee; color: #1D9E75; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 10px; margin-left: 8px; }
+</style>
+</head>
+<body>
+<h1>Vastu — Wireframes: Group F</h1>
+<p class="subtitle">Remaining screens — 15 screens — Approved March 2026</p>
+
+<div class="wireframe">
+<h2>Remaining page templates: Form page + Timeline activity <span class="status">Approved</span></h2>
+<p>Form page: multi-step wizard with validation, search-or-create pattern. Timeline: date-grouped event stream with type filters, colored event dots, user avatars.</p>
+<svg viewBox="0 0 640 580" xmlns="http://www.w3.org/2000/svg">
+<text x="320" y="14" text-anchor="middle" font-size="7" font-weight="500" fill="#999" font-family="sans-serif">Remaining page templates — form page + timeline activity</text>
+
+<!-- ===== FORM PAGE TEMPLATE ===== -->
+<text x="8" y="36" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Form page template</text>
+<text x="100" y="36" font-size="5" fill="#999" font-family="sans-serif">For data entry, onboarding wizards, config forms. Supports multi-step.</text>
+
+<rect x="0" y="42" width="640" height="250" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<rect x="0" y="42" width="640" height="10" fill="#f5f5f5" opacity="0.2" rx="3"/>
+<text x="320" y="49" text-anchor="middle" font-size="4" fill="#999" font-family="sans-serif">[Tab bar: "New Order" + mode switch]</text>
+
+<!-- Step indicator -->
+<rect x="8" y="58" width="624" height="20" fill="#f5f5f5" opacity="0.1"/>
+<g transform="translate(160, 62)">
+<circle cx="0" cy="8" r="6" fill="#228be6"/><text x="0" y="11" text-anchor="middle" font-size="5" font-weight="500" fill="white" font-family="sans-serif">1</text>
+<text x="14" y="11" font-size="5.5" font-weight="500" fill="#228be6" font-family="sans-serif">Customer</text>
+<line x1="60" y1="8" x2="100" y2="8" stroke="#e0e0e0" stroke-width="0.5"/>
+<circle cx="110" cy="8" r="6" fill="#f0f0f0" stroke="#e0e0e0" stroke-width="0.4"/><text x="110" y="11" text-anchor="middle" font-size="5" font-weight="500" fill="#999" font-family="sans-serif">2</text>
+<text x="124" y="11" font-size="5.5" fill="#999" font-family="sans-serif">Items</text>
+<line x1="156" y1="8" x2="196" y2="8" stroke="#e0e0e0" stroke-width="0.5"/>
+<circle cx="206" cy="8" r="6" fill="#f0f0f0" stroke="#e0e0e0" stroke-width="0.4"/><text x="206" y="11" text-anchor="middle" font-size="5" font-weight="500" fill="#999" font-family="sans-serif">3</text>
+<text x="220" y="11" font-size="5.5" fill="#999" font-family="sans-serif">Review</text>
+</g>
+
+<!-- Form content: centered max-width -->
+<text x="120" y="96" font-size="8" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Customer details</text>
+<text x="120" y="108" font-size="5.5" fill="#999" font-family="sans-serif">Select or create a customer for this order.</text>
+
+<!-- Search existing -->
+<text x="120" y="126" font-size="5.5" font-weight="500" fill="#888" font-family="sans-serif">Search existing customer</text>
+<rect x="120" y="130" width="400" height="14" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.5"/>
+<text x="128" y="140" font-size="5.5" fill="#999" font-family="sans-serif">⌕ Type to search by name, email, or ID...</text>
+
+<text x="320" y="156" text-anchor="middle" font-size="5" fill="#999" font-family="sans-serif">— or create new —</text>
+
+<!-- Form fields: 2-column -->
+<text x="120" y="174" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Company name *</text>
+<rect x="120" y="178" width="196" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+
+<text x="324" y="174" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Contact name *</text>
+<rect x="324" y="178" width="196" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+
+<text x="120" y="202" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Email *</text>
+<rect x="120" y="206" width="196" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<rect x="120" y="220" width="196" height="8" fill="white"/>
+<text x="120" y="224" font-size="4.5" fill="#e03131" font-family="sans-serif">Please enter a valid email address</text>
+
+<text x="324" y="202" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Phone</text>
+<rect x="324" y="206" width="196" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+
+<text x="120" y="240" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Region *</text>
+<rect x="120" y="244" width="196" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="128" y="253" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">US West ▾</text>
+
+<text x="324" y="240" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Priority</text>
+<rect x="324" y="244" width="196" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="332" y="253" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">Normal ▾</text>
+
+<text x="120" y="272" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Notes</text>
+<rect x="120" y="276" width="400" height="28" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="128" y="288" font-size="5.5" fill="#999" font-family="sans-serif">Optional notes about this customer...</text>
+
+<!-- Footer -->
+<rect x="0" y="310" width="640" height="20" fill="#f5f5f5" opacity="0.15"/>
+<line x1="0" y1="310" x2="640" y2="310" stroke="#e0e0e0" stroke-width="0.3"/>
+<rect x="120" y="316" width="56" height="14" rx="2" fill="#f0f0f0"/>
+<text x="138" y="326" font-size="5.5" fill="#888" font-family="sans-serif">← Back</text>
+<rect x="464" y="316" width="56" height="14" rx="2" fill="#228be6"/>
+<text x="478" y="326" font-size="5.5" font-weight="500" fill="white" font-family="sans-serif">Next →</text>
+<text x="268" y="326" font-size="5" fill="#999" font-family="sans-serif">Step 1 of 3</text>
+
+<!-- Annotations -->
+<text x="8" y="302" font-size="5" fill="#999" font-family="sans-serif">* = required field (Mantine form validation). Error state shown on email. Dropdowns use Mantine Select.</text>
+
+
+<!-- ===== TIMELINE ACTIVITY TEMPLATE ===== -->
+<text x="8" y="352" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Timeline / activity template</text>
+<text x="142" y="352" font-size="5" fill="#999" font-family="sans-serif">Event stream with type filters and date grouping. For activity logs, changelogs, comms history.</text>
+
+<rect x="0" y="358" width="640" height="200" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<rect x="0" y="358" width="640" height="10" fill="#f5f5f5" opacity="0.2" rx="3"/>
+<text x="320" y="365" text-anchor="middle" font-size="4" fill="#999" font-family="sans-serif">[Tab bar: "Activity" + mode switch + view toolbar]</text>
+
+<!-- Filters -->
+<rect x="8" y="374" width="140" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="16" y="383" font-size="5.5" fill="#999" font-family="sans-serif">⌕ Search events...</text>
+<rect x="156" y="374" width="52" height="12" rx="6" fill="#228be6" opacity="0.08" stroke="#228be6" stroke-width="0.3"/>
+<text x="168" y="383" font-size="5" fill="#228be6" font-family="sans-serif">All types ▾</text>
+<rect x="214" y="374" width="46" height="12" rx="6" fill="#f0f0f0"/>
+<text x="224" y="383" font-size="5" fill="#999" font-family="sans-serif">Date ▾</text>
+<rect x="266" y="374" width="46" height="12" rx="6" fill="#f0f0f0"/>
+<text x="276" y="383" font-size="5" fill="#999" font-family="sans-serif">User ▾</text>
+
+<!-- Type pills (filter active) -->
+<rect x="322" y="374" width="38" height="12" rx="6" fill="#228be6" opacity="0.08"/>
+<text x="332" y="383" font-size="5" fill="#228be6" font-family="sans-serif">Orders</text>
+<rect x="364" y="374" width="46" height="12" rx="6" fill="#f0f0f0"/>
+<text x="374" y="383" font-size="5" fill="#888" font-family="sans-serif">System</text>
+<rect x="414" y="374" width="38" height="12" rx="6" fill="#f0f0f0"/>
+<text x="424" y="383" font-size="5" fill="#888" font-family="sans-serif">Users</text>
+<rect x="456" y="374" width="38" height="12" rx="6" fill="#f0f0f0"/>
+<text x="466" y="383" font-size="5" fill="#888" font-family="sans-serif">Agent</text>
+
+<!-- Date group header -->
+<text x="8" y="402" font-size="5" font-weight="500" fill="#999" font-family="sans-serif">Today, Mar 17</text>
+<line x1="76" y1="400" x2="632" y2="400" stroke="#e0e0e0" stroke-width="0.3"/>
+
+<!-- Event 1 -->
+<circle cx="20" cy="418" r="5" fill="#1D9E75" opacity="0.15"/>
+<circle cx="20" cy="418" r="2" fill="#1D9E75"/>
+<line x1="20" y1="423" x2="20" y2="438" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="34" y="416" font-size="6" fill="#1a1a1a" font-family="sans-serif">Order #4521 shipped</text>
+<rect x="140" y="410" width="28" height="10" rx="5" fill="#e6f9ee"/>
+<text x="145" y="417" font-size="4.5" font-weight="500" fill="#1D9E75" font-family="sans-serif">Order</text>
+<text x="34" y="428" font-size="5.5" fill="#999" font-family="sans-serif">FedEx Ground · Tracking: 1Z999AA10123456784</text>
+<text x="600" y="416" font-size="5" fill="#999" font-family="sans-serif">2:23 PM</text>
+<circle cx="580" cy="414" r="4" fill="#f0f0f0"/><text x="580" y="417" text-anchor="middle" font-size="4" font-weight="500" fill="#999" font-family="sans-serif">JD</text>
+
+<!-- Event 2 -->
+<circle cx="20" cy="446" r="5" fill="#228be6" opacity="0.15"/>
+<circle cx="20" cy="446" r="2" fill="#228be6"/>
+<line x1="20" y1="451" x2="20" y2="466" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="34" y="444" font-size="6" fill="#1a1a1a" font-family="sans-serif">Payment confirmed for Order #4521</text>
+<rect x="230" y="438" width="36" height="10" rx="5" fill="#e6f1fb"/>
+<text x="236" y="445" font-size="4.5" font-weight="500" fill="#228be6" font-family="sans-serif">Payment</text>
+<text x="34" y="456" font-size="5.5" fill="#999" font-family="sans-serif">$2,450.00 · Net 30 · Invoice INV-2847 generated</text>
+<text x="600" y="444" font-size="5" fill="#999" font-family="sans-serif">2:01 PM</text>
+
+<!-- Event 3: System -->
+<circle cx="20" cy="474" r="5" fill="#888" opacity="0.15"/>
+<circle cx="20" cy="474" r="2" fill="#888"/>
+<line x1="20" y1="479" x2="20" y2="494" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="34" y="472" font-size="6" fill="#1a1a1a" font-family="sans-serif">API key "CI/CD" used — 847 requests today</text>
+<rect x="280" y="466" width="36" height="10" rx="5" fill="#f0f0f0"/>
+<text x="286" y="473" font-size="4.5" font-weight="500" fill="#888" font-family="sans-serif">System</text>
+<text x="34" y="484" font-size="5.5" fill="#999" font-family="sans-serif">Rate limit: 72% consumed. Consider upgrading plan.</text>
+<text x="600" y="472" font-size="5" fill="#999" font-family="sans-serif">1:45 PM</text>
+
+<!-- Event 4: Agent -->
+<circle cx="20" cy="502" r="5" fill="#7F77DD" opacity="0.15"/>
+<circle cx="20" cy="502" r="2" fill="#7F77DD"/>
+<text x="34" y="500" font-size="6" fill="#1a1a1a" font-family="sans-serif">Agent workflow "Auto-assign region" completed</text>
+<rect x="300" y="494" width="28" height="10" rx="5" fill="#EEEDFE"/>
+<text x="306" y="501" font-size="4.5" font-weight="500" fill="#7F77DD" font-family="sans-serif">Agent</text>
+<text x="34" y="512" font-size="5.5" fill="#999" font-family="sans-serif">12 orders auto-assigned to regions based on shipping address. 0 errors.</text>
+<text x="600" y="500" font-size="5" fill="#999" font-family="sans-serif">12:30 PM</text>
+
+<!-- Previous day separator -->
+<text x="8" y="532" font-size="5" font-weight="500" fill="#999" font-family="sans-serif">Yesterday, Mar 16</text>
+<line x1="96" y1="530" x2="632" y2="530" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="320" y="546" text-anchor="middle" font-size="5" fill="#999" font-family="sans-serif">… more events below fold …</text>
+
+<text x="8" y="566" font-size="5" fill="#999" font-family="sans-serif">Timeline: date-grouped event stream. Each event: icon (color by type), title, type badge, description, timestamp, user avatar. Filters: search, type pills, date range, user. Expandable event detail on click. Export as CSV.</text>
+<text x="8" y="576" font-size="5" fill="#999" font-family="sans-serif">Builder config: which event types to show, default filters, grouping (by date/type/user), max items per page.</text>
+</svg>
+</div>
+
+<div class="wireframe">
+<h2>Remaining auth + settings: MFA setup, SSO redirect, Org settings, SSO config <span class="status">Approved</span></h2>
+<p>MFA setup with QR code + recovery codes. SSO redirect with provider selection. Org settings (name, logo, domain). SSO config (add/edit SAML/OIDC providers, enforcement toggle).</p>
+<svg viewBox="0 0 640 500" xmlns="http://www.w3.org/2000/svg">
+<text x="320" y="14" text-anchor="middle" font-size="7" font-weight="500" fill="#999" font-family="sans-serif">Remaining auth + settings screens</text>
+
+<!-- ===== MFA SETUP ===== -->
+<text x="8" y="36" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">MFA setup</text>
+<text x="62" y="36" font-size="5" fill="#999" font-family="sans-serif">Auth split layout. Walked through from profile settings or first login enforcement.</text>
+
+<rect x="0" y="42" width="300" height="170" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<text x="150" y="60" text-anchor="middle" font-size="8" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Set up two-factor auth</text>
+<text x="150" y="72" text-anchor="middle" font-size="5.5" fill="#999" font-family="sans-serif">Scan this QR code with your authenticator app</text>
+
+<!-- QR code placeholder -->
+<rect x="100" y="80" width="60" height="60" rx="2" fill="#f0f0f0" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="130" y="114" text-anchor="middle" font-size="6" fill="#999" font-family="sans-serif">QR Code</text>
+<rect x="168" y="80" width="120" height="14" rx="2" fill="#f0f0f0"/>
+<text x="176" y="90" font-size="5" fill="#999" font-family="monospace">JBSW Y3DP EHPK 3PXP</text>
+<text x="168" y="104" font-size="4.5" fill="#999" font-family="sans-serif">Can't scan? Enter this key manually</text>
+
+<text x="16" y="156" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Verification code</text>
+<rect x="16" y="160" width="160" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="24" y="169" font-size="5.5" fill="#999" font-family="sans-serif">Enter 6-digit code</text>
+<rect x="184" y="160" width="100" height="12" rx="2" fill="#228be6"/>
+<text x="220" y="169" font-size="5.5" font-weight="500" fill="white" font-family="sans-serif">Verify &amp; enable</text>
+
+<text x="16" y="186" font-size="5" fill="#999" font-family="sans-serif">Recovery codes will be shown after setup.</text>
+<text x="16" y="196" font-size="5" fill="#228be6" font-family="sans-serif">← Skip for now</text>
+<text x="80" y="196" font-size="4.5" fill="#999" font-family="sans-serif">(if not enforced by admin)</text>
+
+<!-- Recovery codes shown after verify -->
+<text x="16" y="216" font-size="5" fill="#888" font-family="sans-serif">After verify → Recovery codes modal:</text>
+<rect x="16" y="220" width="268" height="44" fill="#f5f5f5" rx="2" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="24" y="232" font-size="5" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Save these recovery codes</text>
+<text x="24" y="244" font-size="5" fill="#999" font-family="monospace">a4f2-8c1b   7e3d-2a9f   1b5c-4d8e</text>
+<text x="24" y="256" font-size="5" fill="#999" font-family="monospace">9f1a-3b7c   5d2e-8a4f   6c9b-1e3d</text>
+<rect x="200" y="268" width="84" height="12" rx="2" fill="#f0f0f0"/>
+<text x="216" y="277" font-size="5" fill="#888" font-family="sans-serif">Copy all · Download</text>
+
+
+<!-- ===== SSO REDIRECT ===== -->
+<text x="328" y="36" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">SSO redirect / provider selection</text>
+
+<rect x="320" y="42" width="300" height="110" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<text x="470" y="60" text-anchor="middle" font-size="8" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Sign in with SSO</text>
+<text x="470" y="72" text-anchor="middle" font-size="5.5" fill="#999" font-family="sans-serif">Select your identity provider</text>
+
+<text x="336" y="90" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Work email</text>
+<rect x="336" y="94" width="268" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="344" y="103" font-size="5.5" fill="#999" font-family="sans-serif">you@company.com</text>
+<rect x="336" y="114" width="268" height="14" rx="2" fill="#228be6"/>
+<text x="470" y="124" text-anchor="middle" font-size="5.5" font-weight="500" fill="white" font-family="sans-serif">Continue with SSO</text>
+<text x="470" y="144" text-anchor="middle" font-size="5" fill="#999" font-family="sans-serif">We'll redirect you to your company's identity provider</text>
+
+<!-- Provider selection variant -->
+<text x="328" y="170" font-size="5" fill="#888" font-family="sans-serif">If multiple providers configured:</text>
+<rect x="320" y="176" width="300" height="66" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<rect x="328" y="182" width="284" height="16" rx="2" fill="#f0f0f0" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="336" y="193" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">Okta (SAML)</text>
+<text x="590" y="193" font-size="5" fill="#999" font-family="sans-serif">Default</text>
+<rect x="328" y="202" width="284" height="16" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="336" y="213" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">Azure AD (OIDC)</text>
+<rect x="328" y="222" width="284" height="16" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="336" y="233" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">Google Workspace</text>
+
+
+<!-- ===== ORGANIZATION SETTINGS ===== -->
+<text x="8" y="300" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Organization settings</text>
+<text x="118" y="300" font-size="5" fill="#999" font-family="sans-serif">Shell layout. Org name, logo, domain, billing placeholder.</text>
+
+<rect x="0" y="306" width="300" height="180" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<text x="12" y="322" font-size="7" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Organization</text>
+
+<!-- Logo -->
+<rect x="12" y="330" width="40" height="40" rx="4" fill="#f0f0f0" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="32" y="354" text-anchor="middle" font-size="8" fill="#999" font-family="sans-serif">Logo</text>
+<text x="60" y="346" font-size="5.5" fill="#228be6" font-family="sans-serif">Upload logo</text>
+<text x="60" y="358" font-size="5" fill="#999" font-family="sans-serif">PNG, SVG. Max 1MB. 256×256px recommended.</text>
+
+<text x="12" y="382" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Organization name</text>
+<rect x="12" y="386" width="276" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="18" y="395" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">Acme Corporation</text>
+
+<text x="12" y="410" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Workspace URL</text>
+<rect x="12" y="414" width="276" height="12" rx="2" fill="#f0f0f0" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="18" y="423" font-size="5.5" fill="#999" font-family="monospace">acme.vastu.dev</text>
+<text x="250" y="423" font-size="5" fill="#228be6" font-family="sans-serif">Edit</text>
+
+<text x="12" y="440" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Default timezone</text>
+<rect x="12" y="444" width="136" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="18" y="453" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">America/Los_Angeles ▾</text>
+
+<text x="156" y="440" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Default language</text>
+<rect x="156" y="444" width="132" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="162" y="453" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">English (US) ▾</text>
+
+<rect x="12" y="464" width="130" height="14" rx="2" fill="#f0f0f0" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="42" y="474" font-size="5.5" fill="#e03131" font-family="sans-serif">Delete organization</text>
+<rect x="234" y="464" width="54" height="14" rx="2" fill="#228be6"/>
+<text x="252" y="474" font-size="5.5" font-weight="500" fill="white" font-family="sans-serif">Save</text>
+
+
+<!-- ===== SSO CONFIGURATION ===== -->
+<text x="328" y="300" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">SSO configuration (admin setting)</text>
+
+<rect x="320" y="306" width="300" height="180" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<text x="332" y="322" font-size="7" font-weight="500" fill="#1a1a1a" font-family="sans-serif">SSO / Identity providers</text>
+<rect x="530" y="314" width="78" height="12" rx="2" fill="#228be6"/>
+<text x="556" y="323" font-size="5.5" font-weight="500" fill="white" font-family="sans-serif">+ Add provider</text>
+
+<!-- Provider cards -->
+<rect x="328" y="332" width="284" height="36" rx="2" fill="#f5f5f5" opacity="0.15" stroke="#e0e0e0" stroke-width="0.3"/>
+<circle cx="340" cy="350" r="4" fill="#1D9E75" opacity="0.3"/>
+<text x="350" y="346" font-size="6" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Okta</text>
+<rect x="370" y="340" width="28" height="10" rx="5" fill="#f0f0f0"/>
+<text x="376" y="347" font-size="4.5" fill="#888" font-family="sans-serif">SAML</text>
+<rect x="402" y="340" width="34" height="10" rx="5" fill="#e6f9ee"/>
+<text x="408" y="347" font-size="4.5" font-weight="500" fill="#1D9E75" font-family="sans-serif">Default</text>
+<text x="350" y="360" font-size="5" fill="#999" font-family="monospace">https://acme.okta.com/sso/saml</text>
+<rect x="570" y="343" width="22" height="10" rx="5" fill="#e6f9ee"/>
+<text x="574" y="350" font-size="4.5" font-weight="500" fill="#1D9E75" font-family="sans-serif">Live</text>
+<text x="598" y="350" font-size="6" fill="#999" font-family="sans-serif">⋯</text>
+
+<rect x="328" y="372" width="284" height="36" rx="2" fill="#f5f5f5" opacity="0.15" stroke="#e0e0e0" stroke-width="0.3"/>
+<circle cx="340" cy="390" r="4" fill="#888" opacity="0.3"/>
+<text x="350" y="386" font-size="6" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Azure AD</text>
+<rect x="396" y="380" width="26" height="10" rx="5" fill="#f0f0f0"/>
+<text x="402" y="387" font-size="4.5" fill="#888" font-family="sans-serif">OIDC</text>
+<text x="350" y="400" font-size="5" fill="#999" font-family="monospace">https://login.microsoftonline.com/...</text>
+<rect x="562" y="383" width="30" height="10" rx="5" fill="#fff3e0"/>
+<text x="568" y="390" font-size="4.5" font-weight="500" fill="#e8590c" font-family="sans-serif">Draft</text>
+<text x="598" y="390" font-size="6" fill="#999" font-family="sans-serif">⋯</text>
+
+<!-- Add provider hint -->
+<text x="332" y="424" font-size="5" fill="#888" font-family="sans-serif">Add provider modal: Protocol (SAML/OIDC), Metadata URL or manual config,</text>
+<text x="332" y="434" font-size="5" fill="#888" font-family="sans-serif">Client ID/Secret, Redirect URI, Attribute mapping, Test connection button.</text>
+
+<!-- Enforcement -->
+<line x1="328" y1="442" x2="612" y2="442" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="332" y="456" font-size="5.5" font-weight="500" fill="#888" font-family="sans-serif">Enforcement</text>
+<rect x="332" y="462" width="8" height="8" rx="1" fill="#228be6" opacity="0.15"/>
+<rect x="333" y="463" width="6" height="6" rx="0.5" fill="#228be6" opacity="0.4"/>
+<text x="346" y="470" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">Require SSO for all users</text>
+<text x="332" y="482" font-size="5" fill="#999" font-family="sans-serif">When enabled, password login is disabled. All users must authenticate via SSO.</text>
+
+<text x="8" y="498" font-size="5" fill="#999" font-family="sans-serif">All four screens use existing layouts: auth split (MFA setup, SSO redirect) or shell settings layout (Org settings, SSO config). ⋯ menu on providers: Edit, Test connection, Set as default, Delete.</text>
+</svg>
+</div>
+
+<div class="wireframe">
+<h2>Remaining admin: Role management, Permission matrix, Tenant management <span class="status">Approved</span></h2>
+<p>Role cards (system + custom). Permission matrix (roles × resources × CRUD grid with conditional access). Tenant cards with switch context.</p>
+<svg viewBox="0 0 640 520" xmlns="http://www.w3.org/2000/svg">
+<text x="320" y="14" text-anchor="middle" font-size="7" font-weight="500" fill="#999" font-family="sans-serif">Remaining admin screens — all use shell layout with admin side nav</text>
+
+<!-- ===== ROLE MANAGEMENT ===== -->
+<text x="8" y="36" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Role management</text>
+<text x="102" y="36" font-size="5" fill="#999" font-family="sans-serif">List roles, create custom roles, assign base permissions per role.</text>
+
+<rect x="0" y="42" width="640" height="154" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<text x="12" y="58" font-size="7" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Roles</text>
+<text x="50" y="58" font-size="5.5" fill="#999" font-family="sans-serif">5 roles</text>
+<rect x="548" y="50" width="80" height="12" rx="2" fill="#228be6"/>
+<text x="572" y="59" font-size="5.5" font-weight="500" fill="white" font-family="sans-serif">+ Create role</text>
+
+<!-- Role cards -->
+<rect x="8" y="66" width="304" height="52" rx="3" fill="white" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="16" y="80" font-size="6" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Admin</text>
+<rect x="50" y="74" width="34" height="10" rx="5" fill="#f0f0f0"/>
+<text x="56" y="81" font-size="4.5" fill="#888" font-family="sans-serif">System</text>
+<text x="92" y="81" font-size="5" fill="#999" font-family="sans-serif">2 users</text>
+<text x="16" y="94" font-size="5" fill="#888" font-family="sans-serif">Full access to all resources, settings, and admin pages.</text>
+<text x="16" y="108" font-size="5" fill="#999" font-family="sans-serif">Pages: All · Settings: All · Admin: All</text>
+<text x="296" y="80" font-size="5" fill="#999" font-family="sans-serif">⋯</text>
+
+<rect x="8" y="122" width="304" height="32" rx="3" fill="white" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="16" y="136" font-size="6" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Builder</text>
+<rect x="56" y="130" width="34" height="10" rx="5" fill="#f0f0f0"/>
+<text x="62" y="137" font-size="4.5" fill="#888" font-family="sans-serif">System</text>
+<text x="98" y="137" font-size="5" fill="#999" font-family="sans-serif">3 users</text>
+<text x="16" y="148" font-size="5" fill="#888" font-family="sans-serif">Can configure pages (builder mode) and manage views.</text>
+<text x="296" y="136" font-size="5" fill="#999" font-family="sans-serif">⋯</text>
+
+<rect x="320" y="66" width="312" height="32" rx="3" fill="white" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="328" y="80" font-size="6" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Editor</text>
+<rect x="362" y="74" width="34" height="10" rx="5" fill="#f0f0f0"/>
+<text x="368" y="81" font-size="4.5" fill="#888" font-family="sans-serif">System</text>
+<text x="404" y="81" font-size="5" fill="#999" font-family="sans-serif">12 users</text>
+<text x="328" y="94" font-size="5" fill="#888" font-family="sans-serif">Can view and edit records, create/save views.</text>
+<text x="616" y="80" font-size="5" fill="#999" font-family="sans-serif">⋯</text>
+
+<rect x="320" y="102" width="312" height="32" rx="3" fill="white" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="328" y="116" font-size="6" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Viewer</text>
+<rect x="362" y="110" width="34" height="10" rx="5" fill="#f0f0f0"/>
+<text x="368" y="117" font-size="4.5" fill="#888" font-family="sans-serif">System</text>
+<text x="404" y="117" font-size="5" fill="#999" font-family="sans-serif">7 users</text>
+<text x="328" y="130" font-size="5" fill="#888" font-family="sans-serif">Read-only access. Can browse and export data.</text>
+
+<rect x="320" y="138" width="312" height="32" rx="3" fill="#228be6" opacity="0.02" stroke="#228be6" stroke-width="0.3" stroke-opacity="0.2"/>
+<text x="328" y="152" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Regional Manager</text>
+<rect x="424" y="146" width="34" height="10" rx="5" fill="#228be6" opacity="0.1"/>
+<text x="430" y="153" font-size="4.5" fill="#228be6" font-family="sans-serif">Custom</text>
+<text x="466" y="153" font-size="5" fill="#999" font-family="sans-serif">4 users</text>
+<text x="328" y="166" font-size="5" fill="#888" font-family="sans-serif">Edit orders + customers in assigned region only.</text>
+<text x="616" y="152" font-size="5" fill="#999" font-family="sans-serif">⋯</text>
+
+<text x="8" y="188" font-size="5" fill="#999" font-family="sans-serif">System roles are immutable (Admin, Builder, Editor, Viewer). Custom roles inherit from a base and add/remove specific permissions. ⋯ menu: Edit, Duplicate, View users, Delete (custom only).</text>
+
+
+<!-- ===== PERMISSION MATRIX ===== -->
+<text x="8" y="212" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Permission matrix</text>
+<text x="108" y="212" font-size="5" fill="#999" font-family="sans-serif">Roles × resources grid. Granular access control. CASL.js-backed.</text>
+
+<rect x="0" y="218" width="640" height="142" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<text x="12" y="234" font-size="7" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Permissions</text>
+<rect x="550" y="226" width="78" height="12" rx="2" fill="#f0f0f0"/>
+<text x="572" y="235" font-size="5.5" fill="#888" font-family="sans-serif">Export matrix</text>
+
+<!-- Matrix header -->
+<rect x="8" y="242" width="624" height="14" fill="#f5f5f5" opacity="0.2"/>
+<text x="16" y="252" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Resource</text>
+<text x="140" y="252" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Admin</text>
+<text x="210" y="252" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Builder</text>
+<text x="290" y="252" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Editor</text>
+<text x="370" y="252" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Viewer</text>
+<text x="450" y="252" font-size="5" font-weight="500" fill="#228be6" font-family="sans-serif">Reg. Manager</text>
+
+<!-- Row: Orders -->
+<text x="16" y="268" font-size="5.5" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Orders</text>
+<!-- Admin: CRUD -->
+<rect x="132" y="260" width="14" height="10" rx="2" fill="#1D9E75" opacity="0.15"/><text x="135" y="267" font-size="4" fill="#1D9E75" font-family="sans-serif">V</text>
+<rect x="150" y="260" width="14" height="10" rx="2" fill="#1D9E75" opacity="0.15"/><text x="153" y="267" font-size="4" fill="#1D9E75" font-family="sans-serif">E</text>
+<rect x="168" y="260" width="14" height="10" rx="2" fill="#1D9E75" opacity="0.15"/><text x="171" y="267" font-size="4" fill="#1D9E75" font-family="sans-serif">D</text>
+<rect x="186" y="260" width="14" height="10" rx="2" fill="#1D9E75" opacity="0.15"/><text x="189" y="267" font-size="4" fill="#1D9E75" font-family="sans-serif">X</text>
+<!-- Builder -->
+<rect x="202" y="260" width="14" height="10" rx="2" fill="#1D9E75" opacity="0.15"/><text x="205" y="267" font-size="4" fill="#1D9E75" font-family="sans-serif">V</text>
+<rect x="220" y="260" width="14" height="10" rx="2" fill="#1D9E75" opacity="0.15"/><text x="223" y="267" font-size="4" fill="#1D9E75" font-family="sans-serif">E</text>
+<rect x="238" y="260" width="14" height="10" rx="2" fill="#1D9E75" opacity="0.15"/><text x="241" y="267" font-size="4" fill="#1D9E75" font-family="sans-serif">D</text>
+<rect x="256" y="260" width="14" height="10" rx="2" fill="#1D9E75" opacity="0.15"/><text x="259" y="267" font-size="4" fill="#1D9E75" font-family="sans-serif">X</text>
+<!-- Editor -->
+<rect x="282" y="260" width="14" height="10" rx="2" fill="#1D9E75" opacity="0.15"/><text x="285" y="267" font-size="4" fill="#1D9E75" font-family="sans-serif">V</text>
+<rect x="300" y="260" width="14" height="10" rx="2" fill="#1D9E75" opacity="0.15"/><text x="303" y="267" font-size="4" fill="#1D9E75" font-family="sans-serif">E</text>
+<rect x="318" y="260" width="14" height="10" rx="2" fill="#f0f0f0"/><text x="321" y="267" font-size="4" fill="#999" font-family="sans-serif">D</text>
+<rect x="336" y="260" width="14" height="10" rx="2" fill="#1D9E75" opacity="0.15"/><text x="339" y="267" font-size="4" fill="#1D9E75" font-family="sans-serif">X</text>
+<!-- Viewer -->
+<rect x="362" y="260" width="14" height="10" rx="2" fill="#1D9E75" opacity="0.15"/><text x="365" y="267" font-size="4" fill="#1D9E75" font-family="sans-serif">V</text>
+<rect x="380" y="260" width="14" height="10" rx="2" fill="#f0f0f0"/><text x="383" y="267" font-size="4" fill="#999" font-family="sans-serif">E</text>
+<rect x="398" y="260" width="14" height="10" rx="2" fill="#f0f0f0"/><text x="401" y="267" font-size="4" fill="#999" font-family="sans-serif">D</text>
+<rect x="416" y="260" width="14" height="10" rx="2" fill="#1D9E75" opacity="0.15"/><text x="419" y="267" font-size="4" fill="#1D9E75" font-family="sans-serif">X</text>
+<!-- Reg Manager: V+E, no D, X with condition -->
+<rect x="442" y="260" width="14" height="10" rx="2" fill="#1D9E75" opacity="0.15"/><text x="445" y="267" font-size="4" fill="#1D9E75" font-family="sans-serif">V</text>
+<rect x="460" y="260" width="14" height="10" rx="2" fill="#1D9E75" opacity="0.15"/><text x="463" y="267" font-size="4" fill="#1D9E75" font-family="sans-serif">E</text>
+<rect x="478" y="260" width="14" height="10" rx="2" fill="#f0f0f0"/><text x="481" y="267" font-size="4" fill="#999" font-family="sans-serif">D</text>
+<rect x="496" y="260" width="14" height="10" rx="2" fill="#e8590c" opacity="0.15"/><text x="499" y="267" font-size="4" fill="#e8590c" font-family="sans-serif">X</text>
+<text x="516" y="267" font-size="4.5" fill="#e8590c" font-family="sans-serif">⚠ conditional</text>
+
+<line x1="12" y1="274" x2="628" y2="274" stroke="#e0e0e0" stroke-width="0.15"/>
+
+<!-- Row: Customers (abbreviated) -->
+<text x="16" y="286" font-size="5.5" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Customers</text>
+<text x="140" y="286" font-size="5" fill="#1D9E75" font-family="sans-serif">V E D X</text>
+<text x="210" y="286" font-size="5" fill="#1D9E75" font-family="sans-serif">V E D X</text>
+<text x="290" y="286" font-size="5" fill="#1D9E75" font-family="sans-serif">V E — X</text>
+<text x="370" y="286" font-size="5" fill="#999" font-family="sans-serif">V — — —</text>
+<text x="450" y="286" font-size="5" fill="#1D9E75" font-family="sans-serif">V E — —</text>
+<line x1="12" y1="292" x2="628" y2="292" stroke="#e0e0e0" stroke-width="0.15"/>
+
+<!-- Row: Settings -->
+<text x="16" y="304" font-size="5.5" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Settings</text>
+<text x="140" y="304" font-size="5" fill="#1D9E75" font-family="sans-serif">V E D X</text>
+<text x="210" y="304" font-size="5" fill="#999" font-family="sans-serif">V — — —</text>
+<text x="290" y="304" font-size="5" fill="#999" font-family="sans-serif">— — — —</text>
+<text x="370" y="304" font-size="5" fill="#999" font-family="sans-serif">— — — —</text>
+<text x="450" y="304" font-size="5" fill="#999" font-family="sans-serif">— — — —</text>
+<line x1="12" y1="310" x2="628" y2="310" stroke="#e0e0e0" stroke-width="0.15"/>
+
+<text x="16" y="322" font-size="5.5" fill="#999" font-family="sans-serif">+ 4 more resources...</text>
+
+<!-- Legend -->
+<text x="16" y="340" font-size="5" fill="#888" font-family="sans-serif">V = View</text>
+<text x="56" y="340" font-size="5" fill="#888" font-family="sans-serif">E = Edit</text>
+<text x="90" y="340" font-size="5" fill="#888" font-family="sans-serif">D = Delete</text>
+<text x="130" y="340" font-size="5" fill="#888" font-family="sans-serif">X = Export</text>
+<text x="176" y="340" font-size="5" fill="#1D9E75" font-family="sans-serif">● Granted</text>
+<text x="218" y="340" font-size="5" fill="#999" font-family="sans-serif">● Denied</text>
+<text x="256" y="340" font-size="5" fill="#e8590c" font-family="sans-serif">● Conditional (has scope filter)</text>
+
+<text x="8" y="360" font-size="5" fill="#999" font-family="sans-serif">Click any cell to toggle. Conditional permissions have a scope filter (e.g. "region = assigned"). System role columns are read-only. Custom roles are editable. Changes require Save + confirmation.</text>
+
+
+<!-- ===== TENANT MANAGEMENT ===== -->
+<text x="8" y="386" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Tenant management</text>
+<text x="118" y="386" font-size="5" fill="#999" font-family="sans-serif">Multi-tenancy admin. List tenants, create, configure isolation, switch context.</text>
+
+<rect x="0" y="392" width="640" height="112" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<text x="12" y="408" font-size="7" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Tenants</text>
+<text x="60" y="408" font-size="5.5" fill="#999" font-family="sans-serif">3 tenants</text>
+<rect x="548" y="400" width="80" height="12" rx="2" fill="#228be6"/>
+<text x="572" y="409" font-size="5.5" font-weight="500" fill="white" font-family="sans-serif">+ Create tenant</text>
+
+<!-- Tenant cards -->
+<rect x="8" y="418" width="200" height="56" rx="3" fill="white" stroke="#228be6" stroke-width="0.4"/>
+<text x="16" y="432" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Acme Corp (current)</text>
+<rect x="116" y="426" width="34" height="10" rx="5" fill="#228be6" opacity="0.1"/>
+<text x="122" y="433" font-size="4.5" fill="#228be6" font-family="sans-serif">Active</text>
+<text x="16" y="446" font-size="5" fill="#888" font-family="sans-serif">24 users · 5 pages · US West</text>
+<text x="16" y="458" font-size="5" fill="#999" font-family="monospace">acme.vastu.dev</text>
+<text x="16" y="470" font-size="5" fill="#999" font-family="sans-serif">Created Jan 2023</text>
+<text x="186" y="432" font-size="5" fill="#999" font-family="sans-serif">⋯</text>
+
+<rect x="216" y="418" width="200" height="56" rx="3" fill="white" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="224" y="432" font-size="6" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Acme EU</text>
+<rect x="270" y="426" width="34" height="10" rx="5" fill="#e6f9ee"/>
+<text x="276" y="433" font-size="4.5" font-weight="500" fill="#1D9E75" font-family="sans-serif">Active</text>
+<text x="224" y="446" font-size="5" fill="#888" font-family="sans-serif">8 users · 3 pages · EU North</text>
+<text x="224" y="458" font-size="5" fill="#999" font-family="monospace">eu.acme.vastu.dev</text>
+<text x="394" y="432" font-size="5" fill="#228be6" font-family="sans-serif">Switch</text>
+
+<rect x="424" y="418" width="200" height="56" rx="3" fill="white" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="432" y="432" font-size="6" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Sandbox</text>
+<rect x="478" y="426" width="44" height="10" rx="5" fill="#fff3e0"/>
+<text x="484" y="433" font-size="4.5" font-weight="500" fill="#e8590c" font-family="sans-serif">Sandbox</text>
+<text x="432" y="446" font-size="5" fill="#888" font-family="sans-serif">2 users · 1 page · Dev</text>
+<text x="432" y="458" font-size="5" fill="#999" font-family="monospace">sandbox.vastu.dev</text>
+<text x="602" y="432" font-size="5" fill="#228be6" font-family="sans-serif">Switch</text>
+
+<text x="12" y="490" font-size="5" fill="#999" font-family="sans-serif">⋯ menu: Edit, View users, Configure DB isolation, Archive. Create modal: name, subdomain, region, DB isolation mode (shared schema / separate schema / separate DB).</text>
+<text x="12" y="500" font-size="5" fill="#999" font-family="sans-serif">"Switch" changes tenant context — workspace reloads with that tenant's pages, data, and user roster. Current tenant highlighted with blue border.</text>
+
+<text x="8" y="518" font-size="5" fill="#999" font-family="sans-serif">All three admin screens are RBAC-gated (Admin role only). They appear under the "ADMIN" section in the shell settings side nav.</text>
+</svg>
+</div>
+
+<div class="wireframe">
+<h2>Dialogs &amp; overlays: View import, Pin-to-dashboard, Dashboard create, Object permissions, Confirmation dialogs, Keyboard shortcuts <span class="status">Approved</span></h2>
+<p>Six dialog/overlay patterns. All use Mantine Modal with focus trap, escape-to-close, click-outside behavior. Destructive confirmations use color-coded action buttons.</p>
+<svg viewBox="0 0 640 680" xmlns="http://www.w3.org/2000/svg">
+<text x="320" y="14" text-anchor="middle" font-size="7" font-weight="500" fill="#999" font-family="sans-serif">Dialogs and overlays — modals, drawers, and popovers</text>
+
+<!-- ===== VIEW IMPORT DIALOG ===== -->
+<text x="8" y="36" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">View import dialog</text>
+
+<rect x="0" y="42" width="300" height="120" rx="4" fill="white" stroke="#e0e0e0" stroke-width="0.5"/>
+<text x="12" y="58" font-size="7" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Import view</text>
+<text x="276" y="58" font-size="6" fill="#999" font-family="sans-serif">×</text>
+
+<text x="12" y="74" font-size="5.5" fill="#888" font-family="sans-serif">Upload a JSON view file or paste JSON below.</text>
+
+<!-- Drop zone -->
+<rect x="12" y="80" width="276" height="30" rx="3" fill="#f5f5f5" stroke="#e0e0e0" stroke-width="0.5" stroke-dasharray="3 2"/>
+<text x="150" y="98" text-anchor="middle" font-size="5.5" fill="#999" font-family="sans-serif">Drop .json file here or click to browse</text>
+
+<!-- Preview after upload -->
+<text x="12" y="122" font-size="5" fill="#888" font-family="sans-serif">Preview: "Q4 Revenue" — 3 filters, 8 columns, sorted by date desc</text>
+<rect x="12" y="128" width="132" height="12" rx="2" fill="#f0f0f0"/>
+<text x="24" y="137" font-size="5.5" fill="#888" font-family="sans-serif">Cancel</text>
+<rect x="148" y="128" width="140" height="12" rx="2" fill="#228be6"/>
+<text x="190" y="137" font-size="5.5" font-weight="500" fill="white" font-family="sans-serif">Import view</text>
+
+
+<!-- ===== PIN TO DASHBOARD ===== -->
+<text x="328" y="36" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Pin to dashboard dialog</text>
+
+<rect x="320" y="42" width="300" height="120" rx="4" fill="white" stroke="#e0e0e0" stroke-width="0.5"/>
+<text x="332" y="58" font-size="7" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Pin to dashboard</text>
+<text x="596" y="58" font-size="6" fill="#999" font-family="sans-serif">×</text>
+
+<text x="332" y="74" font-size="5.5" fill="#888" font-family="sans-serif">Pin "All orders" view as a card on your dashboard.</text>
+
+<text x="332" y="90" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Card type</text>
+<rect x="332" y="94" width="80" height="12" rx="6" fill="#228be6" opacity="0.08" stroke="#228be6" stroke-width="0.3"/>
+<text x="348" y="103" font-size="5" fill="#228be6" font-family="sans-serif">● KPI card</text>
+<rect x="416" y="94" width="80" height="12" rx="6" fill="#f0f0f0"/>
+<text x="432" y="103" font-size="5" fill="#888" font-family="sans-serif">Chart card</text>
+<rect x="500" y="94" width="80" height="12" rx="6" fill="#f0f0f0"/>
+<text x="516" y="103" font-size="5" fill="#888" font-family="sans-serif">Table card</text>
+
+<text x="332" y="120" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">KPI metric</text>
+<rect x="332" y="124" width="140" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="340" y="133" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">Total revenue ▾</text>
+
+<text x="480" y="120" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Size</text>
+<rect x="480" y="124" width="100" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="488" y="133" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">1×1 (small) ▾</text>
+
+<rect x="332" y="142" width="132" height="12" rx="2" fill="#f0f0f0"/>
+<text x="380" y="151" font-size="5.5" fill="#888" font-family="sans-serif">Cancel</text>
+<rect x="468" y="142" width="132" height="12" rx="2" fill="#228be6"/>
+<text x="510" y="151" font-size="5.5" font-weight="500" fill="white" font-family="sans-serif">Pin to dashboard</text>
+
+
+<!-- ===== DASHBOARD CREATE/EDIT ===== -->
+<text x="8" y="180" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Dashboard create / edit</text>
+<text x="128" y="180" font-size="5" fill="#999" font-family="sans-serif">Modal for creating new dashboards or editing existing ones.</text>
+
+<rect x="0" y="186" width="400" height="110" rx="4" fill="white" stroke="#e0e0e0" stroke-width="0.5"/>
+<text x="12" y="202" font-size="7" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Create dashboard</text>
+<text x="376" y="202" font-size="6" fill="#999" font-family="sans-serif">×</text>
+
+<text x="12" y="220" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Name</text>
+<rect x="12" y="224" width="376" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="20" y="233" font-size="5.5" fill="#999" font-family="sans-serif">e.g. Q1 Operations Overview</text>
+
+<text x="12" y="250" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Layout</text>
+<rect x="12" y="254" width="60" height="12" rx="6" fill="#228be6" opacity="0.08" stroke="#228be6" stroke-width="0.3"/>
+<text x="26" y="263" font-size="5" fill="#228be6" font-family="sans-serif">● Auto-grid</text>
+<rect x="76" y="254" width="68" height="12" rx="6" fill="#f0f0f0"/>
+<text x="88" y="263" font-size="5" fill="#888" font-family="sans-serif">Fixed 2-col</text>
+<rect x="148" y="254" width="68" height="12" rx="6" fill="#f0f0f0"/>
+<text x="160" y="263" font-size="5" fill="#888" font-family="sans-serif">Fixed 3-col</text>
+
+<text x="12" y="278" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Visibility</text>
+<rect x="12" y="282" width="96" height="12" rx="6" fill="#228be6" opacity="0.08" stroke="#228be6" stroke-width="0.3"/>
+<text x="28" y="291" font-size="5" fill="#228be6" font-family="sans-serif">● Only me (private)</text>
+<rect x="112" y="282" width="84" height="12" rx="6" fill="#f0f0f0"/>
+<text x="128" y="291" font-size="5" fill="#888" font-family="sans-serif">Everyone (shared)</text>
+
+<rect x="280" y="280" width="52" height="12" rx="2" fill="#f0f0f0"/>
+<text x="296" y="289" font-size="5.5" fill="#888" font-family="sans-serif">Cancel</text>
+<rect x="336" y="280" width="52" height="12" rx="2" fill="#228be6"/>
+<text x="352" y="289" font-size="5.5" font-weight="500" fill="white" font-family="sans-serif">Create</text>
+
+
+<!-- ===== OBJECT PERMISSION EDITOR ===== -->
+<text x="8" y="316" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Object permission editor</text>
+<text x="148" y="316" font-size="5" fill="#999" font-family="sans-serif">Entity-level ACL. Accessible from record detail drawer "Permissions" tab.</text>
+
+<rect x="0" y="322" width="400" height="144" rx="4" fill="white" stroke="#e0e0e0" stroke-width="0.5"/>
+<text x="12" y="338" font-size="7" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Permissions: Order #4521</text>
+<text x="376" y="338" font-size="6" fill="#999" font-family="sans-serif">×</text>
+
+<text x="12" y="354" font-size="5.5" fill="#888" font-family="sans-serif">Control who can access this specific record.</text>
+
+<!-- Default access -->
+<rect x="12" y="362" width="376" height="16" fill="#f5f5f5" opacity="0.15" rx="2"/>
+<text x="20" y="373" font-size="5.5" fill="#888" font-family="sans-serif">Default: inherit from page permissions</text>
+<rect x="300" y="366" width="80" height="12" rx="2" fill="#f0f0f0"/>
+<text x="320" y="375" font-size="5" fill="#888" font-family="sans-serif">Override ▾</text>
+
+<!-- User list -->
+<text x="12" y="392" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Explicit access</text>
+<circle cx="20" cy="406" r="4" fill="#f0f0f0"/><text x="20" y="409" text-anchor="middle" font-size="4" font-weight="500" fill="#999" font-family="sans-serif">JD</text>
+<text x="30" y="409" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">Jane Doe</text>
+<rect x="100" y="402" width="44" height="10" rx="5" fill="#1D9E75" opacity="0.15"/>
+<text x="108" y="409" font-size="4.5" font-weight="500" fill="#1D9E75" font-family="sans-serif">Full access</text>
+<text x="150" y="409" font-size="5" fill="#999" font-family="sans-serif">▾</text>
+<text x="170" y="409" font-size="5" fill="#e03131" font-family="sans-serif">Remove</text>
+
+<circle cx="20" cy="424" r="4" fill="#f0f0f0"/><text x="20" y="427" text-anchor="middle" font-size="4" font-weight="500" fill="#999" font-family="sans-serif">MK</text>
+<text x="30" y="427" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">Mike Kim</text>
+<rect x="100" y="420" width="44" height="10" rx="5" fill="#228be6" opacity="0.15"/>
+<text x="108" y="427" font-size="4.5" font-weight="500" fill="#228be6" font-family="sans-serif">View only</text>
+<text x="150" y="427" font-size="5" fill="#999" font-family="sans-serif">▾</text>
+<text x="170" y="427" font-size="5" fill="#e03131" font-family="sans-serif">Remove</text>
+
+<!-- Add user -->
+<rect x="12" y="438" width="260" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="20" y="447" font-size="5.5" fill="#999" font-family="sans-serif">Add user or group...</text>
+<rect x="276" y="438" width="56" height="12" rx="2" fill="#228be6"/>
+<text x="294" y="447" font-size="5.5" font-weight="500" fill="white" font-family="sans-serif">Add</text>
+
+<rect x="12" y="454" width="376" height="8" fill="white"/>
+<text x="12" y="460" font-size="5" fill="#999" font-family="sans-serif">Access levels: Full access, Edit, View only, No access. Per-field overrides available via "Advanced" toggle.</text>
+
+
+<!-- ===== CONFIRMATION DIALOGS ===== -->
+<text x="8" y="486" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Confirmation dialogs</text>
+<text x="120" y="486" font-size="5" fill="#999" font-family="sans-serif">Shared pattern for destructive actions. Three variants.</text>
+
+<!-- Delete confirmation -->
+<rect x="0" y="492" width="196" height="80" rx="4" fill="white" stroke="#e0e0e0" stroke-width="0.5"/>
+<text x="12" y="508" font-size="6" font-weight="500" fill="#e03131" font-family="sans-serif">Delete order?</text>
+<text x="12" y="522" font-size="5.5" fill="#888" font-family="sans-serif">This will permanently delete</text>
+<text x="12" y="532" font-size="5.5" fill="#888" font-family="sans-serif">Order #4521. This cannot be undone.</text>
+<rect x="12" y="542" width="84" height="12" rx="2" fill="#f0f0f0"/>
+<text x="44" y="551" font-size="5.5" fill="#888" font-family="sans-serif">Cancel</text>
+<rect x="100" y="542" width="84" height="12" rx="2" fill="#e03131"/>
+<text x="128" y="551" font-size="5.5" font-weight="500" fill="white" font-family="sans-serif">Delete</text>
+<text x="12" y="568" font-size="4.5" fill="#999" font-family="sans-serif">Delete variant: red primary action</text>
+
+<!-- Revoke confirmation -->
+<rect x="210" y="492" width="196" height="80" rx="4" fill="white" stroke="#e0e0e0" stroke-width="0.5"/>
+<text x="222" y="508" font-size="6" font-weight="500" fill="#e8590c" font-family="sans-serif">Revoke API key?</text>
+<text x="222" y="522" font-size="5.5" fill="#888" font-family="sans-serif">Any integrations using "CI/CD"</text>
+<text x="222" y="532" font-size="5.5" fill="#888" font-family="sans-serif">key will stop working immediately.</text>
+<rect x="222" y="542" width="84" height="12" rx="2" fill="#f0f0f0"/>
+<text x="254" y="551" font-size="5.5" fill="#888" font-family="sans-serif">Cancel</text>
+<rect x="310" y="542" width="84" height="12" rx="2" fill="#e8590c"/>
+<text x="336" y="551" font-size="5.5" font-weight="500" fill="white" font-family="sans-serif">Revoke</text>
+<text x="222" y="568" font-size="4.5" fill="#999" font-family="sans-serif">Warning variant: amber primary action</text>
+
+<!-- Bulk action confirmation -->
+<rect x="420" y="492" width="212" height="80" rx="4" fill="white" stroke="#e0e0e0" stroke-width="0.5"/>
+<text x="432" y="508" font-size="6" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Bulk assign 12 orders?</text>
+<text x="432" y="522" font-size="5.5" fill="#888" font-family="sans-serif">Assign 12 selected orders to</text>
+<text x="432" y="532" font-size="5.5" fill="#888" font-family="sans-serif">Jane Doe. Previous assignees cleared.</text>
+<rect x="432" y="542" width="84" height="12" rx="2" fill="#f0f0f0"/>
+<text x="464" y="551" font-size="5.5" fill="#888" font-family="sans-serif">Cancel</text>
+<rect x="520" y="542" width="100" height="12" rx="2" fill="#228be6"/>
+<text x="552" y="551" font-size="5.5" font-weight="500" fill="white" font-family="sans-serif">Assign all</text>
+<text x="432" y="568" font-size="4.5" fill="#999" font-family="sans-serif">Bulk variant: blue primary action</text>
+
+
+<!-- ===== KEYBOARD SHORTCUTS ===== -->
+<text x="8" y="596" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Keyboard shortcuts reference</text>
+<text x="164" y="596" font-size="5" fill="#999" font-family="sans-serif">Modal triggered by ? key. Shows all shortcuts grouped by context.</text>
+
+<rect x="80" y="602" width="480" height="72" rx="4" fill="white" stroke="#e0e0e0" stroke-width="0.5"/>
+<text x="92" y="618" font-size="7" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Keyboard shortcuts</text>
+<text x="536" y="618" font-size="6" fill="#999" font-family="sans-serif">×</text>
+
+<!-- Two-column shortcuts -->
+<text x="92" y="634" font-size="5" font-weight="500" fill="#999" font-family="sans-serif" letter-spacing="0.3">GENERAL</text>
+<text x="320" y="634" font-size="5" font-weight="500" fill="#999" font-family="sans-serif" letter-spacing="0.3">TABLE</text>
+
+<rect x="92" y="638" width="18" height="10" rx="2" fill="#f0f0f0"/><text x="96" y="645" font-size="5" fill="#999" font-family="monospace">⌘K</text>
+<text x="116" y="646" font-size="5.5" fill="#888" font-family="sans-serif">Command palette</text>
+<rect x="200" y="638" width="12" height="10" rx="2" fill="#f0f0f0"/><text x="204" y="645" font-size="5" fill="#999" font-family="monospace">?</text>
+<text x="218" y="646" font-size="5.5" fill="#888" font-family="sans-serif">This dialog</text>
+
+<rect x="320" y="638" width="12" height="10" rx="2" fill="#f0f0f0"/><text x="324" y="645" font-size="5" fill="#999" font-family="monospace">j</text>
+<text x="338" y="646" font-size="5.5" fill="#888" font-family="sans-serif">Next row</text>
+<rect x="408" y="638" width="12" height="10" rx="2" fill="#f0f0f0"/><text x="412" y="645" font-size="5" fill="#999" font-family="monospace">k</text>
+<text x="426" y="646" font-size="5.5" fill="#888" font-family="sans-serif">Prev row</text>
+<rect x="484" y="638" width="12" height="10" rx="2" fill="#f0f0f0"/><text x="488" y="645" font-size="5" fill="#999" font-family="monospace">o</text>
+<text x="502" y="646" font-size="5.5" fill="#888" font-family="sans-serif">Open drawer</text>
+
+<rect x="92" y="652" width="18" height="10" rx="2" fill="#f0f0f0"/><text x="96" y="659" font-size="5" fill="#999" font-family="monospace">⌘S</text>
+<text x="116" y="660" font-size="5.5" fill="#888" font-family="sans-serif">Save view</text>
+<rect x="200" y="652" width="18" height="10" rx="2" fill="#f0f0f0"/><text x="204" y="659" font-size="5" fill="#999" font-family="monospace">⌘/</text>
+<text x="224" y="660" font-size="5.5" fill="#888" font-family="sans-serif">Search</text>
+
+<rect x="320" y="652" width="20" height="10" rx="2" fill="#f0f0f0"/><text x="324" y="659" font-size="5" fill="#999" font-family="monospace">⇥</text>
+<text x="346" y="660" font-size="5.5" fill="#888" font-family="sans-serif">Open in panel</text>
+<rect x="428" y="652" width="18" height="10" rx="2" fill="#f0f0f0"/><text x="432" y="659" font-size="5" fill="#999" font-family="monospace">Esc</text>
+<text x="452" y="660" font-size="5.5" fill="#888" font-family="sans-serif">Close/back</text>
+
+<text x="92" y="670" font-size="5" fill="#999" font-family="sans-serif">+ more: WORKSPACE (panel management), BUILDER (config nav), WORKFLOW (canvas), AGENT (chat)</text>
+
+<text x="8" y="678" font-size="5" fill="#999" font-family="sans-serif">All dialogs: Mantine Modal/Dialog components. Escape to close. Click outside to close (except destructive confirms). Focus trapped inside modal. Accessible: proper ARIA labels, focus management.</text>
+</svg>
+</div>
+
+</body>
+</html>

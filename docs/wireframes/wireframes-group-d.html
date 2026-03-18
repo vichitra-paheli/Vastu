@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vastu — Group D Wireframes (Approved)</title>
+<style>
+  body { font-family: -apple-system, sans-serif; max-width: 1280px; margin: 0 auto; padding: 40px 20px; background: #fafafa; color: #1a1a1a; }
+  h1 { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
+  .subtitle { font-size: 14px; color: #666; margin-bottom: 40px; }
+  .wireframe { background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; margin-bottom: 40px; }
+  .wireframe h2 { font-size: 18px; font-weight: 500; margin: 0 0 4px; }
+  .wireframe p { font-size: 13px; color: #888; margin: 0 0 20px; }
+  .wireframe svg { width: 100%; height: auto; display: block; }
+  .status { display: inline-block; background: #e6f9ee; color: #1D9E75; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 10px; margin-left: 8px; }
+</style>
+</head>
+<body>
+<h1>Vastu — Wireframes: Group D</h1>
+<p class="subtitle">Advanced workspace — 5 screens — Approved March 2026</p>
+
+<div class="wireframe">
+<h2>Page templates: Summary dashboard, Multi-tab detail, Data explorer <span class="status">Approved</span></h2>
+<p>Three remaining page templates. Summary dashboard (KPI cards + charts), Multi-tab detail (entity deep-dive with horizontal tabs), Data explorer (chart-first with metric/groupby/filter controls).</p>
+<svg viewBox="0 0 640 820" xmlns="http://www.w3.org/2000/svg">
+<text x="320" y="14" text-anchor="middle" font-size="7" font-weight="500" fill="#999" font-family="sans-serif">Group D — remaining page templates (all share tab bar + mode switch + view toolbar)</text>
+<text x="8" y="36" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Summary dashboard template</text>
+<text x="148" y="36" font-size="5" fill="#999" font-family="sans-serif">KPI-first, chart-heavy. For operational overviews.</text>
+<rect x="0" y="42" width="640" height="250" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<rect x="0" y="42" width="640" height="10" fill="#f5f5f5" opacity="0.2" rx="3"/>
+<text x="320" y="49" text-anchor="middle" font-size="4" fill="#999" font-family="sans-serif">[Tab bar + Mode switch + View toolbar — same as table listing]</text>
+<rect x="8" y="58" width="56" height="11" rx="2" fill="#f0f0f0" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="16" y="66" font-size="5" fill="#888" font-family="sans-serif">Last 30d ▾</text>
+<rect x="68" y="58" width="44" height="11" rx="2" fill="#f0f0f0"/>
+<text x="78" y="66" font-size="5" fill="#888" font-family="sans-serif">vs prev ▾</text>
+<rect x="580" y="58" width="52" height="11" rx="2" fill="#f0f0f0"/>
+<text x="594" y="66" font-size="5" fill="#999" font-family="sans-serif">Auto-refresh</text>
+<rect x="8" y="76" width="120" height="40" rx="3" fill="white" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="16" y="90" font-size="5" fill="#999" font-family="sans-serif">Total revenue</text>
+<text x="16" y="104" font-size="10" font-weight="500" fill="#1a1a1a" font-family="sans-serif">$2.4M</text>
+<text x="68" y="104" font-size="5" fill="#1D9E75" font-family="sans-serif">↑ 12.3%</text>
+<rect x="134" y="76" width="120" height="40" rx="3" fill="white" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="142" y="90" font-size="5" fill="#999" font-family="sans-serif">Orders</text>
+<text x="142" y="104" font-size="10" font-weight="500" fill="#1a1a1a" font-family="sans-serif">1,203</text>
+<text x="188" y="104" font-size="5" fill="#1D9E75" font-family="sans-serif">↑ 8.1%</text>
+<rect x="260" y="76" width="120" height="40" rx="3" fill="white" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="268" y="90" font-size="5" fill="#999" font-family="sans-serif">Avg order value</text>
+<text x="268" y="104" font-size="10" font-weight="500" fill="#1a1a1a" font-family="sans-serif">$1,996</text>
+<text x="318" y="104" font-size="5" fill="#e8590c" font-family="sans-serif">↓ 3.2%</text>
+<rect x="386" y="76" width="120" height="40" rx="3" fill="white" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="394" y="90" font-size="5" fill="#999" font-family="sans-serif">Fulfillment rate</text>
+<text x="394" y="104" font-size="10" font-weight="500" fill="#1a1a1a" font-family="sans-serif">94.2%</text>
+<text x="444" y="104" font-size="5" fill="#1D9E75" font-family="sans-serif">↑ 1.8%</text>
+<rect x="512" y="76" width="120" height="40" rx="3" fill="white" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="520" y="90" font-size="5" fill="#999" font-family="sans-serif">Active customers</text>
+<text x="520" y="104" font-size="10" font-weight="500" fill="#1a1a1a" font-family="sans-serif">387</text>
+<text x="556" y="104" font-size="5" fill="#1D9E75" font-family="sans-serif">↑ 22</text>
+<rect x="8" y="122" width="380" height="100" rx="3" fill="white" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="16" y="136" font-size="6" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Revenue over time</text>
+<text x="326" y="136" font-size="5" fill="#999" font-family="sans-serif">Daily · Weekly · Monthly</text>
+<polyline fill="#228be6" opacity="0.06" stroke="none" points="16,210 56,195 96,200 136,186 176,178 216,184 256,170 296,162 336,168 376,155 376,210"/>
+<polyline fill="none" stroke="#228be6" stroke-width="1" points="16,210 56,195 96,200 136,186 176,178 216,184 256,170 296,162 336,168 376,155"/>
+<polyline fill="none" stroke="#e0e0e0" stroke-width="0.8" stroke-dasharray="3 2" points="16,205 56,200 96,198 136,196 176,194 216,192 256,190 296,188 336,186 376,180"/>
+<text x="16" y="218" font-size="4" fill="#999" font-family="sans-serif">Mar 1</text>
+<text x="376" y="218" font-size="4" fill="#999" font-family="sans-serif" text-anchor="end">Mar 17</text>
+<rect x="396" y="122" width="236" height="100" rx="3" fill="white" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="404" y="136" font-size="6" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Orders by region</text>
+<rect x="416" y="148" width="40" height="56" rx="1" fill="#228be6" opacity="0.7"/>
+<rect x="464" y="158" width="40" height="46" rx="1" fill="#228be6" opacity="0.5"/>
+<rect x="512" y="170" width="40" height="34" rx="1" fill="#228be6" opacity="0.35"/>
+<rect x="560" y="180" width="40" height="24" rx="1" fill="#228be6" opacity="0.2"/>
+<text x="436" y="214" text-anchor="middle" font-size="4.5" fill="#999" font-family="sans-serif">US West</text>
+<text x="484" y="214" text-anchor="middle" font-size="4.5" fill="#999" font-family="sans-serif">EU</text>
+<text x="532" y="214" text-anchor="middle" font-size="4.5" fill="#999" font-family="sans-serif">APAC</text>
+<text x="580" y="214" text-anchor="middle" font-size="4.5" fill="#999" font-family="sans-serif">LATAM</text>
+<rect x="8" y="228" width="380" height="56" rx="3" fill="white" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="16" y="242" font-size="6" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Top customers</text>
+<text x="320" y="242" font-size="5" fill="#228be6" font-family="sans-serif">View all →</text>
+<rect x="12" y="248" width="372" height="10" fill="#f5f5f5" opacity="0.2"/>
+<text x="20" y="256" font-size="4.5" font-weight="500" fill="#888" font-family="sans-serif">Customer</text>
+<text x="180" y="256" font-size="4.5" font-weight="500" fill="#888" font-family="sans-serif">Orders</text>
+<text x="240" y="256" font-size="4.5" font-weight="500" fill="#888" font-family="sans-serif">Revenue</text>
+<text x="310" y="256" font-size="4.5" font-weight="500" fill="#888" font-family="sans-serif">Trend</text>
+<text x="20" y="268" font-size="5" fill="#1a1a1a" font-family="sans-serif">Acme Corp</text>
+<text x="180" y="268" font-size="5" fill="#888" font-family="sans-serif">47</text>
+<text x="240" y="268" font-size="5" fill="#1a1a1a" font-family="monospace">$128K</text>
+<polyline fill="none" stroke="#1D9E75" stroke-width="0.8" points="310,268 318,264 326,266 334,260"/>
+<text x="20" y="278" font-size="5" fill="#1a1a1a" font-family="sans-serif">Globex</text>
+<text x="180" y="278" font-size="5" fill="#888" font-family="sans-serif">38</text>
+<text x="240" y="278" font-size="5" fill="#1a1a1a" font-family="monospace">$94K</text>
+<polyline fill="none" stroke="#1D9E75" stroke-width="0.8" points="310,278 318,276 326,274 334,270"/>
+<rect x="396" y="228" width="236" height="56" rx="3" fill="white" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="404" y="242" font-size="6" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Status breakdown</text>
+<circle cx="460" cy="262" r="16" fill="none" stroke="#1D9E75" stroke-width="6" stroke-dasharray="50 100"/>
+<circle cx="460" cy="262" r="16" fill="none" stroke="#228be6" stroke-width="6" stroke-dasharray="24 100" stroke-dashoffset="-50"/>
+<circle cx="460" cy="262" r="16" fill="none" stroke="#e8590c" stroke-width="6" stroke-dasharray="18 100" stroke-dashoffset="-74"/>
+<circle cx="460" cy="262" r="16" fill="none" stroke="#e03131" stroke-width="6" stroke-dasharray="8 100" stroke-dashoffset="-92"/>
+<text x="500" y="254" font-size="4.5" fill="#999" font-family="sans-serif">● Shipped 50%</text>
+<text x="500" y="264" font-size="4.5" fill="#999" font-family="sans-serif">● Processing 24%</text>
+<text x="500" y="274" font-size="4.5" fill="#999" font-family="sans-serif">● Pending 18%</text>
+<text x="572" y="254" font-size="4.5" fill="#999" font-family="sans-serif">● Cancelled 8%</text>
+<text x="8" y="300" font-size="5" fill="#999" font-family="sans-serif">Builder config: chart type selector (line/bar/area/donut), data source, metric picker, time range, comparison toggle. Each card is a draggable section. Recharts-powered.</text>
+<text x="8" y="328" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Multi-tab detail template</text>
+<text x="130" y="328" font-size="5" fill="#999" font-family="sans-serif">Entity deep-dive. For customer/product/account pages. Expands the drawer into a full panel.</text>
+<rect x="0" y="334" width="640" height="196" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<rect x="0" y="334" width="640" height="10" fill="#f5f5f5" opacity="0.2" rx="3"/>
+<text x="320" y="341" text-anchor="middle" font-size="4" fill="#999" font-family="sans-serif">[Tab bar: "Customer: Acme Corp" + mode switch]</text>
+<rect x="0" y="344" width="640" height="40" fill="#f5f5f5" opacity="0.15"/>
+<line x1="0" y1="384" x2="640" y2="384" stroke="#e0e0e0" stroke-width="0.3"/>
+<circle cx="24" cy="364" r="14" fill="#f0f0f0" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="24" y="367" text-anchor="middle" font-size="8" font-weight="500" fill="#999" font-family="sans-serif">AC</text>
+<text x="46" y="358" font-size="8" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Acme Corporation</text>
+<rect x="160" y="352" width="28" height="10" rx="5" fill="#e6f9ee"/>
+<text x="165" y="359" font-size="5" font-weight="500" fill="#1D9E75" font-family="sans-serif">Active</text>
+<text x="46" y="372" font-size="5.5" fill="#999" font-family="sans-serif">Enterprise · US West · 47 orders · $128K lifetime revenue · Since Jan 2023</text>
+<rect x="508" y="352" width="30" height="12" rx="2" fill="#228be6"/>
+<text x="516" y="361" font-size="5.5" font-weight="500" fill="white" font-family="sans-serif">Edit</text>
+<rect x="542" y="352" width="42" height="12" rx="2" fill="#f0f0f0"/>
+<text x="552" y="361" font-size="5.5" fill="#888" font-family="sans-serif">Actions ▾</text>
+<rect x="588" y="352" width="44" height="12" rx="2" fill="#f0f0f0"/>
+<text x="598" y="361" font-size="5.5" fill="#888" font-family="sans-serif">Merge ⋯</text>
+<text x="16" y="398" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Overview</text>
+<line x1="16" y1="401" x2="54" y2="401" stroke="#228be6" stroke-width="0.8"/>
+<text x="68" y="398" font-size="6" fill="#999" font-family="sans-serif">Orders</text>
+<text x="108" y="398" font-size="6" fill="#999" font-family="sans-serif">Contacts</text>
+<text x="158" y="398" font-size="6" fill="#999" font-family="sans-serif">Billing</text>
+<text x="198" y="398" font-size="6" fill="#999" font-family="sans-serif">Activity</text>
+<text x="246" y="398" font-size="6" fill="#999" font-family="sans-serif">Notes</text>
+<text x="282" y="398" font-size="6" fill="#999" font-family="sans-serif">Permissions</text>
+<text x="340" y="398" font-size="6" fill="#999" font-family="sans-serif">Files</text>
+<line x1="8" y1="402" x2="632" y2="402" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="16" y="418" font-size="6" font-weight="500" fill="#888" font-family="sans-serif">Details</text>
+<text x="16" y="432" font-size="5.5" fill="#999" font-family="sans-serif">Industry</text>
+<text x="100" y="432" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">Manufacturing</text>
+<text x="16" y="444" font-size="5.5" fill="#999" font-family="sans-serif">Website</text>
+<text x="100" y="444" font-size="5.5" fill="#228be6" font-family="sans-serif">acme.com</text>
+<text x="16" y="456" font-size="5.5" fill="#999" font-family="sans-serif">Employees</text>
+<text x="100" y="456" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">250-500</text>
+<text x="16" y="468" font-size="5.5" fill="#999" font-family="sans-serif">Account owner</text>
+<circle cx="104" cy="465" r="4" fill="#f0f0f0"/>
+<text x="104" y="468" text-anchor="middle" font-size="4" font-weight="500" fill="#999" font-family="sans-serif">JD</text>
+<text x="112" y="468" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">Jane Doe</text>
+<text x="16" y="480" font-size="5.5" fill="#999" font-family="sans-serif">Tags</text>
+<rect x="100" y="474" width="38" height="10" rx="5" fill="#228be6" opacity="0.08"/>
+<text x="106" y="481" font-size="4.5" fill="#228be6" font-family="sans-serif">Enterprise</text>
+<rect x="142" y="474" width="28" height="10" rx="5" fill="#228be6" opacity="0.08"/>
+<text x="148" y="481" font-size="4.5" fill="#228be6" font-family="sans-serif">Priority</text>
+<line x1="320" y1="410" x2="320" y2="520" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="336" y="418" font-size="6" font-weight="500" fill="#888" font-family="sans-serif">Revenue trend (12mo)</text>
+<polyline fill="#228be6" opacity="0.05" stroke="none" points="336,468 376,462 416,458 456,450 496,444 536,438 576,430 616,420 616,468"/>
+<polyline fill="none" stroke="#228be6" stroke-width="0.8" points="336,468 376,462 416,458 456,450 496,444 536,438 576,430 616,420"/>
+<text x="336" y="484" font-size="6" font-weight="500" fill="#888" font-family="sans-serif">Recent orders</text>
+<text x="336" y="498" font-size="5" fill="#888" font-family="monospace">#4521</text>
+<text x="380" y="498" font-size="5" fill="#888" font-family="sans-serif">$2,450</text>
+<rect x="420" y="492" width="26" height="10" rx="5" fill="#e6f9ee"/>
+<text x="425" y="499" font-size="4.5" font-weight="500" fill="#1D9E75" font-family="sans-serif">Shipped</text>
+<text x="460" y="498" font-size="5" fill="#999" font-family="sans-serif">2h ago</text>
+<text x="336" y="510" font-size="5" fill="#888" font-family="monospace">#4489</text>
+<text x="380" y="510" font-size="5" fill="#888" font-family="sans-serif">$8,200</text>
+<rect x="420" y="504" width="30" height="10" rx="5" fill="#fff3e0"/>
+<text x="425" y="511" font-size="4.5" font-weight="500" fill="#e8590c" font-family="sans-serif">Pending</text>
+<text x="470" y="510" font-size="5" fill="#999" font-family="sans-serif">3d ago</text>
+<text x="540" y="510" font-size="5" fill="#228be6" font-family="sans-serif">View all →</text>
+<text x="8" y="534" font-size="5" fill="#999" font-family="sans-serif">Entity header with avatar/status/summary. Horizontal tabs (Overview, Orders, Contacts, Billing, Activity, Notes, Permissions, Files). RBAC-gated. Overview: detail fields left, mini-charts right.</text>
+<text x="8" y="562" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Data explorer template</text>
+<text x="120" y="562" font-size="5" fill="#999" font-family="sans-serif">Chart-first with controls. For analytics, reporting, ad-hoc queries.</text>
+<rect x="0" y="568" width="640" height="226" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<rect x="0" y="568" width="640" height="10" fill="#f5f5f5" opacity="0.2" rx="3"/>
+<text x="320" y="575" text-anchor="middle" font-size="4" fill="#999" font-family="sans-serif">[Tab bar + View toolbar]</text>
+<text x="8" y="592" font-size="5.5" font-weight="500" fill="#888" font-family="sans-serif">Metric</text>
+<rect x="40" y="584" width="70" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="48" y="593" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">Revenue ▾</text>
+<text x="120" y="592" font-size="5.5" font-weight="500" fill="#888" font-family="sans-serif">Group by</text>
+<rect x="160" y="584" width="60" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="168" y="593" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">Region ▾</text>
+<text x="230" y="592" font-size="5.5" font-weight="500" fill="#888" font-family="sans-serif">Time</text>
+<rect x="250" y="584" width="64" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="258" y="593" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">Monthly ▾</text>
+<text x="326" y="592" font-size="5.5" font-weight="500" fill="#888" font-family="sans-serif">Filters</text>
+<rect x="354" y="584" width="64" height="12" rx="6" fill="#228be6" opacity="0.08" stroke="#228be6" stroke-width="0.3"/>
+<text x="362" y="593" font-size="5.5" fill="#228be6" font-family="sans-serif">Status ▾ ×</text>
+<rect x="554" y="584" width="78" height="12" rx="2" fill="#f0f0f0"/>
+<rect x="555" y="585" width="24" height="10" rx="1.5" fill="white"/>
+<text x="561" y="592" font-size="5" fill="#1a1a1a" font-family="sans-serif">Line</text>
+<text x="586" y="592" font-size="5" fill="#999" font-family="sans-serif">Bar</text>
+<text x="608" y="592" font-size="5" fill="#999" font-family="sans-serif">Table</text>
+<rect x="8" y="602" width="624" height="120" rx="3" fill="white" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="12" y="614" font-size="4" fill="#999" font-family="sans-serif">$400K</text>
+<text x="12" y="640" font-size="4" fill="#999" font-family="sans-serif">$300K</text>
+<text x="12" y="666" font-size="4" fill="#999" font-family="sans-serif">$200K</text>
+<text x="12" y="692" font-size="4" fill="#999" font-family="sans-serif">$100K</text>
+<text x="12" y="718" font-size="4" fill="#999" font-family="sans-serif">$0</text>
+<line x1="40" y1="612" x2="624" y2="612" stroke="#f0f0f0" stroke-width="0.3"/>
+<line x1="40" y1="638" x2="624" y2="638" stroke="#f0f0f0" stroke-width="0.3"/>
+<line x1="40" y1="664" x2="624" y2="664" stroke="#f0f0f0" stroke-width="0.3"/>
+<line x1="40" y1="690" x2="624" y2="690" stroke="#f0f0f0" stroke-width="0.3"/>
+<polyline fill="none" stroke="#228be6" stroke-width="1.2" points="60,640 140,630 220,625 300,620 380,615 460,608 540,600 610,590"/>
+<polyline fill="none" stroke="#e8590c" stroke-width="1.2" points="60,668 140,665 220,660 300,658 380,652 460,650 540,648 610,642"/>
+<polyline fill="none" stroke="#1D9E75" stroke-width="1.2" points="60,686 140,682 220,678 300,676 380,674 460,672 540,668 610,665"/>
+<polyline fill="none" stroke="#7F77DD" stroke-width="1.2" points="60,698 140,696 220,694 300,694 380,692 460,690 540,688 610,686"/>
+<text x="60" y="718" font-size="4" fill="#999" font-family="sans-serif">Aug</text>
+<text x="140" y="718" font-size="4" fill="#999" font-family="sans-serif">Sep</text>
+<text x="220" y="718" font-size="4" fill="#999" font-family="sans-serif">Oct</text>
+<text x="300" y="718" font-size="4" fill="#999" font-family="sans-serif">Nov</text>
+<text x="380" y="718" font-size="4" fill="#999" font-family="sans-serif">Dec</text>
+<text x="460" y="718" font-size="4" fill="#999" font-family="sans-serif">Jan</text>
+<text x="540" y="718" font-size="4" fill="#999" font-family="sans-serif">Feb</text>
+<text x="610" y="718" font-size="4" fill="#999" font-family="sans-serif">Mar</text>
+<circle cx="56" cy="732" r="2.5" fill="#228be6"/><text x="62" y="734" font-size="5" fill="#888" font-family="sans-serif">US West</text>
+<circle cx="116" cy="732" r="2.5" fill="#e8590c"/><text x="122" y="734" font-size="5" fill="#888" font-family="sans-serif">EU North</text>
+<circle cx="176" cy="732" r="2.5" fill="#1D9E75"/><text x="182" y="734" font-size="5" fill="#888" font-family="sans-serif">APAC</text>
+<circle cx="226" cy="732" r="2.5" fill="#7F77DD"/><text x="232" y="734" font-size="5" fill="#888" font-family="sans-serif">LATAM</text>
+<rect x="8" y="742" width="624" height="44" rx="3" fill="white" stroke="#e0e0e0" stroke-width="0.3"/>
+<rect x="8" y="742" width="624" height="12" fill="#f5f5f5" opacity="0.2"/>
+<text x="16" y="750" font-size="4.5" font-weight="500" fill="#888" font-family="sans-serif">Region</text>
+<text x="120" y="750" font-size="4.5" font-weight="500" fill="#888" font-family="sans-serif">Aug</text>
+<text x="180" y="750" font-size="4.5" font-weight="500" fill="#888" font-family="sans-serif">Sep</text>
+<text x="240" y="750" font-size="4.5" font-weight="500" fill="#888" font-family="sans-serif">Oct</text>
+<text x="600" y="750" font-size="4.5" font-weight="500" fill="#888" font-family="sans-serif">Total</text>
+<text x="16" y="764" font-size="5" fill="#1a1a1a" font-family="sans-serif">US West</text>
+<text x="120" y="764" font-size="5" fill="#888" font-family="monospace">$252K</text>
+<text x="180" y="764" font-size="5" fill="#888" font-family="monospace">$268K</text>
+<text x="240" y="764" font-size="5" fill="#888" font-family="monospace">...</text>
+<text x="600" y="764" font-size="5" font-weight="500" fill="#1a1a1a" font-family="monospace">$2.4M</text>
+<text x="16" y="778" font-size="5" fill="#1a1a1a" font-family="sans-serif">EU North</text>
+<text x="120" y="778" font-size="5" fill="#888" font-family="monospace">$186K</text>
+<text x="180" y="778" font-size="5" fill="#888" font-family="monospace">$192K</text>
+<text x="8" y="800" font-size="5" fill="#999" font-family="sans-serif">Chart + data table combo. Controls: metric, group-by, time resolution, filters, chart type toggle. Chart and table synced. Export: PNG (chart) or CSV (data).</text>
+<text x="8" y="810" font-size="5" fill="#999" font-family="sans-serif">Builder config: available metrics, group-bys, default chart type, default time range, max data points.</text>
+</svg>
+</div>
+
+<div class="wireframe">
+<h2>Dashboard view + Command palette (⌘K) <span class="status">Approved</span></h2>
+<p>Dashboard: home tab with responsive card grid (KPI, chart, table, pipeline, quick actions, alerts). Spotlight: global search overlay with pages, records, and commands.</p>
+<svg viewBox="0 0 640 620" xmlns="http://www.w3.org/2000/svg">
+<text x="8" y="16" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Dashboard view (pinned cards grid)</text>
+<text x="160" y="16" font-size="5" fill="#999" font-family="sans-serif">Home screen. Grid of pinned views, mini-charts, and quick actions. Lives at /workspace default tab.</text>
+<rect x="0" y="22" width="640" height="310" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<rect x="0" y="22" width="640" height="18" fill="#f5f5f5" rx="3"/><rect x="0" y="32" width="640" height="8" fill="#f5f5f5"/>
+<rect x="4" y="25" width="68" height="13" rx="2" fill="white"/>
+<text x="14" y="34" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Dashboard</text>
+<text x="80" y="34" font-size="6" fill="#999" font-family="sans-serif">Orders ×</text>
+<text x="120" y="34" font-size="6" fill="#999" font-family="sans-serif">Customers ×</text>
+<text x="12" y="52" font-size="8" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Good afternoon, Anurag</text>
+<text x="12" y="64" font-size="5.5" fill="#999" font-family="sans-serif">Mar 17, 2026 · 3 alerts · 12 pending reviews</text>
+<rect x="538" y="44" width="48" height="12" rx="2" fill="#f0f0f0"/>
+<text x="550" y="53" font-size="5.5" fill="#888" font-family="sans-serif">+ Add card</text>
+<rect x="590" y="44" width="42" height="12" rx="2" fill="#f0f0f0"/>
+<text x="600" y="53" font-size="5.5" fill="#888" font-family="sans-serif">Edit grid</text>
+<rect x="8" y="74" width="204" height="100" rx="4" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="16" y="88" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Revenue this month</text>
+<text x="188" y="88" font-size="5" fill="#999" font-family="sans-serif">⋯</text>
+<text x="16" y="110" font-size="14" font-weight="500" fill="#1a1a1a" font-family="sans-serif">$842K</text>
+<text x="82" y="110" font-size="6" fill="#1D9E75" font-family="sans-serif">↑ 12.3%</text>
+<polyline fill="#1D9E75" opacity="0.06" stroke="none" points="16,168 46,160 76,155 106,148 136,140 166,130 196,120 196,168"/>
+<polyline fill="none" stroke="#1D9E75" stroke-width="0.8" points="16,168 46,160 76,155 106,148 136,140 166,130 196,120"/>
+<text x="16" y="168" font-size="4.5" fill="#999" font-family="sans-serif">From: "All orders" view · Orders page</text>
+<rect x="218" y="74" width="204" height="100" rx="4" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="226" y="88" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Orders by status</text>
+<text x="398" y="88" font-size="5" fill="#999" font-family="sans-serif">⋯</text>
+<rect x="236" y="100" width="30" height="60" rx="1" fill="#1D9E75" opacity="0.5"/>
+<rect x="272" y="112" width="30" height="48" rx="1" fill="#228be6" opacity="0.5"/>
+<rect x="308" y="124" width="30" height="36" rx="1" fill="#e8590c" opacity="0.4"/>
+<rect x="344" y="140" width="30" height="20" rx="1" fill="#e03131" opacity="0.3"/>
+<text x="251" y="168" text-anchor="middle" font-size="4" fill="#999" font-family="sans-serif">Ship</text>
+<text x="287" y="168" text-anchor="middle" font-size="4" fill="#999" font-family="sans-serif">Proc</text>
+<text x="323" y="168" text-anchor="middle" font-size="4" fill="#999" font-family="sans-serif">Pend</text>
+<text x="359" y="168" text-anchor="middle" font-size="4" fill="#999" font-family="sans-serif">Canc</text>
+<rect x="428" y="74" width="204" height="100" rx="4" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="436" y="88" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Pending reviews</text>
+<rect x="600" y="82" width="24" height="10" rx="5" fill="#e8590c" opacity="0.15"/>
+<text x="606" y="89" font-size="4.5" font-weight="500" fill="#e8590c" font-family="sans-serif">12</text>
+<text x="440" y="104" font-size="5" fill="#888" font-family="monospace">#4520</text>
+<text x="480" y="104" font-size="5" fill="#1a1a1a" font-family="sans-serif">Globex</text>
+<text x="544" y="104" font-size="5" fill="#888" font-family="monospace">$8.2K</text>
+<text x="590" y="104" font-size="5" fill="#228be6" font-family="sans-serif">Open</text>
+<line x1="436" y1="108" x2="624" y2="108" stroke="#e0e0e0" stroke-width="0.15"/>
+<text x="440" y="118" font-size="5" fill="#888" font-family="monospace">#4518</text>
+<text x="480" y="118" font-size="5" fill="#1a1a1a" font-family="sans-serif">Stark</text>
+<text x="544" y="118" font-size="5" fill="#888" font-family="monospace">$15.8K</text>
+<text x="590" y="118" font-size="5" fill="#228be6" font-family="sans-serif">Open</text>
+<line x1="436" y1="122" x2="624" y2="122" stroke="#e0e0e0" stroke-width="0.15"/>
+<text x="440" y="132" font-size="5" fill="#888" font-family="monospace">#4515</text>
+<text x="480" y="132" font-size="5" fill="#1a1a1a" font-family="sans-serif">Oscorp</text>
+<text x="436" y="168" font-size="5" fill="#228be6" font-family="sans-serif">View all →</text>
+<rect x="8" y="180" width="414" height="80" rx="4" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="16" y="194" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Fulfillment pipeline</text>
+<text x="398" y="194" font-size="5" fill="#999" font-family="sans-serif">⋯</text>
+<rect x="16" y="202" width="396" height="12" rx="2" fill="#f0f0f0"/>
+<rect x="16" y="202" width="190" height="12" rx="2" fill="#1D9E75" opacity="0.6"/>
+<rect x="206" y="202" width="80" height="12" rx="0" fill="#228be6" opacity="0.5"/>
+<rect x="286" y="202" width="60" height="12" rx="0" fill="#e8590c" opacity="0.4"/>
+<rect x="346" y="202" width="30" height="12" rx="0" fill="#e03131" opacity="0.3"/>
+<text x="16" y="226" font-size="4.5" fill="#1D9E75" font-family="sans-serif">● Shipped 847 (70%)</text>
+<text x="130" y="226" font-size="4.5" fill="#228be6" font-family="sans-serif">● Processing 289</text>
+<text x="230" y="226" font-size="4.5" fill="#e8590c" font-family="sans-serif">● Pending 67</text>
+<text x="310" y="226" font-size="4.5" fill="#e03131" font-family="sans-serif">● Cancelled 30</text>
+<text x="16" y="252" font-size="5" fill="#888" font-family="sans-serif">SLA at risk:</text>
+<text x="64" y="252" font-size="5" fill="#e8590c" font-family="sans-serif">3 orders past 48hr</text>
+<text x="150" y="252" font-size="5" fill="#228be6" font-family="sans-serif">View →</text>
+<rect x="428" y="180" width="204" height="80" rx="4" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="436" y="194" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Quick actions</text>
+<rect x="436" y="202" width="186" height="14" rx="2" fill="#f0f0f0"/>
+<text x="446" y="212" font-size="5.5" fill="#888" font-family="sans-serif">+ Create order</text>
+<rect x="436" y="220" width="186" height="14" rx="2" fill="#f0f0f0"/>
+<text x="446" y="230" font-size="5.5" fill="#888" font-family="sans-serif">+ Import CSV</text>
+<rect x="436" y="238" width="186" height="14" rx="2" fill="#f0f0f0"/>
+<text x="446" y="248" font-size="5.5" fill="#888" font-family="sans-serif">↻ Sync external DB</text>
+<rect x="8" y="266" width="624" height="40" rx="4" fill="#e8590c" opacity="0.04" stroke="#e8590c" stroke-width="0.3" stroke-opacity="0.2"/>
+<text x="16" y="282" font-size="5" font-weight="500" fill="#e8590c" font-family="sans-serif">3 alerts</text>
+<text x="56" y="282" font-size="5" fill="#888" font-family="sans-serif">DB connection "Staging" idle for 48h</text>
+<text x="252" y="282" font-size="5" fill="#888" font-family="sans-serif">·</text>
+<text x="260" y="282" font-size="5" fill="#888" font-family="sans-serif">API key "CI/CD" approaching rate limit</text>
+<text x="460" y="282" font-size="5" fill="#888" font-family="sans-serif">·</text>
+<text x="468" y="282" font-size="5" fill="#888" font-family="sans-serif">3 SLA at-risk orders</text>
+<text x="580" y="282" font-size="5" fill="#228be6" font-family="sans-serif">View all →</text>
+<text x="16" y="298" font-size="5" fill="#999" font-family="sans-serif">Cards from: pinned views (⋯ → Pin to dashboard), builder dashboards, or manual Add card. Grid: responsive, edit mode for drag/resize.</text>
+<text x="8" y="340" font-size="5" fill="#999" font-family="sans-serif">Dashboard is a first-class tab. Card types: KPI, chart, table, link, custom. Edit mode: drag-to-reorder, resize handles, remove. "Add card" opens type picker.</text>
+<text x="8" y="370" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Command palette / Spotlight (⌘K)</text>
+<text x="210" y="370" font-size="5" fill="#999" font-family="sans-serif">Global search and command overlay. Triggered by ⌘K or clicking tray search.</text>
+<rect x="0" y="378" width="640" height="236" fill="#1a1a1a" opacity="0.05" rx="3"/>
+<rect x="120" y="388" width="400" height="214" rx="6" fill="white" stroke="#e0e0e0" stroke-width="0.5"/>
+<rect x="128" y="394" width="384" height="20" rx="3" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="140" y="407" font-size="7" fill="#999" font-family="sans-serif">Search pages, records, commands, or type > for commands...</text>
+<text x="136" y="426" font-size="5" font-weight="500" fill="#999" font-family="sans-serif" letter-spacing="0.3">PAGES</text>
+<rect x="132" y="430" width="380" height="16" rx="2" fill="#228be6" opacity="0.06"/>
+<rect x="138" y="433" width="8" height="8" rx="1.5" fill="none" stroke="#228be6" stroke-width="0.4" opacity="0.5"/>
+<text x="152" y="441" font-size="6" fill="#228be6" font-family="sans-serif">Orders</text>
+<text x="196" y="441" font-size="5" fill="#999" font-family="sans-serif">Table listing · 1,203 rows</text>
+<text x="476" y="441" font-size="5" fill="#999" font-family="sans-serif">↵ Open</text>
+<rect x="138" y="449" width="8" height="8" rx="1.5" fill="none" stroke="#888" stroke-width="0.4" opacity="0.4"/>
+<text x="152" y="457" font-size="6" fill="#1a1a1a" font-family="sans-serif">Customers</text>
+<text x="206" y="457" font-size="5" fill="#999" font-family="sans-serif">Multi-tab detail · 387 records</text>
+<rect x="138" y="465" width="8" height="8" rx="1.5" fill="none" stroke="#888" stroke-width="0.4" opacity="0.4"/>
+<text x="152" y="473" font-size="6" fill="#1a1a1a" font-family="sans-serif">Analytics</text>
+<text x="198" y="473" font-size="5" fill="#999" font-family="sans-serif">Data explorer</text>
+<line x1="136" y1="480" x2="504" y2="480" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="136" y="492" font-size="5" font-weight="500" fill="#999" font-family="sans-serif" letter-spacing="0.3">RECENT RECORDS</text>
+<text x="152" y="508" font-size="6" fill="#1a1a1a" font-family="sans-serif">Order #4521 — Acme Corporation</text>
+<text x="370" y="508" font-size="5" fill="#999" font-family="sans-serif">opened 2h ago</text>
+<text x="152" y="524" font-size="6" fill="#1a1a1a" font-family="sans-serif">Order #4520 — Globex Industries</text>
+<text x="370" y="524" font-size="5" fill="#999" font-family="sans-serif">opened 5h ago</text>
+<line x1="136" y1="532" x2="504" y2="532" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="136" y="544" font-size="5" font-weight="500" fill="#999" font-family="sans-serif" letter-spacing="0.3">COMMANDS</text>
+<text x="152" y="560" font-size="6" fill="#888" font-family="sans-serif">> New order</text>
+<text x="252" y="560" font-size="6" fill="#888" font-family="sans-serif">> Settings</text>
+<text x="332" y="560" font-size="6" fill="#888" font-family="sans-serif">> Switch theme</text>
+<text x="440" y="560" font-size="6" fill="#888" font-family="sans-serif">> Invite user</text>
+<rect x="128" y="568" width="384" height="16" fill="#f5f5f5" opacity="0.3"/>
+<text x="140" y="580" font-size="4.5" fill="#999" font-family="sans-serif">↑↓ Navigate</text>
+<text x="200" y="580" font-size="4.5" fill="#999" font-family="sans-serif">↵ Open</text>
+<text x="240" y="580" font-size="4.5" fill="#999" font-family="sans-serif">⇥ Open in new panel</text>
+<text x="340" y="580" font-size="4.5" fill="#999" font-family="sans-serif">Esc Close</text>
+<text x="400" y="580" font-size="4.5" fill="#999" font-family="sans-serif">Type > for commands</text>
+<text x="8" y="610" font-size="5" fill="#999" font-family="sans-serif">Spotlight: ⌘K shortcut. Sections: Pages (fuzzy), Recent records, Commands (> prefix). ↵ opens current panel, ⇥ opens new split. Also searchable: saved views, users (@mentions), settings.</text>
+</svg>
+</div>
+
+</body>
+</html>

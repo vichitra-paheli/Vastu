@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vastu — Group E Wireframes (Approved)</title>
+<style>
+  body { font-family: -apple-system, sans-serif; max-width: 1280px; margin: 0 auto; padding: 40px 20px; background: #fafafa; color: #1a1a1a; }
+  h1 { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
+  .subtitle { font-size: 14px; color: #666; margin-bottom: 40px; }
+  .wireframe { background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; margin-bottom: 40px; }
+  .wireframe h2 { font-size: 18px; font-weight: 500; margin: 0 0 4px; }
+  .wireframe p { font-size: 13px; color: #888; margin: 0 0 20px; }
+  .wireframe svg { width: 100%; height: auto; display: block; }
+  .status { display: inline-block; background: #e6f9ee; color: #1D9E75; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 10px; margin-left: 8px; }
+</style>
+</head>
+<body>
+<h1>Vastu — Wireframes: Group E</h1>
+<p class="subtitle">Agent &amp; workflow — 3 screens — Approved March 2026</p>
+
+<div class="wireframe">
+<h2>Workflow mode — React Flow canvas <span class="status">Approved</span></h2>
+<p>Third mode tab (Builder-enabled pages only). 7 node types: Trigger, Condition, Agent (LangGraph), Action, Human-in-loop, Notification, End. Right-side inspector panel. Toolbar with Test/Deploy.</p>
+<svg viewBox="0 0 640 520" xmlns="http://www.w3.org/2000/svg">
+<text x="320" y="14" text-anchor="middle" font-size="7" font-weight="500" fill="#999" font-family="sans-serif">Workflow mode — React Flow canvas (third mode tab, ephemeral pages only)</text>
+<rect x="0" y="22" width="640" height="490" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<rect x="0" y="22" width="640" height="18" fill="#f5f5f5" rx="3"/><rect x="0" y="32" width="640" height="8" fill="#f5f5f5"/>
+<rect x="4" y="25" width="52" height="13" rx="2" fill="white"/>
+<text x="14" y="34" font-size="6" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Orders</text>
+<text x="50" y="34" font-size="6" fill="#999" font-family="sans-serif">×</text>
+<rect x="518" y="26" width="68" height="12" rx="2.5" fill="#f0f0f0"/>
+<text x="530" y="34" font-size="5" fill="#999" font-family="sans-serif">Editor</text>
+<text x="556" y="34" font-size="5" fill="#999" font-family="sans-serif">Builder</text>
+<rect x="576" y="27" width="30" height="10" rx="2" fill="#7F77DD" opacity="0.85"/>
+<text x="591" y="34" text-anchor="middle" font-size="5" font-weight="500" fill="white" font-family="sans-serif">Workflow</text>
+<text x="620" y="34" font-size="7" fill="#999" font-family="sans-serif">– □ ×</text>
+<rect x="0" y="40" width="640" height="22" fill="#f5f5f5" opacity="0.2"/>
+<line x1="0" y1="62" x2="640" y2="62" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="12" y="55" font-size="7" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Order approval workflow</text>
+<text x="158" y="55" font-size="5" fill="#999" font-family="sans-serif">Draft · Last edited 2h ago</text>
+<rect x="390" y="46" width="44" height="12" rx="2" fill="#f0f0f0"/>
+<text x="402" y="55" font-size="5.5" fill="#888" font-family="sans-serif">+ Node</text>
+<rect x="438" y="46" width="36" height="12" rx="2" fill="#f0f0f0"/>
+<text x="446" y="55" font-size="5.5" fill="#888" font-family="sans-serif">Undo</text>
+<rect x="478" y="46" width="32" height="12" rx="2" fill="#f0f0f0"/>
+<text x="486" y="55" font-size="5.5" fill="#888" font-family="sans-serif">Redo</text>
+<rect x="514" y="46" width="32" height="12" rx="2" fill="#f0f0f0"/>
+<text x="522" y="55" font-size="5.5" fill="#888" font-family="sans-serif">Auto</text>
+<line x1="552" y1="48" x2="552" y2="58" stroke="#e0e0e0" stroke-width="0.3"/>
+<rect x="558" y="46" width="34" height="12" rx="2" fill="#f0f0f0"/>
+<text x="566" y="55" font-size="5.5" fill="#888" font-family="sans-serif">Test ▶</text>
+<rect x="596" y="46" width="36" height="12" rx="2" fill="#1D9E75"/>
+<text x="606" y="55" font-size="5.5" font-weight="500" fill="white" font-family="sans-serif">Deploy</text>
+<g opacity="0.15">
+<circle cx="32" cy="80" r="0.5" fill="#999"/><circle cx="52" cy="80" r="0.5" fill="#999"/><circle cx="72" cy="80" r="0.5" fill="#999"/><circle cx="92" cy="80" r="0.5" fill="#999"/><circle cx="112" cy="80" r="0.5" fill="#999"/><circle cx="132" cy="80" r="0.5" fill="#999"/><circle cx="152" cy="80" r="0.5" fill="#999"/><circle cx="172" cy="80" r="0.5" fill="#999"/>
+<circle cx="32" cy="100" r="0.5" fill="#999"/><circle cx="52" cy="100" r="0.5" fill="#999"/><circle cx="72" cy="100" r="0.5" fill="#999"/><circle cx="92" cy="100" r="0.5" fill="#999"/><circle cx="112" cy="100" r="0.5" fill="#999"/><circle cx="132" cy="100" r="0.5" fill="#999"/><circle cx="152" cy="100" r="0.5" fill="#999"/><circle cx="172" cy="100" r="0.5" fill="#999"/>
+</g>
+<rect x="40" y="80" width="120" height="44" rx="4" fill="white" stroke="#1D9E75" stroke-width="0.8"/>
+<circle cx="50" cy="96" r="4" fill="#1D9E75" opacity="0.15"/>
+<text x="50" y="98" text-anchor="middle" font-size="5" fill="#1D9E75" font-family="sans-serif">⚡</text>
+<text x="62" y="96" font-size="6" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Trigger</text>
+<text x="62" y="110" font-size="5" fill="#999" font-family="sans-serif">New order created</text>
+<circle cx="160" cy="102" r="3" fill="#1D9E75" stroke="white" stroke-width="1"/>
+<line x1="163" y1="102" x2="210" y2="142" stroke="#e0e0e0" stroke-width="1"/>
+<circle cx="210" cy="142" r="3" fill="#228be6" stroke="white" stroke-width="1"/>
+<rect x="210" y="126" width="140" height="44" rx="4" fill="white" stroke="#228be6" stroke-width="0.8"/>
+<rect x="220" y="136" width="16" height="10" rx="2" fill="#228be6" opacity="0.1"/>
+<text x="228" y="143" text-anchor="middle" font-size="5" fill="#228be6" font-family="sans-serif">◇</text>
+<text x="244" y="142" font-size="6" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Check amount</text>
+<text x="244" y="156" font-size="5" fill="#999" font-family="sans-serif">order.total > $5,000?</text>
+<text x="190" y="188" font-size="5" fill="#1D9E75" font-family="sans-serif">Yes</text>
+<text x="370" y="148" font-size="5" fill="#e8590c" font-family="sans-serif">No</text>
+<line x1="280" y1="170" x2="200" y2="210" stroke="#1D9E75" stroke-width="0.8"/>
+<line x1="350" y1="148" x2="400" y2="148" stroke="#e8590c" stroke-width="0.8"/>
+<rect x="120" y="210" width="160" height="56" rx="4" fill="white" stroke="#7F77DD" stroke-width="1"/>
+<rect x="120" y="210" width="160" height="16" rx="4" fill="#7F77DD" opacity="0.06"/>
+<rect x="120" y="222" width="160" height="4" fill="#7F77DD" opacity="0.06"/>
+<circle cx="133" cy="218" r="5" fill="#7F77DD" opacity="0.15"/>
+<text x="133" y="221" text-anchor="middle" font-size="6" fill="#7F77DD" font-family="sans-serif">🤖</text>
+<text x="145" y="221" font-size="5.5" font-weight="500" fill="#7F77DD" font-family="sans-serif">Agent: Review order</text>
+<text x="128" y="242" font-size="5" fill="#999" font-family="sans-serif">LangGraph · gpt-4o</text>
+<text x="128" y="254" font-size="5" fill="#999" font-family="sans-serif">Check fraud risk, validate address</text>
+<circle cx="200" cy="266" r="3" fill="#7F77DD" stroke="white" stroke-width="1"/>
+<rect x="400" y="126" width="120" height="44" rx="4" fill="white" stroke="#1D9E75" stroke-width="0.8"/>
+<circle cx="410" cy="142" r="4" fill="#1D9E75" opacity="0.15"/>
+<text x="410" y="144" text-anchor="middle" font-size="5" fill="#1D9E75" font-family="sans-serif">✓</text>
+<text x="422" y="142" font-size="6" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Auto-approve</text>
+<text x="422" y="156" font-size="5" fill="#999" font-family="sans-serif">Set status = approved</text>
+<rect x="120" y="286" width="160" height="44" rx="4" fill="white" stroke="#e8590c" stroke-width="0.8"/>
+<circle cx="133" cy="302" r="4" fill="#e8590c" opacity="0.15"/>
+<text x="133" y="304" text-anchor="middle" font-size="5" fill="#e8590c" font-family="sans-serif">👤</text>
+<text x="145" y="302" font-size="6" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Human review</text>
+<text x="145" y="316" font-size="5" fill="#999" font-family="sans-serif">Assign to: Account owner</text>
+<line x1="200" y1="266" x2="200" y2="286" stroke="#e0e0e0" stroke-width="1"/>
+<rect x="120" y="350" width="160" height="44" rx="4" fill="white" stroke="#228be6" stroke-width="0.8"/>
+<circle cx="133" cy="366" r="4" fill="#228be6" opacity="0.15"/>
+<text x="133" y="368" text-anchor="middle" font-size="5" fill="#228be6" font-family="sans-serif">✉</text>
+<text x="145" y="366" font-size="6" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Send notification</text>
+<text x="145" y="380" font-size="5" fill="#999" font-family="sans-serif">Email customer + Slack</text>
+<line x1="200" y1="330" x2="200" y2="350" stroke="#e0e0e0" stroke-width="1"/>
+<line x1="460" y1="170" x2="460" y2="350" stroke="#e0e0e0" stroke-width="0.8" stroke-dasharray="3 2"/>
+<line x1="460" y1="350" x2="280" y2="372" stroke="#e0e0e0" stroke-width="0.8" stroke-dasharray="3 2"/>
+<rect x="170" y="410" width="60" height="28" rx="14" fill="#f0f0f0" stroke="#999" stroke-width="0.5"/>
+<text x="200" y="428" text-anchor="middle" font-size="6" fill="#888" font-family="sans-serif">End</text>
+<line x1="200" y1="394" x2="200" y2="410" stroke="#e0e0e0" stroke-width="1"/>
+<rect x="440" y="200" width="192" height="230" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<rect x="440" y="200" width="192" height="18" fill="#f5f5f5" opacity="0.3" rx="3"/>
+<rect x="440" y="214" width="192" height="4" fill="#f5f5f5" opacity="0.3"/>
+<text x="452" y="213" font-size="6" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Agent: Review order</text>
+<text x="610" y="213" font-size="5" fill="#999" font-family="sans-serif">×</text>
+<text x="452" y="234" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Model</text>
+<rect x="452" y="238" width="168" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="460" y="247" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">gpt-4o ▾</text>
+<text x="452" y="264" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">System prompt</text>
+<rect x="452" y="268" width="168" height="36" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="460" y="280" font-size="5" fill="#888" font-family="sans-serif">You are a fraud detection</text>
+<text x="460" y="290" font-size="5" fill="#888" font-family="sans-serif">agent. Analyze the order...</text>
+<text x="460" y="300" font-size="5" fill="#999" font-family="sans-serif">⌨ Edit in Monaco</text>
+<text x="452" y="320" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Tools available</text>
+<rect x="452" y="324" width="80" height="10" rx="5" fill="#7F77DD" opacity="0.1"/>
+<text x="458" y="331" font-size="4.5" fill="#7F77DD" font-family="sans-serif">check_fraud_score</text>
+<rect x="536" y="324" width="76" height="10" rx="5" fill="#7F77DD" opacity="0.1"/>
+<text x="542" y="331" font-size="4.5" fill="#7F77DD" font-family="sans-serif">validate_address</text>
+<text x="452" y="346" font-size="5" fill="#228be6" font-family="sans-serif">+ Add tool</text>
+<text x="452" y="364" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Input mapping</text>
+<text x="452" y="378" font-size="5" fill="#999" font-family="monospace">order → trigger.output</text>
+<text x="452" y="390" font-size="5" fill="#999" font-family="monospace">customer → db.customers</text>
+<text x="452" y="408" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Output</text>
+<text x="452" y="422" font-size="5" fill="#999" font-family="monospace">risk_score: number</text>
+<text x="452" y="434" font-size="5" fill="#999" font-family="monospace">recommendation: string</text>
+<rect x="554" y="448" width="78" height="52" rx="2" fill="#f5f5f5" stroke="#e0e0e0" stroke-width="0.3"/>
+<rect x="560" y="454" width="6" height="4" rx="0.5" fill="#1D9E75" opacity="0.4"/>
+<rect x="570" y="460" width="8" height="4" rx="0.5" fill="#228be6" opacity="0.4"/>
+<rect x="564" y="468" width="10" height="4" rx="0.5" fill="#7F77DD" opacity="0.4"/>
+<rect x="564" y="474" width="10" height="4" rx="0.5" fill="#e8590c" opacity="0.3"/>
+<rect x="580" y="460" width="6" height="4" rx="0.5" fill="#1D9E75" opacity="0.3"/>
+<rect x="592" y="480" width="30" height="16" rx="1" fill="none" stroke="#228be6" stroke-width="0.4" opacity="0.5"/>
+<text x="8" y="456" font-size="5" fill="#999" font-family="sans-serif">Workflow mode: React Flow canvas. Node types: Trigger, Condition, Action, Agent (LangGraph), Human-in-loop, Notification, End.</text>
+<text x="8" y="466" font-size="5" fill="#999" font-family="sans-serif">Inspector panel (right): model picker, system prompt (Monaco), tools, input/output mapping. Toolbar: Add, Undo/Redo, Auto-layout, Test, Deploy.</text>
+<text x="8" y="476" font-size="5" fill="#999" font-family="sans-serif">AG-UI: agent nodes stream intermediate state. A2UI: agents produce UI fragments. Canvas only on ephemeral-enabled pages.</text>
+<text x="8" y="486" font-size="5" fill="#999" font-family="sans-serif">Workflow definitions stored in workflow_definitions table. Versioned + audited. Deploy activates. Test does dry run with sample data.</text>
+</svg>
+</div>
+
+<div class="wireframe">
+<h2>Agent panel + Agent-generated UI <span class="status">Approved</span></h2>
+<p>Agent panel: Dockview panel with chat, streaming results, A2UI cards, execution trace. Agent-generated UI: inline content rendered in pages via typed components (alerts, cards, action lists).</p>
+<svg viewBox="0 0 640 680" xmlns="http://www.w3.org/2000/svg">
+<text x="8" y="16" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Agent panel (Dockview panel — docked right or floating)</text>
+<text x="290" y="16" font-size="5" fill="#999" font-family="sans-serif">Chat + streaming results. Opened by clicking agent node, or via ⌘K > "Ask agent".</text>
+<rect x="0" y="22" width="640" height="370" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<rect x="0" y="22" width="400" height="370" fill="#f5f5f5" opacity="0.05" rx="3"/>
+<text x="200" y="80" text-anchor="middle" font-size="6" fill="#999" font-family="sans-serif">← Table listing or other page content (context)</text>
+<text x="200" y="94" text-anchor="middle" font-size="5" fill="#999" font-family="sans-serif">Agent can read/act on the current page state</text>
+<rect x="400" y="22" width="240" height="370" fill="white" stroke="#e0e0e0" stroke-width="0.5"/>
+<line x1="400" y1="22" x2="400" y2="392" stroke="#1a1a1a" stroke-width="2" opacity="0.03"/>
+<rect x="400" y="22" width="240" height="22" fill="#7F77DD" opacity="0.04"/>
+<line x1="400" y1="44" x2="640" y2="44" stroke="#e0e0e0" stroke-width="0.3"/>
+<circle cx="414" cy="33" r="5" fill="#7F77DD" opacity="0.15"/>
+<text x="414" y="36" text-anchor="middle" font-size="6" fill="#7F77DD" font-family="sans-serif">🤖</text>
+<text x="426" y="36" font-size="6" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Order review agent</text>
+<rect x="536" y="27" width="28" height="10" rx="5" fill="#1D9E75" opacity="0.15"/>
+<text x="542" y="34" font-size="4.5" font-weight="500" fill="#1D9E75" font-family="sans-serif">Active</text>
+<text x="576" y="36" font-size="5" fill="#999" font-family="sans-serif">⬔</text>
+<text x="592" y="36" font-size="5" fill="#999" font-family="sans-serif">—</text>
+<text x="610" y="36" font-size="5" fill="#999" font-family="sans-serif">×</text>
+<rect x="400" y="44" width="240" height="16" fill="#f5f5f5" opacity="0.2"/>
+<line x1="400" y1="60" x2="640" y2="60" stroke="#e0e0e0" stroke-width="0.2"/>
+<text x="412" y="56" font-size="5" fill="#999" font-family="sans-serif">Context: Order #4521 · Acme Corp · $2,450</text>
+<rect x="440" y="70" width="186" height="24" rx="4" fill="#228be6" opacity="0.08"/>
+<text x="448" y="80" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">Review this order for fraud risk</text>
+<text x="448" y="90" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">and validate the shipping address.</text>
+<rect x="412" y="100" width="180" height="14" rx="4" fill="#7F77DD" opacity="0.04"/>
+<circle cx="420" cy="107" r="4" fill="#7F77DD" opacity="0.15"/>
+<text x="420" y="110" text-anchor="middle" font-size="5" fill="#7F77DD" font-family="sans-serif">🤖</text>
+<text x="432" y="110" font-size="5" fill="#7F77DD" font-family="sans-serif">Running check_fraud_score...</text>
+<rect x="412" y="120" width="216" height="120" rx="4" fill="#7F77DD" opacity="0.03"/>
+<text x="420" y="136" font-size="5.5" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Fraud analysis complete</text>
+<rect x="418" y="142" width="204" height="80" rx="3" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="426" y="156" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Risk assessment</text>
+<rect x="568" y="148" width="44" height="10" rx="5" fill="#1D9E75" opacity="0.15"/>
+<text x="576" y="155" font-size="4.5" font-weight="500" fill="#1D9E75" font-family="sans-serif">Low risk</text>
+<text x="426" y="170" font-size="5" fill="#999" font-family="sans-serif">Fraud score</text>
+<text x="520" y="170" font-size="5" fill="#1a1a1a" font-family="monospace">0.12 / 1.0</text>
+<rect x="426" y="174" width="188" height="3" rx="1.5" fill="#f0f0f0"/>
+<rect x="426" y="174" width="23" height="3" rx="1.5" fill="#1D9E75"/>
+<text x="426" y="188" font-size="5" fill="#999" font-family="sans-serif">Address validation</text>
+<text x="520" y="188" font-size="5" fill="#1D9E75" font-family="sans-serif">✓ Valid (USPS verified)</text>
+<text x="426" y="202" font-size="5" fill="#999" font-family="sans-serif">Customer history</text>
+<text x="520" y="202" font-size="5" fill="#1a1a1a" font-family="sans-serif">47 orders, 0 disputes</text>
+<text x="426" y="216" font-size="5" fill="#999" font-family="sans-serif">Payment</text>
+<text x="520" y="216" font-size="5" fill="#1D9E75" font-family="sans-serif">✓ Verified card on file</text>
+<text x="420" y="234" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">Recommendation: Auto-approve.</text>
+<text x="420" y="244" font-size="5" fill="#888" font-family="sans-serif">No risk factors detected. Customer has</text>
+<text x="420" y="254" font-size="5" fill="#888" font-family="sans-serif">strong history with no disputes.</text>
+<rect x="418" y="260" width="70" height="14" rx="2" fill="#1D9E75"/>
+<text x="438" y="270" font-size="5.5" font-weight="500" fill="white" font-family="sans-serif">Approve</text>
+<rect x="494" y="260" width="60" height="14" rx="2" fill="#f0f0f0" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="512" y="270" font-size="5.5" fill="#888" font-family="sans-serif">Reject</text>
+<rect x="560" y="260" width="64" height="14" rx="2" fill="#f0f0f0" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="578" y="270" font-size="5.5" fill="#888" font-family="sans-serif">Escalate</text>
+<line x1="420" y1="282" x2="620" y2="282" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="420" y="296" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Execution trace</text>
+<text x="530" y="296" font-size="5" fill="#228be6" font-family="sans-serif">View in telemetry →</text>
+<circle cx="424" cy="308" r="2" fill="#1D9E75"/>
+<text x="432" y="310" font-size="4.5" fill="#999" font-family="sans-serif">check_fraud_score → 0.12</text>
+<text x="580" y="310" font-size="4.5" fill="#999" font-family="sans-serif">420ms</text>
+<circle cx="424" cy="322" r="2" fill="#1D9E75"/>
+<text x="432" y="324" font-size="4.5" fill="#999" font-family="sans-serif">validate_address → valid</text>
+<text x="580" y="324" font-size="4.5" fill="#999" font-family="sans-serif">280ms</text>
+<circle cx="424" cy="336" r="2" fill="#1D9E75"/>
+<text x="432" y="338" font-size="4.5" fill="#999" font-family="sans-serif">generate_recommendation</text>
+<text x="580" y="338" font-size="4.5" fill="#999" font-family="sans-serif">150ms</text>
+<text x="420" y="352" font-size="4.5" fill="#999" font-family="sans-serif">Total: 850ms · 3 tool calls · 1,240 tokens</text>
+<rect x="400" y="360" width="240" height="32" fill="#f5f5f5" opacity="0.3"/>
+<rect x="408" y="366" width="184" height="18" rx="3" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="416" y="378" font-size="5.5" fill="#999" font-family="sans-serif">Ask the agent anything...</text>
+<rect x="596" y="366" width="36" height="18" rx="3" fill="#7F77DD"/>
+<text x="608" y="378" font-size="5.5" font-weight="500" fill="white" font-family="sans-serif">Send</text>
+<text x="8" y="410" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Agent-generated UI (inline in page content)</text>
+<text x="210" y="410" font-size="5" fill="#999" font-family="sans-serif">A2UI protocol: agents produce UI fragments that render inside existing pages.</text>
+<rect x="0" y="418" width="640" height="244" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<text x="320" y="432" text-anchor="middle" font-size="5" fill="#999" font-family="sans-serif">[Inside table listing — below the data table, above pagination]</text>
+<rect x="8" y="440" width="624" height="16" fill="#7F77DD" opacity="0.03" rx="2"/>
+<circle cx="20" cy="448" r="4" fill="#7F77DD" opacity="0.15"/>
+<text x="20" y="451" text-anchor="middle" font-size="5" fill="#7F77DD" font-family="sans-serif">🤖</text>
+<text x="30" y="451" font-size="5.5" font-weight="500" fill="#7F77DD" font-family="sans-serif">Agent insight</text>
+<text x="100" y="451" font-size="5" fill="#999" font-family="sans-serif">Generated by Order review agent · 2 min ago</text>
+<text x="580" y="451" font-size="5" fill="#999" font-family="sans-serif">Dismiss</text>
+<text x="610" y="451" font-size="5" fill="#228be6" font-family="sans-serif">Expand</text>
+<rect x="8" y="460" width="304" height="110" rx="4" fill="white" stroke="#e8590c" stroke-width="0.3" stroke-opacity="0.3"/>
+<text x="16" y="476" font-size="6" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Anomaly detected: Order pattern</text>
+<text x="16" y="490" font-size="5" fill="#888" font-family="sans-serif">3 orders from the same IP address in the last</text>
+<text x="16" y="500" font-size="5" fill="#888" font-family="sans-serif">hour, totaling $47,200. Historically unusual for</text>
+<text x="16" y="510" font-size="5" fill="#888" font-family="sans-serif">this customer segment.</text>
+<text x="16" y="528" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Affected orders</text>
+<text x="16" y="542" font-size="5" fill="#228be6" font-family="monospace">#4521</text>
+<text x="50" y="542" font-size="5" fill="#888" font-family="sans-serif">$2,450</text>
+<text x="90" y="542" font-size="5" fill="#228be6" font-family="monospace">#4520</text>
+<text x="124" y="542" font-size="5" fill="#888" font-family="sans-serif">$8,200</text>
+<text x="164" y="542" font-size="5" fill="#228be6" font-family="monospace">#4519</text>
+<text x="198" y="542" font-size="5" fill="#888" font-family="sans-serif">$36,550</text>
+<rect x="16" y="552" width="60" height="12" rx="2" fill="#e8590c"/>
+<text x="32" y="561" font-size="5" font-weight="500" fill="white" font-family="sans-serif">Flag all 3</text>
+<rect x="82" y="552" width="64" height="12" rx="2" fill="#f0f0f0"/>
+<text x="102" y="561" font-size="5" fill="#888" font-family="sans-serif">Dismiss</text>
+<rect x="152" y="552" width="96" height="12" rx="2" fill="#f0f0f0"/>
+<text x="184" y="561" font-size="5" fill="#888" font-family="sans-serif">Investigate →</text>
+<rect x="320" y="460" width="312" height="110" rx="4" fill="white" stroke="#1D9E75" stroke-width="0.3" stroke-opacity="0.3"/>
+<text x="328" y="476" font-size="6" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Suggested actions</text>
+<text x="328" y="490" font-size="5" fill="#888" font-family="sans-serif">Based on current order queue analysis:</text>
+<rect x="336" y="498" width="288" height="14" rx="2" fill="#f5f5f5"/>
+<text x="344" y="508" font-size="5" fill="#1a1a1a" font-family="sans-serif">↻ Reassign 5 pending orders to available reps</text>
+<rect x="596" y="500" width="22" height="10" rx="2" fill="#1D9E75"/>
+<text x="601" y="507" font-size="4.5" font-weight="500" fill="white" font-family="sans-serif">Run</text>
+<rect x="336" y="516" width="288" height="14" rx="2" fill="#f5f5f5"/>
+<text x="344" y="526" font-size="5" fill="#1a1a1a" font-family="sans-serif">📊 Generate end-of-day fulfillment report</text>
+<rect x="596" y="518" width="22" height="10" rx="2" fill="#1D9E75"/>
+<text x="601" y="525" font-size="4.5" font-weight="500" fill="white" font-family="sans-serif">Run</text>
+<rect x="336" y="534" width="288" height="14" rx="2" fill="#f5f5f5"/>
+<text x="344" y="544" font-size="5" fill="#1a1a1a" font-family="sans-serif">⚠ Notify 3 customers about shipping delay</text>
+<rect x="596" y="536" width="22" height="10" rx="2" fill="#228be6"/>
+<text x="601" y="543" font-size="4.5" font-weight="500" fill="white" font-family="sans-serif">Run</text>
+<text x="328" y="564" font-size="5" fill="#999" font-family="sans-serif">Each action triggers a workflow execution. Results stream back to agent panel.</text>
+<text x="8" y="578" font-size="5" fill="#999" font-family="sans-serif">Agent-generated UI: A2UI protocol renders typed components (alert, card, table, chart, action list) inline in page content. Sandboxed — no raw HTML.</text>
+<text x="8" y="588" font-size="5" fill="#999" font-family="sans-serif">Agent panel: AG-UI streams intermediate state (tool calls, reasoning). Panel is Dockview — dock right, float, or minimize to tray.</text>
+<text x="8" y="598" font-size="5" fill="#999" font-family="sans-serif">MCP server: External agents (Claude Code, Cursor, etc.) can read page state and trigger workflows via Vastu's premade MCP server.</text>
+<text x="8" y="608" font-size="5" fill="#999" font-family="sans-serif">All agent executions traced via OpenTelemetry. Execution trace in agent panel links to telemetry page for full span details.</text>
+</svg>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vastu — Group C Wireframes (Approved)</title>
+<style>
+  body { font-family: -apple-system, sans-serif; max-width: 1280px; margin: 0 auto; padding: 40px 20px; background: #fafafa; color: #1a1a1a; }
+  h1 { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
+  .subtitle { font-size: 14px; color: #666; margin-bottom: 40px; }
+  .wireframe { background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; margin-bottom: 40px; }
+  .wireframe h2 { font-size: 18px; font-weight: 500; margin: 0 0 4px; }
+  .wireframe p { font-size: 13px; color: #888; margin: 0 0 20px; }
+  .wireframe svg { width: 100%; height: auto; display: block; }
+  .status { display: inline-block; background: #e6f9ee; color: #1D9E75; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 10px; margin-left: 8px; }
+</style>
+</head>
+<body>
+<h1>Vastu — Wireframes: Group C</h1>
+<p class="subtitle">Auth variants + shell pages — 11 screens — Approved March 2026</p>
+
+<div class="wireframe">
+<h2>9-13. Auth page variants <span class="status">Approved</span></h2>
+<p>Register, Forgot password, Email verification, MFA challenge, Reset password. All reuse the Login's 40/60 branding split layout.</p>
+<svg viewBox="0 0 640 400" xmlns="http://www.w3.org/2000/svg">
+<text x="320" y="14" text-anchor="middle" font-size="7" font-weight="500" fill="#999" font-family="sans-serif">Auth page variants — same split layout as Login, only form content changes</text>
+<!-- REGISTER -->
+<text x="8" y="36" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Register</text>
+<text x="52" y="36" font-size="5" fill="#999" font-family="sans-serif">Same branding panel left. Right form content:</text>
+<rect x="0" y="42" width="300" height="182" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<text x="150" y="60" text-anchor="middle" font-size="8" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Create your workspace</text>
+<text x="150" y="72" text-anchor="middle" font-size="5.5" fill="#999" font-family="sans-serif">Get started with Vastu in minutes</text>
+<text x="16" y="88" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Full name</text>
+<rect x="16" y="92" width="128" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="154" y="88" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Organization name</text>
+<rect x="154" y="92" width="130" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="16" y="116" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Work email</text>
+<rect x="16" y="120" width="268" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="16" y="144" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Password</text>
+<rect x="16" y="148" width="128" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="154" y="144" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Confirm password</text>
+<rect x="154" y="148" width="130" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<rect x="16" y="164" width="40" height="2" rx="1" fill="#1D9E75"/><rect x="58" y="164" width="40" height="2" rx="1" fill="#1D9E75"/><rect x="100" y="164" width="40" height="2" rx="1" fill="#1D9E75"/><rect x="142" y="164" width="40" height="2" rx="1" fill="#e0e0e0"/>
+<text x="190" y="166" font-size="5" fill="#1D9E75" font-family="sans-serif">Strong</text>
+<rect x="16" y="174" width="6" height="6" rx="1" fill="none" stroke="#ccc" stroke-width="0.4"/>
+<text x="26" y="179" font-size="5" fill="#888" font-family="sans-serif">I agree to the Terms and Privacy Policy</text>
+<rect x="16" y="190" width="268" height="14" rx="2" fill="#228be6"/><text x="150" y="200" text-anchor="middle" font-size="5.5" font-weight="500" fill="white" font-family="sans-serif">Create account</text>
+<text x="150" y="216" text-anchor="middle" font-size="5" fill="#999" font-family="sans-serif">Already have an account? <tspan fill="#228be6">Sign in</tspan></text>
+<!-- FORGOT PASSWORD -->
+<text x="328" y="36" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Forgot password</text>
+<rect x="320" y="42" width="300" height="116" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<text x="470" y="60" text-anchor="middle" font-size="8" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Reset your password</text>
+<text x="470" y="72" text-anchor="middle" font-size="5.5" fill="#999" font-family="sans-serif">We'll send a reset link to your email</text>
+<text x="336" y="90" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Email</text>
+<rect x="336" y="94" width="268" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="344" y="103" font-size="5.5" fill="#999" font-family="sans-serif">you@company.com</text>
+<rect x="336" y="114" width="268" height="14" rx="2" fill="#228be6"/><text x="470" y="124" text-anchor="middle" font-size="5.5" font-weight="500" fill="white" font-family="sans-serif">Send reset link</text>
+<text x="470" y="150" text-anchor="middle" font-size="5" fill="#228be6" font-family="sans-serif">← Back to sign in</text>
+<!-- EMAIL VERIFICATION -->
+<text x="328" y="180" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Email verification</text>
+<rect x="320" y="186" width="300" height="100" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<circle cx="470" cy="208" r="10" fill="#228be6" opacity="0.1"/>
+<text x="470" y="212" text-anchor="middle" font-size="10" fill="#228be6" font-family="sans-serif">✉</text>
+<text x="470" y="230" text-anchor="middle" font-size="7" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Check your email</text>
+<text x="470" y="242" text-anchor="middle" font-size="5.5" fill="#999" font-family="sans-serif">We sent a verification link to john@acme.com</text>
+<text x="470" y="258" text-anchor="middle" font-size="5" fill="#999" font-family="sans-serif">Didn't receive it? <tspan fill="#228be6">Resend email</tspan></text>
+<text x="470" y="278" text-anchor="middle" font-size="5" fill="#228be6" font-family="sans-serif">← Back to sign in</text>
+<!-- MFA CHALLENGE -->
+<text x="8" y="246" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">MFA challenge</text>
+<rect x="0" y="252" width="300" height="122" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<text x="150" y="272" text-anchor="middle" font-size="8" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Two-factor authentication</text>
+<text x="150" y="284" text-anchor="middle" font-size="5.5" fill="#999" font-family="sans-serif">Enter the 6-digit code from your authenticator app</text>
+<g transform="translate(48, 294)">
+<rect x="0" y="0" width="18" height="22" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.5"/><text x="9" y="15" text-anchor="middle" font-size="10" font-weight="500" fill="#1a1a1a" font-family="monospace">4</text>
+<rect x="22" y="0" width="18" height="22" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.5"/><text x="31" y="15" text-anchor="middle" font-size="10" font-weight="500" fill="#1a1a1a" font-family="monospace">8</text>
+<rect x="44" y="0" width="18" height="22" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.5"/><text x="53" y="15" text-anchor="middle" font-size="10" font-weight="500" fill="#1a1a1a" font-family="monospace">2</text>
+<text x="69" y="14" text-anchor="middle" font-size="8" fill="#999" font-family="sans-serif">–</text>
+<rect x="78" y="0" width="18" height="22" rx="2" fill="white" stroke="#228be6" stroke-width="0.8"/>
+<rect x="100" y="0" width="18" height="22" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.5"/>
+<rect x="122" y="0" width="18" height="22" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.5"/>
+</g>
+<rect x="16" y="330" width="268" height="14" rx="2" fill="#228be6"/><text x="150" y="340" text-anchor="middle" font-size="5.5" font-weight="500" fill="white" font-family="sans-serif">Verify</text>
+<text x="150" y="358" text-anchor="middle" font-size="5" fill="#999" font-family="sans-serif">Lost access? <tspan fill="#228be6">Use recovery code</tspan></text>
+<text x="150" y="368" text-anchor="middle" font-size="5" fill="#228be6" font-family="sans-serif">← Back to sign in</text>
+<!-- RESET PASSWORD -->
+<text x="328" y="308" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Reset password (from email link)</text>
+<rect x="320" y="314" width="300" height="80" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<text x="470" y="332" text-anchor="middle" font-size="8" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Set new password</text>
+<text x="336" y="348" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">New password</text>
+<rect x="336" y="352" width="128" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<text x="474" y="348" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Confirm</text>
+<rect x="474" y="352" width="130" height="12" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/>
+<rect x="336" y="372" width="268" height="14" rx="2" fill="#228be6"/><text x="470" y="382" text-anchor="middle" font-size="5.5" font-weight="500" fill="white" font-family="sans-serif">Reset password</text>
+<text x="8" y="398" font-size="5" fill="#999" font-family="sans-serif">All auth pages: same split layout (40% Vastu branding + Kundli motif with node dots left, form right). SSO buttons appear on Login only. Back-to-signin link on all secondary pages.</text>
+</svg>
+</div>
+
+<div class="wireframe">
+<h2>14-21. Settings &amp; admin pages <span class="status">Approved</span></h2>
+<p>Shared shell layout (top bar + side nav + content). Pages: Profile, DB connections, API keys, Appearance, User management, Audit log. Plus error pages (404/500).</p>
+<svg viewBox="0 0 640 560" xmlns="http://www.w3.org/2000/svg">
+<text x="320" y="14" text-anchor="middle" font-size="7" font-weight="500" fill="#999" font-family="sans-serif">Shell pages — shared layout + individual content areas</text>
+<!-- SHARED SHELL LAYOUT -->
+<text x="8" y="34" font-size="6" font-weight="500" fill="#888" font-family="sans-serif">Shared shell layout (all settings + admin pages)</text>
+<rect x="0" y="40" width="640" height="56" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<rect x="0" y="40" width="640" height="20" fill="#f5f5f5" rx="3"/><rect x="0" y="52" width="640" height="8" fill="#f5f5f5"/>
+<g transform="translate(8, 44)"><rect x="0" y="0" width="10" height="10" rx="1.5" fill="none" stroke="#1a1a1a" stroke-width="0.6"/><line x1="0" y1="0" x2="10" y2="10" stroke="#1a1a1a" stroke-width="0.3" opacity="0.3"/><line x1="10" y1="0" x2="0" y2="10" stroke="#1a1a1a" stroke-width="0.3" opacity="0.3"/></g>
+<text x="24" y="53" font-size="6" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Vastu</text>
+<text x="54" y="53" font-size="5.5" fill="#228be6" font-family="sans-serif">← Back to workspace</text>
+<text x="200" y="53" font-size="5.5" fill="#999" font-family="sans-serif">Settings</text><text x="234" y="53" font-size="5.5" fill="#999" font-family="sans-serif">/</text><text x="242" y="53" font-size="5.5" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Profile</text>
+<circle cx="612" cy="50" r="6" fill="#f0f0f0" stroke="#e0e0e0" stroke-width="0.3"/><text x="612" y="53" text-anchor="middle" font-size="5" font-weight="500" fill="#999" font-family="sans-serif">AD</text>
+<rect x="0" y="60" width="110" height="36" fill="#f5f5f5" opacity="0.3"/><line x1="110" y1="60" x2="110" y2="96" stroke="#e0e0e0" stroke-width="0.3"/>
+<text x="8" y="72" font-size="5" font-weight="500" fill="#999" font-family="sans-serif" letter-spacing="0.3">SETTINGS</text>
+<text x="12" y="84" font-size="5.5" fill="#228be6" font-family="sans-serif">● Profile</text>
+<text x="12" y="92" font-size="5" fill="#999" font-family="sans-serif">Organization · DB · API Keys · SSO · Appearance</text>
+<rect x="110" y="60" width="530" height="36" fill="white"/>
+<text x="320" y="82" text-anchor="middle" font-size="6" fill="#999" font-family="sans-serif">Content area (varies per page, shown below)</text>
+<!-- PROFILE SETTINGS -->
+<text x="8" y="116" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Profile settings</text>
+<rect x="0" y="122" width="300" height="130" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<text x="12" y="138" font-size="7" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Profile</text>
+<circle cx="30" cy="158" r="12" fill="#f0f0f0" stroke="#e0e0e0" stroke-width="0.3"/><text x="30" y="161" text-anchor="middle" font-size="7" font-weight="500" fill="#999" font-family="sans-serif">AD</text>
+<text x="50" y="156" font-size="5.5" fill="#228be6" font-family="sans-serif">Change avatar</text>
+<text x="50" y="165" font-size="5" fill="#999" font-family="sans-serif">JPG, PNG. Max 2MB.</text>
+<text x="12" y="184" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Full name</text>
+<rect x="12" y="188" width="130" height="11" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/><text x="18" y="196" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">Anurag D.</text>
+<text x="152" y="184" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Email</text>
+<rect x="152" y="188" width="136" height="11" rx="2" fill="#f0f0f0" stroke="#e0e0e0" stroke-width="0.4"/><text x="158" y="196" font-size="5.5" fill="#999" font-family="sans-serif">anurag@acme.com (SSO)</text>
+<text x="12" y="212" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Language</text>
+<rect x="12" y="216" width="130" height="11" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/><text x="18" y="224" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">English (US) ▾</text>
+<text x="152" y="212" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Timezone</text>
+<rect x="152" y="216" width="136" height="11" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/><text x="158" y="224" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">America/Los_Angeles ▾</text>
+<text x="12" y="240" font-size="5.5" fill="#228be6" font-family="sans-serif">Change password</text><text x="80" y="240" font-size="5.5" fill="#999" font-family="sans-serif">·</text><text x="88" y="240" font-size="5.5" fill="#228be6" font-family="sans-serif">Setup MFA</text>
+<rect x="234" y="234" width="54" height="12" rx="2" fill="#228be6"/><text x="252" y="243" font-size="5.5" font-weight="500" fill="white" font-family="sans-serif">Save</text>
+<!-- DATABASE CONNECTIONS -->
+<text x="328" y="116" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Database connections</text>
+<rect x="320" y="122" width="300" height="130" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<text x="332" y="138" font-size="7" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Database connections</text>
+<rect x="540" y="130" width="68" height="12" rx="2" fill="#228be6"/><text x="562" y="139" font-size="5.5" font-weight="500" fill="white" font-family="sans-serif">+ Add new</text>
+<rect x="328" y="148" width="284" height="32" fill="#f5f5f5" opacity="0.15" rx="2" stroke="#e0e0e0" stroke-width="0.3"/>
+<circle cx="340" cy="164" r="4" fill="#1D9E75" opacity="0.3"/>
+<text x="350" y="160" font-size="6" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Production</text>
+<text x="350" y="172" font-size="5" fill="#999" font-family="monospace">postgres://prod.acme.com:5432/orders</text>
+<rect x="566" y="157" width="22" height="10" rx="5" fill="#e6f9ee"/><text x="570" y="164" font-size="4.5" font-weight="500" fill="#1D9E75" font-family="sans-serif">Live</text>
+<text x="598" y="164" font-size="6" fill="#999" font-family="sans-serif">⋯</text>
+<rect x="328" y="184" width="284" height="32" fill="#f5f5f5" opacity="0.15" rx="2" stroke="#e0e0e0" stroke-width="0.3"/>
+<circle cx="340" cy="200" r="4" fill="#e8590c" opacity="0.3"/>
+<text x="350" y="196" font-size="6" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Staging</text>
+<text x="350" y="208" font-size="5" fill="#999" font-family="monospace">postgres://staging.acme.com:5432/orders</text>
+<rect x="556" y="193" width="32" height="10" rx="5" fill="#fff3e0"/><text x="561" y="200" font-size="4.5" font-weight="500" fill="#e8590c" font-family="sans-serif">Idle</text>
+<text x="598" y="200" font-size="6" fill="#999" font-family="sans-serif">⋯</text>
+<text x="470" y="234" text-anchor="middle" font-size="5" fill="#999" font-family="sans-serif">⋯ menu: Edit · Test connection · View schema · Delete</text>
+<!-- USER MANAGEMENT -->
+<text x="8" y="274" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">User management (admin)</text>
+<rect x="0" y="280" width="300" height="140" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<text x="12" y="296" font-size="7" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Users</text><text x="50" y="296" font-size="5.5" fill="#999" font-family="sans-serif">24 members</text>
+<rect x="220" y="288" width="68" height="12" rx="2" fill="#228be6"/><text x="244" y="297" font-size="5.5" font-weight="500" fill="white" font-family="sans-serif">+ Invite user</text>
+<rect x="12" y="304" width="140" height="11" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/><text x="18" y="312" font-size="5" fill="#999" font-family="sans-serif">⌕ Search users...</text>
+<rect x="158" y="304" width="46" height="11" rx="5.5" fill="#f0f0f0"/><text x="170" y="312" font-size="5" fill="#999" font-family="sans-serif">Role ▾</text>
+<rect x="208" y="304" width="50" height="11" rx="5.5" fill="#f0f0f0"/><text x="220" y="312" font-size="5" fill="#999" font-family="sans-serif">Status ▾</text>
+<rect x="8" y="320" width="284" height="12" fill="#f5f5f5" opacity="0.2"/>
+<text x="16" y="328" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">User</text><text x="108" y="328" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Email</text><text x="196" y="328" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Role</text><text x="238" y="328" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Status</text>
+<circle cx="20" cy="342" r="4" fill="#f0f0f0"/><text x="20" y="344" text-anchor="middle" font-size="4" font-weight="500" fill="#999" font-family="sans-serif">JD</text>
+<text x="30" y="344" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">Jane Doe</text><text x="108" y="344" font-size="5.5" fill="#888" font-family="sans-serif">jane@acme.com</text>
+<rect x="196" y="338" width="26" height="10" rx="5" fill="#228be6" opacity="0.15"/><text x="200" y="345" font-size="4.5" font-weight="500" fill="#228be6" font-family="sans-serif">Admin</text>
+<circle cx="244" cy="342" r="2.5" fill="#1D9E75"/><text x="252" y="344" font-size="5" fill="#999" font-family="sans-serif">Active</text>
+<line x1="12" y1="350" x2="284" y2="350" stroke="#e0e0e0" stroke-width="0.15"/>
+<circle cx="20" cy="360" r="4" fill="#f0f0f0"/><text x="20" y="362" text-anchor="middle" font-size="4" font-weight="500" fill="#999" font-family="sans-serif">MK</text>
+<text x="30" y="362" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">Mike Kim</text><text x="108" y="362" font-size="5.5" fill="#888" font-family="sans-serif">mike@acme.com</text>
+<rect x="196" y="356" width="26" height="10" rx="5" fill="#1D9E75" opacity="0.15"/><text x="200" y="363" font-size="4.5" font-weight="500" fill="#1D9E75" font-family="sans-serif">Editor</text>
+<circle cx="244" cy="360" r="2.5" fill="#1D9E75"/>
+<line x1="12" y1="368" x2="284" y2="368" stroke="#e0e0e0" stroke-width="0.15"/>
+<circle cx="20" cy="378" r="4" fill="#f0f0f0"/>
+<text x="30" y="380" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">Sarah Chen</text><text x="108" y="380" font-size="5.5" fill="#888" font-family="sans-serif">sarah@acme.com</text>
+<rect x="196" y="374" width="28" height="10" rx="5" fill="#f0f0f0"/><text x="200" y="381" font-size="4.5" font-weight="500" fill="#999" font-family="sans-serif">Viewer</text>
+<circle cx="244" cy="378" r="2.5" fill="#999"/><text x="252" y="380" font-size="5" fill="#999" font-family="sans-serif">Pending</text>
+<text x="150" y="404" text-anchor="middle" font-size="5" fill="#999" font-family="sans-serif">Click row → edit drawer: name, email, role ▾, deactivate, reset password</text>
+<!-- AUDIT LOG -->
+<text x="328" y="274" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Audit log (admin)</text>
+<rect x="320" y="280" width="300" height="140" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<text x="332" y="296" font-size="7" font-weight="500" fill="#1a1a1a" font-family="sans-serif">Audit log</text>
+<rect x="540" y="288" width="68" height="12" rx="2" fill="#f0f0f0"/><text x="562" y="297" font-size="5.5" fill="#888" font-family="sans-serif">Export CSV</text>
+<rect x="328" y="304" width="70" height="11" rx="2" fill="white" stroke="#e0e0e0" stroke-width="0.4"/><text x="334" y="312" font-size="5" fill="#999" font-family="sans-serif">Date range ▾</text>
+<rect x="402" y="304" width="44" height="11" rx="5.5" fill="#f0f0f0"/><text x="414" y="312" font-size="5" fill="#999" font-family="sans-serif">User ▾</text>
+<rect x="450" y="304" width="50" height="11" rx="5.5" fill="#f0f0f0"/><text x="464" y="312" font-size="5" fill="#999" font-family="sans-serif">Action ▾</text>
+<rect x="504" y="304" width="56" height="11" rx="5.5" fill="#f0f0f0"/><text x="520" y="312" font-size="5" fill="#999" font-family="sans-serif">Resource ▾</text>
+<rect x="326" y="320" width="288" height="12" fill="#f5f5f5" opacity="0.2"/>
+<text x="334" y="328" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Timestamp</text><text x="396" y="328" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">User</text><text x="456" y="328" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Action</text><text x="520" y="328" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Resource</text>
+<text x="334" y="344" font-size="5" fill="#999" font-family="monospace">Mar 17 14:23</text><text x="396" y="344" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">Jane D.</text>
+<rect x="456" y="338" width="28" height="10" rx="5" fill="#228be6" opacity="0.15"/><text x="461" y="345" font-size="4.5" font-weight="500" fill="#228be6" font-family="sans-serif">Update</text>
+<text x="520" y="344" font-size="5.5" fill="#888" font-family="sans-serif">Order #4521</text>
+<line x1="330" y1="350" x2="610" y2="350" stroke="#e0e0e0" stroke-width="0.15"/>
+<text x="334" y="362" font-size="5" fill="#999" font-family="monospace">Mar 17 14:01</text><text x="396" y="362" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">System</text>
+<rect x="456" y="356" width="28" height="10" rx="5" fill="#1D9E75" opacity="0.15"/><text x="461" y="363" font-size="4.5" font-weight="500" fill="#1D9E75" font-family="sans-serif">Create</text>
+<text x="520" y="362" font-size="5.5" fill="#888" font-family="sans-serif">API Key sk_...4f2</text>
+<line x1="330" y1="368" x2="610" y2="368" stroke="#e0e0e0" stroke-width="0.15"/>
+<text x="334" y="380" font-size="5" fill="#999" font-family="monospace">Mar 17 12:45</text><text x="396" y="380" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">Anurag D.</text>
+<rect x="456" y="374" width="24" height="10" rx="5" fill="#e03131" opacity="0.15"/><text x="461" y="381" font-size="4.5" font-weight="500" fill="#e03131" font-family="sans-serif">Delete</text>
+<text x="520" y="380" font-size="5.5" fill="#888" font-family="sans-serif">User sarah@...</text>
+<text x="470" y="406" text-anchor="middle" font-size="5" fill="#999" font-family="sans-serif">Click row → detail drawer: full event payload, before/after diff, related events</text>
+<!-- API KEYS -->
+<text x="8" y="438" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">API keys</text>
+<rect x="0" y="444" width="300" height="100" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<text x="12" y="460" font-size="7" font-weight="500" fill="#1a1a1a" font-family="sans-serif">API keys</text>
+<rect x="220" y="452" width="68" height="12" rx="2" fill="#228be6"/><text x="244" y="461" font-size="5.5" font-weight="500" fill="white" font-family="sans-serif">+ Generate</text>
+<rect x="8" y="468" width="284" height="12" fill="#f5f5f5" opacity="0.2"/>
+<text x="16" y="476" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Name</text><text x="100" y="476" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Key</text><text x="180" y="476" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Scope</text><text x="230" y="476" font-size="5" font-weight="500" fill="#888" font-family="sans-serif">Last used</text>
+<text x="16" y="492" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">Production</text><text x="100" y="492" font-size="5" fill="#999" font-family="monospace">sk_live_...4f2a</text>
+<rect x="180" y="486" width="30" height="10" rx="5" fill="#228be6" opacity="0.15"/><text x="186" y="493" font-size="4.5" font-weight="500" fill="#228be6" font-family="sans-serif">Full</text>
+<text x="230" y="492" font-size="5" fill="#999" font-family="sans-serif">2h ago</text><text x="274" y="492" font-size="5" fill="#999" font-family="sans-serif">⋯</text>
+<line x1="12" y1="498" x2="284" y2="498" stroke="#e0e0e0" stroke-width="0.15"/>
+<text x="16" y="510" font-size="5.5" fill="#1a1a1a" font-family="sans-serif">CI/CD</text><text x="100" y="510" font-size="5" fill="#999" font-family="monospace">sk_live_...8b1c</text>
+<rect x="180" y="504" width="44" height="10" rx="5" fill="#e8590c" opacity="0.15"/><text x="186" y="511" font-size="4.5" font-weight="500" fill="#e8590c" font-family="sans-serif">Read only</text>
+<text x="230" y="510" font-size="5" fill="#999" font-family="sans-serif">3d ago</text><text x="274" y="510" font-size="5" fill="#999" font-family="sans-serif">⋯</text>
+<text x="150" y="536" text-anchor="middle" font-size="5" fill="#999" font-family="sans-serif">Generate modal: name, scope selector (full/read-only/custom per-resource), copy key (shown once)</text>
+<!-- APPEARANCE -->
+<text x="328" y="438" font-size="6" font-weight="500" fill="#228be6" font-family="sans-serif">Appearance</text>
+<rect x="320" y="444" width="300" height="54" fill="white" stroke="#e0e0e0" stroke-width="0.5" rx="3"/>
+<text x="470" y="462" text-anchor="middle" font-size="6" fill="#888" font-family="sans-serif">Color scheme: Light / Dark / System</text>
+<text x="470" y="476" text-anchor="middle" font-size="6" fill="#888" font-family="sans-serif">Primary color: ● ● ● ● picker</text>
+<text x="470" y="490" text-anchor="middle" font-size="6" fill="#888" font-family="sans-serif">Density: Compact / Comfortable / Spacious</text>
+<!-- ANNOTATION -->
+<text x="8" y="556" font-size="5" fill="#999" font-family="sans-serif">All shell pages: top bar (logo + back-to-workspace + breadcrumb + user menu) + settings side nav + content area. Admin pages add "Admin" section to side nav (RBAC-gated). SSO + Org settings follow same form patterns.</text>
+</svg>
+</div>
+
+</body>
+</html>
