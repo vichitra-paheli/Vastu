@@ -28,3 +28,6 @@ export type { LoadingOverlayProps } from './LoadingOverlay';
 
 export { ErrorState } from './ErrorState';
 export type { ErrorStateProps } from './ErrorState';
+
+export { ErrorPage } from './ErrorPage';
+export type { ErrorPageProps, ErrorPageAction } from './ErrorPage';

@@ -1,0 +1,47 @@
+/**
+ * SideNav — Shell layout side navigation styles.
+ */
+
+.sideNav {
+  width: 220px;
+  min-height: 0;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--v-bg-primary);
+  border-right: 1px solid var(--v-border-default);
+  padding: var(--v-space-md) 0;
+  overflow-y: auto;
+}
+
+.section {
+  padding: 0 var(--v-space-sm);
+  margin-bottom: var(--v-space-md);
+}
+
+.sectionLabel {
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-medium);
+  color: var(--v-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0 var(--v-space-sm);
+  margin-bottom: var(--v-space-1);
+}
+
+/* Responsive: hide side nav, show hamburger below 1024px */
+@media (max-width: 1023px) {
+  .sideNav {
+    display: none;
+  }
+
+  .sideNavMobileOpen {
+    display: flex;
+    position: fixed;
+    top: 48px;
+    left: 0;
+    bottom: 0;
+    z-index: var(--v-z-sidebar);
+    box-shadow: var(--v-shadow-md);
+  }
+}

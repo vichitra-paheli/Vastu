@@ -8,11 +8,15 @@
  * Purely decorative — aria-hidden="true".
  */
 
+import type { CSSProperties } from 'react';
+
 interface KundliMotifProps {
   className?: string;
+  /** Inline styles forwarded to the root `<svg>` element. */
+  style?: CSSProperties;
 }
 
-export function KundliMotif({ className }: KundliMotifProps) {
+export function KundliMotif({ className, style }: KundliMotifProps) {
   /*
    * Geometry:
    *   viewBox: 0 0 300 300  → center at (150, 150)
@@ -76,6 +80,7 @@ export function KundliMotif({ className }: KundliMotifProps) {
     <svg
       viewBox="0 0 300 300"
       className={className}
+      style={style}
       aria-hidden="true"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
