@@ -14,6 +14,10 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
       '@vastu/shared': path.resolve(__dirname, '../shared/src/index.ts'),
+      '@vastu/shared/prisma': path.resolve(__dirname, '../shared/src/prisma/index.ts'),
+      '@vastu/shared/permissions': path.resolve(__dirname, '../shared/src/permissions/index.ts'),
+      '@vastu/shared/types': path.resolve(__dirname, '../shared/src/types/index.ts'),
+      '@vastu/shared/utils': path.resolve(__dirname, '../shared/src/utils/index.ts'),
     },
   },
 });

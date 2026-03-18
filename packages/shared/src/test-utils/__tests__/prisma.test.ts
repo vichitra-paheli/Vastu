@@ -7,7 +7,6 @@
  */
 
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
-import { PrismaClient } from '@prisma/client';
 
 // Mock PrismaClient so tests do not require a running database.
 vi.mock('@prisma/client', () => {
