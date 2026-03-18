@@ -3,6 +3,7 @@ import '@mantine/notifications/styles.css';
 import '../theme/vastu.tokens.css';
 
 import { ColorSchemeScript, MantineProvider } from '@mantine/core';
+import { Notifications } from '@mantine/notifications';
 import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 
@@ -40,6 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         }}
       >
         <MantineProvider theme={vastuTheme} defaultColorScheme="auto">
+          <Notifications position="bottom-right" limit={3} />
           {children}
         </MantineProvider>
       </body>

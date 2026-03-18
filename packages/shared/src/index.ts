@@ -30,3 +30,7 @@ export type {
 
 export { prisma } from './prisma';
 export type { PrismaClient } from './prisma';
+
+export * from './permissions';
+
+export * from './utils';

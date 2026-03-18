@@ -1,0 +1,39 @@
+.container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.brandingPanel {
+  width: 40%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--v-bg-secondary);
+  position: relative;
+  overflow: hidden;
+}
+
+.formPanel {
+  width: 60%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--v-bg-primary);
+  padding: var(--v-space-xl);
+}
+
+.formContent {
+  width: 100%;
+  max-width: 420px;
+}
+
+/* Responsive: below 1024px, hide branding panel */
+@media (max-width: 1023px) {
+  .brandingPanel {
+    display: none;
+  }
+
+  .formPanel {
+    width: 100%;
+  }
+}

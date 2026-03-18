@@ -1,1 +1,3 @@
-// CASL permission definitions will be added as part of VASTU-0-004 (Database schema)
+export { actions, type Action } from './actions';
+export { resources, type Resource } from './resources';
+export { defineAbilitiesFor, isAdmin, type AppAbility, type UserForAbilities } from './abilities';
