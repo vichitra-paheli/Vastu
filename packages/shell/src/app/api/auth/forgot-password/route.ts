@@ -15,6 +15,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { prisma } from '@vastu/shared/prisma';
+import { createAuditEvent } from '@vastu/shared/utils';
 
 const TOKEN_EXPIRY_HOURS = 1;
 
@@ -46,7 +47,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Check whether the user exists — but do not reveal the result to the caller.
     const user = await prisma.user.findUnique({
       where: { email },
-      select: { id: true, email: true },
+      select: { id: true, email: true, name: true, organizationId: true },
     });
 
     if (user) {
@@ -71,6 +72,24 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       // Production: send via transactional email provider.
       const resetUrl = `${process.env.NEXTAUTH_URL ?? 'http://localhost:3000'}/reset-password?token=${token}`;
       console.info(`[forgot-password] Reset link for ${email}: ${resetUrl}`);
+
+      // Write audit event — best effort, fire-and-forget.
+      createAuditEvent({
+        userId: user.id,
+        userName: user.name,
+        action: 'password_reset.request',
+        resourceType: 'User',
+        resourceId: user.id,
+        resourceDescription: `Password reset requested for ${user.email}`,
+        ipAddress:
+          request.headers.get('x-forwarded-for') ??
+          request.headers.get('x-real-ip') ??
+          undefined,
+        userAgent: request.headers.get('user-agent') ?? undefined,
+        organizationId: user.organizationId,
+      }).catch((err: unknown) => {
+        console.error('[forgot-password] Failed to write audit event:', err);
+      });
     }
   } catch (err) {
     // Log but do not leak error details to the client.

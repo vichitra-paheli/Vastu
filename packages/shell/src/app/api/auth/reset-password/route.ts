@@ -27,6 +27,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { prisma } from '@vastu/shared/prisma';
+import { createAuditEvent } from '@vastu/shared/utils';
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -115,7 +116,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // Look up the user.
   const user = await prisma.user.findUnique({
     where: { email },
-    select: { id: true },
+    select: { id: true, name: true, organizationId: true },
   });
 
   if (!user) {
@@ -151,6 +152,24 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           token: verificationToken.token,
         },
       },
+    });
+
+    // Write audit event — best effort, fire-and-forget.
+    createAuditEvent({
+      userId: user.id,
+      userName: user.name,
+      action: 'password_reset.complete',
+      resourceType: 'User',
+      resourceId: user.id,
+      resourceDescription: `Password reset completed for ${email}`,
+      ipAddress:
+        request.headers.get('x-forwarded-for') ??
+        request.headers.get('x-real-ip') ??
+        undefined,
+      userAgent: request.headers.get('user-agent') ?? undefined,
+      organizationId: user.organizationId,
+    }).catch((err: unknown) => {
+      console.error('[reset-password] Failed to write audit event:', err);
     });
 
     return NextResponse.json({ success: true });
