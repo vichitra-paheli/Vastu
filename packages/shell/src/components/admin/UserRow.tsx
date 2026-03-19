@@ -21,7 +21,7 @@
 
 import { Avatar, Badge, Box, Group, Table, Text, Tooltip } from '@mantine/core';
 import { t } from '@/lib/i18n';
-import { TruncatedText } from '../shared/TruncatedText';
+import { TruncatedText } from '@/components/shared/TruncatedText';
 import type { UserListItem } from './types';
 
 // ---------------------------------------------------------------------------

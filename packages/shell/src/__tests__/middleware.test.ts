@@ -39,7 +39,7 @@ type MiddlewareHandler = (req: MockRequest) => ReturnType<typeof vi.fn>;
 
 let capturedHandler: MiddlewareHandler | null = null;
 
-vi.mock('../lib/auth', () => ({
+vi.mock('@/lib/auth', () => ({
   auth: vi.fn((handler: MiddlewareHandler) => {
     capturedHandler = handler;
     // Return a function that mirrors next-auth's exported middleware shape;

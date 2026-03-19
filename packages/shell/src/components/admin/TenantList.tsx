@@ -18,10 +18,10 @@ import { t } from '@/lib/i18n';
 import { showError, showSuccess } from '@/lib/notifications';
 import { TenantCard, type TenantCardData } from './TenantCard';
 import { CreateTenantModal } from './CreateTenantModal';
-import { ConfirmDialog } from '../shared/ConfirmDialog';
-import { EmptyState } from '../shared/EmptyState';
-import { ErrorState } from '../shared/ErrorState';
-import { CardListSkeleton } from '../shared/CardListSkeleton';
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { ErrorState } from '@/components/shared/ErrorState';
+import { CardListSkeleton } from '@/components/shared/CardListSkeleton';
 
 /** Shape returned by GET /api/admin/tenants */
 interface ApiTenant {

@@ -15,7 +15,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { AppearanceSettings } from '../AppearanceSettings';
-import { TestProviders } from '../../../test-utils/providers';
+import { TestProviders } from '@/test-utils/providers';
 
 // ---------------------------------------------------------------------------
 // Mock fetch so tests do not hit the network
@@ -32,7 +32,7 @@ const fetchMock = vi.fn().mockResolvedValue({
 
 const setColorSchemeMock = vi.fn();
 
-vi.mock('../../../hooks/useColorScheme', () => ({
+vi.mock('@/hooks/useColorScheme', () => ({
   useColorScheme: () => ({
     colorScheme: 'auto',
     setColorScheme: setColorSchemeMock,

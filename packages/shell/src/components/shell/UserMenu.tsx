@@ -13,7 +13,7 @@
 import { Avatar, Badge, Group, Menu, Text, UnstyledButton } from '@mantine/core';
 import { IconChevronDown, IconLogout, IconSettings, IconUser } from '@tabler/icons-react';
 import { signOut } from 'next-auth/react';
-import { TruncatedText } from '../shared/TruncatedText';
+import { TruncatedText } from '@/components/shared/TruncatedText';
 
 export interface UserMenuProps {
   name: string;

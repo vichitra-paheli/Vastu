@@ -5,7 +5,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { WorkspacePlaceholder } from '../WorkspacePlaceholder';
-import { TestProviders } from '../../../test-utils/providers';
+import { TestProviders } from '@/test-utils/providers';
 
 function renderComponent() {
   return render(<WorkspacePlaceholder />, { wrapper: TestProviders });

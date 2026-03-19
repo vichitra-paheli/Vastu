@@ -20,9 +20,9 @@ import { Button, Checkbox, Group, Loader, Stack, Text, Title } from '@mantine/co
 import { IconPlus, IconShieldCheck } from '@tabler/icons-react';
 import { t } from '@/lib/i18n';
 import { showError, showSuccess } from '@/lib/notifications';
-import { CardListSkeleton } from '../shared/CardListSkeleton';
-import { EmptyState } from '../shared/EmptyState';
-import { ConfirmDialog } from '../shared/ConfirmDialog';
+import { CardListSkeleton } from '@/components/shared/CardListSkeleton';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 import { SsoProviderCard } from './SsoProviderCard';
 import { SsoProviderModal } from './SsoProviderModal';
 import type { SsoProviderConfig, CreateSsoProviderInput, SsoProviderListResponse } from '@/types/sso-provider';

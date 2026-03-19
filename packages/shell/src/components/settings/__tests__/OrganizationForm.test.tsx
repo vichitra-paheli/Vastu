@@ -19,7 +19,7 @@ import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import React from 'react';
 import { screen, waitFor, fireEvent } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { render } from '../../../test-utils';
+import { render } from '@/test-utils';
 import { OrganizationForm } from '../OrganizationForm';
 import type { Organization } from '@vastu/shared';
 

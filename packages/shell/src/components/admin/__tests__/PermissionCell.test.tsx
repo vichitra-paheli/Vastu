@@ -13,7 +13,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { render } from '../../../test-utils/providers';
+import { render } from '@/test-utils/providers';
 import { PermissionCell } from '../PermissionCell';
 import type { CellPermission } from '../PermissionCell';
 

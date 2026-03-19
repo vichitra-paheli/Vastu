@@ -16,8 +16,8 @@ import { userEvent } from '@testing-library/user-event';
 import type { ReactElement } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { SsoProviderCard } from '../SsoProviderCard';
-import { TestProviders } from '../../../test-utils/providers';
-import type { SsoProviderConfig } from '../../../types/sso-provider';
+import { TestProviders } from '@/test-utils/providers';
+import type { SsoProviderConfig } from '@/types/sso-provider';
 
 function renderComponent(ui: ReactElement) {
   return render(ui, { wrapper: TestProviders });

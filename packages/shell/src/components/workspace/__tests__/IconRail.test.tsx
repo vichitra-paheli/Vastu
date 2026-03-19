@@ -5,7 +5,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { IconRail } from '../IconRail';
-import { TestProviders } from '../../../test-utils/providers';
+import { TestProviders } from '@/test-utils/providers';
 
 function renderComponent() {
   return render(<IconRail />, { wrapper: TestProviders });

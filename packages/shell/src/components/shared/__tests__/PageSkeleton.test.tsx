@@ -5,7 +5,7 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { PageSkeleton } from '../PageSkeleton';
-import { TestProviders } from '../../../test-utils/providers';
+import { TestProviders } from '@/test-utils/providers';
 
 function renderComponent(ui: React.ReactElement) {
   return render(ui, { wrapper: TestProviders });

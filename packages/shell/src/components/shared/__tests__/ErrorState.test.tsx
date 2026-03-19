@@ -6,7 +6,7 @@ import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { ErrorState } from '../ErrorState';
-import { TestProviders } from '../../../test-utils/providers';
+import { TestProviders } from '@/test-utils/providers';
 
 function renderComponent(ui: React.ReactElement) {
   return render(ui, { wrapper: TestProviders });

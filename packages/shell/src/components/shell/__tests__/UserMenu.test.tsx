@@ -13,7 +13,7 @@ import { userEvent } from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import * as nextAuth from 'next-auth/react';
 import { UserMenu } from '../UserMenu';
-import { TestProviders } from '../../../test-utils/providers';
+import { TestProviders } from '@/test-utils/providers';
 
 // Mock next-auth/react — use vi.fn() inside factory (no top-level variable references)
 vi.mock('next-auth/react', () => ({

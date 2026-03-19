@@ -8,7 +8,7 @@
  */
 
 import { IconLayout } from '@tabler/icons-react';
-import { EmptyState } from '../shared/EmptyState';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { t } from '@/lib/i18n';
 
 export function WorkspacePlaceholder() {

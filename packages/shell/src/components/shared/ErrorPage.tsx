@@ -14,7 +14,7 @@
 
 import { Anchor, Button, Group, Stack, Text, Title } from '@mantine/core';
 import Link from 'next/link';
-import { KundliMotif } from '../auth/KundliMotif';
+import { KundliMotif } from '@/components/auth/KundliMotif';
 import { t } from '@/lib/i18n';
 
 export interface ErrorPageAction {

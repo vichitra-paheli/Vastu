@@ -10,7 +10,7 @@ import React from 'react';
 import { MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { render, type RenderOptions } from '@testing-library/react';
-import { vastuTheme } from '../theme';
+import { vastuTheme } from '@/theme';
 
 export function TestProviders({ children }: { children: React.ReactNode }) {
   return (

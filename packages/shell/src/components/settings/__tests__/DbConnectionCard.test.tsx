@@ -17,7 +17,7 @@ import { userEvent } from '@testing-library/user-event';
 import type { ReactElement } from 'react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { DbConnectionCard } from '../DbConnectionCard';
-import { TestProviders } from '../../../test-utils/providers';
+import { TestProviders } from '@/test-utils/providers';
 import type { DbConnection } from '@vastu/shared/types';
 
 function renderComponent(ui: ReactElement) {

@@ -32,7 +32,7 @@ import {
 } from '@mantine/core';
 import { IconDownload, IconClipboardList } from '@tabler/icons-react';
 import type { AuditEvent } from '@vastu/shared/types';
-import { EmptyState } from '../shared/EmptyState';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { AuditLogRow } from './AuditLogRow';
 import { AuditDetailDrawer } from './AuditDetailDrawer';
 import { t } from '@/lib/i18n';

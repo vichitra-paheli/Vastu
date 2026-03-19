@@ -18,7 +18,7 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import { t } from '@/lib/i18n';
-import { TruncatedText } from '../shared/TruncatedText';
+import { TruncatedText } from '@/components/shared/TruncatedText';
 import type { SsoProviderConfig } from '@/types/sso-provider';
 
 // ---------------------------------------------------------------------------

@@ -18,7 +18,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { TestProviders } from '../../../test-utils/providers';
+import { TestProviders } from '@/test-utils/providers';
 import { TenantCard, type TenantCardData } from '../TenantCard';
 
 const BASE_TENANT: TenantCardData = {

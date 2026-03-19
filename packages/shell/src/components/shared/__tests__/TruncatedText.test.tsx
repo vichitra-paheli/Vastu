@@ -7,7 +7,7 @@ import { userEvent } from '@testing-library/user-event';
 import type { ReactElement } from 'react';
 import { describe, expect, it, afterEach } from 'vitest';
 import { TruncatedText } from '../TruncatedText';
-import { TestProviders } from '../../../test-utils/providers';
+import { TestProviders } from '@/test-utils/providers';
 
 function renderComponent(ui: ReactElement) {
   return render(ui, { wrapper: TestProviders });

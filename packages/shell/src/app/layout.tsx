@@ -1,13 +1,13 @@
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
-import '../theme/vastu.tokens.css';
+import '@/theme/vastu.tokens.css';
 
 import { ColorSchemeScript, MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 
-import { vastuTheme } from '../theme';
+import { vastuTheme } from '@/theme';
 
 const inter = Inter({
   subsets: ['latin'],

@@ -8,7 +8,7 @@ import { IconTable } from '@tabler/icons-react';
 import type { ReactElement } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { EmptyState } from '../EmptyState';
-import { TestProviders } from '../../../test-utils/providers';
+import { TestProviders } from '@/test-utils/providers';
 
 function renderComponent(ui: ReactElement) {
   return render(ui, { wrapper: TestProviders });

@@ -32,8 +32,8 @@ import {
 import { IconDownload, IconDeviceFloppy } from '@tabler/icons-react';
 import { PermissionCell } from './PermissionCell';
 import { PermissionLegend } from './PermissionLegend';
-import { ConfirmDialog } from '../shared/ConfirmDialog';
-import { ErrorState } from '../shared/ErrorState';
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
+import { ErrorState } from '@/components/shared/ErrorState';
 import { t } from '@/lib/i18n';
 import { showSuccess, showError } from '@/lib/notifications';
 import type { BadgeAction } from './PermissionCell';

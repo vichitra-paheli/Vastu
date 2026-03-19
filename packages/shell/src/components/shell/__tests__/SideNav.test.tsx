@@ -11,7 +11,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { SideNav } from '../SideNav';
-import { TestProviders } from '../../../test-utils/providers';
+import { TestProviders } from '@/test-utils/providers';
 
 // Mock next/navigation — SideNavItem uses usePathname
 vi.mock('next/navigation', () => ({

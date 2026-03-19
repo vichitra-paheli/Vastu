@@ -10,8 +10,8 @@
  * US-025 AC-2, AC-3, AC-4
  */
 
-import { ErrorPage } from '../components/shared/ErrorPage';
-import { t } from '../lib/i18n';
+import { ErrorPage } from '@/components/shared/ErrorPage';
+import { t } from '@/lib/i18n';
 
 interface GlobalErrorPageProps {
   /** The error that was thrown. Provided by Next.js. */

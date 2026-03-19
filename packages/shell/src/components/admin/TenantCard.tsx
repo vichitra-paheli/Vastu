@@ -32,7 +32,7 @@ import {
   IconBuilding,
 } from '@tabler/icons-react';
 import { t } from '@/lib/i18n';
-import { TruncatedText } from '../shared/TruncatedText';
+import { TruncatedText } from '@/components/shared/TruncatedText';
 
 export interface TenantCardData {
   id: string;

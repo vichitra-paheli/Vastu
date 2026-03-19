@@ -18,7 +18,7 @@ import { Button, Divider, Drawer, Group, Select, Stack, Switch, Text, TextInput 
 import { useForm } from '@mantine/form';
 import { t } from '@/lib/i18n';
 import { showSuccess, showError } from '@/lib/notifications';
-import { ConfirmDialog } from '../shared/ConfirmDialog';
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 import type { UserListItem } from './types';
 
 // ---------------------------------------------------------------------------

@@ -28,7 +28,7 @@ import {
   IconUsers,
   IconTrash,
 } from '@tabler/icons-react';
-import { TruncatedText } from '../shared/TruncatedText';
+import { TruncatedText } from '@/components/shared/TruncatedText';
 import { t } from '@/lib/i18n';
 
 export interface RoleCardRole {

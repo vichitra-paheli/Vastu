@@ -7,7 +7,7 @@ import { userEvent } from '@testing-library/user-event';
 import type { ReactElement } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { ConfirmDialog } from '../ConfirmDialog';
-import { TestProviders } from '../../../test-utils/providers';
+import { TestProviders } from '@/test-utils/providers';
 
 function renderComponent(ui: ReactElement) {
   return render(ui, { wrapper: TestProviders });

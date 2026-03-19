@@ -36,7 +36,7 @@ import {
 import { useForm } from '@mantine/form';
 import { IconPencil } from '@tabler/icons-react';
 import type { Organization } from '@vastu/shared';
-import { ConfirmDialog } from '../shared/ConfirmDialog';
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 import { showError, showSuccess } from '@/lib/notifications';
 import { t } from '@/lib/i18n';
 

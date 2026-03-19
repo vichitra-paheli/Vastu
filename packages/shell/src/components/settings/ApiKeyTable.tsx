@@ -34,9 +34,9 @@ import {
 } from '@tabler/icons-react';
 import type { ApiKey, ApiKeyWithPrefix } from '@vastu/shared/types';
 import { relativeTime } from '@vastu/shared/utils';
-import { EmptyState } from '../shared/EmptyState';
-import { ConfirmDialog } from '../shared/ConfirmDialog';
-import { TruncatedText } from '../shared/TruncatedText';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
+import { TruncatedText } from '@/components/shared/TruncatedText';
 import { showSuccess, showError } from '@/lib/notifications';
 import { t } from '@/lib/i18n';
 import { GenerateKeyModal } from './GenerateKeyModal';

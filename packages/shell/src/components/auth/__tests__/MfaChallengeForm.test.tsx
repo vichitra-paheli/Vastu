@@ -20,7 +20,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { MfaChallengeForm } from '../MfaChallengeForm';
-import { TestProviders } from '../../../test-utils/providers';
+import { TestProviders } from '@/test-utils/providers';
 
 // ---------------------------------------------------------------------------
 // Mocks

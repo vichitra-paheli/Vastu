@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import { ErrorPage } from '../components/shared/ErrorPage';
-import { t } from '../lib/i18n';
+import { ErrorPage } from '@/components/shared/ErrorPage';
+import { t } from '@/lib/i18n';
 
 export const metadata: Metadata = {
   title: '404 — Page not found | Vastu',

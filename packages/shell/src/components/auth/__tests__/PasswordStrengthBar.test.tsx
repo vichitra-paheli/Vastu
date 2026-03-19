@@ -16,7 +16,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { PasswordStrengthBar } from '../PasswordStrengthBar';
-import { TestProviders } from '../../../test-utils/providers';
+import { TestProviders } from '@/test-utils/providers';
 
 function renderBar(password: string) {
   return render(<PasswordStrengthBar password={password} />, { wrapper: TestProviders });

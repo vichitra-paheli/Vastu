@@ -16,7 +16,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { screen, waitFor, fireEvent } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { render } from '../../../test-utils';
+import { render } from '@/test-utils';
 import { ProfileForm } from '../ProfileForm';
 import type { ProfileFormProps } from '../ProfileForm';
 

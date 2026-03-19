@@ -10,7 +10,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { TopBar } from '../TopBar';
-import { TestProviders } from '../../../test-utils/providers';
+import { TestProviders } from '@/test-utils/providers';
 
 // Mock next/navigation for Breadcrumb and UserMenu child components
 vi.mock('next/navigation', () => ({

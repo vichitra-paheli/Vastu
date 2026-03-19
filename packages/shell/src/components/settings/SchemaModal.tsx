@@ -41,7 +41,7 @@ import {
 } from '@tabler/icons-react';
 import type { DbConnection } from '@vastu/shared/types';
 import { t } from '@/lib/i18n';
-import { TruncatedText } from '../shared/TruncatedText';
+import { TruncatedText } from '@/components/shared/TruncatedText';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

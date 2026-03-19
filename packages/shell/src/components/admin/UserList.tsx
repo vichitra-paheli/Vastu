@@ -23,9 +23,9 @@ import { Button, Group, Select, Stack, Table, Text, TextInput } from '@mantine/c
 import { useDebouncedValue } from '@mantine/hooks';
 import { IconSearch, IconUserPlus, IconUsers } from '@tabler/icons-react';
 import { t } from '@/lib/i18n';
-import { TableSkeleton } from '../shared/TableSkeleton';
-import { EmptyState } from '../shared/EmptyState';
-import { ErrorState } from '../shared/ErrorState';
+import { TableSkeleton } from '@/components/shared/TableSkeleton';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { ErrorState } from '@/components/shared/ErrorState';
 import { UserRow } from './UserRow';
 import { InviteUserModal } from './InviteUserModal';
 import { EditUserDrawer } from './EditUserDrawer';
