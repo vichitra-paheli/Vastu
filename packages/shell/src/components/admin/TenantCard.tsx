@@ -31,7 +31,7 @@ import {
   IconArrowsExchange,
   IconBuilding,
 } from '@tabler/icons-react';
-import { t } from '../../lib/i18n';
+import { t } from '@/lib/i18n';
 import { TruncatedText } from '../shared/TruncatedText';
 
 export interface TenantCardData {

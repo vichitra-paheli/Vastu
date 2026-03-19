@@ -1,5 +1,5 @@
 import React from 'react';
-import { IconRail } from '../../components/workspace/IconRail';
+import { IconRail } from '@/components/workspace/IconRail';
 import classes from './layout.module.css';
 
 export default function WorkspaceLayout({ children }: { children: React.ReactNode }) {

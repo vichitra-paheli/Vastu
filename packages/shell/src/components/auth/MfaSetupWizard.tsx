@@ -27,8 +27,8 @@ import {
   Box,
 } from '@mantine/core';
 import { IconCopy, IconCheck, IconAlertCircle } from '@tabler/icons-react';
-import { t } from '../../lib/i18n';
-import { showSuccess } from '../../lib/notifications';
+import { t } from '@/lib/i18n';
+import { showSuccess } from '@/lib/notifications';
 import { OtpInput } from './OtpInput';
 import { RecoveryCodes } from './RecoveryCodes';
 

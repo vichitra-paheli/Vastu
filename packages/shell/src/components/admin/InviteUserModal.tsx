@@ -14,8 +14,8 @@ import { useState } from 'react';
 import { Button, Group, Modal, Select, Stack, Textarea, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { isValidEmail } from '@vastu/shared/utils';
-import { t } from '../../lib/i18n';
-import { showSuccess, showError } from '../../lib/notifications';
+import { t } from '@/lib/i18n';
+import { showSuccess, showError } from '@/lib/notifications';
 
 // ---------------------------------------------------------------------------
 // Types

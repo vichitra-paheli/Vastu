@@ -17,9 +17,9 @@ import {
   IconStar,
   IconTrash,
 } from '@tabler/icons-react';
-import { t } from '../../lib/i18n';
+import { t } from '@/lib/i18n';
 import { TruncatedText } from '../shared/TruncatedText';
-import type { SsoProviderConfig } from '../../types/sso-provider';
+import type { SsoProviderConfig } from '@/types/sso-provider';
 
 // ---------------------------------------------------------------------------
 // Sub-components

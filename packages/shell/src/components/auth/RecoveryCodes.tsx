@@ -15,8 +15,8 @@
 import React from 'react';
 import { Stack, Text, SimpleGrid, Box, Button, Group, Alert } from '@mantine/core';
 import { IconCopy, IconDownload, IconAlertTriangle } from '@tabler/icons-react';
-import { t } from '../../lib/i18n';
-import { showSuccess, showError } from '../../lib/notifications';
+import { t } from '@/lib/i18n';
+import { showSuccess, showError } from '@/lib/notifications';
 
 export interface RecoveryCodesProps {
   codes: string[];

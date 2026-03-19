@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
-import { LoginForm } from '../../../components/auth/LoginForm';
-import { FormSkeleton } from '../../../components/shared/FormSkeleton';
+import { LoginForm } from '@/components/auth/LoginForm';
+import { FormSkeleton } from '@/components/shared/FormSkeleton';
 
 export const metadata: Metadata = {
   title: 'Sign In — Vastu',

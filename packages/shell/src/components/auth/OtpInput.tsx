@@ -15,7 +15,7 @@
 
 import React, { useRef, useCallback } from 'react';
 import { Group, Text, Box } from '@mantine/core';
-import { t } from '../../lib/i18n';
+import { t } from '@/lib/i18n';
 
 export interface OtpInputProps {
   /** Current 6-character value (digits only). */

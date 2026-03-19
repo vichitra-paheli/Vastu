@@ -22,9 +22,9 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconPlugConnected } from '@tabler/icons-react';
-import { t } from '../../lib/i18n';
-import { showError, showSuccess } from '../../lib/notifications';
-import type { SsoProviderConfig, CreateSsoProviderInput } from '../../types/sso-provider';
+import { t } from '@/lib/i18n';
+import { showError, showSuccess } from '@/lib/notifications';
+import type { SsoProviderConfig, CreateSsoProviderInput } from '@/types/sso-provider';
 
 // ---------------------------------------------------------------------------
 // Types

@@ -13,8 +13,8 @@
 import { useEffect } from 'react';
 import { Button, Group, Modal, Select, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { t } from '../../lib/i18n';
-import { showError, showSuccess } from '../../lib/notifications';
+import { t } from '@/lib/i18n';
+import { showError, showSuccess } from '@/lib/notifications';
 
 export interface CreateTenantModalProps {
   opened: boolean;

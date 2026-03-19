@@ -10,7 +10,7 @@
 
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { getSessionWithAbility } from '../../../lib/session';
+import { getSessionWithAbility } from '@/lib/session';
 import { isAdmin } from '@vastu/shared/permissions';
 
 export const metadata: Metadata = {

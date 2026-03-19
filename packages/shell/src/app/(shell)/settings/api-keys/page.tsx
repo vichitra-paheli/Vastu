@@ -11,8 +11,8 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { prisma } from '@vastu/shared/prisma';
 import type { ApiKey } from '@vastu/shared/types';
-import { getSession } from '../../../../lib/session';
-import { ApiKeyTable } from '../../../../components/settings/ApiKeyTable';
+import { getSession } from '@/lib/session';
+import { ApiKeyTable } from '@/components/settings/ApiKeyTable';
 
 export const metadata: Metadata = {
   title: 'API Keys — Vastu',

@@ -13,7 +13,7 @@
 import { Alert, Button, CopyButton, Group, Modal, Text, TextInput } from '@mantine/core';
 import { IconAlertTriangle, IconCheck, IconCopy } from '@tabler/icons-react';
 import type { ApiKeyWithPrefix } from '@vastu/shared/types';
-import { t } from '../../lib/i18n';
+import { t } from '@/lib/i18n';
 
 export interface KeyDisplayModalProps {
   opened: boolean;

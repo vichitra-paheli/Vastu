@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
-import { ResetPasswordForm } from '../../../components/auth/ResetPasswordForm';
-import { FormSkeleton } from '../../../components/shared/FormSkeleton';
+import { ResetPasswordForm } from '@/components/auth/ResetPasswordForm';
+import { FormSkeleton } from '@/components/shared/FormSkeleton';
 
 export const metadata: Metadata = {
   title: 'Set New Password — Vastu',

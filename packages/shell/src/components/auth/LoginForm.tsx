@@ -26,8 +26,8 @@ import {
   Group,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { t } from '../../lib/i18n';
-import { showWarning } from '../../lib/notifications';
+import { t } from '@/lib/i18n';
+import { showWarning } from '@/lib/notifications';
 
 interface LoginFormValues {
   email: string;

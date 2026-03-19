@@ -14,8 +14,8 @@ import { useState } from 'react';
 import { Button, Group, Modal, Select, Textarea, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import type { ApiKeyWithPrefix } from '@vastu/shared/types';
-import { showError } from '../../lib/notifications';
-import { t } from '../../lib/i18n';
+import { showError } from '@/lib/notifications';
+import { t } from '@/lib/i18n';
 
 export interface GenerateKeyModalProps {
   opened: boolean;

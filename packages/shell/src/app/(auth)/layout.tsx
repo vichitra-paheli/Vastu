@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrandingPanel } from '../../components/auth/BrandingPanel';
+import { BrandingPanel } from '@/components/auth/BrandingPanel';
 import classes from './layout.module.css';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {

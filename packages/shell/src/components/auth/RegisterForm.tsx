@@ -26,7 +26,7 @@ import {
   Checkbox,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { t } from '../../lib/i18n';
+import { t } from '@/lib/i18n';
 import { PasswordStrengthBar } from './PasswordStrengthBar';
 
 /**

@@ -12,9 +12,9 @@
 import type { Metadata } from 'next';
 import { Stack, Title } from '@mantine/core';
 import { prisma } from '@vastu/shared/prisma';
-import { requireSession } from '../../../../lib/session';
-import { UserList } from '../../../../components/admin/UserList';
-import { t } from '../../../../lib/i18n';
+import { requireSession } from '@/lib/session';
+import { UserList } from '@/components/admin/UserList';
+import { t } from '@/lib/i18n';
 
 export const metadata: Metadata = {
   title: t('users.pageTitle'),

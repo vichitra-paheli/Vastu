@@ -18,7 +18,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Button, Stack, Text, Anchor, Alert } from '@mantine/core';
 import { IconMail } from '@tabler/icons-react';
-import { t } from '../../lib/i18n';
+import { t } from '@/lib/i18n';
 
 /** Maximum number of resend requests allowed before the button is disabled. */
 const MAX_RESENDS = 3;

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import { WorkspacePlaceholder } from '../../components/workspace/WorkspacePlaceholder';
-import { t } from '../../lib/i18n';
+import { WorkspacePlaceholder } from '@/components/workspace/WorkspacePlaceholder';
+import { t } from '@/lib/i18n';
 
 export const metadata: Metadata = {
   title: `${t('workspace.title')} — Vastu`,

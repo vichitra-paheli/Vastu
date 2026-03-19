@@ -10,8 +10,8 @@
 
 import type { Metadata } from 'next';
 import { prisma } from '@vastu/shared/prisma';
-import { requireSession } from '../../../../lib/session';
-import { DbConnectionList } from '../../../../components/settings/DbConnectionList';
+import { requireSession } from '@/lib/session';
+import { DbConnectionList } from '@/components/settings/DbConnectionList';
 import type { DbConnection } from '@vastu/shared/types';
 
 export const metadata: Metadata = {

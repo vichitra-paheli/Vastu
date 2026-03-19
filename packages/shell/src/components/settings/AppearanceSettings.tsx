@@ -33,10 +33,10 @@ import {
   UnstyledButton,
 } from '@mantine/core';
 import { IconCheck } from '@tabler/icons-react';
-import { useColorScheme } from '../../hooks/useColorScheme';
-import { showError } from '../../lib/notifications';
-import { t } from '../../lib/i18n';
-import { ACCENT_PRESETS } from '../../theme/constants';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { showError } from '@/lib/notifications';
+import { t } from '@/lib/i18n';
+import { ACCENT_PRESETS } from '@/theme/constants';
 
 const HEX_COLOR_RE = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/;
 

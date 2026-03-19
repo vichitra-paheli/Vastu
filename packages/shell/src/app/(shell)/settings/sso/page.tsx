@@ -13,9 +13,9 @@
 
 import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
-import { getSessionWithAbility } from '../../../../lib/session';
+import { getSessionWithAbility } from '@/lib/session';
 import { isAdmin } from '@vastu/shared/permissions';
-import { SsoProviderList } from '../../../../components/settings/SsoProviderList';
+import { SsoProviderList } from '@/components/settings/SsoProviderList';
 
 export const metadata: Metadata = {
   title: 'SSO Configuration — Vastu',

@@ -27,7 +27,7 @@ import { useSearchParams } from 'next/navigation';
 import { TextInput, Button, Stack, Text, Alert, Anchor } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { OtpInput } from './OtpInput';
-import { t } from '../../lib/i18n';
+import { t } from '@/lib/i18n';
 
 type Mode = 'totp' | 'recovery';
 

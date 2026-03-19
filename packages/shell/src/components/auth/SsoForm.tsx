@@ -32,8 +32,8 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconAlertCircle, IconChevronRight } from '@tabler/icons-react';
-import { t } from '../../lib/i18n';
-import type { SsoProvider, SsoProvidersResponse } from '../../types/sso';
+import { t } from '@/lib/i18n';
+import type { SsoProvider, SsoProvidersResponse } from '@/types/sso';
 
 // ---------------------------------------------------------------------------
 // Types

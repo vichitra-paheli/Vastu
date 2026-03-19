@@ -37,8 +37,8 @@ import { relativeTime } from '@vastu/shared/utils';
 import { EmptyState } from '../shared/EmptyState';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
 import { TruncatedText } from '../shared/TruncatedText';
-import { showSuccess, showError } from '../../lib/notifications';
-import { t } from '../../lib/i18n';
+import { showSuccess, showError } from '@/lib/notifications';
+import { t } from '@/lib/i18n';
 import { GenerateKeyModal } from './GenerateKeyModal';
 import { KeyDisplayModal } from './KeyDisplayModal';
 

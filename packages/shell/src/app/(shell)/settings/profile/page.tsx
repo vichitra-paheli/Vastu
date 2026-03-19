@@ -14,9 +14,9 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { Stack, Text } from '@mantine/core';
 import { prisma } from '@vastu/shared/prisma';
-import { requireSession } from '../../../../lib/session';
-import { ProfileForm } from '../../../../components/settings/ProfileForm';
-import { t } from '../../../../lib/i18n';
+import { requireSession } from '@/lib/session';
+import { ProfileForm } from '@/components/settings/ProfileForm';
+import { t } from '@/lib/i18n';
 
 export const metadata: Metadata = {
   title: 'Profile — Vastu',

@@ -28,7 +28,7 @@ import {
 import { useForm } from '@mantine/form';
 import { IconCheck, IconAlertCircle, IconPlugConnected } from '@tabler/icons-react';
 import type { DbConnection } from '@vastu/shared/types';
-import { t } from '../../lib/i18n';
+import { t } from '@/lib/i18n';
 
 export interface DbConnectionModalProps {
   opened: boolean;

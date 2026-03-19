@@ -22,7 +22,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Button, Group, Select, Stack, Table, Text, TextInput } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { IconSearch, IconUserPlus, IconUsers } from '@tabler/icons-react';
-import { t } from '../../lib/i18n';
+import { t } from '@/lib/i18n';
 import { TableSkeleton } from '../shared/TableSkeleton';
 import { EmptyState } from '../shared/EmptyState';
 import { ErrorState } from '../shared/ErrorState';

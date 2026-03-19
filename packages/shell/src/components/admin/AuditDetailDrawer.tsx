@@ -18,7 +18,7 @@
 import { Box, Code, Drawer, Group, Stack, Text, Title } from '@mantine/core';
 import type { AuditEvent } from '@vastu/shared/types';
 import { formatTimestamp } from '@vastu/shared/utils';
-import { t } from '../../lib/i18n';
+import { t } from '@/lib/i18n';
 
 // ---------------------------------------------------------------------------
 // Props

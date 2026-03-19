@@ -25,7 +25,7 @@ import {
   IconLayoutGrid,
   IconActivity,
 } from '@tabler/icons-react';
-import { t } from '../../lib/i18n';
+import { t } from '@/lib/i18n';
 import { SideNavItem } from './SideNavItem';
 import classes from './SideNav.module.css';
 

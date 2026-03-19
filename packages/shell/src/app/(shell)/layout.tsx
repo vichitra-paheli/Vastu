@@ -12,11 +12,11 @@
  */
 
 import { redirect } from 'next/navigation';
-import { getSessionWithAbility } from '../../lib/session';
+import { getSessionWithAbility } from '@/lib/session';
 import { isAdmin } from '@vastu/shared/permissions';
-import { TopBar } from '../../components/shell/TopBar';
-import { SideNav } from '../../components/shell/SideNav';
-import classes from '../../components/shell/ShellLayout.module.css';
+import { TopBar } from '@/components/shell/TopBar';
+import { SideNav } from '@/components/shell/SideNav';
+import classes from '@/components/shell/ShellLayout.module.css';
 
 export default async function ShellLayout({ children }: { children: React.ReactNode }) {
   const { session, ability } = await getSessionWithAbility();

@@ -16,8 +16,8 @@
 import { useEffect, useState } from 'react';
 import { Button, Divider, Drawer, Group, Select, Stack, Switch, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { t } from '../../lib/i18n';
-import { showSuccess, showError } from '../../lib/notifications';
+import { t } from '@/lib/i18n';
+import { showSuccess, showError } from '@/lib/notifications';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
 import type { UserListItem } from './types';
 

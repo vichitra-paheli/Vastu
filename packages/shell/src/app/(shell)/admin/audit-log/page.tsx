@@ -12,11 +12,11 @@
 import type { Metadata } from 'next';
 import { Stack, Text, Title } from '@mantine/core';
 import { prisma } from '@vastu/shared/prisma';
-import { getSessionWithAbility } from '../../../../lib/session';
+import { getSessionWithAbility } from '@/lib/session';
 import { notFound } from 'next/navigation';
 import { isAdmin } from '@vastu/shared/permissions';
-import { AuditLogTable } from '../../../../components/admin/AuditLogTable';
-import { t } from '../../../../lib/i18n';
+import { AuditLogTable } from '@/components/admin/AuditLogTable';
+import { t } from '@/lib/i18n';
 
 export const metadata: Metadata = {
   title: 'Audit Log — Vastu',

@@ -8,8 +8,8 @@
  */
 
 import type { Metadata } from 'next';
-import { getSession } from '../../../../lib/session';
-import { TenantList } from '../../../../components/admin/TenantList';
+import { getSession } from '@/lib/session';
+import { TenantList } from '@/components/admin/TenantList';
 
 export const metadata: Metadata = {
   title: 'Tenants — Vastu',

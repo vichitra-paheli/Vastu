@@ -13,7 +13,7 @@ import React from 'react';
 import Link from 'next/link';
 import { TextInput, Button, Stack, Text, Alert, Anchor } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { t } from '../../lib/i18n';
+import { t } from '@/lib/i18n';
 
 interface ForgotPasswordFormValues {
   email: string;

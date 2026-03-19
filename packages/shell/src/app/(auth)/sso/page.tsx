@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { SsoForm } from '../../../components/auth/SsoForm';
+import { SsoForm } from '@/components/auth/SsoForm';
 
 export const metadata: Metadata = {
   title: 'Single Sign-On — Vastu',

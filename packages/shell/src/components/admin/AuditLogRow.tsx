@@ -24,7 +24,7 @@
 import { Badge, Table, Text } from '@mantine/core';
 import type { AuditEvent } from '@vastu/shared/types';
 import { formatTimestamp } from '@vastu/shared/utils';
-import { t } from '../../lib/i18n';
+import { t } from '@/lib/i18n';
 
 // ---------------------------------------------------------------------------
 // Badge colour map

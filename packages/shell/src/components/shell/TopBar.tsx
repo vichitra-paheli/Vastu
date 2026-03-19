@@ -11,7 +11,7 @@
  */
 
 import Link from 'next/link';
-import { t } from '../../lib/i18n';
+import { t } from '@/lib/i18n';
 import { Breadcrumb } from './Breadcrumb';
 import { UserMenu } from './UserMenu';
 import classes from './TopBar.module.css';

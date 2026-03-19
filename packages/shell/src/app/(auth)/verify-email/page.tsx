@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
-import { VerifyEmailContent } from '../../../components/auth/VerifyEmailContent';
-import { FormSkeleton } from '../../../components/shared/FormSkeleton';
+import { VerifyEmailContent } from '@/components/auth/VerifyEmailContent';
+import { FormSkeleton } from '@/components/shared/FormSkeleton';
 
 export const metadata: Metadata = {
   title: 'Verify Email — Vastu',

@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
-import { MfaChallengeForm } from '../../../components/auth/MfaChallengeForm';
-import { FormSkeleton } from '../../../components/shared/FormSkeleton';
+import { MfaChallengeForm } from '@/components/auth/MfaChallengeForm';
+import { FormSkeleton } from '@/components/shared/FormSkeleton';
 
 export const metadata: Metadata = {
   title: 'Two-Factor Authentication — Vastu',

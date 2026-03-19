@@ -17,7 +17,7 @@
 import React, { useRef, useState } from 'react';
 import { Avatar, Box, Text, ActionIcon, Tooltip } from '@mantine/core';
 import { IconCamera } from '@tabler/icons-react';
-import { t } from '../../lib/i18n';
+import { t } from '@/lib/i18n';
 
 const AVATAR_SIZE = 80;
 const MAX_BYTES = 2 * 1024 * 1024; // 2 MB

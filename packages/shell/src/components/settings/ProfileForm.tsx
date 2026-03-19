@@ -32,8 +32,8 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconShieldCheck } from '@tabler/icons-react';
-import { t } from '../../lib/i18n';
-import { showSuccess, showError } from '../../lib/notifications';
+import { t } from '@/lib/i18n';
+import { showSuccess, showError } from '@/lib/notifications';
 import { AvatarUpload } from './AvatarUpload';
 
 // ---------------------------------------------------------------------------
