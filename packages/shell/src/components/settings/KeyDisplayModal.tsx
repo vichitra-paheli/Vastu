@@ -34,10 +34,13 @@ export function KeyDisplayModal({ opened, onClose, apiKey }: KeyDisplayModalProp
     >
       {/* Warning banner */}
       <Alert
-        icon={<IconAlertTriangle size={16} />}
-        color="yellow"
+        icon={<IconAlertTriangle size={16} style={{ color: 'var(--v-status-warning)' }} />}
         mb="md"
-        style={{ borderColor: 'var(--v-status-warning)' }}
+        style={{
+          borderColor: 'var(--v-status-warning)',
+          backgroundColor: 'var(--v-status-warning-light)',
+          color: 'var(--v-text-primary)',
+        }}
       >
         <Text fz="var(--v-text-sm)" fw={500}>
           {t('apiKeys.display.warning')}

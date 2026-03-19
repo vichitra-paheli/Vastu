@@ -93,6 +93,7 @@ export function CreateRoleModal({
       description: (value) =>
         value.length > 500 ? t('roles.create.description.tooLong') : null,
     },
+    validateInputOnBlur: true,
   });
 
   const baseRoleOptions = existingRoles.map((r) => ({

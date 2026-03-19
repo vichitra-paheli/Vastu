@@ -273,9 +273,8 @@ export function SsoForm() {
       {/* No providers error */}
       {lookupState.status === 'no_providers' && (
         <Alert
-          color="red"
           variant="light"
-          icon={<IconAlertCircle size={16} />}
+          icon={<IconAlertCircle size={16} style={{ color: 'var(--v-status-error)' }} />}
           role="alert"
           style={{
             borderColor: 'var(--v-status-error)',
@@ -295,9 +294,8 @@ export function SsoForm() {
       {/* Generic load error */}
       {lookupState.status === 'error' && (
         <Alert
-          color="red"
           variant="light"
-          icon={<IconAlertCircle size={16} />}
+          icon={<IconAlertCircle size={16} style={{ color: 'var(--v-status-error)' }} />}
           role="alert"
           style={{
             borderColor: 'var(--v-status-error)',

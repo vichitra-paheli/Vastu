@@ -118,6 +118,7 @@ export function OrganizationForm({ organization }: OrganizationFormProps) {
         return null;
       },
     },
+    validateInputOnBlur: true,
   });
 
   // Derive initials from org name for avatar fallback

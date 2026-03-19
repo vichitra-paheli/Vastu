@@ -185,7 +185,6 @@ export function RegisterForm() {
       {/* Submit error alert */}
       {submitError !== null && (
         <Alert
-          color="red"
           variant="light"
           role="alert"
           style={{

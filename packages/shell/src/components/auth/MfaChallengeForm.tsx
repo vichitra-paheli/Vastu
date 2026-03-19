@@ -178,7 +178,6 @@ export function MfaChallengeForm() {
       {/* Auth error alert */}
       {authError !== null && (
         <Alert
-          color="red"
           variant="light"
           role="alert"
           style={{

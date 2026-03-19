@@ -5,8 +5,9 @@
  * These types represent the admin configuration model for CRUD operations on
  * identity providers in /settings/sso.
  *
- * NOTE: The sso_providers table does not yet exist in the Prisma schema.
- * The API routes return stub data until the table is added (Phase 0 ADR-002).
+ * The sso_providers table is defined in the Prisma schema with the SsoProvider
+ * model. The API routes map the Prisma `type` field (SsoProviderType enum) to
+ * `protocol` here to align with the UI type vocabulary.
  *
  * MCP parity note: When the MCP server is built (Phase 4), the equivalent
  * tools would be:

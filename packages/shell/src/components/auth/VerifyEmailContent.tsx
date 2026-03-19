@@ -133,7 +133,6 @@ export function VerifyEmailContent() {
       {/* Success alert */}
       {resendSuccess && !resendError && (
         <Alert
-          color="green"
           variant="light"
           role="status"
           style={{
@@ -149,7 +148,6 @@ export function VerifyEmailContent() {
       {/* Error alert */}
       {resendError !== null && (
         <Alert
-          color="red"
           variant="light"
           role="alert"
           style={{

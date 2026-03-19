@@ -220,6 +220,53 @@ describe('DbConnectionCard', () => {
     expect(onDelete).toHaveBeenCalledTimes(1);
   });
 
+  it('does not show View schema menu item when onViewSchema is not provided', async () => {
+    const user = userEvent.setup();
+    renderComponent(
+      <DbConnectionCard
+        connection={BASE_CONNECTION}
+        onEdit={onEdit}
+        onTest={onTest}
+        onDelete={onDelete}
+      />,
+    );
+    await user.click(screen.getByRole('button', { name: /Options for/i }));
+    expect(screen.queryByText('View schema')).not.toBeInTheDocument();
+  });
+
+  it('shows View schema menu item when onViewSchema is provided', async () => {
+    const onViewSchema = vi.fn();
+    const user = userEvent.setup();
+    renderComponent(
+      <DbConnectionCard
+        connection={BASE_CONNECTION}
+        onEdit={onEdit}
+        onTest={onTest}
+        onDelete={onDelete}
+        onViewSchema={onViewSchema}
+      />,
+    );
+    await user.click(screen.getByRole('button', { name: /Options for/i }));
+    expect(screen.getByText('View schema')).toBeInTheDocument();
+  });
+
+  it('calls onViewSchema when View schema menu item is clicked', async () => {
+    const onViewSchema = vi.fn();
+    const user = userEvent.setup();
+    renderComponent(
+      <DbConnectionCard
+        connection={BASE_CONNECTION}
+        onEdit={onEdit}
+        onTest={onTest}
+        onDelete={onDelete}
+        onViewSchema={onViewSchema}
+      />,
+    );
+    await user.click(screen.getByRole('button', { name: /Options for/i }));
+    await user.click(screen.getByText('View schema'));
+    expect(onViewSchema).toHaveBeenCalledTimes(1);
+  });
+
   it('renders a masked connection string (contains bullet characters)', () => {
     renderComponent(
       <DbConnectionCard

@@ -20,6 +20,7 @@ import { EmptyState } from '../shared/EmptyState';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
 import { DbConnectionCard } from './DbConnectionCard';
 import { DbConnectionModal } from './DbConnectionModal';
+import { SchemaModal } from './SchemaModal';
 
 export interface DbConnectionListProps {
   initialConnections: DbConnection[];
@@ -31,6 +32,7 @@ export function DbConnectionList({ initialConnections }: DbConnectionListProps) 
   const [editingConnection, setEditingConnection] = useState<DbConnection | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [schemaConnection, setSchemaConnection] = useState<DbConnection | null>(null);
 
   const fetchConnections = useCallback(async () => {
     try {
@@ -110,6 +112,14 @@ export function DbConnectionList({ initialConnections }: DbConnectionListProps) 
     }
   }
 
+  function handleViewSchema(connection: DbConnection) {
+    setSchemaConnection(connection);
+  }
+
+  function handleSchemaModalClose() {
+    setSchemaConnection(null);
+  }
+
   async function handleTest(id: string) {
     try {
       const res = await fetch(`/api/settings/db-connections/${id}/test`, {
@@ -166,6 +176,7 @@ export function DbConnectionList({ initialConnections }: DbConnectionListProps) 
               onEdit={() => handleEdit(connection)}
               onTest={() => handleTest(connection.id)}
               onDelete={() => handleRequestDelete(connection.id)}
+              onViewSchema={() => handleViewSchema(connection)}
             />
           ))}
         </Stack>
@@ -177,6 +188,12 @@ export function DbConnectionList({ initialConnections }: DbConnectionListProps) 
         connection={editingConnection}
         onClose={handleModalClose}
         onSaved={handleSaved}
+      />
+
+      <SchemaModal
+        opened={schemaConnection !== null}
+        connection={schemaConnection}
+        onClose={handleSchemaModalClose}
       />
 
       <ConfirmDialog

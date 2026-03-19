@@ -140,7 +140,6 @@ export function LoginForm() {
       {/* Auth error alert — generic, never reveals which field */}
       {authError !== null && (
         <Alert
-          color="red"
           variant="light"
           role="alert"
           style={{

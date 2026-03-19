@@ -90,7 +90,6 @@ export function ForgotPasswordForm() {
         </Stack>
 
         <Alert
-          color="green"
           variant="light"
           role="status"
           style={{
@@ -135,7 +134,6 @@ export function ForgotPasswordForm() {
       {/* Submit error alert */}
       {submitError !== null && (
         <Alert
-          color="red"
           variant="light"
           role="alert"
           style={{

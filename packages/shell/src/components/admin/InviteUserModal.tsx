@@ -67,6 +67,7 @@ export function InviteUserModal({ opened, onClose, onSuccess, roles }: InviteUse
         return null;
       },
     },
+    validateInputOnBlur: true,
   });
 
   function handleClose() {

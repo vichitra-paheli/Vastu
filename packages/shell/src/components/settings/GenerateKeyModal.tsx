@@ -42,6 +42,7 @@ export function GenerateKeyModal({ opened, onClose, onGenerated }: GenerateKeyMo
       name: (value) =>
         value.trim().length === 0 ? t('apiKeys.generate.name.required') : null,
     },
+    validateInputOnBlur: true,
   });
 
   function handleClose() {

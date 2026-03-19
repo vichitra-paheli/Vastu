@@ -1,5 +1,7 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { VerifyEmailContent } from '../../../components/auth/VerifyEmailContent';
+import { FormSkeleton } from '../../../components/shared/FormSkeleton';
 
 export const metadata: Metadata = {
   title: 'Verify Email — Vastu',
@@ -7,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function VerifyEmailPage() {
-  return <VerifyEmailContent />;
+  return (
+    <Suspense fallback={<FormSkeleton fields={1} />}>
+      <VerifyEmailContent />
+    </Suspense>
+  );
 }

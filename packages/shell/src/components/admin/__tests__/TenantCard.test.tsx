@@ -11,6 +11,7 @@
  * - Archive item is disabled for the current tenant (cannot archive current)
  * - Switch callback fires when "Switch" is clicked
  * - Archive callback fires when "Archive" menu item is clicked
+ * - onViewUsers prop is wired to the "View users" menu item (not onEdit)
  * - Edge case: tenant with no region renders without region row
  */
 
@@ -34,13 +35,21 @@ const BASE_TENANT: TenantCardData = {
 function renderCard(
   props: Partial<Parameters<typeof TenantCard>[0]> & { tenant?: TenantCardData } = {},
 ) {
-  const { tenant = BASE_TENANT, isCurrent = false, onSwitch = vi.fn(), onEdit = vi.fn(), onArchive = vi.fn() } = props;
+  const {
+    tenant = BASE_TENANT,
+    isCurrent = false,
+    onSwitch = vi.fn(),
+    onEdit = vi.fn(),
+    onViewUsers = vi.fn(),
+    onArchive = vi.fn(),
+  } = props;
   return render(
     <TenantCard
       tenant={tenant}
       isCurrent={isCurrent}
       onSwitch={onSwitch}
       onEdit={onEdit}
+      onViewUsers={onViewUsers}
       onArchive={onArchive}
     />,
     { wrapper: TestProviders },
@@ -112,6 +121,31 @@ describe('TenantCard', () => {
     await user.click(screen.getByRole('button', { name: /switch/i }));
     expect(onSwitch).toHaveBeenCalledTimes(1);
     expect(onSwitch).toHaveBeenCalledWith('tenant-abc');
+  });
+
+  /**
+   * Regression test for issue #44:
+   * "View users" menu item must call onViewUsers, not onEdit.
+   *
+   * Mantine Menu items render in a portal, so we force the dropdown open by
+   * clicking the trigger button and then query the portal container.
+   */
+  it('calls onViewUsers (not onEdit) when "View users" menu item is clicked', async () => {
+    const onEdit = vi.fn();
+    const onViewUsers = vi.fn();
+    const user = userEvent.setup();
+    renderCard({ onEdit, onViewUsers });
+
+    // Open the overflow menu
+    await user.click(screen.getByRole('button', { name: /tenant actions/i }));
+
+    // The menu items are rendered in a Mantine portal; query the whole document.
+    const viewUsersItem = await screen.findByText('View users');
+    await user.click(viewUsersItem);
+
+    expect(onViewUsers).toHaveBeenCalledTimes(1);
+    expect(onViewUsers).toHaveBeenCalledWith('tenant-abc');
+    expect(onEdit).not.toHaveBeenCalled();
   });
 
   it('renders overflow menu trigger button', () => {

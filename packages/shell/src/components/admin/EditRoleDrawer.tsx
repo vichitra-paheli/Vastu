@@ -93,6 +93,7 @@ export function EditRoleDrawer({ opened, onClose, onUpdated, role }: EditRoleDra
       description: (value) =>
         value.length > 500 ? t('roles.create.description.tooLong') : null,
     },
+    validateInputOnBlur: true,
   });
 
   // Re-populate when a different role is opened

@@ -126,7 +126,7 @@ export function RoleCard({ role, onEdit, onDuplicate, onViewUsers, onDelete }: R
                 <Menu.Divider />
                 <Menu.Item
                   leftSection={<IconTrash size={14} />}
-                  color="red"
+                  style={{ color: 'var(--v-status-error)' }}
                   onClick={() => onDelete(role.id)}
                 >
                   {t('common.delete')}

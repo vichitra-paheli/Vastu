@@ -70,6 +70,7 @@ export function EditUserDrawer({
       name: (value) => (value.trim().length === 0 ? t('users.edit.name.label') + ' is required' : null),
       roleId: (value) => (!value ? t('users.invite.validation.role') : null),
     },
+    validateInputOnBlur: true,
   });
 
   // Sync form values when user changes (e.g. a different row is clicked)

@@ -55,12 +55,12 @@ export function RecoveryCodes({ codes }: RecoveryCodesProps) {
     <Stack gap="md">
       {/* Warning alert */}
       <Alert
-        icon={<IconAlertTriangle size={18} />}
-        color="yellow"
+        icon={<IconAlertTriangle size={18} style={{ color: 'var(--v-status-warning)' }} />}
         variant="light"
         style={{
           borderColor: 'var(--v-accent-tertiary)',
           backgroundColor: 'var(--v-accent-tertiary-light)',
+          color: 'var(--v-text-primary)',
         }}
       >
         <Text fz="var(--v-text-sm)" c="var(--v-text-primary)">

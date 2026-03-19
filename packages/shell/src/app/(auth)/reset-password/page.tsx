@@ -1,5 +1,7 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { ResetPasswordForm } from '../../../components/auth/ResetPasswordForm';
+import { FormSkeleton } from '../../../components/shared/FormSkeleton';
 
 export const metadata: Metadata = {
   title: 'Set New Password — Vastu',
@@ -7,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function ResetPasswordPage() {
-  return <ResetPasswordForm />;
+  return (
+    <Suspense fallback={<FormSkeleton fields={2} />}>
+      <ResetPasswordForm />
+    </Suspense>
+  );
 }

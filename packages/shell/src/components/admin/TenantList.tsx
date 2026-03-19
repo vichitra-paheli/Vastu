@@ -10,6 +10,7 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button, Group, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconPlus, IconBuildings } from '@tabler/icons-react';
@@ -53,6 +54,7 @@ export interface TenantListProps {
 }
 
 export function TenantList({ currentTenantId }: TenantListProps) {
+  const router = useRouter();
   const [tenants, setTenants] = useState<TenantCardData[]>([]);
   const [activeTenantId, setActiveTenantId] = useState<string | null>(currentTenantId);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
@@ -138,6 +140,10 @@ export function TenantList({ currentTenantId }: TenantListProps) {
     showError('Edit tenant is not yet implemented.');
   }, []);
 
+  const handleViewUsers = useCallback((id: string) => {
+    router.push(`/admin/users?tenantId=${id}`);
+  }, [router]);
+
   return (
     <Stack gap="lg">
       {/* Page header */}
@@ -193,6 +199,7 @@ export function TenantList({ currentTenantId }: TenantListProps) {
                 }
               }}
               onEdit={handleEdit}
+              onViewUsers={handleViewUsers}
               onArchive={handleArchiveRequest}
             />
           ))}

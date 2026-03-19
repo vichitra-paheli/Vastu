@@ -50,6 +50,7 @@ export interface TenantCardProps {
   isCurrent: boolean;
   onSwitch: (id: string) => void;
   onEdit: (id: string) => void;
+  onViewUsers: (id: string) => void;
   onArchive: (id: string) => void;
 }
 
@@ -77,7 +78,7 @@ function formatDate(value: Date | string): string {
   return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
-export function TenantCard({ tenant, isCurrent, onSwitch, onEdit, onArchive }: TenantCardProps) {
+export function TenantCard({ tenant, isCurrent, onSwitch, onEdit, onViewUsers, onArchive }: TenantCardProps) {
   const statusCfg = STATUS_CONFIG[tenant.status];
   const isolationLabel =
     DB_ISOLATION_LABELS[tenant.dbIsolationMode] ?? tenant.dbIsolationMode;
@@ -155,14 +156,14 @@ export function TenantCard({ tenant, isCurrent, onSwitch, onEdit, onArchive }: T
               </Menu.Item>
               <Menu.Item
                 leftSection={<IconUsers size={14} stroke={1.5} />}
-                onClick={() => { onEdit(tenant.id); }}
+                onClick={() => { onViewUsers(tenant.id); }}
               >
                 {t('tenants.card.viewUsers')}
               </Menu.Item>
               <Menu.Divider />
               <Menu.Item
                 leftSection={<IconArchive size={14} stroke={1.5} />}
-                color="red"
+                style={{ color: 'var(--v-status-error)' }}
                 onClick={() => { onArchive(tenant.id); }}
                 disabled={isCurrent}
               >

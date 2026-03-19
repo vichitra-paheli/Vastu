@@ -212,7 +212,7 @@ export function DbConnectionCard({
 
             <Menu.Item
               leftSection={<IconTrash size={14} />}
-              color="red"
+              style={{ color: 'var(--v-status-error)' }}
               onClick={onDelete}
             >
               {t('databases.card.menu.delete')}

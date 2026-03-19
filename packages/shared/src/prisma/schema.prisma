@@ -21,6 +21,16 @@ enum TenantStatus {
   SANDBOX
 }
 
+enum SsoProviderType {
+  SAML
+  OIDC
+}
+
+enum SsoProviderStatus {
+  LIVE
+  DRAFT
+}
+
 // ---------------------------------------------------------------------------
 // Organization
 // ---------------------------------------------------------------------------
@@ -40,6 +50,7 @@ model Organization {
   roles         Role[]
   apiKeys       ApiKey[]
   dbConnections DbConnection[]
+  ssoProviders  SsoProvider[]
   auditEvents   AuditEvent[]
 
   @@map("organizations")
@@ -97,6 +108,7 @@ model Tenant {
 
   organization Organization @relation(fields: [organizationId], references: [id])
   userRoles    UserRole[]
+  ssoProviders SsoProvider[]
   auditEvents  AuditEvent[]
 
   @@map("tenants")
@@ -218,6 +230,35 @@ model DbConnection {
 
   @@index([organizationId])
   @@map("db_connections")
+}
+
+// ---------------------------------------------------------------------------
+// SsoProvider
+// ---------------------------------------------------------------------------
+
+model SsoProvider {
+  id                    String            @id @default(uuid())
+  name                  String
+  type                  SsoProviderType
+  status                SsoProviderStatus @default(DRAFT)
+  isDefault             Boolean           @default(false) @map("is_default")
+  clientId              String?           @map("client_id")
+  encryptedClientSecret String?           @map("encrypted_client_secret")
+  issuerUrl             String?           @map("issuer_url")
+  metadataUrl           String?           @map("metadata_url")
+  redirectUri           String?           @map("redirect_uri")
+  enabled               Boolean           @default(false)
+  organizationId        String            @map("organization_id")
+  tenantId              String?           @map("tenant_id")
+  createdAt             DateTime          @default(now()) @map("created_at")
+  updatedAt             DateTime          @updatedAt @map("updated_at")
+  deletedAt             DateTime?         @map("deleted_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  tenant       Tenant?      @relation(fields: [tenantId], references: [id])
+
+  @@index([organizationId])
+  @@map("sso_providers")
 }
 
 // ---------------------------------------------------------------------------

@@ -114,7 +114,6 @@ export function ResetPasswordForm() {
         </Stack>
 
         <Alert
-          color="red"
           variant="light"
           role="alert"
           style={{
@@ -154,7 +153,6 @@ export function ResetPasswordForm() {
         </Stack>
 
         <Alert
-          color="green"
           variant="light"
           role="status"
           style={{
@@ -199,7 +197,6 @@ export function ResetPasswordForm() {
       {/* Token error alert (expired / invalid) */}
       {tokenError !== null && (
         <Alert
-          color="red"
           variant="light"
           role="alert"
           style={{
@@ -215,7 +212,6 @@ export function ResetPasswordForm() {
       {/* Generic submit error alert */}
       {submitError !== null && (
         <Alert
-          color="red"
           variant="light"
           role="alert"
           style={{

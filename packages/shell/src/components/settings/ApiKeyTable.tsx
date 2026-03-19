@@ -46,10 +46,16 @@ export interface ApiKeyTableProps {
   initialKeys: ApiKey[];
 }
 
-// Mantine color strings — maps scope value to Badge color prop
-const SCOPE_COLOR: Record<string, string> = {
-  full: 'blue',
-  read_only: 'yellow',
+// CSS token maps for scope badge styling — avoids Mantine named color strings
+const SCOPE_BADGE_STYLE: Record<string, { backgroundColor: string; color: string }> = {
+  full: {
+    backgroundColor: 'var(--v-accent-primary-light)',
+    color: 'var(--v-accent-primary)',
+  },
+  read_only: {
+    backgroundColor: 'var(--v-status-warning-light)',
+    color: 'var(--v-status-warning)',
+  },
 };
 
 // Translation key map for scope badges
@@ -195,7 +201,12 @@ export function ApiKeyTable({ initialKeys }: ApiKeyTableProps) {
                   <Badge
                     size="sm"
                     variant="light"
-                    color={SCOPE_COLOR[key.scope] ?? 'blue'}
+                    style={
+                      SCOPE_BADGE_STYLE[key.scope] ?? {
+                        backgroundColor: 'var(--v-accent-primary-light)',
+                        color: 'var(--v-accent-primary)',
+                      }
+                    }
                     data-testid="scope-badge"
                     data-scope={key.scope}
                   >
@@ -233,7 +244,7 @@ export function ApiKeyTable({ initialKeys }: ApiKeyTableProps) {
                       <Menu.Divider />
                       <Menu.Item
                         leftSection={<IconTrash size={14} />}
-                        color="red"
+                        style={{ color: 'var(--v-status-error)' }}
                         onClick={() => setRevokeTarget(key)}
                       >
                         {t('apiKeys.table.revoke')}

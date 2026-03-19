@@ -173,10 +173,14 @@ export function MfaSetupWizard({ onComplete, onCancel }: MfaSetupWizardProps) {
             {setupLoading && <Skeleton height={180} width={180} />}
             {setupError && (
               <Alert
-                icon={<IconAlertCircle size={18} />}
-                color="red"
+                icon={<IconAlertCircle size={18} style={{ color: 'var(--v-status-error)' }} />}
                 variant="light"
-                style={{ width: '100%' }}
+                style={{
+                  width: '100%',
+                  borderColor: 'var(--v-status-error)',
+                  backgroundColor: 'var(--v-status-error-light)',
+                  color: 'var(--v-status-error)',
+                }}
               >
                 {setupError}
               </Alert>

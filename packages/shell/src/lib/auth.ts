@@ -19,6 +19,7 @@ import KeycloakProvider from 'next-auth/providers/keycloak';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from '@vastu/shared/prisma';
 import { defineAbilitiesFor } from '@vastu/shared/permissions';
+import { createAuditEvent } from '@vastu/shared/utils';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -36,6 +37,44 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   pages: {
     signIn: '/login',
     error: '/login',
+  },
+  events: {
+    async signIn({ user, isNewUser }) {
+      // The base next-auth User type has `id?: string`, but PrismaAdapter
+      // always populates it. Guard against the undefined case to keep TS happy.
+      if (!user.id) {
+        console.warn('[auth] signIn event: user.id is undefined — audit event skipped');
+        return;
+      }
+
+      // Fetch the organizationId from the database — it is not part of the
+      // standard next-auth User type but is required for all audit events.
+      const dbUser = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { organizationId: true, name: true },
+      });
+
+      if (!dbUser) {
+        // User record not found — skip writing the audit event rather than
+        // throwing, because a missing user here should not block sign-in.
+        console.warn(`[auth] signIn event: user ${user.id} not found in DB — audit event skipped`);
+        return;
+      }
+
+      // Fire-and-forget: audit failures must never block authentication.
+      createAuditEvent({
+        userId: user.id,
+        userName: dbUser.name,
+        action: 'user.login',
+        resourceType: 'User',
+        resourceId: user.id,
+        resourceDescription: `User signed in: ${user.email ?? user.id}`,
+        payload: { isNewUser: isNewUser ?? false },
+        organizationId: dbUser.organizationId,
+      }).catch((err: unknown) => {
+        console.error('[auth] Failed to write login audit event:', err);
+      });
+    },
   },
   callbacks: {
     async session({ session, user }) {

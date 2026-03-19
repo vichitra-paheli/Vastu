@@ -21,6 +21,7 @@
 
 import { Avatar, Badge, Box, Group, Table, Text, Tooltip } from '@mantine/core';
 import { t } from '../../lib/i18n';
+import { TruncatedText } from '../shared/TruncatedText';
 import type { UserListItem } from './types';
 
 // ---------------------------------------------------------------------------
@@ -123,26 +124,24 @@ export function UserRow({ user, onClick }: UserRowProps) {
               {getInitials(user.name)}
             </Text>
           </Avatar>
-          <Text
+          <TruncatedText
             fz="var(--v-text-sm)"
             fw={500}
             style={{ color: 'var(--v-text-primary)' }}
-            truncate
           >
             {user.name}
-          </Text>
+          </TruncatedText>
         </Group>
       </Table.Td>
 
       {/* Email */}
       <Table.Td>
-        <Text
+        <TruncatedText
           fz="var(--v-text-sm)"
           style={{ color: 'var(--v-text-secondary)' }}
-          truncate
         >
           {user.email}
-        </Text>
+        </TruncatedText>
       </Table.Td>
 
       {/* Role badge */}
