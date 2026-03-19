@@ -42,6 +42,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Generate Prisma client
+        run: pnpm prisma:generate
+
       - name: Run lint
         run: pnpm lint
 
@@ -72,6 +75,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm prisma:generate
 
       - name: Run typecheck
         run: pnpm typecheck
@@ -139,8 +145,8 @@ jobs:
       - name: Generate Prisma client
         run: pnpm prisma:generate
 
-      - name: Run unit tests with coverage
-        run: pnpm test -- --coverage
+      - name: Run unit tests
+        run: pnpm test
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
@@ -179,6 +185,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm prisma:generate
 
       - name: Build all packages
         run: pnpm build
