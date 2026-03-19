@@ -21,6 +21,7 @@ const PUBLIC_ROUTES = [
   '/reset-password',
   '/verify-email',
   '/sso',
+  '/mfa',
   '/404',
   '/500',
 ];

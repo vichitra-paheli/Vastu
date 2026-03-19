@@ -55,7 +55,7 @@ export const SELECTORS = {
     ssoButton: 'button:has-text("Sign in with SSO")',
     forgotPasswordLink: 'a[href="/forgot-password"]',
     createAccountLink: 'a[href="/register"]',
-    errorAlert: '[role="alert"]',
+    errorAlert: '[role="alert"]:not(#__next-route-announcer__)',
   },
 
   // Registration page
@@ -66,7 +66,7 @@ export const SELECTORS = {
     passwordInput: '[autocomplete="new-password"]',
     submitButton: 'button[type="submit"]',
     signInLink: 'a[href="/login"]',
-    errorAlert: '[role="alert"]',
+    errorAlert: '[role="alert"]:not(#__next-route-announcer__)',
     // Password strength bar — identified by its aria-live label
     passwordStrengthLabel: '[aria-live="polite"]',
   },
@@ -76,7 +76,7 @@ export const SELECTORS = {
     emailInput: '[autocomplete="email"]',
     submitButton: 'button[type="submit"]',
     backToSignInLink: 'a[href="/login"]',
-    errorAlert: '[role="alert"]',
+    errorAlert: '[role="alert"]:not(#__next-route-announcer__)',
     successAlert: '[role="status"]',
   },
 
@@ -85,7 +85,7 @@ export const SELECTORS = {
     passwordInput: '[autocomplete="new-password"]',
     submitButton: 'button[type="submit"]',
     backToSignInLink: 'a[href="/login"]',
-    errorAlert: '[role="alert"]',
+    errorAlert: '[role="alert"]:not(#__next-route-announcer__)',
   },
 } as const;
 
