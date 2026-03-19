@@ -1,19 +1,21 @@
 /**
- * PATCH /api/settings/organization
+ * GET  /api/settings/organization — Fetch current organization details.
+ * PATCH /api/settings/organization — Update organization details.
  *
- * Updates organization details. Requires an authenticated admin session.
+ * Requires an authenticated admin session.
  *
- * Request body (all fields optional):
- *   { name?, logoUrl?, workspaceUrl?, defaultTimezone?, defaultLanguage? }
+ * PATCH request body (all fields optional):
+ *   { name?, logoUrl?, workspaceUrl?, defaultTimezone?, defaultLanguage?, ssoRequired? }
  *
  * Returns:
- *   200 { success: true, organization: Organization }  on success
+ *   GET  200 { organization: Organization }
+ *   PATCH 200 { success: true, organization: Organization }  on success
  *   400 { error: string }                              on validation failure
  *   401 { error: string }                              if not authenticated
  *   403 { error: string }                              if not an admin
  *   500 { error: string }                              on unexpected failure
  *
- * MCP tool equivalent: update_organization({ name, logoUrl, workspaceUrl, defaultTimezone, defaultLanguage })
+ * MCP tool equivalent: update_organization({ name, logoUrl, workspaceUrl, defaultTimezone, defaultLanguage, ssoRequired })
  */
 
 import { type NextRequest, NextResponse } from 'next/server';
@@ -22,6 +24,57 @@ import { isAdmin } from '@vastu/shared/permissions';
 import type { UpdateOrganizationInput } from '@vastu/shared';
 import { createAuditEvent } from '@vastu/shared/utils';
 import { getSessionWithAbility } from '../../../../lib/session';
+
+// ---------------------------------------------------------------------------
+// Extended Prisma result type
+//
+// ssoRequired is added by migration 20260318000001. The Prisma client type will
+// reflect this field once `prisma generate` is run after the migration. Until
+// then, we cast the Prisma result to this extended type so the route compiles
+// and the field is accessible at runtime (after migration is applied).
+// ---------------------------------------------------------------------------
+
+interface OrgWithSsoRequired {
+  id: string;
+  name: string;
+  logoUrl: string | null;
+  workspaceUrl: string | null;
+  defaultTimezone: string;
+  defaultLanguage: string;
+  ssoRequired: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// ---------------------------------------------------------------------------
+// GET handler
+// ---------------------------------------------------------------------------
+
+export async function GET(_request: NextRequest): Promise<NextResponse> {
+  const { session, ability } = await getSessionWithAbility();
+  if (!session || !ability) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  if (!isAdmin(ability)) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  try {
+    const organization = await prisma.organization.findUnique({
+      where: { id: session.user.organizationId },
+    });
+    if (!organization) {
+      return NextResponse.json({ error: 'Organization not found' }, { status: 404 });
+    }
+    return NextResponse.json({ organization });
+  } catch (err) {
+    console.error('[settings/organization GET] Unexpected error:', err);
+    return NextResponse.json(
+      { error: 'Failed to load organization. Please try again.' },
+      { status: 500 },
+    );
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Body type guard
@@ -33,18 +86,21 @@ interface PatchBody {
   workspaceUrl?: string;
   defaultTimezone?: string;
   defaultLanguage?: string;
+  ssoRequired?: boolean;
 }
 
 function isValidPatchBody(body: unknown): body is PatchBody {
   if (typeof body !== 'object' || body === null) return false;
   const b = body as Record<string, unknown>;
   const stringOrUndefined = (v: unknown) => v === undefined || typeof v === 'string';
+  const boolOrUndefined = (v: unknown) => v === undefined || typeof v === 'boolean';
   return (
     stringOrUndefined(b.name) &&
     stringOrUndefined(b.logoUrl) &&
     stringOrUndefined(b.workspaceUrl) &&
     stringOrUndefined(b.defaultTimezone) &&
-    stringOrUndefined(b.defaultLanguage)
+    stringOrUndefined(b.defaultLanguage) &&
+    boolOrUndefined(b.ssoRequired)
   );
 }
 
@@ -100,6 +156,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
   if (body.workspaceUrl !== undefined) updateData.workspaceUrl = body.workspaceUrl.trim();
   if (body.defaultTimezone !== undefined) updateData.defaultTimezone = body.defaultTimezone;
   if (body.defaultLanguage !== undefined) updateData.defaultLanguage = body.defaultLanguage;
+  if (body.ssoRequired !== undefined) updateData.ssoRequired = body.ssoRequired;
 
   if (Object.keys(updateData).length === 0) {
     return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
@@ -107,14 +164,16 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 
   try {
     // Load current state for audit diff
+    // Cast: ssoRequired added by migration 20260318000001; present once prisma generate is run.
     const before = await prisma.organization.findUnique({
       where: { id: session.user.organizationId },
-    });
+    }) as OrgWithSsoRequired | null;
 
+    // Cast: same reason as above.
     const organization = await prisma.organization.update({
       where: { id: session.user.organizationId },
       data: updateData,
-    });
+    }) as OrgWithSsoRequired;
 
     // Audit event — best-effort, non-blocking
     createAuditEvent({
@@ -131,6 +190,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
             workspaceUrl: before.workspaceUrl,
             defaultTimezone: before.defaultTimezone,
             defaultLanguage: before.defaultLanguage,
+            ssoRequired: before.ssoRequired,
           }
         : undefined,
       afterState: {
@@ -139,6 +199,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
         workspaceUrl: organization.workspaceUrl,
         defaultTimezone: organization.defaultTimezone,
         defaultLanguage: organization.defaultLanguage,
+        ssoRequired: organization.ssoRequired,
       },
       ipAddress:
         request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip') ?? undefined,

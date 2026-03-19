@@ -435,6 +435,8 @@ const translations: Record<string, string> = {
   'sso.config.delete.title': 'Remove identity provider',
   'sso.config.delete.message':
     'Users who sign in via this provider will no longer be able to authenticate. This cannot be undone.',
+  'sso.config.enforcement.saved': 'SSO enforcement setting saved',
+  'sso.config.enforcement.saveError': 'Failed to save SSO enforcement setting. Please try again.',
 
   // ──────────────────────────────────────────────────────────────────────────
   // Admin — User management

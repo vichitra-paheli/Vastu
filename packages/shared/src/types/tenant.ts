@@ -7,6 +7,7 @@ export type Organization = {
   workspaceUrl: string | null;
   defaultTimezone: string;
   defaultLanguage: string;
+  ssoRequired: boolean;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -32,7 +33,7 @@ export type CreateOrganizationInput = Pick<Organization, 'name'> & {
 };
 
 export type UpdateOrganizationInput = Partial<
-  Pick<Organization, 'name' | 'logoUrl' | 'workspaceUrl' | 'defaultTimezone' | 'defaultLanguage'>
+  Pick<Organization, 'name' | 'logoUrl' | 'workspaceUrl' | 'defaultTimezone' | 'defaultLanguage' | 'ssoRequired'>
 >;
 
 export type CreateTenantInput = Pick<Tenant, 'name' | 'subdomain' | 'organizationId'> & {

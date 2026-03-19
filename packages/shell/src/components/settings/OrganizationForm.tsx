@@ -272,7 +272,7 @@ export function OrganizationForm({ organization }: OrganizationFormProps) {
                   borderColor: 'var(--v-border-default)',
                   backgroundColor: workspaceUrlEditable
                     ? undefined
-                    : 'var(--v-surface-subtle)',
+                    : 'var(--v-bg-secondary)',
                 },
               }}
               {...form.getInputProps('workspaceUrl')}

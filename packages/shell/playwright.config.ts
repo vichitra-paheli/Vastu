@@ -13,6 +13,10 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './e2e',
 
+  // Runs once before the entire suite to wipe any leftover auth-state files,
+  // ensuring unauthenticated tests never inherit a prior-run session.
+  globalSetup: './e2e/global-setup.ts',
+
   // Maximum time one test can run for.
   timeout: 30_000,
 

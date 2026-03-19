@@ -23,9 +23,10 @@ import { loginAs, TEST_USERS } from '../fixtures';
 // ---------------------------------------------------------------------------
 
 test.describe('Tenant management — unauthenticated', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.context().clearCookies();
-  });
+  // Declarative state isolation — wipes cookies AND origins (localStorage /
+  // sessionStorage). Supersedes the previous clearCookies() beforeEach which
+  // only covered HTTP cookies and could miss storage-backed session tokens.
+  test.use({ storageState: { cookies: [], origins: [] } });
 
   test('redirects /admin/tenants to /login when not authenticated', async ({ page }) => {
     await page.goto('/admin/tenants');

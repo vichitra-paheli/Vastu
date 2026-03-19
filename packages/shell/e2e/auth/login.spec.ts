@@ -23,6 +23,10 @@ import { test, expect } from '@playwright/test';
 import { SELECTORS } from '../fixtures';
 
 test.describe('Login page', () => {
+  // Ensure no session cookie from a prior run causes the middleware to redirect
+  // /login → /workspace before any test assertion can run.
+  test.use({ storageState: { cookies: [], origins: [] } });
+
   test.beforeEach(async ({ page }) => {
     await page.goto('/login');
   });

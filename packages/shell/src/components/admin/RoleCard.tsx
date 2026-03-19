@@ -72,11 +72,11 @@ export function RoleCard({ role, onEdit, onDuplicate, onViewUsers, onDelete }: R
             style={
               role.isSystem
                 ? {
-                    backgroundColor: 'var(--v-bg-subtle)',
+                    backgroundColor: 'var(--v-bg-secondary)',
                     color: 'var(--v-text-secondary)',
                   }
                 : {
-                    backgroundColor: 'var(--v-accent-primary-subtle)',
+                    backgroundColor: 'var(--v-accent-primary-light)',
                     color: 'var(--v-accent-primary)',
                   }
             }

@@ -42,6 +42,7 @@ model Organization {
   workspaceUrl     String?   @map("workspace_url")
   defaultTimezone  String    @default("UTC") @map("default_timezone")
   defaultLanguage  String    @default("en") @map("default_language")
+  ssoRequired      Boolean   @default(false) @map("sso_required")
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @updatedAt @map("updated_at")
 

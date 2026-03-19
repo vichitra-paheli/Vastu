@@ -48,7 +48,7 @@ function JsonBlock({ value }: { value: Record<string, unknown> | null | undefine
       style={{
         fontFamily: 'var(--v-font-mono)',
         fontSize: '12px',
-        backgroundColor: 'var(--v-surface-subtle)',
+        backgroundColor: 'var(--v-bg-secondary)',
         color: 'var(--v-text-primary)',
         borderRadius: 'var(--v-radius-md)',
         padding: '12px',

@@ -58,12 +58,12 @@ const STATUS_CONFIG = {
   ACTIVE: {
     label: 'Active',
     color: 'var(--v-status-success)',
-    bg: 'var(--v-status-success-subtle)',
+    bg: 'var(--v-status-success-light)',
   },
   SANDBOX: {
     label: 'Sandbox',
     color: 'var(--v-status-warning)',
-    bg: 'var(--v-status-warning-subtle)',
+    bg: 'var(--v-status-warning-light)',
   },
 } as const;
 
@@ -115,7 +115,7 @@ export function TenantCard({ tenant, isCurrent, onSwitch, onEdit, onViewUsers, o
               size="xs"
               variant="light"
               style={{
-                backgroundColor: 'var(--v-accent-primary-subtle)',
+                backgroundColor: 'var(--v-accent-primary-light)',
                 color: 'var(--v-accent-primary)',
                 flexShrink: 0,
               }}

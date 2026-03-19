@@ -13,6 +13,7 @@ import { redirect } from 'next/navigation';
 import { Stack, Text, Title } from '@mantine/core';
 import { prisma } from '@vastu/shared/prisma';
 import { isAdmin } from '@vastu/shared/permissions';
+import type { Organization } from '@vastu/shared';
 import { requireSessionWithAbility } from '../../../../lib/session';
 import { t } from '../../../../lib/i18n';
 import { OrganizationForm } from '../../../../components/settings/OrganizationForm';
@@ -62,7 +63,9 @@ export default async function OrganizationPage() {
         </Text>
       </Stack>
 
-      <OrganizationForm organization={organization} />
+      {/* Cast: ssoRequired is added by migration 20260318000001; Prisma client reflects this
+          once `prisma generate` is run after the migration. The field defaults to false. */}
+      <OrganizationForm organization={organization as Organization} />
     </Stack>
   );
 }

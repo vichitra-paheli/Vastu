@@ -244,7 +244,7 @@ export function AppearanceSettings({
             ]}
             styles={{
               root: {
-                backgroundColor: 'var(--v-surface-subtle)',
+                backgroundColor: 'var(--v-bg-secondary)',
                 border: '1px solid var(--v-border-subtle)',
               },
               label: {
@@ -252,7 +252,7 @@ export function AppearanceSettings({
                 fontWeight: 400,
               },
               indicator: {
-                backgroundColor: 'var(--v-surface-default)',
+                backgroundColor: 'var(--v-bg-primary)',
               },
             }}
           />
@@ -343,7 +343,7 @@ export function AppearanceSettings({
             ]}
             styles={{
               root: {
-                backgroundColor: 'var(--v-surface-subtle)',
+                backgroundColor: 'var(--v-bg-secondary)',
                 border: '1px solid var(--v-border-subtle)',
               },
               label: {
@@ -351,7 +351,7 @@ export function AppearanceSettings({
                 fontWeight: 400,
               },
               indicator: {
-                backgroundColor: 'var(--v-surface-default)',
+                backgroundColor: 'var(--v-bg-primary)',
               },
             }}
           />

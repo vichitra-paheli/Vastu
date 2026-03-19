@@ -24,6 +24,10 @@ import { loginAs, TEST_USERS } from '../fixtures';
 // ---------------------------------------------------------------------------
 
 test.describe('Permission matrix — unauthenticated', () => {
+  // Ensure no leftover session from a prior run causes the middleware to serve
+  // the authenticated page instead of redirecting to /login.
+  test.use({ storageState: { cookies: [], origins: [] } });
+
   test('redirects /admin/permissions to /login when not authenticated', async ({ page }) => {
     await page.goto('/admin/permissions');
     await expect(page).toHaveURL(/\/login/);

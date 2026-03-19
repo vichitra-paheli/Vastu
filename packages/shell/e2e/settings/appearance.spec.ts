@@ -19,6 +19,10 @@ import { test, expect } from '@playwright/test';
 import { loginAs, TEST_USERS } from '../fixtures';
 
 test.describe('Appearance settings — unauthenticated', () => {
+  // Ensure no leftover session from a prior run causes the middleware to serve
+  // the authenticated page instead of redirecting to /login.
+  test.use({ storageState: { cookies: [], origins: [] } });
+
   test('redirects /settings/appearance to /login', async ({ page }) => {
     await page.goto('/settings/appearance');
     await expect(page).toHaveURL(/\/login/);

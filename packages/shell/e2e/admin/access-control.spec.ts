@@ -19,6 +19,12 @@
 
 import { test, expect } from '@playwright/test';
 
+// All active (non-skipped) tests in this file verify unauthenticated redirect
+// behaviour. Declaring storageState at file scope ensures every test browser
+// context starts with no cookies or origins, regardless of what a prior run
+// may have persisted.
+test.use({ storageState: { cookies: [], origins: [] } });
+
 // ---------------------------------------------------------------------------
 // Admin routes — unauthenticated access
 // ---------------------------------------------------------------------------
