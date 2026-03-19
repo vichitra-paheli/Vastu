@@ -24,7 +24,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { authenticator } from 'otplib';
 import { prisma } from '@vastu/shared/prisma';
-import { auth } from '../../../../../lib/auth';
+import { auth } from '@/lib/auth';
 import { generateToken, hashApiKey, createAuditEvent } from '@vastu/shared/utils';
 
 const RECOVERY_CODE_COUNT = 6;
@@ -100,8 +100,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     );
   }
 
+  // Extract the pure TOTP secret — guard against any legacy packed format
+  // where recovery codes were incorrectly appended to mfaSecret using the
+  // "||RC:<hash>,..." suffix. TOTP verification must only use the secret
+  // portion; passing the full packed string to authenticator.verify() causes
+  // every code to be rejected.
+  const totpSecret = user.mfaSecret.split('||RC:')[0];
+
   // Verify the TOTP code against the stored secret.
-  const isValid = authenticator.verify({ token: code, secret: user.mfaSecret });
+  const isValid = authenticator.verify({ token: code, secret: totpSecret });
   if (!isValid) {
     return NextResponse.json({ error: 'Invalid verification code. Please try again.' }, { status: 400 });
   }
@@ -110,36 +117,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const { plain: recoveryCodes, hashed: hashedCodes } = generateRecoveryCodes();
 
   try {
-    // Enable MFA and store hashed recovery codes.
-    // Recovery codes are stored as a JSON array in a dedicated field.
-    // The schema stores mfaEnabled and mfaSecret already — recovery codes
-    // are stored in a JSON field we add to the update call via Prisma's
-    // flexible data object (the field exists in the DB via the schema's
-    // `mfaSecret` column being used for the secret).
-    //
-    // Note: The Prisma schema doesn't have a dedicated recovery codes column.
-    // We use a separate approach: store the hashed codes as a JSON-encoded
-    // string in a field named `mfaRecoveryCodes`. Since this field doesn't
-    // exist in the current schema, we store them serialised into mfaSecret
-    // using a structured format, or — better — we accept the schema as-is
-    // and store recovery codes in the AuditEvent payload for now while
-    // updating the user record to enable MFA.
-    //
-    // SCHEMA NOTE: The current schema (schema.prisma) only has mfaEnabled
-    // and mfaSecret on User. Recovery codes need a new column. For Phase 0
-    // we store the hashed codes as a JSON string in a convention-based way.
-    // The `mfaSecret` field stores the TOTP secret. Recovery codes need
-    // their own storage — we'll encode them alongside the secret using a
-    // separator that otplib will never produce, so we can parse them back.
-    // Format: "<TOTP_SECRET>||RC:<hash1>,<hash2>,...,<hashN>"
-
-    const encodedSecret = `${user.mfaSecret}||RC:${hashedCodes.join(',')}`;
-
+    // Enable MFA. Store hashed recovery codes in the dedicated
+    // mfaRecoveryCodes column (JSON array) and keep mfaSecret as the pure
+    // TOTP secret with no appended data.
     await prisma.user.update({
       where: { id: userId },
       data: {
         mfaEnabled: true,
-        mfaSecret: encodedSecret,
+        mfaSecret: totpSecret,
+        mfaRecoveryCodes: JSON.stringify(hashedCodes),
       },
     });
 

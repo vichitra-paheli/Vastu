@@ -1,10 +1,14 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import {
   isValidEmail,
   calculatePasswordStrength,
   isValidUrl,
   isRelativeUrl,
   isValidSubdomain,
+  isBlockedIpv4,
+  isBlockedIpv6,
+  validateHostForSSRF,
+  SsrfBlockedError,
 } from '../validation';
 
 describe('isValidEmail', () => {
@@ -158,5 +162,167 @@ describe('isValidSubdomain', () => {
 
   it('returns false for empty string', () => {
     expect(isValidSubdomain('')).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// SSRF protection
+// ---------------------------------------------------------------------------
+
+describe('isBlockedIpv4', () => {
+  it('blocks 10.x.x.x (RFC 1918)', () => {
+    expect(isBlockedIpv4('10.0.0.1')).toBe(true);
+    expect(isBlockedIpv4('10.255.255.255')).toBe(true);
+  });
+
+  it('blocks 172.16.x.x – 172.31.x.x (RFC 1918)', () => {
+    expect(isBlockedIpv4('172.16.0.1')).toBe(true);
+    expect(isBlockedIpv4('172.31.255.255')).toBe(true);
+  });
+
+  it('does NOT block 172.15.x.x or 172.32.x.x', () => {
+    expect(isBlockedIpv4('172.15.0.1')).toBe(false);
+    expect(isBlockedIpv4('172.32.0.1')).toBe(false);
+  });
+
+  it('blocks 192.168.x.x (RFC 1918)', () => {
+    expect(isBlockedIpv4('192.168.0.1')).toBe(true);
+    expect(isBlockedIpv4('192.168.100.200')).toBe(true);
+  });
+
+  it('blocks 127.x.x.x (loopback)', () => {
+    expect(isBlockedIpv4('127.0.0.1')).toBe(true);
+    expect(isBlockedIpv4('127.0.0.2')).toBe(true);
+  });
+
+  it('blocks 169.254.x.x (link-local / cloud metadata)', () => {
+    expect(isBlockedIpv4('169.254.169.254')).toBe(true);
+    expect(isBlockedIpv4('169.254.0.1')).toBe(true);
+  });
+
+  it('blocks 224.x.x.x and above (multicast/reserved)', () => {
+    expect(isBlockedIpv4('224.0.0.1')).toBe(true);
+    expect(isBlockedIpv4('255.255.255.255')).toBe(true);
+  });
+
+  it('blocks 0.x.x.x', () => {
+    expect(isBlockedIpv4('0.0.0.0')).toBe(true);
+  });
+
+  it('allows public IPs', () => {
+    expect(isBlockedIpv4('8.8.8.8')).toBe(false);
+    expect(isBlockedIpv4('1.1.1.1')).toBe(false);
+    expect(isBlockedIpv4('203.0.113.1')).toBe(false);
+  });
+
+  it('blocks unparseable strings', () => {
+    expect(isBlockedIpv4('not-an-ip')).toBe(true);
+    expect(isBlockedIpv4('999.0.0.0')).toBe(true);
+  });
+});
+
+describe('isBlockedIpv6', () => {
+  it('blocks ::1 (loopback)', () => {
+    expect(isBlockedIpv6('::1')).toBe(true);
+  });
+
+  it('blocks fe80::/10 (link-local)', () => {
+    expect(isBlockedIpv6('fe80::1')).toBe(true);
+    expect(isBlockedIpv6('feb0::1')).toBe(true);
+  });
+
+  it('blocks fc00::/7 (unique local)', () => {
+    expect(isBlockedIpv6('fc00::1')).toBe(true);
+    expect(isBlockedIpv6('fd12:3456::1')).toBe(true);
+  });
+
+  it('allows public IPv6', () => {
+    expect(isBlockedIpv6('2001:db8::1')).toBe(false);
+    expect(isBlockedIpv6('2606:4700:4700::1111')).toBe(false);
+  });
+});
+
+describe('validateHostForSSRF — literal IPs and localhost (no DNS)', () => {
+  it('throws SsrfBlockedError for "localhost"', async () => {
+    await expect(validateHostForSSRF('localhost')).rejects.toThrow(SsrfBlockedError);
+    await expect(validateHostForSSRF('localhost')).rejects.toThrow(
+      'Connection to internal/private IP addresses is not allowed',
+    );
+  });
+
+  it('throws SsrfBlockedError for raw 127.0.0.1', async () => {
+    await expect(validateHostForSSRF('127.0.0.1')).rejects.toThrow(SsrfBlockedError);
+  });
+
+  it('throws SsrfBlockedError for 169.254.169.254 (cloud metadata)', async () => {
+    await expect(validateHostForSSRF('169.254.169.254')).rejects.toThrow(SsrfBlockedError);
+  });
+
+  it('throws SsrfBlockedError for 10.0.0.1', async () => {
+    await expect(validateHostForSSRF('10.0.0.1')).rejects.toThrow(SsrfBlockedError);
+  });
+
+  it('throws SsrfBlockedError for 192.168.1.1', async () => {
+    await expect(validateHostForSSRF('192.168.1.1')).rejects.toThrow(SsrfBlockedError);
+  });
+
+  it('throws SsrfBlockedError for ::1 (IPv6 loopback)', async () => {
+    await expect(validateHostForSSRF('::1')).rejects.toThrow(SsrfBlockedError);
+  });
+
+  it('allows a public IPv4 address without DNS lookup', async () => {
+    await expect(validateHostForSSRF('8.8.8.8')).resolves.toBeUndefined();
+  });
+});
+
+// DNS-resolution tests use vi.doMock + vi.resetModules so each test gets its
+// own fresh module instance with an independent dns mock. vi.mock() is hoisted
+// and only the last factory wins per file, so we cannot use it inside it() blocks.
+describe('validateHostForSSRF — DNS resolution checks', () => {
+  afterEach(() => {
+    vi.resetModules();
+    vi.restoreAllMocks();
+  });
+
+  it('throws SsrfBlockedError when hostname resolves only to private IPs', async () => {
+    vi.doMock('dns', () => ({
+      default: {
+        promises: {
+          resolve4: vi.fn().mockResolvedValue(['10.0.0.5']),
+          resolve6: vi.fn().mockRejectedValue(new Error('ENODATA')),
+        },
+      },
+    }));
+
+    const { validateHostForSSRF: fn } = await import('../validation');
+    await expect(fn('evil.internal.example')).rejects.toThrow(/blocked|private|internal|no addresses/i);
+  });
+
+  it('allows a hostname that resolves to a public IP', async () => {
+    vi.doMock('dns', () => ({
+      default: {
+        promises: {
+          resolve4: vi.fn().mockResolvedValue(['93.184.216.34']),
+          resolve6: vi.fn().mockRejectedValue(new Error('ENODATA')),
+        },
+      },
+    }));
+
+    const { validateHostForSSRF: fn } = await import('../validation');
+    await expect(fn('example.com')).resolves.toBeUndefined();
+  });
+
+  it('throws SsrfBlockedError when hostname resolves to 169.254.169.254 (DNS rebinding to metadata endpoint)', async () => {
+    vi.doMock('dns', () => ({
+      default: {
+        promises: {
+          resolve4: vi.fn().mockResolvedValue(['169.254.169.254']),
+          resolve6: vi.fn().mockRejectedValue(new Error('ENODATA')),
+        },
+      },
+    }));
+
+    const { validateHostForSSRF: fn, SsrfBlockedError: Err } = await import('../validation');
+    await expect(fn('metadata.attacker.example')).rejects.toThrow(Err);
   });
 });

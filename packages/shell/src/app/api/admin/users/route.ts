@@ -23,11 +23,11 @@
  */
 
 import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@vastu/shared/prisma';
+import { prisma, type Prisma } from '@vastu/shared/prisma';
 import { isAdmin } from '@vastu/shared/permissions';
 import { isValidEmail, createAuditEvent } from '@vastu/shared/utils';
-import { getSessionWithAbility } from '../../../../lib/session';
-import type { UserListItem } from '../../../../components/admin/types';
+import { getSessionWithAbility } from '@/lib/session';
+import type { UserListItem } from '@/components/admin/types';
 
 export type { UserListItem };
 
@@ -85,8 +85,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const statusFilter = url.searchParams.get('status')?.trim() ?? '';
 
   // Build where clause
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma where type is complex
-  const where: any = {
+  const where: Prisma.UserWhereInput = {
     organizationId: session.user.organizationId,
     // Soft-deleted users should not appear in the list
     deletedAt: null,
@@ -207,54 +206,67 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    let invitedCount = 0;
+    // Collect audit metadata outside the transaction so it survives after commit
+    const auditEntries: Array<{ newUserId: string; email: string }> = [];
 
-    for (const email of emails) {
-      // Check if user already exists in this org
-      const existing = await prisma.user.findUnique({
-        where: { email },
-        select: { id: true, organizationId: true },
-      });
+    const invitedCount = await prisma.$transaction(async (tx) => {
+      let count = 0;
 
-      if (existing && existing.organizationId === session.user.organizationId) {
-        // Already a member — skip silently
-        continue;
+      for (const email of emails) {
+        // Check if user already exists in this org
+        const existing = await tx.user.findUnique({
+          where: { email },
+          select: { id: true, organizationId: true },
+        });
+
+        if (existing && existing.organizationId === session.user.organizationId) {
+          // Already a member — skip silently
+          continue;
+        }
+
+        // Create the user record (unverified = pending)
+        const newUser = await tx.user.create({
+          data: {
+            email,
+            name: email.split('@')[0] ?? email, // Placeholder name until user completes profile
+            emailVerified: false,
+            organizationId: session.user.organizationId,
+          },
+        });
+
+        // Assign role
+        await tx.userRole.create({
+          data: {
+            userId: newUser.id,
+            roleId: role.id,
+          },
+        });
+
+        auditEntries.push({ newUserId: newUser.id, email });
+        count++;
       }
 
-      // Create the user record (unverified = pending)
-      const newUser = await prisma.user.create({
-        data: {
-          email,
-          name: email.split('@')[0] ?? email, // Placeholder name until user completes profile
-          emailVerified: false,
-          organizationId: session.user.organizationId,
-        },
-      });
+      return count;
+    });
 
-      // Assign role
-      await prisma.userRole.create({
-        data: {
-          userId: newUser.id,
-          roleId: role.id,
-        },
-      });
+    // Fire audit events after the transaction commits — failures here are non-fatal
+    const ipAddress =
+      request.headers.get('x-forwarded-for') ??
+      request.headers.get('x-real-ip') ??
+      undefined;
+    const userAgent = request.headers.get('user-agent') ?? undefined;
 
-      invitedCount++;
-
-      // Audit event per invited user
+    for (const entry of auditEntries) {
       createAuditEvent({
         userId: session.user.id,
         userName: session.user.name ?? undefined,
         action: 'CREATE',
         resourceType: 'User',
-        resourceId: newUser.id,
-        resourceDescription: `User invited: ${email}`,
-        afterState: { email, roleId: role.id, roleName: role.name },
-        ipAddress:
-          request.headers.get('x-forwarded-for') ??
-          request.headers.get('x-real-ip') ??
-          undefined,
-        userAgent: request.headers.get('user-agent') ?? undefined,
+        resourceId: entry.newUserId,
+        resourceDescription: `User invited: ${entry.email}`,
+        afterState: { email: entry.email, roleId: role.id, roleName: role.name },
+        ipAddress,
+        userAgent,
         organizationId: session.user.organizationId,
       }).catch((err: unknown) => {
         console.error('[admin/users POST] Failed to write audit event:', err);

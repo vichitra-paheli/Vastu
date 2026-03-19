@@ -4,9 +4,9 @@
  * Validates a recovery code for a user who cannot access their authenticator app.
  * On success, the used recovery code is invalidated (one-time use).
  *
- * The recovery codes are stored as SHA-256 hashes encoded after the TOTP secret
- * in the mfaSecret field using the format:
- *   "<TOTP_SECRET>||RC:<hash1>,<hash2>,...,<hashN>"
+ * Recovery codes are stored as a JSON array of SHA-256 hashes in the
+ * mfaRecoveryCodes column. The mfaSecret column holds only the pure TOTP
+ * secret with no appended data.
  *
  * Returns:
  *   200 { success: true }   on valid recovery code
@@ -19,7 +19,7 @@
 
 import { type NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@vastu/shared/prisma';
-import { auth } from '../../../../../lib/auth';
+import { auth } from '@/lib/auth';
 import { hashApiKey, createAuditEvent } from '@vastu/shared/utils';
 
 interface RecoveryRequestBody {
@@ -33,20 +33,19 @@ function isValidRecoveryBody(body: unknown): body is RecoveryRequestBody {
 }
 
 /**
- * Parse stored mfaSecret field to extract TOTP secret and hashed recovery codes.
- * Returns null if the format is invalid or MFA was never fully set up.
+ * Parse the mfaRecoveryCodes column value (a JSON array of hashed codes).
+ * Returns null if the value is absent or cannot be parsed.
  */
-function parseMfaSecret(mfaSecret: string): { totpSecret: string; hashedCodes: string[] } | null {
-  const separator = '||RC:';
-  const sepIndex = mfaSecret.indexOf(separator);
-  if (sepIndex === -1) return null;
-
-  const totpSecret = mfaSecret.slice(0, sepIndex);
-  const codesStr = mfaSecret.slice(sepIndex + separator.length);
-  const hashedCodes = codesStr.split(',').filter(Boolean);
-
-  if (hashedCodes.length === 0) return null;
-  return { totpSecret, hashedCodes };
+function parseHashedCodes(mfaRecoveryCodes: string | null): string[] | null {
+  if (!mfaRecoveryCodes) return null;
+  try {
+    const parsed: unknown = JSON.parse(mfaRecoveryCodes);
+    if (!Array.isArray(parsed)) return null;
+    if (!parsed.every((v) => typeof v === 'string')) return null;
+    return parsed as string[];
+  } catch {
+    return null;
+  }
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -78,19 +77,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // Load user.
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { mfaEnabled: true, mfaSecret: true },
+    select: { mfaEnabled: true, mfaSecret: true, mfaRecoveryCodes: true },
   });
 
   if (!user || !user.mfaEnabled || !user.mfaSecret) {
     return NextResponse.json({ error: 'MFA is not enabled for this account' }, { status: 400 });
   }
 
-  const parsed = parseMfaSecret(user.mfaSecret);
-  if (!parsed) {
+  const hashedCodes = parseHashedCodes(user.mfaRecoveryCodes);
+  if (!hashedCodes || hashedCodes.length === 0) {
     return NextResponse.json({ error: 'Invalid MFA configuration' }, { status: 500 });
   }
-
-  const { totpSecret, hashedCodes } = parsed;
 
   // Hash the submitted code and check if it matches any stored hash.
   const submittedHash = hashApiKey(code);
@@ -102,12 +99,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   // Invalidate the used recovery code by removing it from the list.
   const remainingCodes = hashedCodes.filter((_, i) => i !== matchIndex);
-  const updatedSecret = `${totpSecret}||RC:${remainingCodes.join(',')}`;
 
   try {
     await prisma.user.update({
       where: { id: userId },
-      data: { mfaSecret: updatedSecret },
+      data: { mfaRecoveryCodes: JSON.stringify(remainingCodes) },
     });
 
     // Write audit event.

@@ -40,7 +40,7 @@ vi.mock('@vastu/shared/permissions', () => ({
   isAdmin: vi.fn(),
 }));
 
-vi.mock('../../../../../lib/session', () => ({
+vi.mock('@/lib/session', () => ({
   getSessionWithAbility: vi.fn(),
 }));
 
@@ -52,7 +52,7 @@ import { GET, PATCH } from '../route';
 import { prisma } from '@vastu/shared/prisma';
 import { createAuditEvent } from '@vastu/shared/utils';
 import { isAdmin } from '@vastu/shared/permissions';
-import { getSessionWithAbility } from '../../../../../lib/session';
+import { getSessionWithAbility } from '@/lib/session';
 
 const prismaMock = vi.mocked(prisma);
 const isAdminMock = vi.mocked(isAdmin);

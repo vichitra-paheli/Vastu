@@ -24,8 +24,8 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import net from 'net';
 import { prisma } from '@vastu/shared/prisma';
-import { createAuditEvent } from '@vastu/shared/utils';
-import { requireSessionWithAbility } from '../../../../../../lib/session';
+import { createAuditEvent, validateHostForSSRF, SsrfBlockedError } from '@vastu/shared/utils';
+import { requireSessionWithAbility } from '@/lib/session';
 
 interface RouteContext {
   params: { id: string };
@@ -80,6 +80,11 @@ export async function POST(request: NextRequest, { params }: RouteContext): Prom
     let testError = '';
 
     try {
+      // SSRF protection: validate the host resolves to a public IP before
+      // opening any TCP connection. Throws SsrfBlockedError for private/
+      // loopback/link-local targets; throws Error for DNS failures.
+      await validateHostForSSRF(connection.host);
+
       latencyMs = await tcpConnect(connection.host, connection.port);
       success = true;
 
@@ -89,6 +94,15 @@ export async function POST(request: NextRequest, { params }: RouteContext): Prom
         data: { healthStatus: 'live', lastHealthCheck: new Date() },
       });
     } catch (connectErr) {
+      if (connectErr instanceof SsrfBlockedError) {
+        // Surface SSRF blocks as a 403 immediately — don't update health
+        // status or write an audit event for the blocked attempt, as the
+        // connection record itself is not at fault.
+        return NextResponse.json(
+          { error: connectErr.message },
+          { status: 403 },
+        );
+      }
       testError =
         connectErr instanceof Error ? connectErr.message : 'Connection failed';
 

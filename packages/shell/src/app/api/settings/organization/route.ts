@@ -23,7 +23,7 @@ import { prisma } from '@vastu/shared/prisma';
 import { isAdmin } from '@vastu/shared/permissions';
 import type { UpdateOrganizationInput } from '@vastu/shared';
 import { createAuditEvent } from '@vastu/shared/utils';
-import { getSessionWithAbility } from '../../../../lib/session';
+import { getSessionWithAbility } from '@/lib/session';
 
 // ---------------------------------------------------------------------------
 // Extended Prisma result type

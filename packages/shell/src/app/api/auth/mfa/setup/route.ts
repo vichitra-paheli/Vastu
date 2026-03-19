@@ -20,8 +20,9 @@ import { NextResponse } from 'next/server';
 import { authenticator } from 'otplib';
 import QRCode from 'qrcode';
 import { prisma } from '@vastu/shared/prisma';
-import { auth } from '../../../../../lib/auth';
+import { auth } from '@/lib/auth';
 import { createAuditEvent } from '@vastu/shared/utils';
+import { QR_COLORS } from '@/theme/constants';
 
 export async function POST(): Promise<NextResponse> {
   // Require an authenticated session.
@@ -46,10 +47,7 @@ export async function POST(): Promise<NextResponse> {
     const qrCodeDataUrl = await QRCode.toDataURL(otpauthUrl, {
       width: 200,
       margin: 2,
-      color: {
-        dark: '#1a1a1a',
-        light: '#ffffff',
-      },
+      color: QR_COLORS,
     });
 
     // Store the secret on the user record (mfaEnabled stays false until verified).

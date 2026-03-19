@@ -5,42 +5,48 @@
  * Sets deletedAt to the current timestamp; the key is excluded from future
  * list queries but the record is retained for audit purposes.
  *
+ * Returns:
+ *   DELETE 200 { success: true }
+ *   401 { error: string }   — unauthenticated
+ *   403 { error: string }   — insufficient permissions
+ *   404 { error: string }   — key not found
+ *   500 { error: string }   — unexpected failure
+ *
  * MCP tool equivalent: revoke_api_key({ id })
  */
 
 import { type NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@vastu/shared/prisma';
 import { createAuditEvent } from '@vastu/shared/utils';
-import { requireSession } from '../../../../../lib/session';
+import { requireSessionWithAbility } from '@/lib/session';
 
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } },
 ): Promise<NextResponse> {
-  let session: Awaited<ReturnType<typeof requireSession>>;
   try {
-    session = await requireSession();
-  } catch {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+    const { session, ability } = await requireSessionWithAbility();
 
-  const { id } = params;
+    if (!ability.can('delete', 'ApiKey')) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
-  // Verify the key exists and belongs to the same organization
-  const apiKey = await prisma.apiKey.findFirst({
-    where: {
-      id,
-      organizationId: session.user.organizationId,
-      deletedAt: null,
-    },
-    select: { id: true, name: true },
-  });
+    const { id } = params;
 
-  if (!apiKey) {
-    return NextResponse.json({ error: 'API key not found' }, { status: 404 });
-  }
+    // Verify the key exists and belongs to the same organization
+    const apiKey = await prisma.apiKey.findFirst({
+      where: {
+        id,
+        organizationId: session.user.organizationId,
+        deletedAt: null,
+      },
+      select: { id: true, name: true },
+    });
 
-  try {
+    if (!apiKey) {
+      return NextResponse.json({ error: 'API key not found' }, { status: 404 });
+    }
+
     await prisma.apiKey.update({
       where: { id },
       data: { deletedAt: new Date() },
@@ -63,7 +69,10 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error('[api-keys/[id]] Failed to revoke API key:', err);
-    return NextResponse.json({ error: 'Failed to revoke API key. Please try again.' }, { status: 500 });
+    if (err instanceof Error && err.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    console.error('[api-keys/[id]] Unexpected error:', err);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -25,7 +25,7 @@ vi.mock('@vastu/shared/utils', () => ({
   createAuditEvent: vi.fn().mockResolvedValue(undefined),
 }));
 
-vi.mock('../../../../../lib/session', () => ({
+vi.mock('@/lib/session', () => ({
   requireSessionWithAbility: vi.fn(),
 }));
 
@@ -36,7 +36,7 @@ vi.mock('../../../../../lib/session', () => ({
 import { GET, POST } from '../route';
 import { prisma } from '@vastu/shared/prisma';
 import { createAuditEvent } from '@vastu/shared/utils';
-import { requireSessionWithAbility } from '../../../../../lib/session';
+import { requireSessionWithAbility } from '@/lib/session';
 
 const prismaMock = vi.mocked(prisma);
 const sessionMock = vi.mocked(requireSessionWithAbility);

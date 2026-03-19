@@ -36,26 +36,7 @@ import { IconCheck } from '@tabler/icons-react';
 import { useColorScheme } from '../../hooks/useColorScheme';
 import { showError } from '../../lib/notifications';
 import { t } from '../../lib/i18n';
-
-// ---------------------------------------------------------------------------
-// Accent color presets
-// ---------------------------------------------------------------------------
-
-interface AccentPreset {
-  value: string;
-  label: string;
-}
-
-const ACCENT_PRESETS: AccentPreset[] = [
-  { value: '#4C6EF5', label: 'Indigo (default)' },
-  { value: '#2378CB', label: 'Steel Blue' },
-  { value: '#0CA678', label: 'Teal' },
-  { value: '#F76707', label: 'Orange' },
-  { value: '#E03131', label: 'Red' },
-  { value: '#9C36B5', label: 'Purple' },
-  { value: '#1098AD', label: 'Cyan' },
-  { value: '#37B24D', label: 'Green' },
-];
+import { ACCENT_PRESETS } from '../../theme/constants';
 
 const HEX_COLOR_RE = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/;
 

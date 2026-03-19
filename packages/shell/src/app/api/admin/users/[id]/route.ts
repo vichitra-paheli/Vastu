@@ -21,7 +21,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@vastu/shared/prisma';
 import { isAdmin } from '@vastu/shared/permissions';
 import { createAuditEvent } from '@vastu/shared/utils';
-import { getSessionWithAbility } from '../../../../../lib/session';
+import { getSessionWithAbility } from '@/lib/session';
 
 // ---------------------------------------------------------------------------
 // Body type guard
@@ -166,11 +166,11 @@ export async function PATCH(
         return NextResponse.json({ error: 'Role not found.' }, { status: 400 });
       }
 
-      // Replace all role assignments with the new single role
-      await prisma.userRole.deleteMany({ where: { userId } });
-      await prisma.userRole.create({
-        data: { userId, roleId: newRole.id },
-      });
+      // Replace all role assignments with the new single role atomically
+      await prisma.$transaction([
+        prisma.userRole.deleteMany({ where: { userId } }),
+        prisma.userRole.create({ data: { userId, roleId: newRole.id } }),
+      ]);
     }
 
     // Re-fetch for response with updated roles

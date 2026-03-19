@@ -56,6 +56,13 @@ vi.mock('@auth/prisma-adapter', () => ({
   PrismaAdapter: vi.fn(() => ({})),
 }));
 
+// Mock env so that auth.ts can be imported without real env vars being set.
+vi.mock('../env', () => ({
+  KEYCLOAK_CLIENT_ID: 'test-client-id',
+  KEYCLOAK_CLIENT_SECRET: 'test-client-secret',
+  KEYCLOAK_ISSUER: 'http://localhost:8080/realms/vastu',
+}));
+
 // ---------------------------------------------------------------------------
 // Load the auth module (triggers the mocked NextAuth() call).
 // ---------------------------------------------------------------------------

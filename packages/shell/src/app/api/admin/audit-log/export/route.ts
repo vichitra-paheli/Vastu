@@ -12,7 +12,7 @@
 
 import { type NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@vastu/shared/prisma';
-import { requireSessionWithAbility } from '../../../../../lib/session';
+import { requireSessionWithAbility } from '@/lib/session';
 import { isAdmin } from '@vastu/shared/permissions';
 import { formatTimestamp } from '@vastu/shared/utils';
 

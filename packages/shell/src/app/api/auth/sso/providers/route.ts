@@ -7,20 +7,25 @@
  *   - Show a selection list if multiple providers found (AC-3)
  *   - Show an error if no providers found
  *
- * Note: The sso_providers table does not yet exist in the Prisma schema
- * (pending ADR-002 approval — see plan.md). This route returns a stub empty
- * array until US-019 (SSO configuration page) lands and the table is added.
- * When US-019 ships, replace the stub query below with a real Prisma lookup.
+ * Note: The SsoProvider model in schema.prisma does not have an emailDomain
+ * field, so domain-based filtering is not currently supported at the database
+ * level. All enabled (status=LIVE, enabled=true) providers are returned and
+ * the client can filter further if needed. A future migration adding an
+ * emailDomain column would enable per-domain scoping.
+ *
+ * Note: The SsoProvider schema has no keycloakAlias field. The provider id
+ * is used as the kc_idp_hint value until a dedicated alias column is added.
  *
  * MCP parity note: When the MCP server is built (Phase 4), the equivalent
  * tool would be `list_sso_providers(email_domain: string)`.
  */
 
 import { NextResponse } from 'next/server';
-import type { SsoProvider, SsoProvidersResponse } from '../../../../../types/sso';
+import { prisma } from '@vastu/shared/prisma';
+import type { SsoProvider, SsoProvidersResponse } from '@/types/sso';
 
 // Re-export types for convenience so callers can import from the route if preferred.
-export type { SsoProvider, SsoProvidersResponse, SsoProtocol } from '../../../../../types/sso';
+export type { SsoProvider, SsoProvidersResponse, SsoProtocol } from '@/types/sso';
 
 /**
  * Validate that a string is a plausibly-formed email address.
@@ -28,16 +33,6 @@ export type { SsoProvider, SsoProvidersResponse, SsoProtocol } from '../../../..
  */
 function isValidEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
-}
-
-/**
- * Extract the domain portion from an email address.
- * Returns null for invalid inputs.
- */
-function extractDomain(email: string): string | null {
-  const parts = email.trim().split('@');
-  if (parts.length !== 2 || !parts[1]) return null;
-  return parts[1].toLowerCase();
 }
 
 export async function GET(request: Request): Promise<NextResponse> {
@@ -51,28 +46,28 @@ export async function GET(request: Request): Promise<NextResponse> {
     );
   }
 
-  const domain = extractDomain(email);
-  if (!domain) {
-    return NextResponse.json(
-      { error: 'Could not extract domain from email.' },
-      { status: 400 },
-    );
-  }
+  // Query all enabled, live SSO providers. Domain-based scoping is not yet
+  // supported (no emailDomain column in the schema) — see file-level note.
+  // The email param is validated above; future work will use the domain for
+  // per-organization scoping once the schema gains an emailDomain column.
+  const rows = await prisma.ssoProvider.findMany({
+    where: {
+      enabled: true,
+      status: 'LIVE',
+      deletedAt: null,
+    },
+    select: { id: true, name: true, type: true },
+  });
 
-  // ---------------------------------------------------------------------------
-  // STUB: sso_providers table does not exist yet (see ADR-002 in plan.md).
-  // Replace this section with a Prisma query once US-019 adds the table:
-  //
-  //   const providers = await prisma.ssoProvider.findMany({
-  //     where: {
-  //       emailDomain: domain,
-  //       status: 'LIVE',
-  //       organization: { deletedAt: null },
-  //     },
-  //     select: { id: true, name: true, protocol: true, keycloakAlias: true },
-  //   });
-  // ---------------------------------------------------------------------------
-  const providers: SsoProvider[] = [];
+  // Map Prisma rows to the API response shape. The schema type field
+  // (SsoProviderType enum: SAML | OIDC) is used as the protocol value.
+  // The provider id stands in for keycloakAlias until that column exists.
+  const providers: SsoProvider[] = rows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    protocol: row.type as SsoProvider['protocol'],
+    keycloakAlias: row.id,
+  }));
 
   const response: SsoProvidersResponse = { providers };
   return NextResponse.json(response, { status: 200 });

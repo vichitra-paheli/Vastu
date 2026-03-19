@@ -22,7 +22,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@vastu/shared/prisma';
 import { createAuditEvent } from '@vastu/shared/utils';
-import { requireSession } from '../../../../lib/session';
+import { requireSession } from '@/lib/session';
 
 const MAX_BYTES = 2 * 1024 * 1024; // 2 MB
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png']);

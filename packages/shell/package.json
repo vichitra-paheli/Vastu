@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.2",
+    "ioredis": "^5.4.1",
     "@casl/ability": "^6.7.2",
     "@casl/prisma": "^1.4.0",
     "@mantine/core": "^7.14.3",

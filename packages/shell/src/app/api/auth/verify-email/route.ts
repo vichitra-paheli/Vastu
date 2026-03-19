@@ -82,8 +82,9 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    // Write audit event.
-    await createAuditEvent({
+    // Write audit event — fire-and-forget so a logging failure does not block
+    // the verification redirect (consistent with all other routes).
+    createAuditEvent({
       userId: user.id,
       userName: user.name,
       action: 'email_verified',
@@ -93,7 +94,7 @@ export async function GET(request: NextRequest) {
       ipAddress: request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip') ?? undefined,
       userAgent: request.headers.get('user-agent') ?? undefined,
       organizationId: user.organizationId,
-    });
+    }).catch((err) => console.error('[verify-email] Failed to write audit event:', err));
 
     return NextResponse.redirect(new URL('/login?verified=true', request.url));
   } catch (error) {

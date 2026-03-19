@@ -16,7 +16,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@vastu/shared/prisma';
 import { createAuditEvent } from '@vastu/shared/utils';
-import { requireSessionWithAbility } from '../../../../../../lib/session';
+import { requireSessionWithAbility } from '@/lib/session';
 import { isAdmin } from '@vastu/shared/permissions';
 
 export async function POST(

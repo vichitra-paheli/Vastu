@@ -17,7 +17,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@vastu/shared/prisma';
 import { encrypt, createAuditEvent } from '@vastu/shared/utils';
-import { requireSessionWithAbility } from '../../../../../lib/session';
+import { requireSessionWithAbility } from '@/lib/session';
 
 const DB_CONNECTION_SELECT = {
   id: true,

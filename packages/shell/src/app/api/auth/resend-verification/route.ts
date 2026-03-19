@@ -5,9 +5,8 @@
  * Body: { email: string }
  *
  * Rate limit: maximum 3 resend requests per email per 10 minutes.
- * Rate limit state is stored in a module-level Map (process memory).
- * This is suitable for Phase 0 single-instance deployments.
- * Phase N upgrade path: replace with Redis-backed rate limiting.
+ * Rate limit state is stored in Redis for correctness across multiple instances.
+ * Falls back to allowing requests if Redis is unavailable (with a warning).
  *
  * Responses:
  *   200 — resend queued (always, even if email not found, to prevent enumeration)
@@ -21,45 +20,13 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@vastu/shared/prisma';
 import { generateToken, createAuditEvent } from '@vastu/shared/utils';
-
-// ---------------------------------------------------------------------------
-// In-process rate limit store
-// key: email — value: { count: number; windowStart: number }
-// ---------------------------------------------------------------------------
-
-interface RateLimitEntry {
-  count: number;
-  windowStart: number;
-}
-
-const rateLimitStore = new Map<string, RateLimitEntry>();
+import { rateLimit } from '@/lib/rate-limit';
+import { NEXTAUTH_URL } from '@/lib/env';
 
 const RATE_LIMIT_MAX = 3;
-const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+const RATE_LIMIT_WINDOW_SECONDS = 10 * 60; // 10 minutes
 /** Token TTL in minutes — matches the window so expired tokens don't accumulate. */
 const TOKEN_TTL_MINUTES = 60;
-
-/**
- * Check and increment the rate limit counter for the given email.
- * Returns true if the request is allowed, false if it should be blocked.
- */
-function checkRateLimit(email: string): boolean {
-  const now = Date.now();
-  const entry = rateLimitStore.get(email);
-
-  if (!entry || now - entry.windowStart > RATE_LIMIT_WINDOW_MS) {
-    // New window — reset counter.
-    rateLimitStore.set(email, { count: 1, windowStart: now });
-    return true;
-  }
-
-  if (entry.count >= RATE_LIMIT_MAX) {
-    return false;
-  }
-
-  entry.count += 1;
-  return true;
-}
 
 export async function POST(request: NextRequest) {
   let body: unknown;
@@ -85,10 +52,21 @@ export async function POST(request: NextRequest) {
   }
 
   // Check rate limit before doing any DB work.
-  if (!checkRateLimit(email)) {
+  const limitResult = await rateLimit({
+    key: `resend-verification:${email}`,
+    limit: RATE_LIMIT_MAX,
+    windowSeconds: RATE_LIMIT_WINDOW_SECONDS,
+  });
+
+  if (!limitResult.allowed) {
     return NextResponse.json(
       { error: 'Too many resend requests. Please wait before trying again.' },
-      { status: 429 },
+      {
+        status: 429,
+        headers: {
+          'Retry-After': String(Math.ceil((limitResult.resetAt.getTime() - Date.now()) / 1000)),
+        },
+      },
     );
   }
 
@@ -120,8 +98,7 @@ export async function POST(request: NextRequest) {
       // to actually deliver the verification email.
       // The link should be: <BASE_URL>/api/auth/verify-email?token=<token>&email=<email>
       // For now, log to server console for development convenience.
-      const baseUrl = process.env.NEXTAUTH_URL ?? 'http://localhost:3000';
-      const verificationUrl = `${baseUrl}/api/auth/verify-email?token=${token}&email=${encodeURIComponent(email)}`;
+      const verificationUrl = `${NEXTAUTH_URL}/api/auth/verify-email?token=${token}&email=${encodeURIComponent(email)}`;
       console.info(`[resend-verification] Verification URL for ${email}: ${verificationUrl}`);
 
       // Audit event for the resend action.

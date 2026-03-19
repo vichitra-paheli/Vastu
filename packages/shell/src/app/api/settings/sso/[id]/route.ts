@@ -25,13 +25,13 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@vastu/shared/prisma';
 import { encrypt, createAuditEvent } from '@vastu/shared/utils';
-import { requireSessionWithAbility } from '../../../../../lib/session';
+import { requireSessionWithAbility } from '@/lib/session';
 import type {
   SsoProviderConfig,
   UpdateSsoProviderInput,
   SsoProtocol,
   SsoProviderStatus,
-} from '../../../../../types/sso-provider';
+} from '@/types/sso-provider';
 
 interface RouteContext {
   params: { id: string };

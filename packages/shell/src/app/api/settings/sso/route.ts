@@ -21,14 +21,14 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@vastu/shared/prisma';
 import { encrypt, createAuditEvent } from '@vastu/shared/utils';
-import { requireSessionWithAbility } from '../../../../lib/session';
+import { requireSessionWithAbility } from '@/lib/session';
 import type {
   SsoProviderListResponse,
   SsoProviderConfig,
   CreateSsoProviderInput,
   SsoProtocol,
   SsoProviderStatus,
-} from '../../../../types/sso-provider';
+} from '@/types/sso-provider';
 
 // Fields returned to the client — encryptedClientSecret is intentionally excluded
 const SSO_PROVIDER_SELECT = {

@@ -67,9 +67,10 @@ model User {
   name           String
   avatarUrl      String?   @map("avatar_url")
   emailVerified  Boolean   @default(false) @map("email_verified")
-  mfaEnabled     Boolean   @default(false) @map("mfa_enabled")
-  mfaSecret      String?   @map("mfa_secret")
-  language       String    @default("en")
+  mfaEnabled          Boolean   @default(false) @map("mfa_enabled")
+  mfaSecret           String?   @map("mfa_secret")
+  mfaRecoveryCodes    String?   @map("mfa_recovery_codes")
+  language            String    @default("en")
   timezone       String    @default("UTC")
   colorScheme    String    @default("system") @map("color_scheme")
   accentColor    String    @default("#4C6EF5") @map("accent_color")

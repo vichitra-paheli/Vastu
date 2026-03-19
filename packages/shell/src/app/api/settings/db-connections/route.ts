@@ -19,7 +19,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@vastu/shared/prisma';
 import { encrypt, createAuditEvent } from '@vastu/shared/utils';
-import { requireSessionWithAbility } from '../../../../lib/session';
+import { requireSessionWithAbility } from '@/lib/session';
 
 // Fields returned to the client — encryptedPassword is intentionally excluded
 const DB_CONNECTION_SELECT = {

@@ -20,14 +20,15 @@ import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from '@vastu/shared/prisma';
 import { defineAbilitiesFor } from '@vastu/shared/permissions';
 import { createAuditEvent } from '@vastu/shared/utils';
+import { KEYCLOAK_CLIENT_ID, KEYCLOAK_CLIENT_SECRET, KEYCLOAK_ISSUER } from './env';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
     KeycloakProvider({
-      clientId: process.env.KEYCLOAK_CLIENT_ID!,
-      clientSecret: process.env.KEYCLOAK_CLIENT_SECRET!,
-      issuer: `${process.env.KEYCLOAK_URL}/realms/${process.env.KEYCLOAK_REALM}`,
+      clientId: KEYCLOAK_CLIENT_ID,
+      clientSecret: KEYCLOAK_CLIENT_SECRET,
+      issuer: KEYCLOAK_ISSUER,
     }),
   ],
   session: {

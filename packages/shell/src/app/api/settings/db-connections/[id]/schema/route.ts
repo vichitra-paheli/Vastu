@@ -24,7 +24,7 @@
 
 import { type NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@vastu/shared/prisma';
-import { requireSessionWithAbility } from '../../../../../../lib/session';
+import { requireSessionWithAbility } from '@/lib/session';
 
 interface RouteContext {
   params: { id: string };
