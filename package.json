@@ -1,0 +1,34 @@
+{
+  "name": "vastu",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Enterprise web application framework",
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --filter=@vastu/shell",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "test:e2e": "turbo run test:e2e",
+    "typecheck": "turbo run typecheck",
+    "prisma:migrate": "pnpm --filter @vastu/shared prisma:migrate",
+    "prisma:generate": "pnpm --filter @vastu/shared prisma:generate",
+    "prisma:seed": "pnpm --filter @vastu/shared prisma:seed",
+    "prisma:studio": "pnpm --filter @vastu/shared prisma:studio",
+    "prisma:reset": "pnpm --filter @vastu/shared prisma:reset"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.57.1",
+    "@typescript-eslint/parser": "^8.57.1",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "prettier": "^3.3.3",
+    "turbo": "^2.8.18",
+    "typescript": "^5.7.2"
+  }
+}

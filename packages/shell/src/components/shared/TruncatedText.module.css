@@ -1,0 +1,18 @@
+/**
+ * TruncatedText — CSS module for text truncation styles.
+ * Patterns Library §7 — Text truncation system.
+ */
+
+.singleLine {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.multiLine {
+  display: -webkit-box;
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  /* line-clamp set via inline style because it is dynamic */
+}

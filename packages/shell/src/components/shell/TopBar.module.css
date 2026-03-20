@@ -1,0 +1,65 @@
+/**
+ * TopBar — Shell layout top navigation bar styles.
+ */
+
+.topBar {
+  display: flex;
+  align-items: center;
+  height: 48px;
+  padding: 0 var(--v-space-md);
+  background-color: var(--v-bg-primary);
+  border-bottom: 1px solid var(--v-border-default);
+  gap: var(--v-space-md);
+  position: sticky;
+  top: 0;
+  z-index: var(--v-z-sticky);
+  flex-shrink: 0;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-2);
+  text-decoration: none;
+  color: var(--v-text-primary);
+  font-weight: var(--v-font-medium);
+  font-size: var(--v-text-md);
+  flex-shrink: 0;
+}
+
+.logo:hover {
+  color: var(--v-accent-primary);
+}
+
+.divider {
+  width: 1px;
+  height: 20px;
+  background-color: var(--v-border-default);
+  flex-shrink: 0;
+}
+
+.backLink {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-1);
+  text-decoration: none;
+  color: var(--v-text-secondary);
+  font-size: var(--v-text-sm);
+  flex-shrink: 0;
+  transition: var(--v-transition-color);
+}
+
+.backLink:hover {
+  color: var(--v-accent-primary);
+}
+
+.breadcrumbArea {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.userMenuArea {
+  flex-shrink: 0;
+  margin-left: auto;
+}

@@ -1,0 +1,39 @@
+{
+  "name": "@vastu/shared",
+  "version": "0.0.0",
+  "description": "Shared types, utilities, and Prisma schema for Vastu",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./types": "./src/types/index.ts",
+    "./utils": "./src/utils/index.ts",
+    "./utils/validation.server": "./src/utils/validation.server.ts",
+    "./permissions": "./src/permissions/index.ts",
+    "./prisma": "./src/prisma/index.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "eslint src --ext .ts --max-warnings 0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prisma:migrate": "prisma migrate dev --schema=./src/prisma/schema.prisma",
+    "prisma:generate": "prisma generate --schema=./src/prisma/schema.prisma",
+    "prisma:seed": "tsx src/prisma/seed.ts",
+    "prisma:studio": "prisma studio --schema=./src/prisma/schema.prisma",
+    "prisma:reset": "prisma migrate reset --schema=./src/prisma/schema.prisma --force"
+  },
+  "dependencies": {
+    "@casl/ability": "^6.7.2",
+    "@casl/prisma": "^1.4.0",
+    "@prisma/client": "^5.22.0",
+    "prisma": "^5.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

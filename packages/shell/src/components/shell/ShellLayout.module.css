@@ -1,0 +1,30 @@
+/**
+ * ShellLayout — Main shell layout container styles.
+ */
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--v-bg-secondary);
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding: var(--v-space-xl);
+}
+
+@media (max-width: 1023px) {
+  .content {
+    padding: var(--v-space-md);
+  }
+}
