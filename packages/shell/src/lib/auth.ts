@@ -23,6 +23,16 @@ import { createAuditEvent } from '@vastu/shared/utils';
 // Keycloak env vars are read directly from process.env so that `next build`
 // can collect page data without the vars being present in CI.  At runtime the
 // values are always set (enforced by Docker / .env).
+//
+// The provider is only registered when all required Keycloak env vars are set.
+// In CI (E2E tests without Keycloak), auth() still works — it just has no
+// providers, so req.auth is always null and middleware redirects to /login.
+const keycloakConfigured =
+  process.env.KEYCLOAK_CLIENT_ID &&
+  process.env.KEYCLOAK_CLIENT_SECRET &&
+  process.env.KEYCLOAK_URL &&
+  process.env.KEYCLOAK_REALM;
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   // Explicitly pass the secret so @auth/core finds it in all runtimes
   // (Node.js server, Edge Runtime middleware). Falls back to AUTH_SECRET
@@ -30,15 +40,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
   trustHost: true,
   adapter: PrismaAdapter(prisma),
-  providers: [
-    KeycloakProvider({
-      clientId: process.env.KEYCLOAK_CLIENT_ID ?? '',
-      clientSecret: process.env.KEYCLOAK_CLIENT_SECRET ?? '',
-      issuer: process.env.KEYCLOAK_URL && process.env.KEYCLOAK_REALM
-        ? `${process.env.KEYCLOAK_URL}/realms/${process.env.KEYCLOAK_REALM}`
-        : '',
-    }),
-  ],
+  providers: keycloakConfigured
+    ? [
+        KeycloakProvider({
+          clientId: process.env.KEYCLOAK_CLIENT_ID!,
+          clientSecret: process.env.KEYCLOAK_CLIENT_SECRET!,
+          issuer: `${process.env.KEYCLOAK_URL}/realms/${process.env.KEYCLOAK_REALM}`,
+        }),
+      ]
+    : [],
   session: {
     strategy: 'database',
     maxAge: 24 * 60 * 60, // 24 hours
