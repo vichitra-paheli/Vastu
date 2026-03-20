@@ -11,6 +11,7 @@ import React from 'react';
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/session';
 import { IconRail } from '@/components/workspace/IconRail';
+import { SessionGuard } from '@/components/auth/SessionGuard';
 import classes from './layout.module.css';
 
 export default async function WorkspaceLayout({ children }: { children: React.ReactNode }) {
@@ -28,6 +29,7 @@ export default async function WorkspaceLayout({ children }: { children: React.Re
 
   return (
     <div className={classes.container}>
+      <SessionGuard />
       <IconRail />
       <main className={classes.main}>{children}</main>
     </div>
