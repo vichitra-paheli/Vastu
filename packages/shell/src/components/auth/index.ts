@@ -14,3 +14,4 @@ export { OtpInput } from './OtpInput';
 export type { OtpInputProps } from './OtpInput';
 export { RecoveryCodes } from './RecoveryCodes';
 export type { RecoveryCodesProps } from './RecoveryCodes';
+export { SessionGuard } from './SessionGuard';
