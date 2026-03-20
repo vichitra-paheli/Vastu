@@ -1,0 +1,212 @@
+name: Coverage Comment
+
+on:
+  workflow_run:
+    workflows: ['Unit Tests']
+    types: [completed]
+
+permissions:
+  pull-requests: write
+  actions: read
+
+jobs:
+  coverage-comment:
+    name: Post Coverage Comment
+    runs-on: ubuntu-latest
+    # Only run when triggered by a pull_request event inside the workflow_run
+    if: >
+      github.event.workflow_run.conclusion == 'success' ||
+      github.event.workflow_run.conclusion == 'failure'
+
+    steps:
+      - name: Find PR number
+        id: find-pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const runs = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.payload.workflow_run.id,
+            });
+            // The artifact name encodes the PR number: coverage-summary-<PR#> or coverage-summary-main
+            const artifact = runs.data.artifacts.find(a => a.name.startsWith('coverage-summary-') && !a.name.endsWith('-main'));
+            if (!artifact) {
+              core.setOutput('pr_number', '');
+              return;
+            }
+            const prNumber = artifact.name.replace('coverage-summary-', '');
+            core.setOutput('pr_number', prNumber);
+            core.setOutput('artifact_id', artifact.id.toString());
+            core.setOutput('artifact_name', artifact.name);
+
+      - name: Download PR coverage summary
+        id: download-pr
+        if: steps.find-pr.outputs.pr_number != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const artifactId = parseInt('${{ steps.find-pr.outputs.artifact_id }}');
+            const response = await github.rest.actions.downloadArtifact({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              artifact_id: artifactId,
+              archive_format: 'zip',
+            });
+            fs.writeFileSync('/tmp/pr-coverage.zip', Buffer.from(response.data));
+            core.setOutput('downloaded', 'true');
+
+      - name: Extract PR coverage
+        if: steps.find-pr.outputs.pr_number != '' && steps.download-pr.outputs.downloaded == 'true'
+        run: |
+          mkdir -p /tmp/pr-coverage
+          unzip -o /tmp/pr-coverage.zip -d /tmp/pr-coverage
+
+      - name: Find latest main coverage artifact
+        id: find-main
+        if: steps.find-pr.outputs.pr_number != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Find the most recent successful run on main
+            const runs = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'ci-test.yml',
+              branch: 'main',
+              status: 'success',
+              per_page: 5,
+            });
+            for (const run of runs.data.workflow_runs) {
+              const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: run.id,
+              });
+              const artifact = artifacts.data.artifacts.find(a => a.name === 'coverage-summary-main');
+              if (artifact) {
+                core.setOutput('artifact_id', artifact.id.toString());
+                core.setOutput('found', 'true');
+                return;
+              }
+            }
+            core.setOutput('found', 'false');
+
+      - name: Download main coverage summary
+        id: download-main
+        if: steps.find-pr.outputs.pr_number != '' && steps.find-main.outputs.found == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const artifactId = parseInt('${{ steps.find-main.outputs.artifact_id }}');
+            const response = await github.rest.actions.downloadArtifact({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              artifact_id: artifactId,
+              archive_format: 'zip',
+            });
+            fs.writeFileSync('/tmp/main-coverage.zip', Buffer.from(response.data));
+            core.setOutput('downloaded', 'true');
+
+      - name: Extract main coverage
+        if: steps.find-pr.outputs.pr_number != '' && steps.download-main.outputs.downloaded == 'true'
+        run: |
+          mkdir -p /tmp/main-coverage
+          unzip -o /tmp/main-coverage.zip -d /tmp/main-coverage
+
+      - name: Compute coverage and post comment
+        if: steps.find-pr.outputs.pr_number != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            const prNumber = parseInt('${{ steps.find-pr.outputs.pr_number }}');
+            if (isNaN(prNumber)) return;
+
+            // Read PR coverage
+            const prSummaryPath = '/tmp/pr-coverage/coverage-summary.json';
+            if (!fs.existsSync(prSummaryPath)) {
+              core.warning('PR coverage summary not found, skipping comment');
+              return;
+            }
+            const prSummary = JSON.parse(fs.readFileSync(prSummaryPath, 'utf8')).total;
+
+            // Read main coverage if available
+            const mainSummaryPath = '/tmp/main-coverage/coverage-summary.json';
+            const hasMain = fs.existsSync(mainSummaryPath);
+            const mainSummary = hasMain ? JSON.parse(fs.readFileSync(mainSummaryPath, 'utf8')).total : null;
+
+            // Format a coverage row with optional delta
+            const fmt = (pct) => pct.toFixed(2) + '%';
+            const delta = (prPct, mainPct) => {
+              const diff = prPct - mainPct;
+              const sign = diff >= 0 ? '+' : '';
+              const emoji = diff >= 0 ? (diff > 0 ? '▲' : '=') : '▼';
+              return `${emoji} ${sign}${diff.toFixed(2)}%`;
+            };
+
+            const metrics = ['lines', 'branches', 'functions', 'statements'];
+            const labels = { lines: 'Lines', branches: 'Branches', functions: 'Functions', statements: 'Statements' };
+
+            // Build table rows
+            let tableRows = '';
+            for (const m of metrics) {
+              const prPct = prSummary[m].pct;
+              const covered = prSummary[m].covered;
+              const total = prSummary[m].total;
+              const deltaCell = (hasMain && mainSummary)
+                ? delta(prPct, mainSummary[m].pct)
+                : '—';
+              tableRows += `| ${labels[m]} | ${fmt(prPct)} | ${covered}/${total} | ${deltaCell} |\n`;
+            }
+
+            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.payload.workflow_run.id}`;
+            const baselineNote = hasMain ? '' : '\n> No baseline from `main` found — delta will appear on subsequent pushes.';
+            const statusEmoji = context.payload.workflow_run.conclusion === 'success' ? 'green' : 'red';
+            const statusIcon = context.payload.workflow_run.conclusion === 'success' ? 'passing' : 'failing';
+
+            const body = [
+              `### Coverage Report`,
+              ``,
+              `Tests: **${statusIcon}** | [View run](${runUrl})`,
+              ``,
+              `| Metric | Coverage | Covered/Total | vs \`main\` |`,
+              `|--------|----------|---------------|------------|`,
+              tableRows.trimEnd(),
+              ``,
+              baselineNote,
+            ].join('\n');
+
+            // Use marocchino/sticky-pull-request-comment via the API equivalent:
+            // find existing comment with our marker and update it, or create new
+            const MARKER = '<!-- vastu-coverage-comment -->';
+            const fullBody = `${MARKER}\n${body}`;
+
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+
+            const existing = comments.data.find(c => c.body && c.body.includes(MARKER));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: fullBody,
+              });
+              core.info(`Updated existing coverage comment #${existing.id}`);
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: fullBody,
+              });
+              core.info('Created new coverage comment');
+            }
