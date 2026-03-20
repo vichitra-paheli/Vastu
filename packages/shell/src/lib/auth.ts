@@ -137,6 +137,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // Serialise CASL rules so the client can reconstruct AppAbility.
         const ability = defineAbilitiesFor({ roles });
         session.user.permissions = ability.rules;
+
+        // US-102: MFA enforcement separation.
+        // Cast organization to include mfaRequired added by migration 20260318000003.
+        // The Prisma type will reflect this field after `prisma generate` is run.
+        const org = dbUser.organization as typeof dbUser.organization & { mfaRequired: boolean };
+        if (org.mfaRequired && !dbUser.mfaEnabled) {
+          session.user.mfaPending = true;
+        }
       }
 
       return session;

@@ -342,6 +342,10 @@
   "sso.config.delete.message": "Users who sign in via this provider will no longer be able to authenticate. This cannot be undone.",
   "sso.config.enforcement.saved": "SSO enforcement setting saved",
   "sso.config.enforcement.saveError": "Failed to save SSO enforcement setting. Please try again.",
+  "sso.config.enforcement.requireMfa": "Require MFA for all users",
+  "sso.config.enforcement.mfaDescription": "When enabled, users without MFA configured will be redirected to set up two-factor authentication after sign-in.",
+  "sso.config.enforcement.mfaSaved": "MFA enforcement setting saved",
+  "sso.config.enforcement.mfaSaveError": "Failed to save MFA enforcement setting. Please try again.",
 
   "users.pageTitle": "User Management \u2014 Vastu",
   "users.heading": "Users",

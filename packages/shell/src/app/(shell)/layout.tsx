@@ -9,6 +9,12 @@
  * Server component: reads session on the server. Redirects to /login if
  * the user is not authenticated (middleware handles this, but we add a
  * defensive check here as well).
+ *
+ * US-102: Also redirects to /mfa if the user's organization requires MFA
+ * but the user has not yet configured it (mfaPending flag in session).
+ * This check runs at the server-component layer because the middleware uses
+ * an Edge Runtime cookie-presence check only (PrismaAdapter is unavailable
+ * in the Edge Runtime). Full session validation happens here.
  */
 
 import { redirect } from 'next/navigation';
@@ -23,6 +29,13 @@ export default async function ShellLayout({ children }: { children: React.ReactN
 
   if (!session) {
     redirect('/login');
+  }
+
+  // US-102: If the org requires MFA and the user hasn't set it up yet,
+  // redirect to the MFA setup page. /mfa is a public route so this redirect
+  // will not be blocked by the middleware's auth check.
+  if (session.user.mfaPending) {
+    redirect('/mfa');
   }
 
   const userName = session.user.name ?? 'User';

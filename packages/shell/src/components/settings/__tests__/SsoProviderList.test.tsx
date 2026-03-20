@@ -39,11 +39,11 @@ vi.mock('../SsoProviderCard', () => ({
 // Helpers
 // ---------------------------------------------------------------------------
 
-function makeOrgResponse(ssoRequired: boolean) {
+function makeOrgResponse(ssoRequired: boolean, mfaRequired = false) {
   return {
     ok: true,
     json: async () => ({
-      organization: { ssoRequired },
+      organization: { ssoRequired, mfaRequired },
     }),
   } as Response;
 }
@@ -231,5 +231,165 @@ describe('SsoProviderList — SSO enforcement toggle (AC-6)', () => {
 
     // No checkbox should be visible since loading failed
     expect(screen.queryByRole('checkbox', { name: /require sso/i })).not.toBeInTheDocument();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// MFA enforcement toggle — US-102 AC-2, AC-4
+// ---------------------------------------------------------------------------
+
+describe('SsoProviderList — MFA enforcement toggle (US-102)', () => {
+  let originalFetch: typeof global.fetch;
+
+  beforeEach(() => {
+    originalFetch = global.fetch;
+  });
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+    vi.clearAllMocks();
+  });
+
+  it('renders the MFA enforcement checkbox', async () => {
+    global.fetch = vi.fn().mockImplementation((url: string) => {
+      if (url === '/api/settings/sso') return Promise.resolve(makeSsoResponse());
+      if (url === '/api/settings/organization') return Promise.resolve(makeOrgResponse(false, false));
+      return Promise.resolve(makeErrorResponse());
+    });
+
+    render(<SsoProviderList />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('checkbox', { name: /require mfa/i })).toBeInTheDocument();
+    });
+  });
+
+  it('renders the MFA checkbox unchecked when mfaRequired is false', async () => {
+    global.fetch = vi.fn().mockImplementation((url: string) => {
+      if (url === '/api/settings/sso') return Promise.resolve(makeSsoResponse());
+      if (url === '/api/settings/organization') return Promise.resolve(makeOrgResponse(false, false));
+      return Promise.resolve(makeErrorResponse());
+    });
+
+    render(<SsoProviderList />);
+
+    await waitFor(() => {
+      const checkbox = screen.getByRole('checkbox', { name: /require mfa/i });
+      expect(checkbox).not.toBeChecked();
+    });
+  });
+
+  it('renders the MFA checkbox checked when mfaRequired is true', async () => {
+    global.fetch = vi.fn().mockImplementation((url: string) => {
+      if (url === '/api/settings/sso') return Promise.resolve(makeSsoResponse());
+      if (url === '/api/settings/organization') return Promise.resolve(makeOrgResponse(false, true));
+      return Promise.resolve(makeErrorResponse());
+    });
+
+    render(<SsoProviderList />);
+
+    await waitFor(() => {
+      const checkbox = screen.getByRole('checkbox', { name: /require mfa/i });
+      expect(checkbox).toBeChecked();
+    });
+  });
+
+  it('sends PATCH with mfaRequired when MFA toggle is changed', async () => {
+    const fetchMock = vi.fn().mockImplementation((url: string, options?: RequestInit) => {
+      if (url === '/api/settings/sso') return Promise.resolve(makeSsoResponse());
+      if (url === '/api/settings/organization' && (!options || options.method === 'GET' || !options.method)) {
+        return Promise.resolve(makeOrgResponse(false, false));
+      }
+      if (url === '/api/settings/organization' && options?.method === 'PATCH') {
+        return Promise.resolve({ ok: true, json: async () => ({ success: true, organization: { ssoRequired: false, mfaRequired: true } }) } as Response);
+      }
+      return Promise.resolve(makeErrorResponse());
+    });
+    global.fetch = fetchMock;
+
+    const user = userEvent.setup();
+    render(<SsoProviderList />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('checkbox', { name: /require mfa/i })).toBeInTheDocument();
+    });
+
+    const checkbox = screen.getByRole('checkbox', { name: /require mfa/i });
+    await user.click(checkbox);
+
+    await waitFor(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- mock.calls has unknown shape
+      const patchCall = (fetchMock.mock.calls as Array<[string, RequestInit?]>).find(
+        (call) => call[0] === '/api/settings/organization' && call[1]?.method === 'PATCH',
+      );
+      expect(patchCall).toBeDefined();
+      const body = JSON.parse(patchCall![1]!.body as string) as Record<string, unknown>;
+      expect(body.mfaRequired).toBe(true);
+    });
+  });
+
+  it('MFA and SSO toggles are independent — toggling one does not affect the other', async () => {
+    const fetchMock = vi.fn().mockImplementation((url: string, options?: RequestInit) => {
+      if (url === '/api/settings/sso') return Promise.resolve(makeSsoResponse());
+      if (url === '/api/settings/organization' && (!options || options.method === 'GET' || !options.method)) {
+        return Promise.resolve(makeOrgResponse(true, false));
+      }
+      if (url === '/api/settings/organization' && options?.method === 'PATCH') {
+        return Promise.resolve({ ok: true, json: async () => ({ success: true, organization: { ssoRequired: true, mfaRequired: true } }) } as Response);
+      }
+      return Promise.resolve(makeErrorResponse());
+    });
+    global.fetch = fetchMock;
+
+    const user = userEvent.setup();
+    render(<SsoProviderList />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('checkbox', { name: /require sso/i })).toBeChecked();
+      expect(screen.getByRole('checkbox', { name: /require mfa/i })).not.toBeChecked();
+    });
+
+    // Toggle only MFA
+    const mfaCheckbox = screen.getByRole('checkbox', { name: /require mfa/i });
+    await user.click(mfaCheckbox);
+
+    await waitFor(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- mock.calls has unknown shape
+      const patchCall = (fetchMock.mock.calls as Array<[string, RequestInit?]>).find(
+        (call) => call[0] === '/api/settings/organization' && call[1]?.method === 'PATCH',
+      );
+      expect(patchCall).toBeDefined();
+      const body = JSON.parse(patchCall![1]!.body as string) as Record<string, unknown>;
+      // Only mfaRequired should be in the body — not ssoRequired
+      expect(body.mfaRequired).toBe(true);
+      expect(body.ssoRequired).toBeUndefined();
+    });
+  });
+
+  it('reverts MFA checkbox on failed save', async () => {
+    global.fetch = vi.fn().mockImplementation((url: string, options?: RequestInit) => {
+      if (url === '/api/settings/sso') return Promise.resolve(makeSsoResponse());
+      if (url === '/api/settings/organization' && options?.method === 'PATCH') {
+        return Promise.resolve(makeErrorResponse(500));
+      }
+      return Promise.resolve(makeOrgResponse(false, false));
+    });
+
+    const user = userEvent.setup();
+    render(<SsoProviderList />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('checkbox', { name: /require mfa/i })).toBeInTheDocument();
+    });
+
+    const checkbox = screen.getByRole('checkbox', { name: /require mfa/i });
+    expect(checkbox).not.toBeChecked();
+
+    await user.click(checkbox);
+
+    // After the error response the checkbox should revert to unchecked
+    await waitFor(() => {
+      expect(checkbox).not.toBeChecked();
+    });
   });
 });

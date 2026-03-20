@@ -29,6 +29,12 @@ declare module 'next-auth' {
       organizationId: string;
       tenantId: string | null;
       permissions: RawRuleOf<MongoAbility>[];
+      /**
+       * Set to true by the session callback when the user's organization
+       * requires MFA but the user has not yet configured it.
+       * Middleware reads this flag and redirects to /mfa to force setup.
+       */
+      mfaPending?: boolean;
     };
   }
 }
