@@ -16,6 +16,7 @@ import { getSessionWithAbility } from '@/lib/session';
 import { isAdmin } from '@vastu/shared/permissions';
 import { TopBar } from '@/components/shell/TopBar';
 import { SideNav } from '@/components/shell/SideNav';
+import { SessionGuard } from '@/components/auth/SessionGuard';
 import classes from '@/components/shell/ShellLayout.module.css';
 
 export default async function ShellLayout({ children }: { children: React.ReactNode }) {
@@ -32,6 +33,7 @@ export default async function ShellLayout({ children }: { children: React.ReactN
 
   return (
     <div className={classes.shell}>
+      <SessionGuard />
       <TopBar
         userName={userName}
         userEmail={userEmail}
