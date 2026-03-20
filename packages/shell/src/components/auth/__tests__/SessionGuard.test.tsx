@@ -2,12 +2,6 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render } from '@testing-library/react';
 import { SessionGuard } from '../SessionGuard';
 
-// Mock next-auth/react
-const mockUseSession = vi.fn();
-vi.mock('next-auth/react', () => ({
-  useSession: () => mockUseSession(),
-}));
-
 // Mock next/navigation
 const mockPush = vi.fn();
 const mockPathname = vi.fn(() => '/settings');
@@ -38,42 +32,37 @@ describe('SessionGuard', () => {
   });
 
   it('renders nothing visible', () => {
-    mockUseSession.mockReturnValue({ status: 'authenticated' });
     const { container } = render(<SessionGuard />);
     expect(container.innerHTML).toBe('');
   });
 
-  it('does not redirect when session is authenticated', () => {
-    mockUseSession.mockReturnValue({ status: 'authenticated' });
+  it('sets up an interval on mount (non-auth page)', () => {
+    const spy = vi.spyOn(global, 'setInterval');
     render(<SessionGuard />);
-    expect(mockPush).not.toHaveBeenCalled();
-    expect(mockShowWarning).not.toHaveBeenCalled();
+    expect(spy).toHaveBeenCalledWith(expect.any(Function), 60_000);
   });
 
-  it('redirects to login with expired=true when unauthenticated', () => {
-    mockUseSession.mockReturnValue({ status: 'unauthenticated' });
-    render(<SessionGuard />);
-    expect(mockPush).toHaveBeenCalledWith('/login?expired=true');
-    expect(mockShowWarning).toHaveBeenCalledWith('error.sessionExpired');
-  });
-
-  it('does not redirect when on login page', () => {
+  it('does not set up an interval on auth pages', () => {
+    const spy = vi.spyOn(global, 'setInterval');
     mockPathname.mockReturnValue('/login');
-    mockUseSession.mockReturnValue({ status: 'unauthenticated' });
     render(<SessionGuard />);
-    expect(mockPush).not.toHaveBeenCalled();
+    expect(spy).not.toHaveBeenCalled();
   });
 
-  it('does not redirect when on register page', () => {
-    mockPathname.mockReturnValue('/register');
-    mockUseSession.mockReturnValue({ status: 'unauthenticated' });
-    render(<SessionGuard />);
-    expect(mockPush).not.toHaveBeenCalled();
+  it('clears interval on unmount', () => {
+    const spy = vi.spyOn(global, 'clearInterval');
+    const { unmount } = render(<SessionGuard />);
+    unmount();
+    expect(spy).toHaveBeenCalled();
   });
 
-  it('does not redirect when session is loading', () => {
-    mockUseSession.mockReturnValue({ status: 'loading' });
-    render(<SessionGuard />);
-    expect(mockPush).not.toHaveBeenCalled();
+  it('skips interval on all auth routes', () => {
+    const spy = vi.spyOn(global, 'setInterval');
+    for (const route of ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/sso', '/mfa']) {
+      spy.mockClear();
+      mockPathname.mockReturnValue(route);
+      render(<SessionGuard />);
+      expect(spy).not.toHaveBeenCalled();
+    }
   });
 });
