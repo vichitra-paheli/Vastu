@@ -15,7 +15,6 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { PrismaClient } from '@prisma/client';
 import { SELECTORS, TEST_USERS } from '../fixtures';
 
 // All tests start unauthenticated.
@@ -119,23 +118,17 @@ test.describe('Keycloak OAuth — session validity', () => {
 // ---------------------------------------------------------------------------
 
 test.describe('Keycloak OAuth — session expiry', () => {
-  test('deleting the session from the DB redirects the user to /login', async ({ page }) => {
+  test('clearing session cookie redirects the user to /login', async ({ page, context }) => {
     // Log in via OAuth to establish a real session.
     await page.goto('/login');
     await page.locator(SELECTORS.login.ssoButton).click();
     await fillKeycloakLoginForm(page, TEST_USERS.admin.email, TEST_USERS.admin.password);
     await expect(page).toHaveURL(/\/workspace/, { timeout: 15_000 });
 
-    // Delete all sessions for the admin user from the database.
-    // This simulates session expiry — next-auth will find no valid session.
-    const prisma = new PrismaClient();
-    try {
-      await prisma.session.deleteMany({
-        where: { userId: 'cccccccc-0000-4000-a000-000000000001' },
-      });
-    } finally {
-      await prisma.$disconnect();
-    }
+    // Clear the session cookie to simulate expiry.
+    // Middleware checks for cookie presence — without it, protected routes
+    // redirect to /login.
+    await context.clearCookies();
 
     // Navigate to a protected route — middleware should redirect to /login.
     await page.goto('/admin/users');

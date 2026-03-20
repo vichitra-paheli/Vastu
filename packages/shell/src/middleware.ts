@@ -1,14 +1,17 @@
 /**
  * Next.js middleware for route protection.
  *
- * Uses next-auth v5's `auth()` wrapper which provides `req.auth` (the session)
- * on every request. Protected routes redirect unauthenticated users to
- * /login?redirect={originalUrl} so the login page can resume navigation after
- * successful sign-in.
+ * Checks for the presence of the next-auth session cookie to gate access
+ * to protected routes. Full session validation (DB lookup, CASL permissions)
+ * happens in server components via getSession() / requireSession().
+ *
+ * This middleware does NOT call auth() or PrismaAdapter because Next.js
+ * middleware runs in Edge Runtime, where PrismaClient is not available.
+ * The cookie-presence check is sufficient for routing — server components
+ * reject invalid/expired sessions on the server side.
  */
 
-import { auth } from './lib/auth';
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 
 /**
  * Routes that do not require authentication.
@@ -36,7 +39,18 @@ const IGNORED_PREFIXES = [
   '/favicon.ico',
 ];
 
-export default auth((req) => {
+/**
+ * Cookie name used by next-auth v5 (@auth/core) for database sessions
+ * over HTTP. Over HTTPS this becomes `__Secure-authjs.session-token`.
+ */
+const SESSION_COOKIE = 'authjs.session-token';
+const SECURE_SESSION_COOKIE = '__Secure-authjs.session-token';
+
+function hasSessionCookie(req: NextRequest): boolean {
+  return !!(req.cookies.get(SESSION_COOKIE) || req.cookies.get(SECURE_SESSION_COOKIE));
+}
+
+export default function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Skip middleware for next-auth internals, Next.js internals, and static assets.
@@ -49,23 +63,26 @@ export default auth((req) => {
     (route) => pathname === route || pathname.startsWith(route + '/'),
   );
 
+  const hasSession = hasSessionCookie(req);
+
   if (isPublicRoute) {
     // An already-authenticated user visiting /login is redirected to the workspace.
-    if (req.auth && pathname === '/login') {
+    if (hasSession && pathname === '/login') {
       return NextResponse.redirect(new URL('/workspace', req.url));
     }
     return NextResponse.next();
   }
 
-  // Protected route — require a valid session.
-  if (!req.auth) {
+  // Protected route — require a session cookie.
+  // Full validation (DB lookup, expiry, CASL) happens in server components.
+  if (!hasSession) {
     const loginUrl = new URL('/login', req.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: [
