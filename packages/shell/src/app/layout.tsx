@@ -6,6 +6,8 @@ import { ColorSchemeScript, MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getMessages } from 'next-intl/server';
 
 import { vastuTheme } from '@/theme';
 
@@ -28,9 +30,15 @@ export const metadata: Metadata = {
   description: 'Enterprise web application framework',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Retrieve locale and message catalog for the current request.
+  // Both read from the next-intl request config (src/i18n.ts).
+  // Messages are passed to NextIntlClientProvider so that client
+  // components can use `useTranslations()` without an additional fetch.
+  const [locale, messages] = await Promise.all([getLocale(), getMessages()]);
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         <ColorSchemeScript defaultColorScheme="auto" />
       </head>
@@ -40,10 +48,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           fontFamily: 'var(--font-inter), var(--v-font-sans)',
         }}
       >
-        <MantineProvider theme={vastuTheme} defaultColorScheme="auto">
-          <Notifications position="bottom-right" limit={3} />
-          {children}
-        </MantineProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <MantineProvider theme={vastuTheme} defaultColorScheme="auto">
+            <Notifications position="bottom-right" limit={3} />
+            {children}
+          </MantineProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );
