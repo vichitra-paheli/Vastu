@@ -24,6 +24,11 @@ import { createAuditEvent } from '@vastu/shared/utils';
 // can collect page data without the vars being present in CI.  At runtime the
 // values are always set (enforced by Docker / .env).
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  // Explicitly pass the secret so @auth/core finds it in all runtimes
+  // (Node.js server, Edge Runtime middleware). Falls back to AUTH_SECRET
+  // or NEXTAUTH_SECRET env vars.
+  secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+  trustHost: true,
   adapter: PrismaAdapter(prisma),
   providers: [
     KeycloakProvider({
