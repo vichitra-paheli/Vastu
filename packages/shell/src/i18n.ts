@@ -35,13 +35,23 @@ export default getRequestConfig(async () => {
   //
   // The messages file uses flat dot-notation keys (e.g. "login.title": "...").
   // This matches the existing t('key') call pattern throughout the codebase.
-  const messages = (await import(`../messages/${locale}.json`)) as {
-    default: Record<string, string>;
-  };
+  let messages: Record<string, string>;
+  try {
+    const mod = (await import(`../messages/${locale}.json`)) as {
+      default: Record<string, string>;
+    };
+    messages = mod.default;
+  } catch {
+    // Fall back to default locale if the message file is missing.
+    const fallback = (await import(`../messages/${defaultLocale}.json`)) as {
+      default: Record<string, string>;
+    };
+    messages = fallback.default;
+  }
 
   return {
     locale,
-    messages: messages.default,
+    messages,
   };
 });
 
