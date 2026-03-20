@@ -76,7 +76,7 @@ jobs:
         run: pnpm prisma:generate
 
       - name: Run unit tests with coverage
-        run: pnpm test -- --coverage
+        run: turbo run test -- --coverage
 
       - name: Merge coverage summaries
         if: always()
