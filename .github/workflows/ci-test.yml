@@ -75,49 +75,10 @@ jobs:
       - name: Generate Prisma client
         run: pnpm prisma:generate
 
-      - name: Run unit tests with coverage
-        run: pnpm test -- --coverage
+      - name: Run unit tests
+        run: pnpm test
 
-      - name: Merge coverage summaries
-        if: always()
-        run: |
-          node - <<'EOF'
-          const fs = require('fs');
-          const path = require('path');
-
-          const packages = ['shell', 'shared'];
-          const merged = { lines: { total: 0, covered: 0 }, branches: { total: 0, covered: 0 }, functions: { total: 0, covered: 0 }, statements: { total: 0, covered: 0 } };
-
-          for (const pkg of packages) {
-            const summaryPath = path.join('packages', pkg, 'coverage', 'coverage-summary.json');
-            if (!fs.existsSync(summaryPath)) continue;
-            const summary = JSON.parse(fs.readFileSync(summaryPath, 'utf8'));
-            const total = summary.total;
-            for (const metric of ['lines', 'branches', 'functions', 'statements']) {
-              merged[metric].total += total[metric].total;
-              merged[metric].covered += total[metric].covered;
-            }
-          }
-
-          for (const metric of Object.keys(merged)) {
-            const m = merged[metric];
-            m.pct = m.total > 0 ? parseFloat(((m.covered / m.total) * 100).toFixed(2)) : 0;
-          }
-
-          fs.mkdirSync('coverage-merged', { recursive: true });
-          fs.writeFileSync('coverage-merged/coverage-summary.json', JSON.stringify({ total: merged }, null, 2));
-          console.log('Merged coverage:', JSON.stringify(merged, null, 2));
-          EOF
-
-      - name: Upload merged coverage summary
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: coverage-summary-${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'main' }}
-          path: coverage-merged/coverage-summary.json
-          retention-days: 30
-
-      - name: Upload full coverage report
+      - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
         if: always()
         with:

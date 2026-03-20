@@ -17,19 +17,6 @@ export default defineConfig({
       // works with real timers via waitFor polling.
       toFake: ['Date'],
     },
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'json-summary'],
-      reportsDirectory: './coverage',
-      exclude: [
-        'node_modules/**',
-        'e2e/**',
-        'src/__tests__/**',
-        '**/*.d.ts',
-        '**/*.config.*',
-        '**/index.ts',
-      ],
-    },
   },
   resolve: {
     alias: [
