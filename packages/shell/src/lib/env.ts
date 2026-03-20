@@ -1,14 +1,18 @@
 /**
  * Startup validation for required environment variables.
  *
- * All required env vars are declared here. If any are missing at module
- * initialization time, a clear error is thrown that names the missing
- * variable(s) so the problem is immediately actionable.
+ * All required env vars are declared here. If any are missing at runtime,
+ * a clear error is thrown that names the missing variable(s) so the problem
+ * is immediately actionable.
  *
  * Export typed env vars from this module so the rest of the codebase can
  * import them without repeating process.env lookups or non-null assertions.
  *
  * Optional vars are exported with a defined fallback value.
+ *
+ * NOTE: We use getter functions so the validation runs at request time,
+ * not at module initialization time. This prevents `next build` from
+ * failing when env vars are not set in the CI build environment.
  */
 
 // ---------------------------------------------------------------------------
@@ -31,28 +35,36 @@ function optionalEnv(name: string, defaultValue: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// Required variables
+// Required variables (lazy — validated on first access, not at import time)
 // ---------------------------------------------------------------------------
 
 /**
  * Keycloak OAuth2 client ID registered in the vastu realm.
  */
-export const KEYCLOAK_CLIENT_ID: string = requireEnv('KEYCLOAK_CLIENT_ID');
+export function getKeycloakClientId(): string {
+  return requireEnv('KEYCLOAK_CLIENT_ID');
+}
 
 /**
  * Keycloak OAuth2 client secret.
  */
-export const KEYCLOAK_CLIENT_SECRET: string = requireEnv('KEYCLOAK_CLIENT_SECRET');
+export function getKeycloakClientSecret(): string {
+  return requireEnv('KEYCLOAK_CLIENT_SECRET');
+}
 
 /**
  * Base URL of the Keycloak instance (e.g. http://localhost:8080).
  */
-export const KEYCLOAK_URL: string = requireEnv('KEYCLOAK_URL');
+export function getKeycloakUrl(): string {
+  return requireEnv('KEYCLOAK_URL');
+}
 
 /**
  * Keycloak realm name (e.g. vastu).
  */
-export const KEYCLOAK_REALM: string = requireEnv('KEYCLOAK_REALM');
+export function getKeycloakRealm(): string {
+  return requireEnv('KEYCLOAK_REALM');
+}
 
 // ---------------------------------------------------------------------------
 // Optional variables with defaults
@@ -79,4 +91,6 @@ export const REDIS_URL: string = optionalEnv('REDIS_URL', 'redis://localhost:637
  * Full Keycloak issuer URL for the configured realm.
  * Derived from KEYCLOAK_URL and KEYCLOAK_REALM.
  */
-export const KEYCLOAK_ISSUER: string = `${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}`;
+export function getKeycloakIssuer(): string {
+  return `${getKeycloakUrl()}/realms/${getKeycloakRealm()}`;
+}

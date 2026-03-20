@@ -1,10 +1,9 @@
 /**
  * Unit tests for the env validation utility.
  *
- * Because env.ts validates at module initialization time, each test that
- * expects a missing-variable error must dynamically import the module after
- * manipulating process.env, then reset the module registry via
- * vi.resetModules() so the next test gets a fresh module evaluation.
+ * Required Keycloak env vars are now exposed as lazy getter functions
+ * (getKeycloakClientId(), etc.) so that `next build` does not fail in CI.
+ * Each test sets the env vars, imports the module, and calls the getter.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -28,13 +27,11 @@ function setAllRequiredVars() {
 
 function unsetVar(name: string) {
   // Remove the key from process.env entirely.
-  // vi.stubEnv cannot set undefined, so we delete directly.
   // eslint-disable-next-line @typescript-eslint/no-dynamic-delete -- intentional for test teardown
   delete process.env[name];
 }
 
 async function importEnv() {
-  // Fresh module evaluation after vi.resetModules().
   return import('../env');
 }
 
@@ -53,29 +50,29 @@ beforeEach(() => {
 // ---------------------------------------------------------------------------
 
 describe('env (all required vars present)', () => {
-  it('exports KEYCLOAK_CLIENT_ID', async () => {
+  it('getKeycloakClientId() returns the value', async () => {
     const env = await importEnv();
-    expect(env.KEYCLOAK_CLIENT_ID).toBe('test-client-id');
+    expect(env.getKeycloakClientId()).toBe('test-client-id');
   });
 
-  it('exports KEYCLOAK_CLIENT_SECRET', async () => {
+  it('getKeycloakClientSecret() returns the value', async () => {
     const env = await importEnv();
-    expect(env.KEYCLOAK_CLIENT_SECRET).toBe('test-client-secret');
+    expect(env.getKeycloakClientSecret()).toBe('test-client-secret');
   });
 
-  it('exports KEYCLOAK_URL', async () => {
+  it('getKeycloakUrl() returns the value', async () => {
     const env = await importEnv();
-    expect(env.KEYCLOAK_URL).toBe('http://localhost:8080');
+    expect(env.getKeycloakUrl()).toBe('http://localhost:8080');
   });
 
-  it('exports KEYCLOAK_REALM', async () => {
+  it('getKeycloakRealm() returns the value', async () => {
     const env = await importEnv();
-    expect(env.KEYCLOAK_REALM).toBe('vastu');
+    expect(env.getKeycloakRealm()).toBe('vastu');
   });
 
-  it('derives KEYCLOAK_ISSUER from URL and realm', async () => {
+  it('getKeycloakIssuer() derives from URL and realm', async () => {
     const env = await importEnv();
-    expect(env.KEYCLOAK_ISSUER).toBe('http://localhost:8080/realms/vastu');
+    expect(env.getKeycloakIssuer()).toBe('http://localhost:8080/realms/vastu');
   });
 
   it('defaults NEXTAUTH_URL to http://localhost:3000 when not set', async () => {
@@ -108,48 +105,33 @@ describe('env (all required vars present)', () => {
 // ---------------------------------------------------------------------------
 
 describe('env (missing required vars)', () => {
-  it('throws a descriptive error when KEYCLOAK_CLIENT_ID is missing', async () => {
-    vi.resetModules();
-    vi.unstubAllEnvs();
-    setAllRequiredVars();
+  it('throws when KEYCLOAK_CLIENT_ID is missing', async () => {
     unsetVar('KEYCLOAK_CLIENT_ID');
-
-    await expect(importEnv()).rejects.toThrow('KEYCLOAK_CLIENT_ID');
+    const env = await importEnv();
+    expect(() => env.getKeycloakClientId()).toThrow('KEYCLOAK_CLIENT_ID');
   });
 
-  it('throws a descriptive error when KEYCLOAK_CLIENT_SECRET is missing', async () => {
-    vi.resetModules();
-    vi.unstubAllEnvs();
-    setAllRequiredVars();
+  it('throws when KEYCLOAK_CLIENT_SECRET is missing', async () => {
     unsetVar('KEYCLOAK_CLIENT_SECRET');
-
-    await expect(importEnv()).rejects.toThrow('KEYCLOAK_CLIENT_SECRET');
+    const env = await importEnv();
+    expect(() => env.getKeycloakClientSecret()).toThrow('KEYCLOAK_CLIENT_SECRET');
   });
 
-  it('throws a descriptive error when KEYCLOAK_URL is missing', async () => {
-    vi.resetModules();
-    vi.unstubAllEnvs();
-    setAllRequiredVars();
+  it('throws when KEYCLOAK_URL is missing', async () => {
     unsetVar('KEYCLOAK_URL');
-
-    await expect(importEnv()).rejects.toThrow('KEYCLOAK_URL');
+    const env = await importEnv();
+    expect(() => env.getKeycloakUrl()).toThrow('KEYCLOAK_URL');
   });
 
-  it('throws a descriptive error when KEYCLOAK_REALM is missing', async () => {
-    vi.resetModules();
-    vi.unstubAllEnvs();
-    setAllRequiredVars();
+  it('throws when KEYCLOAK_REALM is missing', async () => {
     unsetVar('KEYCLOAK_REALM');
-
-    await expect(importEnv()).rejects.toThrow('KEYCLOAK_REALM');
+    const env = await importEnv();
+    expect(() => env.getKeycloakRealm()).toThrow('KEYCLOAK_REALM');
   });
 
   it('includes guidance text in the error message', async () => {
-    vi.resetModules();
-    vi.unstubAllEnvs();
-    setAllRequiredVars();
     unsetVar('KEYCLOAK_CLIENT_ID');
-
-    await expect(importEnv()).rejects.toThrow('.env file or deployment configuration');
+    const env = await importEnv();
+    expect(() => env.getKeycloakClientId()).toThrow('.env file or deployment configuration');
   });
 });

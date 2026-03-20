@@ -24,7 +24,8 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import net from 'net';
 import { prisma } from '@vastu/shared/prisma';
-import { createAuditEvent, validateHostForSSRF, SsrfBlockedError } from '@vastu/shared/utils';
+import { createAuditEvent } from '@vastu/shared/utils';
+import { validateHostForSSRF, SsrfBlockedError } from '@vastu/shared/utils/validation.server';
 import { requireSessionWithAbility } from '@/lib/session';
 
 interface RouteContext {

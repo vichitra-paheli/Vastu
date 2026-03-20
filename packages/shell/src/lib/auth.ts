@@ -20,15 +20,18 @@ import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from '@vastu/shared/prisma';
 import { defineAbilitiesFor } from '@vastu/shared/permissions';
 import { createAuditEvent } from '@vastu/shared/utils';
-import { KEYCLOAK_CLIENT_ID, KEYCLOAK_CLIENT_SECRET, KEYCLOAK_ISSUER } from './env';
-
+// Keycloak env vars are read directly from process.env so that `next build`
+// can collect page data without the vars being present in CI.  At runtime the
+// values are always set (enforced by Docker / .env).
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
     KeycloakProvider({
-      clientId: KEYCLOAK_CLIENT_ID,
-      clientSecret: KEYCLOAK_CLIENT_SECRET,
-      issuer: KEYCLOAK_ISSUER,
+      clientId: process.env.KEYCLOAK_CLIENT_ID ?? '',
+      clientSecret: process.env.KEYCLOAK_CLIENT_SECRET ?? '',
+      issuer: process.env.KEYCLOAK_URL && process.env.KEYCLOAK_REALM
+        ? `${process.env.KEYCLOAK_URL}/realms/${process.env.KEYCLOAK_REALM}`
+        : '',
     }),
   ],
   session: {

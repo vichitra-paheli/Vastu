@@ -5,11 +5,13 @@ import {
   isValidUrl,
   isRelativeUrl,
   isValidSubdomain,
+} from '../validation';
+import {
   isBlockedIpv4,
   isBlockedIpv6,
   validateHostForSSRF,
   SsrfBlockedError,
-} from '../validation';
+} from '../validation.server';
 
 describe('isValidEmail', () => {
   it('returns true for a valid email', () => {
@@ -294,7 +296,7 @@ describe('validateHostForSSRF — DNS resolution checks', () => {
       },
     }));
 
-    const { validateHostForSSRF: fn } = await import('../validation');
+    const { validateHostForSSRF: fn } = await import('../validation.server');
     await expect(fn('evil.internal.example')).rejects.toThrow(/blocked|private|internal|no addresses/i);
   });
 
@@ -308,7 +310,7 @@ describe('validateHostForSSRF — DNS resolution checks', () => {
       },
     }));
 
-    const { validateHostForSSRF: fn } = await import('../validation');
+    const { validateHostForSSRF: fn } = await import('../validation.server');
     await expect(fn('example.com')).resolves.toBeUndefined();
   });
 
@@ -322,7 +324,7 @@ describe('validateHostForSSRF — DNS resolution checks', () => {
       },
     }));
 
-    const { validateHostForSSRF: fn, SsrfBlockedError: Err } = await import('../validation');
+    const { validateHostForSSRF: fn, SsrfBlockedError: Err } = await import('../validation.server');
     await expect(fn('metadata.attacker.example')).rejects.toThrow(Err);
   });
 });
