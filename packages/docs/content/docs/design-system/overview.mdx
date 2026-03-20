@@ -1,0 +1,38 @@
+---
+title: Design System Overview
+description: Summary of Vastu's design principles, style guide, and patterns.
+---
+
+Vastu's design system is documented across three living documents in the repository root:
+
+- **Design Principles** (`docs/design-principles.md`) — 11 principles that guide every design and engineering decision
+- **Style Guide** (`docs/style-guide.md`) — Colors, typography, spacing, shadows, icons, and component inventory
+- **Patterns Library** (`docs/patterns-library.md`) — Tables, filters, charts, forms, loading states, truncation, context menus, toasts, and keyboard navigation
+
+## Design Principles
+
+1. **Everything is addressable** — Every piece of data has a stable reference. If you can see it, you can link to it.
+2. **Every surface is interactive** — Right-click any data point for relevant actions.
+3. **Data is sacred** — Destructive actions require confirmation. Soft-delete by default.
+4. **Progressive disclosure** — Show the essentials first, reveal complexity on demand.
+5. **Keyboard-first** — Every action reachable via keyboard. Shortcuts for power users.
+6. **Consistent information density** — Optimized for 1280x800+. Three density levels for tables.
+7. **Real-time feedback** — Every action produces immediate visual feedback.
+8. **Composable views** — Filters, sorts, columns are composable and serializable.
+9. **Accessibility by default** — WCAG 2.1 AA compliance. Semantic HTML, ARIA labels, focus management.
+10. **Agent-ready surfaces** — Every UI surface has a programmatic equivalent via MCP.
+11. **Convention over configuration** — Sensible defaults, escape hatches when needed.
+
+## Theming
+
+All colors use CSS custom properties with the `--v-` prefix:
+
+- **Theme config:** `packages/shell/theme/vastu.theme.ts` (Mantine `createTheme`)
+- **CSS tokens:** `packages/shell/theme/vastu.tokens.css` (`--v-*` custom properties)
+
+### Key rules
+
+- All colors via `--v-*` CSS custom properties. Never hardcode hex values.
+- Two font weights only: 400 (regular) and 500 (medium). Never 600 or 700.
+- All potentially truncated text uses the `TruncatedText` component.
+- All async operations use the loading state pattern: skeleton → content → error.
