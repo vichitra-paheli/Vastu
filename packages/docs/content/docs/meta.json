@@ -1,0 +1,13 @@
+{
+  "title": "Vastu Docs",
+  "pages": [
+    "---Getting Started---",
+    "getting-started",
+    "---Architecture---",
+    "architecture",
+    "---Design System---",
+    "design-system",
+    "---Decisions---",
+    "decisions"
+  ]
+}

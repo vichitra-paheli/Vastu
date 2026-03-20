@@ -1,0 +1,58 @@
+---
+title: Docker Setup
+description: Configure the Docker services required by Vastu.
+---
+
+Vastu requires four services running via Docker Compose: PostgreSQL, Redis, Keycloak, and MinIO.
+
+## Starting services
+
+```bash
+docker compose up -d
+```
+
+## Stopping services
+
+```bash
+docker compose down       # Stop containers (data preserved in volumes)
+docker compose down -v    # Stop and remove volumes (fresh start)
+```
+
+## Service details
+
+### PostgreSQL
+
+- **Port:** 5432
+- **Purpose:** Primary database, managed by Prisma ORM
+- **Connection:** Configured via `DATABASE_URL` in `.env`
+
+### Redis
+
+- **Port:** 6379
+- **Purpose:** Session store and caching layer
+- **Connection:** Configured via `REDIS_URL` in `.env`
+
+### Keycloak
+
+- **Port:** 8080
+- **Purpose:** Identity provider for authentication (OpenID Connect)
+- **Admin console:** [http://localhost:8080](http://localhost:8080)
+- **Realm:** `vastu`
+- **Notes:** All auth flows go through Keycloak via `next-auth`. The Keycloak realm is pre-configured in the Docker setup.
+
+### MinIO
+
+- **Port:** 9001 (console), 9000 (API)
+- **Purpose:** S3-compatible object storage for file uploads
+- **Console:** [http://localhost:9001](http://localhost:9001)
+- **Bucket:** `vastu-uploads`
+
+## Troubleshooting
+
+If services fail to start, check for port conflicts:
+
+```bash
+docker compose ps        # Check container status
+docker compose logs      # View logs
+docker compose logs -f   # Follow logs in real-time
+```

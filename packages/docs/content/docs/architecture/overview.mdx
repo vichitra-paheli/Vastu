@@ -1,0 +1,59 @@
+---
+title: Architecture Overview
+description: High-level architecture of the Vastu framework.
+---
+
+## Technology stack
+
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| Frontend | Next.js 14 App Router | SSR pages and client workspace |
+| UI Framework | Mantine v7 | Component library and theming |
+| Panel Management | Dockview | Workspace window management |
+| Client State | Zustand | Client-side state management |
+| Server Data | TanStack Query | Server state and caching |
+| Tables | TanStack Table | Data table engine |
+| Database | PostgreSQL + Prisma | Data persistence and ORM |
+| Cache | Redis | Session store and caching |
+| Auth | Keycloak + next-auth | Authentication and SSO |
+| Permissions | CASL.js | Client-side authorization |
+| File Storage | MinIO (S3-compatible) | Object storage |
+| Monorepo | Turborepo + pnpm | Build orchestration |
+
+## Package architecture
+
+The application is split into four packages with clear responsibilities:
+
+### Shell (SSR)
+
+`@vastu/shell` handles all server-rendered pages. Auth flows, settings, and admin interfaces are server components by default, with `"use client"` only where interactivity requires it. The shell owns the Next.js application, routing, and middleware.
+
+### Workspace (Client)
+
+`@vastu/workspace` is the data-heavy workspace experience. It is entirely client-rendered and mounted as a route segment within the shell. Dockview manages panels, Zustand manages state, and TanStack Query fetches server data.
+
+### Shared (Library)
+
+`@vastu/shared` provides the Prisma schema, TypeScript types, utility functions, and CASL permission definitions. It contains no React components and is framework-agnostic.
+
+### Agent Runtime (AI)
+
+`@vastu/agent-runtime` will provide LangGraph workflows, AG-UI protocols, and MCP server integration. Currently a stub, planned for Phase 3.
+
+## Auth flow
+
+1. Middleware checks session on every request to protected routes
+2. No session → redirect to `/login?redirect={originalUrl}`
+3. Login form submits to next-auth's Keycloak provider
+4. On success → session created in DB → redirect to workspace
+5. Session includes: userId, email, name, roles, tenantId, permissions (CASL rules)
+
+## Permissions model
+
+Client-side permissions use CASL.js with ability definitions in `@vastu/shared`. Permission checks are used for:
+
+- Route-level access control (middleware)
+- UI element visibility (admin sections, builder mode)
+- Action authorization (CRUD operations)
+
+Protected routes are enforced by Next.js middleware. Public routes include: `/login`, `/register`, `/forgot-password`, `/reset-password`, `/verify-email`, `/sso`, `/404`, `/500`.

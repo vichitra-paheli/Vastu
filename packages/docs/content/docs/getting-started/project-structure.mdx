@@ -1,0 +1,51 @@
+---
+title: Project Structure
+description: Understand the Vastu monorepo layout and package responsibilities.
+---
+
+Vastu is a monorepo managed by [Turborepo](https://turbo.build/) and [pnpm workspaces](https://pnpm.io/workspaces).
+
+## Package overview
+
+```
+packages/
+├── shell/           # SSR pages: auth, settings, admin
+├── workspace/       # Client-heavy workspace: Dockview, Mantine, Zustand
+├── shared/          # Prisma schema, types, utilities, CASL permissions
+└── agent-runtime/   # LangGraph workflows, AG-UI protocols, MCP server
+```
+
+### `@vastu/shell`
+
+The main Next.js application. Handles server-rendered pages including authentication flows (login, register, forgot password, MFA), settings pages, and admin interfaces. Uses Next.js App Router with server components by default.
+
+**Key directories:**
+- `src/app/(auth)/` — Auth route group (login, register, etc.)
+- `src/app/settings/` — Settings pages
+- `src/app/admin/` — Admin pages (CASL-gated)
+- `src/app/workspace/` — Mounting point for the workspace package
+- `src/components/` — UI components organized by domain
+- `src/lib/` — Auth config, utilities
+- `src/theme/` — Mantine theme and CSS tokens
+
+### `@vastu/workspace`
+
+The client-side workspace experience. Built with Dockview for panel management, Zustand for state, and TanStack Query for data fetching. Entirely client-rendered (`"use client"` at layout level).
+
+### `@vastu/shared`
+
+Shared code across packages. Contains the Prisma schema, TypeScript types, utility functions, and CASL permission definitions. **No React components** — this package is framework-agnostic.
+
+### `@vastu/agent-runtime`
+
+AI agent runtime with LangGraph workflows and MCP server. Stub until Phase 3.
+
+## Configuration files
+
+| File | Purpose |
+|------|---------|
+| `turbo.json` | Turborepo task definitions (build, dev, lint, test) |
+| `pnpm-workspace.yaml` | Workspace package locations |
+| `tsconfig.json` | Root TypeScript config (extended by packages) |
+| `docker-compose.yml` | Development service definitions |
+| `.github/workflows/` | CI/CD pipeline configurations |
