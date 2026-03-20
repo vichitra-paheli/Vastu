@@ -32,6 +32,7 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@prisma/client": "^5.22.0",
     "@playwright/test": "^1.49.1",
     "@testing-library/jest-dom": "^6.6.3",
     "@types/qrcode": "^1.5.5",

@@ -1,4 +1,4 @@
-name: 'E2E: Admin'
+name: 'E2E: Keycloak Integration'
 
 on:
   push:
@@ -7,15 +7,15 @@ on:
     branches: [main]
 
 concurrency:
-  group: e2e-admin-${{ github.ref }}
+  group: e2e-keycloak-${{ github.ref }}
   cancel-in-progress: true
 
 env:
   NODE_VERSION: '20'
 
 jobs:
-  e2e-admin:
-    name: 'E2E: Admin'
+  e2e-keycloak:
+    name: 'E2E: Keycloak Integration'
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -47,10 +47,42 @@ jobs:
       REDIS_URL: redis://localhost:6379
       AUTH_SECRET: ci-test-secret-not-for-production
       NEXTAUTH_URL: http://localhost:3000
+      KEYCLOAK_URL: http://localhost:8080
+      KEYCLOAK_REALM: vastu
+      KEYCLOAK_CLIENT_ID: vastu-app
+      KEYCLOAK_CLIENT_SECRET: dev-secret
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      # Start Keycloak manually (not as a service) so we can mount the realm
+      # export from the checked-out repo. Using start-dev with H2 (no external
+      # DB needed for Keycloak itself).
+      - name: Start Keycloak
+        run: |
+          docker run -d --name keycloak \
+            --network host \
+            -e KEYCLOAK_ADMIN=admin \
+            -e KEYCLOAK_ADMIN_PASSWORD=admin \
+            -e KC_HEALTH_ENABLED=true \
+            -v ${{ github.workspace }}/docker/keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro \
+            quay.io/keycloak/keycloak:24.0 \
+            start-dev --import-realm
+
+          echo "Waiting for Keycloak to become ready..."
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:8080/health/ready > /dev/null 2>&1; then
+              echo "Keycloak is ready (attempt $i)"
+              break
+            fi
+            if [ "$i" -eq 60 ]; then
+              echo "Keycloak failed to start within 5 minutes"
+              docker logs keycloak
+              exit 1
+            fi
+            sleep 5
+          done
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -65,9 +97,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .turbo
-          key: turbo-e2e-admin-${{ github.sha }}
+          key: turbo-e2e-keycloak-${{ github.sha }}
           restore-keys: |
-            turbo-e2e-admin-
+            turbo-e2e-keycloak-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -81,23 +113,34 @@ jobs:
       - name: Seed test data
         run: pnpm prisma:seed
 
+      - name: Create Keycloak users and link accounts
+        run: pnpm --filter @vastu/shared exec tsx ${{ github.workspace }}/packages/shell/e2e/seed-keycloak-accounts.ts
+
       - name: Create .env for Next.js dev server
         run: |
           echo "AUTH_SECRET=$AUTH_SECRET" > packages/shell/.env
           echo "NEXTAUTH_URL=$NEXTAUTH_URL" >> packages/shell/.env
           echo "DATABASE_URL=$DATABASE_URL" >> packages/shell/.env
           echo "REDIS_URL=$REDIS_URL" >> packages/shell/.env
+          echo "KEYCLOAK_URL=$KEYCLOAK_URL" >> packages/shell/.env
+          echo "KEYCLOAK_REALM=$KEYCLOAK_REALM" >> packages/shell/.env
+          echo "KEYCLOAK_CLIENT_ID=$KEYCLOAK_CLIENT_ID" >> packages/shell/.env
+          echo "KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET" >> packages/shell/.env
 
       - name: Install Playwright browsers
         run: pnpm --filter @vastu/shell exec playwright install --with-deps chromium
 
-      - name: Run admin E2E tests
-        run: pnpm --filter @vastu/shell exec playwright test e2e/admin/
+      - name: Run Keycloak integration E2E tests
+        run: pnpm --filter @vastu/shell exec playwright test e2e/auth/keycloak-integration.spec.ts
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report-admin
+          name: playwright-report-keycloak
           path: packages/shell/playwright-report/
           retention-days: 30
+
+      - name: Keycloak logs (on failure)
+        if: failure()
+        run: docker logs keycloak

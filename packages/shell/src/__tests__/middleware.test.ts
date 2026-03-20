@@ -1,52 +1,15 @@
 /**
  * Unit tests for packages/shell/src/middleware.ts
  *
- * Strategy: we cannot execute the real next-auth `auth()` wrapper in Vitest
- * (it requires a full Next.js request lifecycle). Instead we:
- *   1. Mock `./lib/auth` so `auth()` becomes a thin wrapper that calls the
- *      inner handler directly with a synthetic request object.
- *   2. Mock `next/server` so `NextResponse.next()` and
- *      `NextResponse.redirect()` return inspectable objects.
- *   3. Import the inner handler directly from middleware, bypassing the
- *      `auth()` wrapper, by re-exporting it from a test helper (see below).
+ * The middleware checks for the presence of a session cookie (not a full DB
+ * lookup) to gate protected routes. This keeps middleware Edge-compatible.
  *
- * Because Next.js middleware wraps the handler via `auth(handler)`, we mock
- * `auth` to capture the handler and call it ourselves with controlled
- * req-like objects.
+ * We mock `next/server` so NextResponse.next() and NextResponse.redirect()
+ * return inspectable objects, then call the middleware directly with a
+ * synthetic NextRequest-like object.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-
-// ---------------------------------------------------------------------------
-// Types used to describe the minimal request shape the middleware depends on.
-// ---------------------------------------------------------------------------
-
-interface MockSession {
-  user: { id: string };
-}
-
-interface MockRequest {
-  nextUrl: { pathname: string };
-  url: string;
-  auth: MockSession | null;
-}
-
-// ---------------------------------------------------------------------------
-// Capture the inner middleware handler when auth() is called.
-// ---------------------------------------------------------------------------
-
-type MiddlewareHandler = (req: MockRequest) => ReturnType<typeof vi.fn>;
-
-let capturedHandler: MiddlewareHandler | null = null;
-
-vi.mock('@/lib/auth', () => ({
-  auth: vi.fn((handler: MiddlewareHandler) => {
-    capturedHandler = handler;
-    // Return a function that mirrors next-auth's exported middleware shape;
-    // not called in unit tests but satisfies the default export requirement.
-    return handler;
-  }),
-}));
 
 // ---------------------------------------------------------------------------
 // Mock NextResponse so we can inspect what the middleware returns.
@@ -63,26 +26,41 @@ vi.mock('next/server', () => ({
 }));
 
 // ---------------------------------------------------------------------------
-// Importing the middleware triggers the top-level `auth(handler)` call,
-// which sets `capturedHandler`.
+// Import the middleware (it's the default export, a plain function).
 // ---------------------------------------------------------------------------
 
-// Dynamic import used so mocks above are established first.
-await import('../middleware');
+const { default: middleware } = await import('../middleware');
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
-function buildRequest(pathname: string, session: MockSession | null = null): MockRequest {
-  return {
-    nextUrl: { pathname },
-    url: `http://localhost:3000${pathname}`,
-    auth: session,
+interface MockCookie {
+  name: string;
+  value: string;
+}
+
+interface MockRequest {
+  nextUrl: { pathname: string };
+  url: string;
+  cookies: {
+    get: (name: string) => MockCookie | undefined;
   };
 }
 
-const fakeSession: MockSession = { user: { id: 'user-1' } };
+function buildRequest(pathname: string, hasSession: boolean): MockRequest {
+  const cookies: MockCookie[] = hasSession
+    ? [{ name: 'authjs.session-token', value: 'mock-token' }]
+    : [];
+
+  return {
+    nextUrl: { pathname },
+    url: `http://localhost:3000${pathname}`,
+    cookies: {
+      get: (name: string) => cookies.find((c) => c.name === name),
+    },
+  };
+}
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -100,22 +78,19 @@ describe('middleware — route protection', () => {
 
   describe('ignored routes', () => {
     it('passes through /api/auth/* without checking session', () => {
-      const req = buildRequest('/api/auth/callback/keycloak', null);
-      capturedHandler!(req);
+      middleware(buildRequest('/api/auth/callback/keycloak', false) as never);
       expect(mockNextFn).toHaveBeenCalledTimes(1);
       expect(mockRedirectFn).not.toHaveBeenCalled();
     });
 
     it('passes through /_next/* without checking session', () => {
-      const req = buildRequest('/_next/data/abc.json', null);
-      capturedHandler!(req);
+      middleware(buildRequest('/_next/data/abc.json', false) as never);
       expect(mockNextFn).toHaveBeenCalledTimes(1);
       expect(mockRedirectFn).not.toHaveBeenCalled();
     });
 
     it('passes through /favicon.ico without checking session', () => {
-      const req = buildRequest('/favicon.ico', null);
-      capturedHandler!(req);
+      middleware(buildRequest('/favicon.ico', false) as never);
       expect(mockNextFn).toHaveBeenCalledTimes(1);
       expect(mockRedirectFn).not.toHaveBeenCalled();
     });
@@ -139,16 +114,14 @@ describe('middleware — route protection', () => {
 
     for (const path of publicPaths) {
       it(`allows unauthenticated access to ${path}`, () => {
-        const req = buildRequest(path, null);
-        capturedHandler!(req);
+        middleware(buildRequest(path, false) as never);
         expect(mockNextFn).toHaveBeenCalledTimes(1);
         expect(mockRedirectFn).not.toHaveBeenCalled();
       });
     }
 
     it('allows unauthenticated access to sub-paths of public routes', () => {
-      const req = buildRequest('/reset-password/token-abc', null);
-      capturedHandler!(req);
+      middleware(buildRequest('/reset-password/token-abc', false) as never);
       expect(mockNextFn).toHaveBeenCalledTimes(1);
       expect(mockRedirectFn).not.toHaveBeenCalled();
     });
@@ -160,17 +133,15 @@ describe('middleware — route protection', () => {
 
   describe('/login — authenticated user', () => {
     it('redirects authenticated user on /login to /workspace', () => {
-      const req = buildRequest('/login', fakeSession);
-      capturedHandler!(req);
+      middleware(buildRequest('/login', true) as never);
       expect(mockRedirectFn).toHaveBeenCalledTimes(1);
-      const redirectUrl: string = mockRedirectFn.mock.calls[0][0].toString();
+      const redirectUrl: string = mockRedirectFn.mock.calls[0]![0].toString();
       expect(redirectUrl).toBe('http://localhost:3000/workspace');
       expect(mockNextFn).not.toHaveBeenCalled();
     });
 
     it('does not redirect authenticated user for other public routes', () => {
-      const req = buildRequest('/register', fakeSession);
-      capturedHandler!(req);
+      middleware(buildRequest('/register', true) as never);
       expect(mockNextFn).toHaveBeenCalledTimes(1);
       expect(mockRedirectFn).not.toHaveBeenCalled();
     });
@@ -192,10 +163,9 @@ describe('middleware — route protection', () => {
 
     for (const path of protectedPaths) {
       it(`redirects unauthenticated user from ${path} to /login with redirect param`, () => {
-        const req = buildRequest(path, null);
-        capturedHandler!(req);
+        middleware(buildRequest(path, false) as never);
         expect(mockRedirectFn).toHaveBeenCalledTimes(1);
-        const redirectUrl = mockRedirectFn.mock.calls[0][0] as URL;
+        const redirectUrl = mockRedirectFn.mock.calls[0]![0] as URL;
         expect(redirectUrl.pathname).toBe('/login');
         expect(redirectUrl.searchParams.get('redirect')).toBe(path);
         expect(mockNextFn).not.toHaveBeenCalled();
@@ -209,22 +179,19 @@ describe('middleware — route protection', () => {
 
   describe('protected routes — authenticated', () => {
     it('allows authenticated user to access /workspace', () => {
-      const req = buildRequest('/workspace', fakeSession);
-      capturedHandler!(req);
+      middleware(buildRequest('/workspace', true) as never);
       expect(mockNextFn).toHaveBeenCalledTimes(1);
       expect(mockRedirectFn).not.toHaveBeenCalled();
     });
 
     it('allows authenticated user to access /settings/profile', () => {
-      const req = buildRequest('/settings/profile', fakeSession);
-      capturedHandler!(req);
+      middleware(buildRequest('/settings/profile', true) as never);
       expect(mockNextFn).toHaveBeenCalledTimes(1);
       expect(mockRedirectFn).not.toHaveBeenCalled();
     });
 
     it('allows authenticated user to access /admin/users', () => {
-      const req = buildRequest('/admin/users', fakeSession);
-      capturedHandler!(req);
+      middleware(buildRequest('/admin/users', true) as never);
       expect(mockNextFn).toHaveBeenCalledTimes(1);
       expect(mockRedirectFn).not.toHaveBeenCalled();
     });
@@ -236,25 +203,21 @@ describe('middleware — route protection', () => {
 
   describe('edge cases', () => {
     it('treats /loginextra as a protected route (not a public route prefix match)', () => {
-      // "/login" + "/" check means "/loginextra" is NOT treated as public.
-      const req = buildRequest('/loginextra', null);
-      capturedHandler!(req);
+      middleware(buildRequest('/loginextra', false) as never);
       expect(mockRedirectFn).toHaveBeenCalledTimes(1);
-      const redirectUrl = mockRedirectFn.mock.calls[0][0] as URL;
+      const redirectUrl = mockRedirectFn.mock.calls[0]![0] as URL;
       expect(redirectUrl.pathname).toBe('/login');
     });
 
     it('treats /sso/callback as a public sub-path', () => {
-      const req = buildRequest('/sso/callback', null);
-      capturedHandler!(req);
+      middleware(buildRequest('/sso/callback', false) as never);
       expect(mockNextFn).toHaveBeenCalledTimes(1);
       expect(mockRedirectFn).not.toHaveBeenCalled();
     });
 
     it('redirect param encodes the original pathname correctly', () => {
-      const req = buildRequest('/settings/api-keys', null);
-      capturedHandler!(req);
-      const redirectUrl = mockRedirectFn.mock.calls[0][0] as URL;
+      middleware(buildRequest('/settings/api-keys', false) as never);
+      const redirectUrl = mockRedirectFn.mock.calls[0]![0] as URL;
       expect(redirectUrl.searchParams.get('redirect')).toBe('/settings/api-keys');
     });
   });

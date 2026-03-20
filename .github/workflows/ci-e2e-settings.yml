@@ -75,6 +75,12 @@ jobs:
       - name: Generate Prisma client
         run: pnpm prisma:generate
 
+      - name: Push database schema
+        run: pnpm --filter @vastu/shared exec prisma db push --schema=./src/prisma/schema.prisma --skip-generate
+
+      - name: Seed test data
+        run: pnpm prisma:seed
+
       - name: Create .env for Next.js dev server
         run: |
           echo "AUTH_SECRET=$AUTH_SECRET" > packages/shell/.env
