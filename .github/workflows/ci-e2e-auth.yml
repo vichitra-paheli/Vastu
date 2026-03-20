@@ -92,7 +92,15 @@ jobs:
         run: pnpm --filter @vastu/shell exec playwright install --with-deps chromium
 
       - name: Run auth E2E tests
-        run: pnpm --filter @vastu/shell exec playwright test e2e/auth/
+        run: >-
+          pnpm --filter @vastu/shell exec playwright test
+          e2e/auth/login.spec.ts
+          e2e/auth/register.spec.ts
+          e2e/auth/password-reset.spec.ts
+          e2e/auth/verify-email.spec.ts
+          e2e/auth/mfa.spec.ts
+          e2e/auth/mfa-setup.spec.ts
+          e2e/auth/sso.spec.ts
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
