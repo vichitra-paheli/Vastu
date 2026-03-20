@@ -1,405 +1,421 @@
-# Vastu — Agent Development Workflow
+# Vastu — Agent Development Workflow v3
 
-> Version 0.2 · March 2026 · Living document
+> Version 3.0 · March 2026 · Updated after Phase 0 learnings
 > Tool: Claude Code with subagents · Coordination: GitHub Issues/PRs · Monorepo: Turborepo
+
+---
+
+## Changes from v2
+
+| v2 | v3 | Why |
+|----|-----|-----|
+| One branch per phase | One branch per feature, sub-branches per task | Scoped PRs, isolated failures, parallel features |
+| QA runs once after all implementation | Per-feature QA + optional full-phase QA at end | Catches bugs at feature boundary, not phase boundary |
+| No per-task code review | Dev → Code Reviewer loop per task | Early bug detection, smaller review surface |
+| Lead merges everything | Lead merges sub-branch PRs. Human merges feature → main | Human reviews at the right level (feature, not task) |
+| No documentation agent | Dedicated docs-engineer agent | Developer docs are a first-class deliverable |
+| Agents leave artifacts around | Agents commit reusable work, delete transient files | Clean slate for next agent session |
 
 ---
 
 ## 1. Philosophy
 
-**Humans steer at phase boundaries; agents own everything in between.** You write the requirement doc and review the completion doc. Between those two moments, agents design, decompose, implement, test, and verify autonomously.
+**Humans review at feature boundaries, not task boundaries.** Feature → main PRs require human approval. Task → feature PRs are merged by the lead engineer agent. This keeps humans at a useful altitude.
 
-**Phase-level planning, not feature-level micromanagement.** Each development phase gets a single requirement document with user stories. Agents decompose it into GitHub issues, implement, and verify without waiting for human approval at each step.
+**Every task gets a review loop.** Dev implements, code reviewer reviews — per task, not batched. Bugs caught at task level are 10x cheaper than bugs caught at phase level.
 
-**Deterministic orchestration, creative execution.** The pipeline moving work from design → decompose → implement → test is rule-based. Agents doing the work within each step are creative and autonomous. Agents never decide what step comes next — the pipeline does.
+**Agents leave the campsite cleaner than they found it.** Every agent commits reusable output (code, tests, docs) and deletes transient artifacts (scratch files, debug logs, temporary notes). The next agent starts from a clean git state.
 
-**Fresh context for every review.** Writer and reviewer always use separate Claude Code sessions. This prevents confirmation bias.
-
-**Outputs are disposable; requirements and prompts compound.** When agents produce bad code, fix the requirement doc or the prompt — not just the code.
+**Documentation is a deliverable, not an afterthought.** A docs-engineer agent maintains developer documentation alongside implementation. When a feature ships, its docs ship too.
 
 ---
 
-## 2. The development loop
+## 2. Branching model
 
 ```
-┌─────────────────────────────────────────────────┐
-│            YOU + CLAUDE (Planning)                │
-│  1. Write phase requirement doc (user stories)   │
-│  2. Drop in /phases/phase-{N}/                   │
-└────────────────────┬────────────────────────────┘
-                     ▼
-┌─────────────────────────────────────────────────┐
-│         AGENT PIPELINE (Autonomous)              │
-│  3. Architect → plan.md                          │
-│  4. Lead Engineer → GitHub issues + todo.md      │
-│  5. Dev/Design Engineers → code + unit tests     │
-│  6. QA Engineer → E2E tests + bug reports        │
-│  7. Code Reviewer → review findings              │
-│  8. Fix loop (5-7) until green                   │
-│  9. Lead Engineer → completion.md                │
-└────────────────────┬────────────────────────────┘
-                     ▼
-┌─────────────────────────────────────────────────┐
-│            YOU + CLAUDE (Review)                  │
-│  10. Review completion doc vs requirements       │
-│  11. Approve → merge → write next phase reqs     │
-└─────────────────────────────────────────────────┘
+main                                    ← always green, human-merged only
+├── feature/VASTU-0-001-auth-login      ← one branch per feature (user story)
+│   ├── task/VASTU-0-001a-login-form    ← sub-branch per task
+│   ├── task/VASTU-0-001b-keycloak      ← sub-branch per task
+│   └── task/VASTU-0-001c-tests         ← sub-branch per task
+├── feature/VASTU-0-002-registration    ← parallel feature branch
+│   └── ...
+└── feature/VASTU-0-003-shell-layout    ← depends on 001 + 002 → branches from main after they merge
 ```
 
-Human touchpoints: only steps 1-2 and 10-11.
+### Rules
+
+**Feature branches** (`feature/VASTU-{phase}-{id}-{slug}`):
+- Branch from `main`
+- One per user story from the requirements doc
+- PR to `main` requires human review and approval
+- Must pass full CI before merge
+- Squash-merge to main for clean history
+
+**Task sub-branches** (`task/VASTU-{phase}-{id}{letter}-{slug}`):
+- Branch from their parent feature branch
+- One per task from the implementation plan
+- PR to the feature branch — lead engineer can merge without human review
+- Must pass CI (lint + typecheck + tests)
+
+**Dependent features** wait for their dependency to merge to `main` before branching:
+```
+1. feature/VASTU-0-001-auth-login merges to main     ✓
+2. feature/VASTU-0-003-shell-layout branches FROM main (now has auth)
+```
+
+This means independent features can run in parallel, while dependent features are naturally sequenced by the main branch state.
 
 ---
 
-## 3. Phase requirement document format
+## 3. Per-task workflow (the inner loop)
 
-### 3.1 Location
+Every task follows this cycle. One Claude Code session per step.
 
 ```
-vastu/phases/
-├── phase-0-foundation/
-│   ├── requirements.md     ← you + Claude write this
-│   └── completion.md       ← agents produce this
-├── phase-1-enterprise-shell/
-└── ...
+┌─ DEV ENGINEER ──────────────────────┐
+│ 1. Branch: task/VASTU-0-001a-...    │
+│ 2. Implement code + unit tests      │
+│ 3. Commit reusable work             │
+│ 4. Delete any scratch/temp files    │
+│ 5. Push + create PR to feature      │
+└─────────────┬───────────────────────┘
+              │
+              ▼
+┌─ CODE REVIEWER (fresh session) ─────┐
+│ 6. Review the task PR               │
+│ 7. Post findings as PR comments     │
+│    🔴 must-fix → back to step 1     │
+│    🟡 tech debt → file issue        │
+│    🟢 clean → approve               │
+└─────────────┬───────────────────────┘
+              │ (approved)
+              ▼
+┌─ LEAD ENGINEER ─────────────────────┐
+│ 8. Merge task PR into feature       │
+│    (no human review needed)         │
+└─────────────────────────────────────┘
 ```
 
-### 3.2 Template
-
-```markdown
-# Phase N: [Name]
-> Target: Weeks X–Y
-> References: wireframes (groups X-Y), patterns library
-
-## Phase goal
-One paragraph: what's true when done that isn't true today.
-
-## User stories
-
-### US-001: [Title]
-**As a** [role], **I want** [action], **so that** [outcome].
-**Acceptance criteria:**
-- [ ] AC-1: [Specific, testable]
-- [ ] AC-2: [Another]
-**Wireframe:** Group [X], Screen [N]
-**Patterns:** [From patterns library]
-
-## Technical constraints
-## Out of scope
-## Definition of done
-```
-
-### 3.3 Writing guidelines
-
-- Be specific in acceptance criteria. "Table loads" is untestable. "Table loads 25 rows in <500ms with skeleton state" is testable.
-- Reference wireframes explicitly: "See Group B, Screen 4 — table listing template."
-- Reference patterns explicitly: "Follow filter pattern from Patterns Library §2."
-- Scope ruthlessly. If it's not in user stories, it's not in the phase.
-- Number everything. US-001, AC-1. Agents reference these in issues and completion doc.
-
-### 3.4 Artifacts available to agents
-
-| Artifact | Location |
-|----------|----------|
-| Design principles | /docs/design-principles.md |
-| Style guide | /docs/style-guide.md |
-| Patterns library | /docs/patterns-library.md |
-| Mantine theme | /packages/workspace/theme/vastu.theme.ts |
-| CSS tokens | /packages/workspace/theme/vastu.tokens.css |
-| Wireframes | /docs/wireframes/ |
-| Previous completion | /phases/phase-{N-1}/completion.md |
-| CLAUDE.md hierarchy | Root + package-level |
+If code reviewer finds 🔴 issues, dev engineer gets a fresh session, reads the review comments, fixes, and pushes to the same task branch. Reviewer reviews again. Max 3 cycles.
 
 ---
 
-## 4. CLAUDE.md hierarchy
+## 4. Per-feature workflow (the outer loop)
+
+After all tasks for a feature are merged into the feature branch:
 
 ```
-vastu/
-├── CLAUDE.md                    # Root: universal conventions (<15KB)
-├── packages/
-│   ├── shell/CLAUDE.md          # Shell: Next.js, auth, SSR
-│   ├── workspace/CLAUDE.md      # Workspace: Dockview, Mantine
-│   ├── shared/CLAUDE.md         # Shared: Prisma, types, utils
-│   └── agent-runtime/CLAUDE.md  # Agent: LangGraph, AG-UI, MCP
-└── .claude/agents/              # Subagent definitions
+┌─ QA ENGINEER (fresh session) ───────┐
+│ 1. Checkout feature branch          │
+│ 2. Read user story + acceptance     │
+│ 3. Write E2E tests for the feature  │
+│ 4. Run full test suite              │
+│ 5. File bug issues if failures      │
+│    Bugs → dev fixes on feature      │
+│    branch (task sub-branch cycle)   │
+│ 6. All green → approve              │
+└─────────────┬───────────────────────┘
+              │
+              ▼
+┌─ DOCS ENGINEER (fresh session) ─────┐
+│ 7. Write/update docs for feature    │
+│ 8. Commit to feature branch         │
+└─────────────┬───────────────────────┘
+              │
+              ▼
+┌─ HUMAN REVIEW ──────────────────────┐
+│ 9. Review feature PR (code + docs)  │
+│ 10. Approve → squash-merge to main  │
+└─────────────────────────────────────┘
 ```
-
-Root CLAUDE.md contains: project overview, architecture summary, build/test commands, commit conventions, testing requirements, key conventions (tokens, TruncatedText, loading states, MCP parity, TS strict), design doc references. Keep lean — let linters enforce code style.
-
-Package CLAUDE.md files contain: local stack, local patterns, local test commands, common mistakes agents make in that package.
 
 ---
 
-## 5. Agent roles and prompts
+## 5. Full phase flow
 
-Seven subagents in `.claude/agents/`. Each runs in its own session with isolated context.
-
-### 5.1 Architect
-
-**Model:** Opus · **Tools:** Read, Grep, Glob, WebSearch (read-only)
-
-Reads phase requirements + codebase. Produces `plan.md` covering per-story: components to create/modify (file paths), DB changes (Prisma), API/MCP surface, state management, component hierarchy, design system mapping (wireframes + patterns), edge cases, testing strategy, complexity estimates. Phase-level: cross-cutting concerns, dependency order, risks. Never writes code. Flags items needing human decision with ⚠️.
-
-### 5.2 Lead Engineer
-
-**Model:** Opus · **Tools:** Read, Write, Edit, Bash, Grep, Glob
-
-Two jobs. First: read requirements + plan, create GitHub issues (`gh issue create` with title, body, labels, deps, milestone), write `todo.md` with ordered subtasks and parallel groups. Issues are small (<500 lines). Every implementation issue includes testing. Second (after pipeline completes): compile `completion.md` from issue statuses, test results, and review findings.
-
-### 5.3 Design Engineer
-
-**Model:** Sonnet · **Tools:** Read, Write, Edit, Bash, Grep, Glob
-
-UI implementation specialist. Reads wireframes + style guide + patterns library before starting. Ensures: all colors via --v-* tokens, TruncatedText on truncatable text, loading choreography on async ops, right-click context menus on data surfaces, keyboard navigation, WCAG 2.2 AA (contrast, ARIA, focus management). Two font weights only (400/500). Tests in light and dark mode.
-
-### 5.4 Dev Engineer
-
-**Model:** Sonnet · **Tools:** Read, Write, Edit, Bash, Grep, Glob
-
-Feature implementation: business logic, API routes, state management (Zustand + TanStack Query), MCP tools, unit tests. One issue per session. Reads spec + plan + issue before starting. Searches codebase for existing patterns first. Follows the plan — flags deviations on the issue rather than deviating silently. TypeScript strict. Runs lint + typecheck + tests before committing. Never installs new deps without flagging.
-
-### 5.5 QA Engineer
-
-**Model:** Sonnet · **Tools:** Read, Bash, Grep, Glob (no source editing)
-
-Fresh context — did NOT write this code. Reads spec + plan + code skeptically. For each user story: verifies acceptance criteria, identifies edge cases (null, permissions, concurrency, network failures, special characters), writes Playwright E2E tests, runs full suite. Files bug issues (labeled `bug` + `phase-{N}`) for any failures. Also checks: pattern violations (hardcoded color, missing truncation, no loading state), MCP tool parity.
-
-### 5.6 Code Reviewer
-
-**Model:** Opus · **Tools:** Read, Grep, Glob (read-only)
-
-Fresh context. Reviews all changed files for: correctness vs spec, design system compliance (tokens, truncation, loading, context menus, keyboard, a11y), code quality (TS strict, no dead code, function size, naming, duplication), security (no secrets, parameterized queries, auth checks, input validation), performance (virtualization, N+1, re-renders, bundle size), MCP parity. Categorizes: 🔴 must-fix (blocks completion), 🟡 should-fix (tech debt for next phase), 🟢 suggestion.
-
-### 5.7 DevOps Engineer
-
-**Model:** Sonnet · **Tools:** Read, Write, Edit, Bash, Grep, Glob
-
-CI/CD pipeline (GitHub Actions), Docker (multi-stage builds), service containers (Keycloak, Postgres, Redis, MinIO), monitoring (OTel, Prometheus, Jaeger). CI order: lint → typecheck → tests → build → E2E (fail fast). Secrets via env vars only. All infra config version-controlled.
+```
+YOU + CLAUDE write requirements.md
+        │
+        ▼
+ARCHITECT → plan.md
+        │
+        ▼
+LEAD ENGINEER → GitHub issues + todo.md (with dependency graph)
+        │
+        ▼
+FOR EACH FEATURE (parallel where no deps):
+  │
+  ├─ FOR EACH TASK in feature:
+  │     Dev Engineer → implement on task sub-branch
+  │     Code Reviewer → review task PR
+  │     Lead Engineer → merge task PR into feature
+  │
+  ├─ QA Engineer → E2E tests on feature branch
+  ├─ Docs Engineer → documentation on feature branch
+  ├─ Human → review + merge feature PR to main
+  │
+  └─ Dependent features now branch from updated main
+        │
+        ▼
+(Optional) QA ENGINEER → full phase regression on main
+        │
+        ▼
+LEAD ENGINEER → completion.md
+        │
+        ▼
+YOU + CLAUDE review completion, write next phase requirements
+```
 
 ---
 
-## 6. Autonomous agent pipeline
+## 6. Agent roles (8 agents)
 
-### 6.1 Stages
+### 6.1 Architect (Opus, read-only)
+Unchanged from v2. Reads requirements + codebase, produces plan.md.
 
+### 6.2 Lead Engineer (Opus)
+Updated responsibilities:
+- Decomposes plan into features (user stories) and tasks (subtasks within each feature)
+- Creates GitHub issues with dependency labels
+- Creates todo.md with feature → task hierarchy and dependency graph
+- **Merges task sub-branch PRs into feature branches** (reviews PR title, CI status, and basic sanity — not a full code review)
+- Compiles completion.md at end of phase
+
+### 6.3 Design Engineer (Sonnet)
+Unchanged. UI implementation, design system compliance, accessibility.
+
+### 6.4 Dev Engineer (Sonnet)
+Updated workflow:
+- Creates task sub-branch from feature branch
+- Implements on sub-branch
+- **Commits all reusable work** (code, tests, configs)
+- **Deletes all transient artifacts** (scratch files, debug logs, temp notes, any `__tmp_*` or `*.bak` files)
+- Pushes and creates PR to feature branch
+- If code reviewer finds 🔴 issues: reads PR comments, fixes in fresh session, pushes to same branch
+
+### 6.5 QA Engineer (Sonnet, fresh context)
+Updated scope:
+- **Per-feature QA** (not per-phase): writes E2E tests scoped to the user story being tested
+- Checks out the feature branch, not main
+- Files bugs as issues linked to the feature
+- **Phase-level regression** is a separate optional run triggered manually on main after all features merge
+
+### 6.6 Code Reviewer (Opus, fresh context, read-only)
+Updated scope:
+- **Per-task PR review** (not per-phase): reviews the diff in the task sub-branch PR
+- Posts findings as PR comments (not a separate file)
+- Approves or requests changes on the PR
+- Smaller review surface = faster, more focused reviews
+
+### 6.7 DevOps Engineer (Sonnet)
+Unchanged. CI/CD, Docker, infrastructure.
+
+### 6.8 Docs Engineer (NEW — Sonnet)
+New agent. Maintains developer documentation in `/docs/` using **Fumadocs** (Next.js-native, MDX-based).
+
+---
+
+## 7. Docs Engineer — full definition
+
+### Purpose
+Maintain developer-facing documentation that serves both humans browsing the docs site and agents reading markdown files from disk. The audience is developers who clone Vastu to build their own applications.
+
+### Documentation tool: Fumadocs
+- Next.js native (same stack as Vastu)
+- MDX-based (markdown with components)
+- File-based routing in `/docs/content/`
+- Built-in search, table of contents, code highlighting
+- Output is both a deployable docs site and plain readable markdown on disk
+
+### Documentation structure
 ```
-STAGE 1: DESIGN        Architect → plan.md
-STAGE 2: DECOMPOSE     Lead Engineer → GitHub issues + todo.md
-STAGE 3: IMPLEMENT     Dev + Design Engineers → code + tests
-                       (per issue, parallel where no deps)
-STAGE 4: VERIFY        QA Engineer (fresh) → E2E tests + bug issues
-STAGE 5: REVIEW        Code Reviewer (fresh) → findings
-  ↳ If 🔴 bugs exist → back to STAGE 3 (max 3 loops)
-STAGE 6: COMPLETION    Lead Engineer → completion.md
+docs/
+├── content/
+│   ├── getting-started/
+│   │   ├── installation.mdx
+│   │   ├── project-structure.mdx
+│   │   ├── docker-setup.mdx
+│   │   └── first-page.mdx
+│   ├── architecture/
+│   │   ├── overview.mdx
+│   │   ├── auth.mdx
+│   │   ├── permissions.mdx
+│   │   ├── database.mdx
+│   │   └── design-system.mdx
+│   ├── guides/
+│   │   ├── creating-pages.mdx
+│   │   ├── builder-mode.mdx
+│   │   ├── view-engine.mdx
+│   │   ├── adding-mcp-tools.mdx
+│   │   └── custom-components.mdx
+│   ├── components/
+│   │   ├── vastu-table.mdx
+│   │   ├── vastu-context-menu.mdx
+│   │   ├── vastu-chart.mdx
+│   │   ├── truncated-text.mdx
+│   │   └── empty-state.mdx
+│   ├── api-reference/
+│   │   ├── prisma-schema.mdx
+│   │   ├── mcp-tools.mdx
+│   │   ├── hooks-api.mdx
+│   │   └── casl-permissions.mdx
+│   └── decisions/
+│       ├── ADR-001-auth.mdx
+│       └── ADR-002-sso-storage.mdx
+├── fumadocs.config.ts
+└── package.json
 ```
 
-### 6.2 Stage 3 details (Implement)
+### When the docs agent runs
+- After each feature's implementation is complete (before human review of the feature PR)
+- The agent reads the new code, existing docs, and writes/updates documentation for the feature
+- Docs are committed to the feature branch so the PR includes code + tests + docs
 
-Issues run in dependency order from todo.md. Issues with no dependency relationship run in parallel via separate Claude Code sessions on separate git worktrees.
+### What the docs agent produces per feature
+- **New pages** for new concepts, components, or APIs introduced by the feature
+- **Updated pages** when existing documented behavior changes
+- **Code examples** that are real, runnable, and reference actual file paths in the codebase
+- **API reference updates** when Prisma schema, MCP tools, or hooks change
 
-Each agent session:
-1. Read spec + plan + issue
-2. Implement
-3. Run lint + typecheck + tests
-4. If tests fail → fix (up to 3 retries)
-5. If still failing → file blocking bug issue
-6. Commit with conventional message + issue reference
-7. Close issue if all acceptance criteria met
+---
 
-### 6.3 Stage 4 details (Verify)
+## 8. Clean slate rule
 
-QA runs in a completely fresh session. Reads spec and code independently — no implementation context. Writes Playwright E2E tests per user story. Files bug issues for failures.
+Every agent must leave a clean working state for the next agent.
 
-### 6.4 Stage 5 details (Review)
-
-Code Reviewer in fresh Opus session. Reviews ALL changed files in the phase. 🔴 items trigger a fix loop. 🟡 items filed as issues for next phase.
-
-### 6.5 Bug fix loop
-
-When QA or Reviewer files 🔴 bugs:
-1. Pipeline returns to Stage 3 for those specific issues only
-2. Dev agent fixes in fresh session
-3. QA re-verifies the fix
-4. Reviewer re-reviews
-5. Max 3 loops. Unresolved items noted in completion doc as "requires human attention."
-
-### 6.6 Parallel execution
-
+### What "clean" means
 ```bash
-# Parallel group from todo.md (no deps between these)
-# Separate worktrees, simultaneous sessions
-git worktree add ../vastu-wt-001 feature/phase-0
-git worktree add ../vastu-wt-003 feature/phase-0
-
-claude -p "Use dev-engineer for VASTU-0-001"   # session 1
-claude -p "Use dev-engineer for VASTU-0-003"   # session 2 (parallel)
+# After an agent session, the repo should pass:
+git status           # no untracked files (except in .gitignore)
+git diff             # no uncommitted changes
+pnpm lint            # no lint errors
+pnpm typecheck       # no type errors
 ```
 
-After a parallel group completes, merge worktrees back, start next group.
+### Agent checklist (before ending session)
 
----
+**Commit:**
+- Source code files (`.ts`, `.tsx`, `.css`, `.mdx`)
+- Test files (`.test.ts`, `.spec.ts`)
+- Configuration files (`.json`, `.yml`, `.toml`)
+- Documentation files (`.md`, `.mdx`)
+- Migration files (Prisma)
 
-## 7. Phase completion document format
+**Delete:**
+- Scratch/temp files (`*.tmp`, `*.bak`, `__tmp_*`, `scratch.*`)
+- Debug logs (any files created for debugging)
+- Exploratory code not part of the deliverable
+- Downloaded files used during investigation
+- Any file created by the agent that isn't committed
 
-Produced by Lead Engineer after all stages.
+**Verify:**
+- `git status` shows clean working tree
+- `pnpm lint` passes
+- `pnpm typecheck` passes
+- `pnpm test` passes for affected package
 
-```markdown
-# Phase N: [Name] — Completion Report
-> Completed: [date] · Duration: [actual vs estimated]
-
-## User story status
-| Story | Status | Issues | Tests | Notes |
-|-------|--------|--------|-------|-------|
-| US-001 | ✅ Complete | 001, 002 | 12 unit, 3 E2E | — |
-| US-002 | ⚠️ Partial | 003-005 | 8 unit, 2 E2E | [reason] |
-
-## Acceptance criteria verification
-Per story: checkboxes with test file references.
-
-## Design system compliance
-Tokens ✅ · TruncatedText ✅ · Loading states ✅ ·
-Context menus ✅ · Keyboard nav ✅ · MCP parity ✅
-
-## Review findings
-Resolved 🔴 · Deferred 🟡 (filed for next phase) · Suggestions 🟢
-
-## Known issues (requires human attention)
-## Test coverage (unit count, E2E count, % coverage)
-## Files changed summary
-## Recommendations for next phase
+### Implementation
+Add to every agent's prompt:
+```
+Before ending your session:
+1. Stage and commit all reusable work (code, tests, docs, configs)
+2. Delete any temporary or scratch files you created
+3. Run: git status (must be clean), pnpm lint, pnpm typecheck
+4. If anything fails, fix it before ending
 ```
 
-### What you review
-
-1. Story status — any ⚠️ Partial?
-2. Acceptance criteria — all checked? Test references real?
-3. Design compliance — any ❌?
-4. Review findings — deferred 🟡 acceptable as debt?
-5. Known issues — anything blocking next phase?
-6. Recommendations — input for next requirement doc.
-
-Then: approve → merge to main → write next phase requirements.
-
 ---
 
-## 8. Quality gates
+## 9. Updated pipeline commands
 
-| Transition | Check |
-|-----------|-------|
-| Design → Decompose | plan.md exists, all stories covered |
-| Decompose → Implement | todo.md + issues exist |
-| Per-issue complete | lint + typecheck + tests pass |
-| Implement → Verify | All issues closed |
-| Verify → Review | E2E tests for all stories |
-| Review → Completion | No open 🔴 items |
-
-CI pipeline (every commit, fail fast): lint (30s) → typecheck (45s) → unit tests (2min) → build (3min) → E2E (5min) → coverage (30s).
-
-Pre-commit hook: `pnpm lint-staged` on staged files.
-
----
-
-## 9. Git and branching
-
-```
-main                         ← always green
-├── feature/phase-0          ← one branch per phase
-├── feature/phase-1          ← squash-merge when complete
-└── fix/hotfix-{id}          ← critical bugs only
-```
-
-One PR per phase. Squash-merge for clean history. Conventional Commits with issue references: `feat(workspace): add view toolbar [VASTU-0-001]`.
-
----
-
-## 10. Hooks and automation
-
-### Orchestration options (start simple)
-
-**Option A: Manual** (recommended to start)
-Run each agent command sequentially after the previous completes.
-
-**Option B: Script**
-Shell script reads todo.md, runs agents in dependency order, loops on bugs.
-
-**Option C: GitHub Actions**
-Push requirements.md → pipeline runs → completion.md appears. Fully automated.
-
-Start with A. Graduate to B when proven. Consider C when confidence is high.
-
-### Hooks
-- **PreCommit:** `pnpm lint-staged`
-- **SubagentStop:** Check stage status, lint modified files, print next command.
-
----
-
-## 11. Best practices and anti-patterns
-
-### Do
-- Invest 30min in the requirement doc — prevents hours of rework
-- Fresh sessions for every role switch (`/clear` between agents)
-- Let linters enforce style — not CLAUDE.md
-- Read the completion doc carefully — cross-reference acceptance criteria
-- Evolve CLAUDE.md from agent mistakes — every rule traces to a real error
-- Compact past 50% context — `/clear` and restart
-
-### Don't
-- Don't intervene mid-pipeline — let it finish, fix in next loop
-- Don't skip QA — fresh context catches what writers miss
-- Don't let agents self-orchestrate — pipeline decides, agents execute
-- Don't use `any` to unblock TypeScript — flag it
-- Don't gold-plate — acceptance criteria are the scope, nothing more
-- Don't add deps without flagging — every package is permanent debt
-
----
-
-## 12. Getting started
-
+### Start a phase
 ```bash
-# 1. You + Claude write requirements.md (in this conversation)
-# 2. Save to phases/phase-0-foundation/requirements.md
-# 3. Create phase branch
-git checkout -b feature/phase-0
+# Architect designs
+claude -p "Use architect on phases/phase-1/"
 
-# 4. Run pipeline (Option A)
-claude -p "Use architect on phases/phase-0-foundation/"
-claude -p "Use lead-engineer on phases/phase-0-foundation/"
-# Per issue from todo.md:
-claude -p "Use dev-engineer for VASTU-0-001"
-claude -p "Use design-engineer for VASTU-0-002"
-# After all issues:
-claude -p "Use qa-engineer on phases/phase-0-foundation/"
-claude -p "Use code-reviewer on phases/phase-0-foundation/"
-claude -p "Use lead-engineer to compile completion for phase-0"
-
-# 5. Review completion.md with Claude
-# 6. Approve → merge → write phase 1 requirements
+# Lead engineer creates issues and todo
+claude -p "Use lead-engineer to decompose phases/phase-1/"
 ```
 
-| I want to... | Command |
-|---------------|---------|
-| Start a phase | Drop requirements.md in /phases/phase-{N}/ |
-| Design | `claude -p "Use architect on phases/phase-{N}/"` |
-| Decompose | `claude -p "Use lead-engineer on phases/phase-{N}/"` |
-| Implement | `claude -p "Use dev-engineer for VASTU-{N}-{ID}"` |
-| Implement UI | `claude -p "Use design-engineer for VASTU-{N}-{ID}"` |
-| QA | `claude -p "Use qa-engineer on phases/phase-{N}/"` |
-| Review | `claude -p "Use code-reviewer on phases/phase-{N}/"` |
-| Complete | `claude -p "Use lead-engineer to compile completion for phase-{N}"` |
-| Fix infra | `claude -p "Use devops-engineer to fix [issue]"` |
+### Work on a feature (e.g., VASTU-1-003)
+```bash
+# Create feature branch
+git checkout main && git pull
+git checkout -b feature/VASTU-1-003-dockview-shell
+
+# Task A: implement
+claude -p "Use dev-engineer for task VASTU-1-003a from phases/phase-1/todo.md. Branch: task/VASTU-1-003a-panel-host"
+
+# Task A: review (fresh session)
+claude -p "Use code-reviewer to review PR for task/VASTU-1-003a-panel-host"
+
+# Lead merges task PR (or you merge it if simple)
+gh pr merge <PR-number> --squash
+
+# Task B: implement (branches from feature, which now has task A)
+claude -p "Use dev-engineer for task VASTU-1-003b from phases/phase-1/todo.md. Branch: task/VASTU-1-003b-tab-bar"
+
+# ... repeat for each task ...
+
+# QA on the complete feature
+claude -p "Use qa-engineer to verify feature VASTU-1-003 on branch feature/VASTU-1-003-dockview-shell"
+
+# Docs for the feature
+claude -p "Use docs-engineer to document feature VASTU-1-003 on branch feature/VASTU-1-003-dockview-shell"
+
+# Create PR to main → human reviews → merge
+gh pr create --base main --title "feat(workspace): add Dockview shell [VASTU-1-003]"
+```
+
+### End of phase
+```bash
+# Optional: full regression QA on main
+claude -p "Use qa-engineer to run full phase-1 regression on main"
+
+# Completion doc
+claude -p "Use lead-engineer to compile completion for phases/phase-1/"
+```
 
 ---
 
-## Appendix: Decision log
+## 10. Best practices (updated)
+
+### New in v3
+
+**Keep task PRs small.** The dev → reviewer loop works because the diff is small (one task, <500 lines). If a task PR is huge, the reviewer will miss things. Break it down further.
+
+**Merge task PRs promptly.** Don't let task PRs pile up on the feature branch. Merge each as it's approved so subsequent tasks branch from the latest feature state.
+
+**Feature branches are short-lived.** A feature branch should live for days, not weeks. If a feature is taking too long, it's too big — split it into smaller features in the next planning session.
+
+**Docs ship with features.** Don't accumulate a "write docs for everything" task at the end. Each feature PR includes its documentation. If the feature PR doesn't have docs, it's not complete.
+
+**Run QA on the feature branch, not main.** QA validates the feature in isolation. Phase-level regression on main is a safety net, not the primary quality gate.
+
+**Clean your room.** After every agent session: commit what matters, delete what doesn't, verify the repo is clean. The next agent shouldn't have to wonder "did the last agent leave this file here on purpose?"
+
+### Carried from v2
+
+- Invest in the requirement doc — 30min of writing prevents hours of rework
+- Fresh sessions for every role switch
+- Let linters enforce style, not CLAUDE.md
+- Evolve CLAUDE.md from agent mistakes
+- Don't let agents self-orchestrate — the pipeline decides, agents execute
+- Don't gold-plate — acceptance criteria are the scope
+
+---
+
+## Appendix: Decision log (v3 updates)
 
 | Decision | Rationale |
 |----------|-----------|
-| Phase-boundary human involvement | Max agent autonomy; human judgment at "what" and "was it right" |
-| One PR per phase | Reduces overhead; completion doc is structured review |
-| Deterministic pipeline | Agents skip steps when self-orchestrating |
-| Fresh context for QA + review | Writer bias prevents catching own issues |
-| Opus for architect + reviewer | High-stakes decisions need max reasoning |
-| Sonnet for implementers | Speed + bounded tasks |
-| Bug fix loop max 3 | Prevents infinite loops; escalates to human |
-| Squash-merge per phase | Clean history; one revert point per phase |
-| Phase dirs over feature dirs | Matches human review cadence |
+| Feature branch per feature (not per phase) | Scoped PRs, isolated failures, parallel work, meaningful human review unit |
+| Task sub-branches with agent-merged PRs | Fast iteration without human bottleneck on every task |
+| Per-task dev→reviewer loop | Catches bugs at smallest possible scope — cheaper to fix |
+| Per-feature QA (not per-phase) | QA validates the feature boundary, not an amorphous phase blob |
+| Dependent features wait on main | Ensures dependencies are truly complete and merged before downstream work begins |
+| Docs engineer as dedicated agent | Documentation quality requires fresh context and dedicated attention |
+| Fumadocs for documentation | Same stack (Next.js/MDX), file-based (agent-readable), deployable (human-browsable) |
+| Clean slate rule | Eliminates inter-agent confusion from leftover files, failed experiments, or debug artifacts |
+| Phase-level QA is manual/optional | Safety net, not primary gate — per-feature QA is the real quality check |
