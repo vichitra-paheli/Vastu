@@ -1,7 +1,6 @@
 # Vastu
 
-Enterprise web application framework for data-intensive business tools. Vastu provides a configurable shell (auth, settings, admin) and a panel-based workspace where teams build, query, and visualize data without writing code.
-
+Enterprise web application framework for data-intensive enterprise applications. Vastu provides a configurable shell (auth, settings, admin) and a panel-based workspace to get you or your agents started on your next enterprise application.
 ## Goal
 
 Replace the pattern of "one-off internal tools per team" with a single platform that handles auth, permissions, multi-tenancy, and audit out of the box — so teams focus on their data workflows instead of re-implementing boilerplate.
