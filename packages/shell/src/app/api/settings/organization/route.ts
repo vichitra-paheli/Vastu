@@ -5,7 +5,7 @@
  * Requires an authenticated admin session.
  *
  * PATCH request body (all fields optional):
- *   { name?, logoUrl?, workspaceUrl?, defaultTimezone?, defaultLanguage?, ssoRequired? }
+ *   { name?, logoUrl?, workspaceUrl?, defaultTimezone?, defaultLanguage?, ssoRequired?, mfaRequired? }
  *
  * Returns:
  *   GET  200 { organization: Organization }
@@ -15,7 +15,7 @@
  *   403 { error: string }                              if not an admin
  *   500 { error: string }                              on unexpected failure
  *
- * MCP tool equivalent: update_organization({ name, logoUrl, workspaceUrl, defaultTimezone, defaultLanguage, ssoRequired })
+ * MCP tool equivalent: update_organization({ name, logoUrl, workspaceUrl, defaultTimezone, defaultLanguage, ssoRequired, mfaRequired })
  */
 
 import { type NextRequest, NextResponse } from 'next/server';
@@ -34,7 +34,7 @@ import { getSessionWithAbility } from '@/lib/session';
 // and the field is accessible at runtime (after migration is applied).
 // ---------------------------------------------------------------------------
 
-interface OrgWithSsoRequired {
+interface OrgWithEnforcement {
   id: string;
   name: string;
   logoUrl: string | null;
@@ -42,6 +42,7 @@ interface OrgWithSsoRequired {
   defaultTimezone: string;
   defaultLanguage: string;
   ssoRequired: boolean;
+  mfaRequired: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -87,6 +88,7 @@ interface PatchBody {
   defaultTimezone?: string;
   defaultLanguage?: string;
   ssoRequired?: boolean;
+  mfaRequired?: boolean;
 }
 
 function isValidPatchBody(body: unknown): body is PatchBody {
@@ -100,7 +102,8 @@ function isValidPatchBody(body: unknown): body is PatchBody {
     stringOrUndefined(b.workspaceUrl) &&
     stringOrUndefined(b.defaultTimezone) &&
     stringOrUndefined(b.defaultLanguage) &&
-    boolOrUndefined(b.ssoRequired)
+    boolOrUndefined(b.ssoRequired) &&
+    boolOrUndefined(b.mfaRequired)
   );
 }
 
@@ -157,6 +160,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
   if (body.defaultTimezone !== undefined) updateData.defaultTimezone = body.defaultTimezone;
   if (body.defaultLanguage !== undefined) updateData.defaultLanguage = body.defaultLanguage;
   if (body.ssoRequired !== undefined) updateData.ssoRequired = body.ssoRequired;
+  if (body.mfaRequired !== undefined) updateData.mfaRequired = body.mfaRequired;
 
   if (Object.keys(updateData).length === 0) {
     return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
@@ -167,13 +171,13 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     // Cast: ssoRequired added by migration 20260318000001; present once prisma generate is run.
     const before = await prisma.organization.findUnique({
       where: { id: session.user.organizationId },
-    }) as OrgWithSsoRequired | null;
+    }) as OrgWithEnforcement | null;
 
     // Cast: same reason as above.
     const organization = await prisma.organization.update({
       where: { id: session.user.organizationId },
       data: updateData,
-    }) as OrgWithSsoRequired;
+    }) as OrgWithEnforcement;
 
     // Audit event — best-effort, non-blocking
     createAuditEvent({
@@ -191,6 +195,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
             defaultTimezone: before.defaultTimezone,
             defaultLanguage: before.defaultLanguage,
             ssoRequired: before.ssoRequired,
+            mfaRequired: before.mfaRequired,
           }
         : undefined,
       afterState: {
@@ -200,6 +205,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
         defaultTimezone: organization.defaultTimezone,
         defaultLanguage: organization.defaultLanguage,
         ssoRequired: organization.ssoRequired,
+        mfaRequired: organization.mfaRequired,
       },
       ipAddress:
         request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip') ?? undefined,

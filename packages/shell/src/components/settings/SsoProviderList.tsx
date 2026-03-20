@@ -38,12 +38,13 @@ type LoadState =
 
 type EnforcementLoadState =
   | { status: 'loading' }
-  | { status: 'loaded'; ssoRequired: boolean }
+  | { status: 'loaded'; ssoRequired: boolean; mfaRequired: boolean }
   | { status: 'error' };
 
 interface OrganizationResponse {
   organization: {
     ssoRequired: boolean;
+    mfaRequired: boolean;
   };
 }
 
@@ -59,6 +60,7 @@ export function SsoProviderList() {
   const [isDeleting, setIsDeleting] = React.useState(false);
   const [enforcementState, setEnforcementState] = React.useState<EnforcementLoadState>({ status: 'loading' });
   const [isSavingEnforcement, setIsSavingEnforcement] = React.useState(false);
+  const [isSavingMfaEnforcement, setIsSavingMfaEnforcement] = React.useState(false);
 
   // Fetch providers and organization settings on mount.
   React.useEffect(() => {
@@ -84,16 +86,22 @@ export function SsoProviderList() {
       const res = await fetch('/api/settings/organization');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = (await res.json()) as OrganizationResponse;
-      setEnforcementState({ status: 'loaded', ssoRequired: data.organization.ssoRequired });
+      setEnforcementState({
+        status: 'loaded',
+        ssoRequired: data.organization.ssoRequired,
+        mfaRequired: data.organization.mfaRequired,
+      });
     } catch {
       setEnforcementState({ status: 'error' });
     }
   }
 
   async function handleEnforcementChange(checked: boolean) {
+    if (enforcementState.status !== 'loaded') return;
+    const prevMfaRequired = enforcementState.mfaRequired;
     setIsSavingEnforcement(true);
     // Optimistically update the UI
-    setEnforcementState({ status: 'loaded', ssoRequired: checked });
+    setEnforcementState({ status: 'loaded', ssoRequired: checked, mfaRequired: prevMfaRequired });
     try {
       const res = await fetch('/api/settings/organization', {
         method: 'PATCH',
@@ -104,10 +112,33 @@ export function SsoProviderList() {
       showSuccess(t('sso.config.enforcement.saved'));
     } catch {
       // Revert optimistic update on failure
-      setEnforcementState({ status: 'loaded', ssoRequired: !checked });
+      setEnforcementState({ status: 'loaded', ssoRequired: !checked, mfaRequired: prevMfaRequired });
       showError(t('sso.config.enforcement.saveError'));
     } finally {
       setIsSavingEnforcement(false);
+    }
+  }
+
+  async function handleMfaEnforcementChange(checked: boolean) {
+    if (enforcementState.status !== 'loaded') return;
+    const prevSsoRequired = enforcementState.ssoRequired;
+    setIsSavingMfaEnforcement(true);
+    // Optimistically update the UI
+    setEnforcementState({ status: 'loaded', ssoRequired: prevSsoRequired, mfaRequired: checked });
+    try {
+      const res = await fetch('/api/settings/organization', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mfaRequired: checked }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      showSuccess(t('sso.config.enforcement.mfaSaved'));
+    } catch {
+      // Revert optimistic update on failure
+      setEnforcementState({ status: 'loaded', ssoRequired: prevSsoRequired, mfaRequired: !checked });
+      showError(t('sso.config.enforcement.mfaSaveError'));
+    } finally {
+      setIsSavingMfaEnforcement(false);
     }
   }
 
@@ -199,6 +230,9 @@ export function SsoProviderList() {
   const ssoRequired =
     enforcementState.status === 'loaded' ? enforcementState.ssoRequired : false;
 
+  const mfaRequired =
+    enforcementState.status === 'loaded' ? enforcementState.mfaRequired : false;
+
   return (
     <Stack gap="xl">
       {/* Header */}
@@ -248,7 +282,7 @@ export function SsoProviderList() {
         </Stack>
       )}
 
-      {/* Enforcement toggle — AC-6 */}
+      {/* Enforcement toggles — AC-6 (SSO), US-102 AC-2/AC-4 (MFA) */}
       <Stack gap="xs">
         <Text fz="var(--v-text-sm)" fw={500} c="var(--v-text-primary)">
           {t('sso.config.enforcement.title')}
@@ -262,17 +296,30 @@ export function SsoProviderList() {
           </Text>
         )}
         {enforcementState.status === 'loaded' && (
-          <Checkbox
-            label={t('sso.config.enforcement.requireSso')}
-            description={t('sso.config.enforcement.description')}
-            checked={ssoRequired}
-            disabled={isSavingEnforcement}
-            onChange={(e) => { void handleEnforcementChange(e.currentTarget.checked); }}
-            styles={{
-              label: { color: 'var(--v-text-primary)', fontSize: 'var(--v-text-sm)' },
-              description: { color: 'var(--v-text-tertiary)', fontSize: 'var(--v-text-xs)' },
-            }}
-          />
+          <Stack gap="sm">
+            <Checkbox
+              label={t('sso.config.enforcement.requireSso')}
+              description={t('sso.config.enforcement.description')}
+              checked={ssoRequired}
+              disabled={isSavingEnforcement}
+              onChange={(e) => { void handleEnforcementChange(e.currentTarget.checked); }}
+              styles={{
+                label: { color: 'var(--v-text-primary)', fontSize: 'var(--v-text-sm)' },
+                description: { color: 'var(--v-text-tertiary)', fontSize: 'var(--v-text-xs)' },
+              }}
+            />
+            <Checkbox
+              label={t('sso.config.enforcement.requireMfa')}
+              description={t('sso.config.enforcement.mfaDescription')}
+              checked={mfaRequired}
+              disabled={isSavingMfaEnforcement}
+              onChange={(e) => { void handleMfaEnforcementChange(e.currentTarget.checked); }}
+              styles={{
+                label: { color: 'var(--v-text-primary)', fontSize: 'var(--v-text-sm)' },
+                description: { color: 'var(--v-text-tertiary)', fontSize: 'var(--v-text-xs)' },
+              }}
+            />
+          </Stack>
         )}
       </Stack>
 

@@ -4,7 +4,7 @@
  * Prisma and the session helper are mocked so tests don't require a live DB.
  *
  * Covers:
- * - GET: returns 200 with organization including ssoRequired
+ * - GET: returns 200 with organization including ssoRequired and mfaRequired
  * - GET: returns 401 when not authenticated
  * - GET: returns 403 when not admin
  * - GET: returns 404 when organization not found
@@ -12,6 +12,11 @@
  * - PATCH: updates ssoRequired to false
  * - PATCH: ignores ssoRequired when not provided
  * - PATCH: rejects non-boolean ssoRequired
+ * - PATCH: updates mfaRequired to true
+ * - PATCH: updates mfaRequired to false
+ * - PATCH: ignores mfaRequired when not provided
+ * - PATCH: rejects non-boolean mfaRequired
+ * - PATCH: updates both ssoRequired and mfaRequired independently
  * - PATCH: returns 401 when not authenticated
  * - PATCH: returns 403 when not admin
  */
@@ -85,6 +90,7 @@ function buildOrg(overrides: Record<string, unknown> = {}) {
     defaultTimezone: 'UTC',
     defaultLanguage: 'en',
     ssoRequired: false,
+    mfaRequired: false,
     createdAt: new Date('2026-01-01'),
     updatedAt: new Date('2026-01-01'),
     ...overrides,
@@ -113,24 +119,25 @@ describe('GET /api/settings/organization', () => {
     vi.mocked(createAuditEvent).mockResolvedValue(undefined as never);
   });
 
-  it('returns 200 with organization including ssoRequired', async () => {
+  it('returns 200 with organization including ssoRequired and mfaRequired', async () => {
     sessionMock.mockResolvedValueOnce({
       session: buildSession() as never,
       ability: buildAbility() as never,
     });
     isAdminMock.mockReturnValueOnce(true);
     vi.mocked(prismaMock.organization.findUnique).mockResolvedValueOnce(
-      buildOrg({ ssoRequired: true }) as never,
+      buildOrg({ ssoRequired: true, mfaRequired: true }) as never,
     );
 
     const response = await GET(makeGetRequest());
-    const body = await response.json() as { organization: { ssoRequired: boolean } };
+    const body = await response.json() as { organization: { ssoRequired: boolean; mfaRequired: boolean } };
 
     expect(response.status).toBe(200);
     expect(body.organization.ssoRequired).toBe(true);
+    expect(body.organization.mfaRequired).toBe(true);
   });
 
-  it('returns 200 with ssoRequired false by default', async () => {
+  it('returns 200 with ssoRequired and mfaRequired false by default', async () => {
     sessionMock.mockResolvedValueOnce({
       session: buildSession() as never,
       ability: buildAbility() as never,
@@ -141,10 +148,11 @@ describe('GET /api/settings/organization', () => {
     );
 
     const response = await GET(makeGetRequest());
-    const body = await response.json() as { organization: { ssoRequired: boolean } };
+    const body = await response.json() as { organization: { ssoRequired: boolean; mfaRequired: boolean } };
 
     expect(response.status).toBe(200);
     expect(body.organization.ssoRequired).toBe(false);
+    expect(body.organization.mfaRequired).toBe(false);
   });
 
   it('returns 401 when not authenticated', async () => {
@@ -339,5 +347,149 @@ describe('PATCH /api/settings/organization — ssoRequired', () => {
 
     expect(response.status).toBe(403);
     expect(body.error).toBe('Forbidden');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// PATCH tests for mfaRequired field
+// ---------------------------------------------------------------------------
+
+describe('PATCH /api/settings/organization — mfaRequired', () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    vi.mocked(createAuditEvent).mockResolvedValue(undefined as never);
+  });
+
+  it('updates mfaRequired to true and returns 200', async () => {
+    sessionMock.mockResolvedValueOnce({
+      session: buildSession() as never,
+      ability: buildAbility() as never,
+    });
+    isAdminMock.mockReturnValueOnce(true);
+    vi.mocked(prismaMock.organization.findUnique).mockResolvedValueOnce(
+      buildOrg() as never,
+    );
+    vi.mocked(prismaMock.organization.update).mockResolvedValueOnce(
+      buildOrg({ mfaRequired: true }) as never,
+    );
+
+    const response = await PATCH(makePatchRequest({ mfaRequired: true }));
+    const body = await response.json() as { success: boolean; organization: { mfaRequired: boolean } };
+
+    expect(response.status).toBe(200);
+    expect(body.success).toBe(true);
+    expect(body.organization.mfaRequired).toBe(true);
+    expect(prismaMock.organization.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ mfaRequired: true }),
+      }),
+    );
+  });
+
+  it('updates mfaRequired to false and returns 200', async () => {
+    sessionMock.mockResolvedValueOnce({
+      session: buildSession() as never,
+      ability: buildAbility() as never,
+    });
+    isAdminMock.mockReturnValueOnce(true);
+    vi.mocked(prismaMock.organization.findUnique).mockResolvedValueOnce(
+      buildOrg({ mfaRequired: true }) as never,
+    );
+    vi.mocked(prismaMock.organization.update).mockResolvedValueOnce(
+      buildOrg({ mfaRequired: false }) as never,
+    );
+
+    const response = await PATCH(makePatchRequest({ mfaRequired: false }));
+    const body = await response.json() as { success: boolean; organization: { mfaRequired: boolean } };
+
+    expect(response.status).toBe(200);
+    expect(body.organization.mfaRequired).toBe(false);
+  });
+
+  it('does not include mfaRequired in update when not provided', async () => {
+    sessionMock.mockResolvedValueOnce({
+      session: buildSession() as never,
+      ability: buildAbility() as never,
+    });
+    isAdminMock.mockReturnValueOnce(true);
+    vi.mocked(prismaMock.organization.findUnique).mockResolvedValueOnce(
+      buildOrg() as never,
+    );
+    vi.mocked(prismaMock.organization.update).mockResolvedValueOnce(
+      buildOrg({ name: 'New Name' }) as never,
+    );
+
+    await PATCH(makePatchRequest({ name: 'New Name' }));
+
+    expect(prismaMock.organization.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.not.objectContaining({ mfaRequired: expect.anything() }),
+      }),
+    );
+  });
+
+  it('returns 400 when mfaRequired is not a boolean', async () => {
+    sessionMock.mockResolvedValueOnce({
+      session: buildSession() as never,
+      ability: buildAbility() as never,
+    });
+    isAdminMock.mockReturnValueOnce(true);
+
+    const response = await PATCH(makePatchRequest({ mfaRequired: 'yes' }));
+    const body = await response.json() as { error: string };
+
+    expect(response.status).toBe(400);
+    expect(body.error).toBe('Invalid request body');
+  });
+
+  it('can update both ssoRequired and mfaRequired independently in one request', async () => {
+    sessionMock.mockResolvedValueOnce({
+      session: buildSession() as never,
+      ability: buildAbility() as never,
+    });
+    isAdminMock.mockReturnValueOnce(true);
+    vi.mocked(prismaMock.organization.findUnique).mockResolvedValueOnce(
+      buildOrg() as never,
+    );
+    vi.mocked(prismaMock.organization.update).mockResolvedValueOnce(
+      buildOrg({ ssoRequired: true, mfaRequired: true }) as never,
+    );
+
+    const response = await PATCH(makePatchRequest({ ssoRequired: true, mfaRequired: true }));
+    const body = await response.json() as { success: boolean; organization: { ssoRequired: boolean; mfaRequired: boolean } };
+
+    expect(response.status).toBe(200);
+    expect(body.organization.ssoRequired).toBe(true);
+    expect(body.organization.mfaRequired).toBe(true);
+    expect(prismaMock.organization.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ ssoRequired: true, mfaRequired: true }),
+      }),
+    );
+  });
+
+  it('writes an audit event with mfaRequired in beforeState and afterState', async () => {
+    sessionMock.mockResolvedValueOnce({
+      session: buildSession() as never,
+      ability: buildAbility() as never,
+    });
+    isAdminMock.mockReturnValueOnce(true);
+    vi.mocked(prismaMock.organization.findUnique).mockResolvedValueOnce(
+      buildOrg() as never,
+    );
+    vi.mocked(prismaMock.organization.update).mockResolvedValueOnce(
+      buildOrg({ mfaRequired: true }) as never,
+    );
+
+    await PATCH(makePatchRequest({ mfaRequired: true }));
+
+    await vi.waitFor(() => {
+      expect(createAuditEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          beforeState: expect.objectContaining({ mfaRequired: false }),
+          afterState: expect.objectContaining({ mfaRequired: true }),
+        }),
+      );
+    });
   });
 });

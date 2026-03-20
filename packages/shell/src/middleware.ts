@@ -9,6 +9,14 @@
  * middleware runs in Edge Runtime, where PrismaClient is not available.
  * The cookie-presence check is sufficient for routing — server components
  * reject invalid/expired sessions on the server side.
+ *
+ * US-102: MFA enforcement redirect.
+ * When an organization requires MFA and the user hasn't configured it,
+ * the session callback sets session.user.mfaPending = true. The MFA redirect
+ * is enforced at the server component layer (shell layout, workspace layout)
+ * because reading session data in the Edge Runtime requires Prisma which is
+ * unavailable here. The /mfa route is listed in PUBLIC_ROUTES so authenticated
+ * users with mfaPending can always reach the MFA setup page.
  */
 
 import { NextResponse, type NextRequest } from 'next/server';
