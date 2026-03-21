@@ -1,0 +1,67 @@
+'use client';
+
+/**
+ * PanelTab — custom tab renderer for Dockview panels.
+ *
+ * Shows the panel title with a close button (IconX at --v-icon-xs).
+ * Active tab is highlighted with --v-accent-primary bottom border (applied via CSS).
+ *
+ * All colors via --v-* CSS custom properties.
+ * All strings via t('key').
+ */
+
+import React, { useCallback, useSyncExternalStore } from 'react';
+import type { IDockviewPanelHeaderProps } from 'dockview-react';
+import { IconX } from '@tabler/icons-react';
+import { t } from '../../lib/i18n';
+import { TruncatedText } from '../TruncatedText';
+import classes from './PanelTab.module.css';
+
+export function PanelTab({ api }: IDockviewPanelHeaderProps) {
+  // Use useSyncExternalStore to subscribe to Dockview's event-based state.
+  // This avoids setState-in-effect lint errors and handles tab recycling correctly.
+  const title = useSyncExternalStore(
+    useCallback(
+      (onStoreChange: () => void) => {
+        const sub = api.onDidTitleChange(onStoreChange);
+        return () => sub.dispose();
+      },
+      [api],
+    ),
+    () => api.title ?? '',
+  );
+
+  const isActive = useSyncExternalStore(
+    useCallback(
+      (onStoreChange: () => void) => {
+        const sub = api.onDidActiveChange(onStoreChange);
+        return () => sub.dispose();
+      },
+      [api],
+    ),
+    () => api.isActive,
+  );
+
+  function handleClose(e: React.MouseEvent) {
+    // Stop propagation so the click doesn't also activate/focus the panel
+    e.stopPropagation();
+    api.close();
+  }
+
+  return (
+    <div className={classes.tab} role="tab" aria-selected={isActive}>
+      <TruncatedText className={classes.title} maxWidth={160}>
+        {title}
+      </TruncatedText>
+      <button
+        type="button"
+        className={classes.closeButton}
+        onClick={handleClose}
+        aria-label={t('workspace.panel.closeAriaLabel')}
+        tabIndex={-1}
+      >
+        <IconX size="var(--v-icon-xs)" stroke={1.5} aria-hidden="true" />
+      </button>
+    </div>
+  );
+}

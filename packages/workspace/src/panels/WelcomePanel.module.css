@@ -1,0 +1,41 @@
+/**
+ * WelcomePanel styles.
+ *
+ * All colors via --v-* CSS custom properties.
+ * Centers the empty state message in the available panel space.
+ */
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background-color: var(--v-bg-primary);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--v-space-2);
+  text-align: center;
+  padding: var(--v-space-6);
+  max-width: 320px;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--v-text-md);
+  font-weight: var(--v-font-medium);
+  color: var(--v-text-secondary);
+  line-height: var(--v-leading-normal);
+}
+
+.hint {
+  margin: 0;
+  font-size: var(--v-text-sm);
+  font-weight: var(--v-font-regular);
+  color: var(--v-text-tertiary);
+  line-height: var(--v-leading-normal);
+}
