@@ -1,0 +1,122 @@
+/**
+ * ViewSelector dropdown styles.
+ * All colors via --v-* CSS custom properties.
+ */
+
+/* ================================================================
+ * Trigger button
+ * ================================================================ */
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px;
+  border-radius: var(--v-radius-sm);
+  flex-shrink: 0;
+  cursor: pointer;
+  color: var(--v-text-secondary);
+}
+
+.trigger:hover {
+  background-color: var(--v-bg-tertiary);
+  color: var(--v-text-primary);
+}
+
+.chevron {
+  color: var(--v-text-tertiary);
+  flex-shrink: 0;
+}
+
+/* ================================================================
+ * Dropdown
+ * ================================================================ */
+.dropdown {
+  padding: var(--v-space-2);
+  background-color: var(--v-bg-elevated);
+  border: 1px solid var(--v-border-default);
+}
+
+.searchInput {
+  margin-bottom: 4px;
+}
+
+.sectionLabel {
+  padding: 4px var(--v-space-1) 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.emptyLabel {
+  padding: var(--v-space-2) var(--v-space-1);
+  text-align: center;
+  font-style: italic;
+}
+
+.divider {
+  margin: var(--v-space-1) 0;
+  border-color: var(--v-border-subtle);
+}
+
+.createButton {
+  color: var(--v-accent-primary) !important;
+  font-size: var(--v-text-sm) !important;
+  justify-content: flex-start;
+}
+
+.createButton:hover {
+  background-color: var(--v-accent-primary-light) !important;
+}
+
+/* ================================================================
+ * View entry row
+ * ================================================================ */
+.entry {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-1);
+  padding: 3px var(--v-space-1);
+  border-radius: var(--v-radius-sm);
+  min-height: 28px;
+}
+
+.entry:hover {
+  background-color: var(--v-bg-tertiary);
+}
+
+.entryActive {
+  background-color: var(--v-accent-primary-light);
+}
+
+.colorDot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.entryName {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--v-text-sm);
+  color: var(--v-text-primary);
+  font-family: var(--v-font-sans);
+  text-align: left;
+  padding: 0;
+}
+
+.entryMenu {
+  opacity: 0;
+  flex-shrink: 0;
+  color: var(--v-text-secondary) !important;
+}
+
+.entry:hover .entryMenu,
+.entry:focus-within .entryMenu {
+  opacity: 1;
+}
+
+.renameInput {
+  flex: 1;
+  min-width: 0;
+}

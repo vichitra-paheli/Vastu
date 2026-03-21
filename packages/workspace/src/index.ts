@@ -12,6 +12,8 @@ export { PanelTab } from './components/DockviewHost/PanelTab';
 export { DropIndicator } from './components/DockviewHost/DropIndicator';
 export { TruncatedText } from './components/TruncatedText';
 export { SidebarNav } from './components/SidebarNav';
+export { ViewToolbar, ViewSelector } from './components/ViewToolbar';
+export type { ViewToolbarProps, ViewSelectorProps } from './components/ViewToolbar';
 export type { WorkspaceUser, WorkspaceShellProps } from './components/WorkspaceShell';
 
 // Panel registry and built-in panels

@@ -73,5 +73,30 @@
   "filter.builder.columnPlaceholder": "Select column...",
   "filter.dimension.noMatch": "No columns match",
   "filter.input.enum.noMatch": "No values found",
-  "filter.input.enum.noOptions": "No options"
+  "filter.input.enum.noOptions": "No options",
+
+  "view.toolbar.ariaLabel": "View toolbar",
+  "view.toolbar.viewNameAriaLabel": "View name",
+  "view.toolbar.modified": "Modified",
+  "view.toolbar.reset": "Reset",
+  "view.toolbar.resetAriaLabel": "Reset view to last saved state",
+  "view.toolbar.save": "Save",
+  "view.toolbar.saveAriaLabel": "Save current view",
+  "view.toolbar.share": "Share",
+  "view.toolbar.shareAriaLabel": "Share view",
+  "view.toolbar.more": "More options",
+  "view.toolbar.moreAriaLabel": "More view options",
+
+  "view.selector.ariaLabel": "Switch view",
+  "view.selector.searchPlaceholder": "Search views...",
+  "view.selector.searchAriaLabel": "Search views",
+  "view.selector.myViews": "MY VIEWS",
+  "view.selector.sharedWithMe": "SHARED WITH ME",
+  "view.selector.noResults": "No views found",
+  "view.selector.createNew": "Create new view",
+  "view.selector.rename": "Rename",
+  "view.selector.delete": "Delete",
+  "view.selector.deleteConfirm": "Delete this view? This action cannot be undone.",
+  "view.selector.entryMenuAriaLabel": "View options",
+  "view.selector.renameAriaLabel": "Rename view"
 }
