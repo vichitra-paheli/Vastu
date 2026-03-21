@@ -53,7 +53,7 @@ describe('TrayBar', () => {
   it('does not show empty state when panels are minimized', () => {
     useTrayStore.setState({
       minimizedPanelIds: ['p1'],
-      trayItems: [{ panelId: 'p1', title: 'My Panel' }],
+      trayItems: [{ panelId: 'p1', typeId: 'p1', title: 'My Panel' }],
     });
     renderWithProviders(<TrayBar />);
     expect(screen.queryByText(/no minimized panels/i)).not.toBeInTheDocument();
@@ -63,8 +63,8 @@ describe('TrayBar', () => {
     useTrayStore.setState({
       minimizedPanelIds: ['p1', 'p2'],
       trayItems: [
-        { panelId: 'p1', title: 'Panel One' },
-        { panelId: 'p2', title: 'Panel Two' },
+        { panelId: 'p1', typeId: 'p1', title: 'Panel One' },
+        { panelId: 'p2', typeId: 'p2', title: 'Panel Two' },
       ],
     });
     renderWithProviders(<TrayBar />);
@@ -73,14 +73,12 @@ describe('TrayBar', () => {
   });
 
   it('calls restorePanel when a tray item is clicked', () => {
-    const restorePanel = vi.fn<[string], void>();
-    // Patch restorePanel in the store; Zustand.setState merges partial state
-    usePanelStore.setState(
-      (s) => ({ ...s, restorePanel }),
-    );
+    const restorePanel = vi.fn();
+    // Patch restorePanel in the store
+    usePanelStore.setState({ restorePanel });
     useTrayStore.setState({
       minimizedPanelIds: ['p1'],
-      trayItems: [{ panelId: 'p1', title: 'Panel One' }],
+      trayItems: [{ panelId: 'p1', typeId: 'p1', title: 'Panel One' }],
     });
 
     renderWithProviders(<TrayBar />);
@@ -94,7 +92,7 @@ describe('TrayBar', () => {
 
 describe('TrayItem', () => {
   it('renders the panel title', () => {
-    const item = { panelId: 'p1', title: 'My Panel' };
+    const item = { panelId: 'p1', typeId: 'p1', title: 'My Panel' };
     renderWithProviders(
       <TrayItem item={item} onRestore={vi.fn()} onClose={vi.fn()} />,
     );
@@ -103,7 +101,7 @@ describe('TrayItem', () => {
 
   it('calls onRestore when clicked', () => {
     const onRestore = vi.fn();
-    const item = { panelId: 'p1', title: 'My Panel' };
+    const item = { panelId: 'p1', typeId: 'p1', title: 'My Panel' };
     renderWithProviders(
       <TrayItem item={item} onRestore={onRestore} onClose={vi.fn()} />,
     );
@@ -113,7 +111,7 @@ describe('TrayItem', () => {
 
   it('calls onRestore on Enter key', () => {
     const onRestore = vi.fn();
-    const item = { panelId: 'p1', title: 'My Panel' };
+    const item = { panelId: 'p1', typeId: 'p1', title: 'My Panel' };
     renderWithProviders(
       <TrayItem item={item} onRestore={onRestore} onClose={vi.fn()} />,
     );
@@ -125,7 +123,7 @@ describe('TrayItem', () => {
 
   it('calls onRestore on Space key', () => {
     const onRestore = vi.fn();
-    const item = { panelId: 'p1', title: 'My Panel' };
+    const item = { panelId: 'p1', typeId: 'p1', title: 'My Panel' };
     renderWithProviders(
       <TrayItem item={item} onRestore={onRestore} onClose={vi.fn()} />,
     );
@@ -136,7 +134,7 @@ describe('TrayItem', () => {
   });
 
   it('opens context menu on right-click', () => {
-    const item = { panelId: 'p1', title: 'My Panel' };
+    const item = { panelId: 'p1', typeId: 'p1', title: 'My Panel' };
     renderWithProviders(
       <TrayItem item={item} onRestore={vi.fn()} onClose={vi.fn()} />,
     );
@@ -146,7 +144,7 @@ describe('TrayItem', () => {
 
   it('calls onClose when Close is selected from context menu', () => {
     const onClose = vi.fn();
-    const item = { panelId: 'p1', title: 'My Panel' };
+    const item = { panelId: 'p1', typeId: 'p1', title: 'My Panel' };
     renderWithProviders(
       <TrayItem item={item} onRestore={vi.fn()} onClose={onClose} />,
     );
@@ -157,7 +155,7 @@ describe('TrayItem', () => {
   });
 
   it('has an aria-label containing the panel title', () => {
-    const item = { panelId: 'p1', title: 'My Panel' };
+    const item = { panelId: 'p1', typeId: 'p1', title: 'My Panel' };
     renderWithProviders(
       <TrayItem item={item} onRestore={vi.fn()} onClose={vi.fn()} />,
     );

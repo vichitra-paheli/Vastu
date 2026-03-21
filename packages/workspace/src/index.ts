@@ -12,7 +12,7 @@ export { PanelTab } from './components/DockviewHost/PanelTab';
 export { DropIndicator } from './components/DockviewHost/DropIndicator';
 export { TruncatedText } from './components/TruncatedText';
 export { SidebarNav } from './components/SidebarNav';
-export { TrayBar, TrayItem } from './components/TrayBar';
+export { TrayBar, TrayItem as TrayItemChip } from './components/TrayBar';
 export type { TrayItemProps } from './components/TrayBar';
 export { ViewToolbar, ViewSelector } from './components/ViewToolbar';
 export type { ViewToolbarProps, ViewSelectorProps } from './components/ViewToolbar';

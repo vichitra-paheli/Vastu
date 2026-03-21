@@ -199,7 +199,7 @@ export const usePanelStore = create<PanelStoreState>()((set, get) => ({
     const iconName = definition?.iconName;
 
     // Add to tray before removing so the item is available immediately
-    useTrayStore.getState().addToTray({ panelId, title, iconName });
+    useTrayStore.getState().addToTray({ panelId, typeId: panelTypeId ?? panelId, title, iconName });
 
     // Remove from Dockview
     api.removePanel(panel);
@@ -219,9 +219,8 @@ export const usePanelStore = create<PanelStoreState>()((set, get) => ({
 
     if (!api || !trayItem) return;
 
-    // We need a registered panel definition to re-open.
-    // Try to find it by panelId (which equals the type ID for single-instance panels).
-    const definition = getPanel(panelId);
+    // Look up the registered panel definition using the typeId stored when minimized.
+    const definition = getPanel(trayItem.typeId);
     if (!definition) {
       console.warn(
         `[panelStore] Cannot restore panel "${panelId}" — no registered definition found.`,

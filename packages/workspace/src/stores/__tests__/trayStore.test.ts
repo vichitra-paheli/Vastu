@@ -12,7 +12,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { useTrayStore } from '../trayStore';
 
 function makeItem(panelId: string, title = `Panel ${panelId}`) {
-  return { panelId, title, iconName: undefined };
+  return { panelId, typeId: panelId, title, iconName: undefined };
 }
 
 describe('trayStore', () => {
@@ -43,7 +43,7 @@ describe('trayStore', () => {
     });
 
     it('preserves title and iconName', () => {
-      useTrayStore.getState().addToTray({ panelId: 'p1', title: 'My Panel', iconName: 'table' });
+      useTrayStore.getState().addToTray({ panelId: 'p1', typeId: 'p1', title: 'My Panel', iconName: 'table' });
       const item = useTrayStore.getState().trayItems[0];
       expect(item.title).toBe('My Panel');
       expect(item.iconName).toBe('table');
