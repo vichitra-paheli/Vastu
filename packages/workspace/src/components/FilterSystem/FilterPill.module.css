@@ -1,0 +1,104 @@
+/**
+ * FilterPill styles.
+ * All colors via --v-* CSS custom properties.
+ */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  padding: 4px 10px;
+  border-radius: var(--v-radius-full);
+  background-color: var(--v-bg-tertiary);
+  border: 1px solid var(--v-border-default);
+  font-size: var(--v-text-sm);
+  font-family: var(--v-font-sans);
+  color: var(--v-text-primary);
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background-color var(--v-duration-fast) var(--v-ease-default),
+    border-color var(--v-duration-fast) var(--v-ease-default);
+  max-width: 300px;
+  position: relative;
+}
+
+.pill:hover {
+  background-color: var(--v-bg-secondary);
+  border-color: var(--v-border-strong);
+}
+
+/* Mode indicator — colored badge */
+.modeIndicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--v-radius-sm);
+  font-size: 10px;
+  font-weight: var(--v-font-medium);
+  flex-shrink: 0;
+}
+
+/* Include — blue */
+.modeInclude {
+  color: var(--v-accent-primary);
+  background-color: var(--v-accent-primary-light);
+}
+
+/* Exclude — red */
+.modeExclude {
+  color: var(--v-status-error);
+  background-color: var(--v-status-error-light);
+}
+
+/* Regex — muted violet */
+.modeRegex {
+  color: var(--v-accent-quaternary);
+  background-color: var(--v-accent-quaternary-light);
+}
+
+.columnName {
+  font-weight: var(--v-font-medium);
+  color: var(--v-text-primary);
+  flex-shrink: 0;
+}
+
+.separator {
+  color: var(--v-text-tertiary);
+  flex-shrink: 0;
+}
+
+.valueSummary {
+  color: var(--v-text-secondary);
+}
+
+/* Pill wrapper: holds pill + remove button in a row */
+.pillWrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* Remove button — sits adjacent to the pill */
+.removeButton {
+  color: var(--v-text-tertiary) !important;
+  flex-shrink: 0;
+}
+
+.removeButton:hover {
+  color: var(--v-text-primary) !important;
+  background-color: var(--v-bg-tertiary) !important;
+}
+
+/* Edit dropdown */
+.dropdown {
+  min-width: 280px;
+  max-width: 360px;
+  padding: 12px;
+  background-color: var(--v-bg-elevated);
+  border: 1px solid var(--v-border-default);
+  border-radius: var(--v-radius-md);
+  box-shadow: var(--v-shadow-md);
+}

@@ -1,0 +1,89 @@
+/**
+ * Shared styles for filter input components.
+ * All colors via --v-* CSS custom properties.
+ */
+
+/* Row layout: mode selector + input control side-by-side */
+.inputRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+/* The actual input takes remaining space */
+.inputControl {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Text/regex input */
+.textInput {
+  width: 100%;
+}
+
+/* Tags input for multi-value text/enum */
+.tagsInput {
+  width: 100%;
+}
+
+/* Number inputs */
+.rangeField {
+  flex: 1;
+  min-width: 60px;
+}
+
+.numberInput {
+  width: 100%;
+}
+
+/* Date range inputs */
+.dateField {
+  flex: 1;
+}
+
+.dateInput {
+  width: 100%;
+}
+
+/* Date preset buttons */
+.presetButton {
+  padding: 2px 8px;
+  border-radius: var(--v-radius-full);
+  font-size: var(--v-text-xs);
+  font-family: var(--v-font-sans);
+  color: var(--v-text-secondary);
+  background-color: var(--v-bg-tertiary);
+  border: 1px solid var(--v-border-default);
+  cursor: pointer;
+  transition:
+    background-color var(--v-duration-fast) var(--v-ease-default),
+    border-color var(--v-duration-fast) var(--v-ease-default),
+    color var(--v-duration-fast) var(--v-ease-default);
+}
+
+.presetButton:hover {
+  background-color: var(--v-bg-secondary);
+  border-color: var(--v-border-strong);
+  color: var(--v-text-primary);
+}
+
+.presetButtonActive {
+  background-color: var(--v-accent-primary-light);
+  border-color: var(--v-accent-primary);
+  color: var(--v-accent-primary);
+}
+
+/* Enum search input */
+.searchInput {
+  width: 100%;
+}
+
+/* Enum checkbox */
+.enumCheckbox {
+  padding: 4px 0;
+}
+
+.enumCheckbox:hover {
+  background-color: var(--v-bg-tertiary);
+  border-radius: var(--v-radius-sm);
+}
