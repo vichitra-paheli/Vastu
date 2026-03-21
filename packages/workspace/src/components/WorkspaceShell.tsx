@@ -115,10 +115,10 @@ export function WorkspaceShell({
 
       <main className={classes.main} id="workspace-main">
         {/* ViewToolbar sits between the sidebar and the Dockview panel area.
-            Only rendered when a page is active (activePageId is set). */}
-        {activePageId && (
-          <ViewToolbar pageId={activePageId} currentUserId={currentUserId} />
-        )}
+            Always rendered; shows "Default view" when no page is active.
+            Falls back to an empty string pageId (no save call will be made
+            while the view is unmodified). */}
+        <ViewToolbar pageId={activePageId ?? ''} currentUserId={currentUserId} />
         <DockviewHost />
         {children}
       </main>

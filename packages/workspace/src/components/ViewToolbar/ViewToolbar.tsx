@@ -81,7 +81,10 @@ export function ViewToolbar({
   onRenameView,
   onDeleteView,
 }: ViewToolbarProps) {
-  const { currentViewId, isModified, saveView, loadView, resetView } = useViewStore();
+  const { currentViewId, isModified, saveView, loadView, resetView, setViewState } = useViewStore();
+
+  // Ref to the inline name input — used to allow Cmd+S from within it.
+  const nameInputRef = React.useRef<HTMLInputElement>(null);
 
   // Derive the current view name from the views list (or fall back to default).
   const currentView = views.find((v) => v.id === currentViewId) ?? null;
@@ -156,6 +159,17 @@ export function ViewToolbar({
   }
 
   function handleCreateView() {
+    // Start from a fresh default state — clears currentViewId and savedState
+    // so the toolbar shows "Default view" and the save button treats it as new.
+    setViewState(
+      {
+        filters: null,
+        sort: [],
+        columns: [],
+        pagination: { page: 1, pageSize: 25 },
+        scrollPosition: { x: 0, y: 0 },
+      },
+    );
     onCreateView?.();
   }
 
@@ -173,14 +187,16 @@ export function ViewToolbar({
   React.useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === 's') {
-        // Only intercept when a panel is in focus (not a global form).
+        // Always prevent the browser's native "Save page" dialog for Cmd+S.
+        e.preventDefault();
+        // Allow Cmd+S from the toolbar's own name input; block from all other
+        // input elements (e.g., global search, form fields in other panels).
         const active = document.activeElement;
-        const isInput =
-          active instanceof HTMLInputElement ||
+        const isOtherInput =
+          (active instanceof HTMLInputElement && active !== nameInputRef.current) ||
           active instanceof HTMLTextAreaElement ||
           active instanceof HTMLSelectElement;
-        if (!isInput) {
-          e.preventDefault();
+        if (!isOtherInput) {
           void handleSave();
         }
       }
@@ -212,6 +228,7 @@ export function ViewToolbar({
         {/* Inline editable view name */}
         <div className={classes.viewNameWrapper}>
           <input
+            ref={nameInputRef}
             type="text"
             className={classes.viewNameInput}
             value={localName}

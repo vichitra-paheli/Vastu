@@ -88,6 +88,11 @@ export function ViewSelector({
     setRenameValue('');
   }
 
+  function handleRenameCancel() {
+    setRenamingId(null);
+    setRenameValue('');
+  }
+
   function startRename(view: View) {
     setRenamingId(view.id);
     setRenameValue(view.name);
@@ -157,6 +162,7 @@ export function ViewSelector({
                   onStartRename={startRename}
                   onRenameValueChange={setRenameValue}
                   onRenameCommit={handleRenameCommit}
+                  onRenameCancel={handleRenameCancel}
                   onDelete={onDelete}
                 />
               ))}
@@ -186,6 +192,7 @@ export function ViewSelector({
                   onStartRename={startRename}
                   onRenameValueChange={setRenameValue}
                   onRenameCommit={handleRenameCommit}
+                  onRenameCancel={handleRenameCancel}
                   onDelete={onDelete}
                 />
               ))}
@@ -233,6 +240,7 @@ interface ViewEntryProps {
   onStartRename: (view: View) => void;
   onRenameValueChange: (value: string) => void;
   onRenameCommit: (id: string) => void;
+  onRenameCancel: () => void;
   onDelete: (id: string) => void;
 }
 
@@ -245,6 +253,7 @@ function ViewEntry({
   onStartRename,
   onRenameValueChange,
   onRenameCommit,
+  onRenameCancel,
   onDelete,
 }: ViewEntryProps) {
   return (
@@ -267,7 +276,7 @@ function ViewEntry({
           onBlur={() => onRenameCommit(view.id)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') onRenameCommit(view.id);
-            if (e.key === 'Escape') onRenameCommit(view.id);
+            if (e.key === 'Escape') onRenameCancel();
           }}
           size="xs"
           className={classes.renameInput}
@@ -299,7 +308,14 @@ function ViewEntry({
             <Menu.Item onClick={() => onStartRename(view)}>
               {t('view.selector.rename')}
             </Menu.Item>
-            <Menu.Item color="red" onClick={() => onDelete(view.id)}>
+            <Menu.Item
+              color="red"
+              onClick={() => {
+                if (window.confirm(t('view.selector.deleteConfirm'))) {
+                  onDelete(view.id);
+                }
+              }}
+            >
               {t('view.selector.delete')}
             </Menu.Item>
           </Menu.Dropdown>

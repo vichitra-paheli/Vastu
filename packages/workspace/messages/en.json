@@ -91,6 +91,7 @@
   "view.selector.createNew": "Create new view",
   "view.selector.rename": "Rename",
   "view.selector.delete": "Delete",
+  "view.selector.deleteConfirm": "Delete this view? This action cannot be undone.",
   "view.selector.entryMenuAriaLabel": "View options",
   "view.selector.renameAriaLabel": "Rename view"
 }
