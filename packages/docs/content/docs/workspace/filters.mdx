@@ -1,0 +1,288 @@
+---
+title: Filters
+description: How the composable filter system works — IER modes, data types, FilterBar, FilterPill, CompositeFilterBuilder, and FilterEngine.
+---
+
+The filter system provides a composable, serializable filter tree that works across `VastuTable`, the view store, and (in a future phase) MCP tools. Filters are represented as a JSON tree of conditions and groups, so they can be stored in the database, shared between users, and evaluated client-side without a round-trip.
+
+## Prerequisites
+
+- Read [Tables](/docs/workspace/tables) — filters connect to `VastuTable` via `filterRoot`
+- Read [Views](/docs/workspace/views) — filter state is persisted in view state
+
+## Filter tree structure
+
+The filter tree is a recursive JSON structure:
+
+```ts
+// A leaf condition
+const nameFilter: FilterCondition = {
+  type: 'condition',
+  column: 'name',
+  mode: 'include',
+  dataType: 'text',
+  value: ['alice', 'bob'],  // match rows where name contains "alice" or "bob"
+};
+
+// A group with AND logic
+const root: FilterGroup = {
+  type: 'group',
+  connector: 'AND',
+  children: [nameFilter],
+};
+```
+
+`FilterNode = FilterCondition | FilterGroup`. The root is always a `FilterGroup`.
+
+## IER modes
+
+Every condition has a `mode`:
+
+| Mode | Abbreviation | Color | Behavior |
+|------|-------------|-------|----------|
+| `include` | I | Blue (`--v-accent-primary`) | Show only rows matching the value |
+| `exclude` | E | Red (`--v-status-error`) | Hide rows matching the value |
+| `regex` | R | Muted violet (`--v-accent-quaternary`) | Match rows against a regex pattern |
+
+Regex mode is only valid for `text` and `enum` data types. For `number`, `date`, and `boolean` columns, the regex option is hidden.
+
+## Data types
+
+| `dataType` | Accepted `value` | Notes |
+|-----------|-----------------|-------|
+| `text` | `string[]` | Multi-value OR match; partial, case-insensitive |
+| `enum` | `string[]` | Exact match against selected options |
+| `number` | `{ min?: number; max?: number }` | Inclusive range |
+| `date` | `{ start?: string; end?: string }` | ISO 8601; inclusive range |
+| `boolean` | `boolean \| null` | `null` means "any" — no filtering |
+
+## FilterBar
+
+`FilterBar` is the primary UI. It renders active filter pills and an "Add filter" button.
+
+```tsx
+import { FilterBar, useViewFilters, useViewMode } from '@vastu/workspace';
+
+const dimensions = [
+  { column: 'name',   label: 'Name',   dataType: 'text' as const },
+  { column: 'status', label: 'Status', dataType: 'enum' as const,
+    enumOptions: [
+      { value: 'active',   label: 'Active' },
+      { value: 'inactive', label: 'Inactive' },
+    ]
+  },
+  { column: 'revenue', label: 'Revenue', dataType: 'number' as const,
+    numberMin: 0, numberMax: 1000000 },
+];
+
+function CustomerFilterBar() {
+  const { filterState, setFilterState } = useViewFilters('customers');
+  const { mode, setMode } = useViewMode('customers');
+
+  return (
+    <FilterBar
+      dimensions={dimensions}
+      filterState={filterState}
+      onChange={setFilterState}
+      mode={mode}
+      onModeChange={setMode}
+    />
+  );
+}
+```
+
+`FilterBar` props:
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `dimensions` | `FilterDimension[]` | Yes | Available columns to filter on |
+| `filterState` | `FilterState` | Yes | Current filter state (root + advanced flag) |
+| `onChange` | `(state) => void` | Yes | Called on any filter change |
+| `mode` | `FilterMode` | No | Active IER mode; defaults to `'include'` |
+| `onModeChange` | `(mode) => void` | No | Called when mode changes |
+
+### FilterDimension
+
+```ts
+interface FilterDimension {
+  column: string;         // Must match a column in your data
+  label: string;          // Display name in the picker
+  dataType: DataType;
+  enumOptions?: EnumOption[];   // Required for enum columns
+  numberMin?: number;           // For range slider hint
+  numberMax?: number;
+}
+```
+
+## FilterPill
+
+Each active condition renders as a `FilterPill`. Pills show the column name, mode (colored I/E/R badge), and a summary of the value. Clicking a pill opens an inline editor. The `×` removes the condition.
+
+You can render pills standalone if you need a custom layout:
+
+```tsx
+import { FilterPill } from '@vastu/workspace';
+
+<FilterPill
+  condition={condition}
+  dimension={dimension}
+  onUpdate={(updated) => updateCondition(updated)}
+  onRemove={() => removeCondition(condition)}
+/>
+```
+
+## ModeSwitch
+
+`ModeSwitch` is a segmented I/E/R control that sets the default mode for new filter conditions:
+
+```tsx
+import { ModeSwitch, useViewMode } from '@vastu/workspace';
+
+function FilterControls() {
+  const { mode, setMode } = useViewMode('customers');
+
+  return (
+    <ModeSwitch
+      value={mode}
+      onChange={setMode}
+      disableRegex={false}   // set true for number/date columns
+    />
+  );
+}
+```
+
+`ModeSwitch` props:
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `value` | `FilterMode` | required | Currently active mode |
+| `onChange` | `(mode) => void` | required | Called on selection |
+| `disableRegex` | `boolean` | `false` | Hide the R segment |
+| `disabled` | `boolean` | `false` | Non-interactive |
+| `aria-label` | `string` | auto | Accessible label for the group |
+
+## CompositeFilterBuilder
+
+For advanced use cases — nested AND/OR groups — show `CompositeFilterBuilder` when the user enables "Advanced" mode:
+
+```tsx
+import { CompositeFilterBuilder, useViewFilters } from '@vastu/workspace';
+
+function AdvancedFilterPanel() {
+  const { filterState, setFilterState } = useViewFilters('customers');
+
+  if (!filterState.advanced) return null;
+
+  return (
+    <CompositeFilterBuilder
+      root={filterState.root}
+      dimensions={dimensions}
+      onChange={(root) => setFilterState({ ...filterState, root })}
+    />
+  );
+}
+```
+
+`CompositeFilterBuilder` props:
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `root` | `FilterGroup \| null` | Yes | Current filter tree root |
+| `dimensions` | `FilterDimension[]` | Yes | Available columns |
+| `onChange` | `(root) => void` | Yes | Called on any tree change |
+
+The builder lets users add conditions and nested groups, switch connectors between AND and OR, and reorder nodes. When the tree is flat (no nested groups), `isFilterFlat` returns true and the UI can offer "Convert to simple" to go back to `FilterBar` mode.
+
+## FilterEngine (client-side evaluation)
+
+To apply filters programmatically — for example, before passing data to a chart component — use the engine functions directly:
+
+```ts
+import { applyFilters, evaluateFilter, validateRegex } from '@vastu/workspace';
+
+// Filter an array of rows
+const filtered = applyFilters(rows, filterRoot);
+
+// Check a single row
+const passes = evaluateFilter(filterNode, row);
+
+// Validate a regex before creating a condition
+const error = validateRegex(pattern);
+if (error) {
+  showError(`Invalid pattern: ${error}`);
+}
+```
+
+All engine functions are pure with no side effects. Invalid regex patterns return `false` (no match) rather than throwing.
+
+## Helper functions
+
+```ts
+import {
+  createRootGroup,   // FilterGroup with AND connector, empty children
+  createCondition,   // FilterCondition with sensible defaults for the data type
+  isFilterFlat,      // true if root has only direct condition children
+  countConditions,   // total leaf conditions in a tree
+} from '@vastu/workspace';
+
+const root = createRootGroup();
+const cond = createCondition('name', 'text', 'include');
+root.children.push(cond);
+```
+
+## Connecting everything
+
+The typical pattern for a panel with filters and a table:
+
+```tsx
+import {
+  FilterBar,
+  ModeSwitch,
+  VastuTable,
+  useViewFilters,
+  useViewMode,
+} from '@vastu/workspace';
+
+const DIMENSIONS: FilterDimension[] = [
+  { column: 'name',   label: 'Name',   dataType: 'text' },
+  { column: 'status', label: 'Status', dataType: 'enum',
+    enumOptions: [{ value: 'active' }, { value: 'inactive' }] },
+];
+
+const COLUMNS: VastuColumn<Customer>[] = [
+  { id: 'name',   label: 'Name',   dataType: 'text' },
+  { id: 'status', label: 'Status', dataType: 'enum' },
+];
+
+export function CustomersPanel() {
+  const { filterState, setFilterState, root } = useViewFilters('customers');
+  const { mode, setMode } = useViewMode('customers');
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--v-space-2)', padding: 'var(--v-space-2)' }}>
+        <ModeSwitch value={mode} onChange={setMode} />
+        <FilterBar
+          dimensions={DIMENSIONS}
+          filterState={filterState}
+          onChange={setFilterState}
+          mode={mode}
+          onModeChange={setMode}
+        />
+      </div>
+      <VastuTable
+        data={customers}
+        columns={COLUMNS}
+        filterRoot={root}
+        viewId="customers"
+        getRowId={(r) => r.id}
+      />
+    </div>
+  );
+}
+```
+
+## Related pages
+
+- [Tables](/docs/workspace/tables) — pass `filterRoot` to `VastuTable`
+- [Views](/docs/workspace/views) — `FilterState` is persisted in view state

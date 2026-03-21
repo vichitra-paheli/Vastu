@@ -1,0 +1,156 @@
+---
+title: Panels
+description: How to register panel types, create custom panel components, and manage the panel lifecycle programmatically.
+---
+
+Panels are the content windows in the workspace. Dockview manages their layout — users can split, float, minimize, and reorder them. Your job is to register panel types and open them.
+
+## Prerequisites
+
+- Read [Workspace Overview](/docs/workspace/overview)
+- `@vastu/workspace` installed and `WorkspaceShell` mounted
+
+## Panel registry
+
+Every panel type must be registered before `DockviewHost` mounts. Registration maps a stable string ID to the React component that renders the panel's content.
+
+```ts
+import { registerPanel } from '@vastu/workspace';
+import { CustomersPanel } from './panels/CustomersPanel';
+
+registerPanel({
+  id: 'customers',
+  title: 'Customers',
+  iconName: 'Users',        // Tabler icon name, no "Icon" prefix
+  component: CustomersPanel,
+});
+```
+
+Call `registerPanel` at module load time — typically in a `panels/index.ts` file that you import from your app root. The import is a side effect.
+
+```ts
+// app/panels/index.ts
+import './customers';
+import './orders';
+import './products';
+```
+
+```tsx
+// app/workspace/page.tsx
+import '@/panels/index'; // side-effect import — registers all panels
+import { WorkspaceShell } from '@vastu/workspace';
+```
+
+Registering the same ID twice throws. This prevents silent overwrites caused by hot reload or duplicate imports.
+
+## PanelDefinition interface
+
+```ts
+interface PanelDefinition {
+  id: PanelTypeId;          // Stable string ID. Used as the Dockview component key.
+  title: string;            // Default tab title.
+  iconName?: string;        // Tabler icon name shown in tab and tray.
+  component: React.ComponentType<PanelProps>;
+}
+```
+
+## Creating a custom panel
+
+Panel components receive a `params` prop. The `panelTypeId` field always matches the registered ID; everything else is whatever you passed when opening the panel.
+
+```tsx
+import type { PanelProps } from '@vastu/workspace';
+
+interface CustomersPanelParams {
+  panelTypeId: string;
+  title?: string;
+  customerId?: string;     // Any extra data you pass when opening
+}
+
+export function CustomersPanel({ params }: PanelProps) {
+  const { customerId } = params as CustomersPanelParams;
+
+  return (
+    <div style={{ padding: 'var(--v-space-4)' }}>
+      <h2>Customers</h2>
+      {customerId && <p>Focused on: {customerId}</p>}
+    </div>
+  );
+}
+```
+
+## Opening panels programmatically
+
+Use `openPanelByTypeId` for the simple case — look up by type ID and open with the default instance ID:
+
+```tsx
+import { openPanelByTypeId } from '@vastu/workspace';
+
+// Open "customers" panel — focuses it if already open
+openPanelByTypeId('customers');
+```
+
+For full control, use `usePanelStore.openPanel` with the definition object. This lets you pass a custom instance ID (for multiple instances of the same type):
+
+```tsx
+import { usePanelStore, getPanel } from '@vastu/workspace';
+
+function openCustomerDetail(customerId: string) {
+  const definition = getPanel('customer-detail');
+  if (!definition) return;
+
+  usePanelStore.getState().openPanel(definition, `customer-${customerId}`);
+}
+```
+
+When a panel with the given ID is already open, `openPanel` focuses it rather than opening a duplicate.
+
+## usePanelStore actions
+
+| Action | Signature | Description |
+|--------|-----------|-------------|
+| `openPanel` | `(definition, panelId?) => void` | Open or focus a panel |
+| `closePanel` | `(panelId) => void` | Close and remove a panel |
+| `focusPanel` | `(panelId) => void` | Bring an existing panel to front |
+| `minimizePanel` | `(panelId) => void` | Move panel to the tray bar |
+| `restorePanel` | `(panelId) => void` | Restore panel from tray to Dockview |
+| `serializeLayout` | `() => SerializedLayout \| null` | Snapshot current layout to JSON |
+| `restoreLayout` | `(api, layout?) => void` | Restore a serialized layout |
+
+## Panel lifecycle
+
+```
+register → open → [split | float] → minimize → restore → close
+```
+
+1. **register** — `registerPanel()` at boot
+2. **open** — `openPanel()` or `openPanelByTypeId()` adds to Dockview
+3. **split / float** — user drags the tab; Dockview handles this internally
+4. **minimize** — `minimizePanel()` removes from Dockview, adds to tray store
+5. **restore** — `restorePanel()` removes from tray, re-adds to Dockview
+6. **close** — `closePanel()` removes from Dockview entirely
+
+## Layout persistence
+
+The `usePanelPersistence` hook (mounted inside `DockviewHost`) automatically serializes the layout to `localStorage` under the key `vastu-panel-layout` with a 500ms debounce. The layout is restored on the next page load.
+
+If the stored layout is corrupted, the hook clears it and falls back to an empty workspace.
+
+You do not need to wire this manually — `DockviewHost` handles it.
+
+## Registry lookup
+
+```ts
+import { getPanel, getAllPanels } from '@vastu/workspace';
+
+const def = getPanel('customers');          // PanelDefinition | undefined
+const all = getAllPanels();                 // PanelDefinition[]
+```
+
+`getAllPanels` is used internally by the sidebar to populate the PAGES section.
+
+## Related pages
+
+- [Workspace Overview](/docs/workspace/overview)
+- [Sidebar](/docs/workspace/sidebar) — link sidebar items to panel types
+- [Tray](/docs/workspace/tray) — minimized panel behavior

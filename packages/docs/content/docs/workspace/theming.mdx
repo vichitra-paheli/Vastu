@@ -1,0 +1,208 @@
+---
+title: Theming
+description: How to use Vastu design tokens in custom components — CSS custom properties, font weights, TruncatedText, and the i18n helper.
+---
+
+Every Vastu component uses CSS custom properties (`--v-*`) for colors, spacing, typography, and shadows. Your custom panels and components must do the same. Never hardcode hex values or pixel sizes that belong to the design system.
+
+## Prerequisites
+
+- Read [Workspace Overview](/docs/workspace/overview)
+- Skim `/docs/style-guide.md` in the repo for the full token reference
+
+## Design tokens
+
+The token stylesheet lives at `packages/shell/theme/vastu.tokens.css`. It is loaded globally by the shell. All `--v-*` properties are available in every workspace component.
+
+### Colors
+
+```css
+/* Text */
+--v-text-primary          /* main body text */
+--v-text-secondary        /* labels, captions */
+--v-text-tertiary         /* placeholders, hints */
+--v-text-inverse          /* text on dark backgrounds */
+
+/* Backgrounds */
+--v-bg-default            /* page background */
+--v-bg-elevated           /* cards, popovers */
+--v-bg-sunken             /* inset areas, table rows */
+
+/* Borders */
+--v-border-default        /* standard dividers */
+--v-border-subtle         /* light separators */
+
+/* Accents */
+--v-accent-primary        /* primary action, links (blue) */
+--v-accent-secondary      /* secondary highlights */
+--v-accent-quaternary     /* regex mode (muted violet) */
+
+/* Status */
+--v-status-success        /* green */
+--v-status-success-bg
+--v-status-error          /* red */
+--v-status-error-bg
+--v-status-warning        /* amber */
+--v-status-warning-bg
+```
+
+### Spacing
+
+Spacing tokens use a 4px base grid:
+
+```css
+--v-space-1   /* 4px  */
+--v-space-2   /* 8px  */
+--v-space-3   /* 12px */
+--v-space-4   /* 16px */
+--v-space-5   /* 20px */
+--v-space-6   /* 24px */
+--v-space-8   /* 32px */
+```
+
+### Typography
+
+```css
+--v-font-sans     /* system UI font stack */
+--v-text-xs       /* 11px */
+--v-text-sm       /* 12px */
+--v-text-md       /* 14px — default body size */
+--v-text-lg       /* 16px */
+```
+
+**Font weights:** Use only `400` (regular) and `500` (medium). Never use `600` or `700`.
+
+### Shadows
+
+```css
+--v-shadow-sm    /* subtle elevation */
+--v-shadow-md    /* cards, popovers */
+--v-shadow-lg    /* modals */
+```
+
+### Z-index
+
+```css
+--v-z-dropdown   /* menus, popovers */
+--v-z-modal      /* modal dialogs */
+--v-z-toast      /* toast notifications */
+```
+
+## Using tokens in custom components
+
+```tsx
+export function StatCard({ label, value }: { label: string; value: number }) {
+  return (
+    <div
+      style={{
+        background: 'var(--v-bg-elevated)',
+        border: '1px solid var(--v-border-default)',
+        borderRadius: 'var(--v-radius-sm)',
+        padding: 'var(--v-space-4)',
+        boxShadow: 'var(--v-shadow-sm)',
+      }}
+    >
+      <span
+        style={{
+          fontSize: 'var(--v-text-sm)',
+          color: 'var(--v-text-secondary)',
+          fontWeight: 400,
+        }}
+      >
+        {label}
+      </span>
+      <div
+        style={{
+          fontSize: 'var(--v-text-lg)',
+          color: 'var(--v-text-primary)',
+          fontWeight: 500,
+          marginTop: 'var(--v-space-1)',
+        }}
+      >
+        {value.toLocaleString()}
+      </div>
+    </div>
+  );
+}
+```
+
+The Mantine theme config at `packages/shell/theme/vastu.theme.ts` maps Mantine's color system to these tokens, so Mantine components also inherit them.
+
+## TruncatedText
+
+Use `TruncatedText` on any data-driven text in a constrained container. It truncates with an ellipsis and sets the full string as the `title` attribute (shown as a native tooltip on hover).
+
+```tsx
+import { TruncatedText } from '@vastu/workspace';
+
+// Truncate to container width
+<TruncatedText>{customer.name}</TruncatedText>
+
+// Truncate to a specific max width
+<TruncatedText maxWidth={200}>{customer.email}</TruncatedText>
+
+// With additional class
+<TruncatedText className={classes.cellText}>{value}</TruncatedText>
+```
+
+`TruncatedText` props:
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `children` | `string` | The text to render |
+| `className` | `string` | Additional CSS classes |
+| `maxWidth` | `string \| number` | Max width (number → px) |
+
+This is a lightweight workspace-local component. It renders a `<span>` with `overflow: hidden; text-overflow: ellipsis; white-space: nowrap`.
+
+**Rule:** Every column value, panel title, sidebar label, tray chip title, or any other data-driven text in a container that could overflow must use `TruncatedText`.
+
+## i18n with t()
+
+All user-facing strings in workspace components use the `t()` helper. This is a synchronous key→string lookup over a flat JSON file at `packages/workspace/messages/en.json`.
+
+```ts
+import { t } from '@vastu/workspace/lib/i18n';  // internal use only
+
+t('view.toolbar.save')   // → "Save"
+t('filter.mode.include') // → "Include"
+```
+
+The `t` helper is internal to the workspace package. In your own panels, use Next.js `next-intl` if you need translated strings, or pass translation strings as props:
+
+```tsx
+// In your panel component
+interface PanelTranslations {
+  title: string;
+  emptyState: string;
+}
+
+interface CustomersPanelProps extends PanelProps {
+  t?: PanelTranslations;
+}
+
+export function CustomersPanel({ params }: CustomersPanelProps) {
+  // Access translations from params if needed, or use next-intl useTranslations()
+}
+```
+
+Missing translation keys in development print a console warning and fall back to the key itself, making gaps easy to spot without crashing.
+
+## Mantine components
+
+When using Mantine components in your panels, pass color values through tokens, not hardcoded strings:
+
+```tsx
+// Correct
+<Badge color="var(--v-status-success)" />
+
+// Wrong — hardcodes a color value
+<Badge color="#2d9a5f" />
+```
+
+The Vastu theme overrides Mantine's default color palette, so always reference `--v-*` tokens rather than Mantine's named colors.
+
+## Related pages
+
+- [Workspace Overview](/docs/workspace/overview) — WorkspaceShell and layout
+- [Design System](/docs/design-system/overview) — full design principles and patterns

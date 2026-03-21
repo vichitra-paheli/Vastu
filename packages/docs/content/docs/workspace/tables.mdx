@@ -1,0 +1,276 @@
+---
+title: Tables
+description: How to use VastuTable — the virtualized data table with type-aware formatting, sorting, resizing, reordering, row selection, and context menus.
+---
+
+`VastuTable` wraps TanStack Table and TanStack Virtual to give you a high-performance data table with a consistent Vastu look. Define your columns, pass your data, and the table handles rendering, sorting, resizing, reordering, and client-side filtering.
+
+## Prerequisites
+
+- Read [Workspace Overview](/docs/workspace/overview)
+- Read [Filters](/docs/workspace/filters) — connect filter state to the table
+
+## Basic usage
+
+```tsx
+import { VastuTable } from '@vastu/workspace';
+import type { VastuColumn } from '@vastu/workspace';
+
+interface Customer {
+  id: string;
+  name: string;
+  email: string;
+  status: 'active' | 'inactive';
+  revenue: number;
+  createdAt: string;
+  verified: boolean;
+}
+
+const columns: VastuColumn<Customer>[] = [
+  { id: 'name',      label: 'Name',     dataType: 'text',    width: 200 },
+  { id: 'email',     label: 'Email',    dataType: 'text',    width: 240 },
+  { id: 'status',    label: 'Status',   dataType: 'enum',    width: 120 },
+  { id: 'revenue',   label: 'Revenue',  dataType: 'number',  width: 120 },
+  { id: 'createdAt', label: 'Created',  dataType: 'date',    width: 140 },
+  { id: 'verified',  label: 'Verified', dataType: 'boolean', width: 100 },
+];
+
+export function CustomersTable({ data }: { data: Customer[] }) {
+  return (
+    <VastuTable
+      data={data}
+      columns={columns}
+      getRowId={(row) => row.id}
+      ariaLabel="Customers table"
+    />
+  );
+}
+```
+
+## VastuColumn interface
+
+```ts
+interface VastuColumn<TData extends Record<string, unknown>> {
+  id: string;
+  label: string;
+  dataType?: CellDataType;        // 'text' | 'number' | 'date' | 'boolean' | 'enum' | 'badge' | 'custom'
+  accessorKey?: keyof TData & string;  // defaults to id
+  renderCell?: (value: unknown, row: TData) => React.ReactNode;  // overrides type formatting
+  renderHeader?: (column: { id: string; label: string }) => React.ReactNode;
+  minWidth?: number;              // default: 80
+  maxWidth?: number;
+  width?: number;                 // initial width, default: 160
+  sortable?: boolean;             // default: true
+  resizable?: boolean;            // default: true
+  hideable?: boolean;             // default: true
+  reorderable?: boolean;          // default: true
+  pin?: 'left' | 'right';         // pinned columns skip virtual scroll
+}
+```
+
+When `accessorKey` is omitted, the column uses `id` as the field name on the data object.
+
+## Cell data types
+
+| `dataType` | Renders as | Notes |
+|------------|-----------|-------|
+| `text` | Plain string | Default |
+| `number` | Right-aligned, locale-formatted number | |
+| `date` | Locale date string | ISO 8601 input |
+| `boolean` | "Yes" / "No" | |
+| `enum` | Plain string | Use `renderCell` to add color coding |
+| `badge` | Pill badge | Requires `renderCell` for colors |
+| `custom` | Whatever `renderCell` returns | |
+
+Use `renderCell` to override any built-in type:
+
+```tsx
+{
+  id: 'status',
+  label: 'Status',
+  dataType: 'badge',
+  renderCell: (value) => (
+    <span
+      style={{
+        background: value === 'active' ? 'var(--v-status-success-bg)' : 'var(--v-status-error-bg)',
+        color: value === 'active' ? 'var(--v-status-success)' : 'var(--v-status-error)',
+        padding: '2px 8px',
+        borderRadius: 'var(--v-radius-sm)',
+        fontSize: 'var(--v-text-xs)',
+      }}
+    >
+      {String(value)}
+    </span>
+  ),
+}
+```
+
+## Connecting filters
+
+Pass a `FilterGroup` from `useViewFilters` to apply client-side filtering:
+
+```tsx
+import { VastuTable, useViewFilters } from '@vastu/workspace';
+
+function CustomersPanel() {
+  const { root } = useViewFilters('customers');
+
+  return (
+    <VastuTable
+      data={data}
+      columns={columns}
+      filterRoot={root}
+      viewId="customers"
+      getRowId={(row) => row.id}
+    />
+  );
+}
+```
+
+When `filterRoot` is provided, the table calls `applyFilters` from `FilterEngine` on each render to filter rows client-side. For server-side filtering, omit `filterRoot` and pass filtered data directly.
+
+## Sorting
+
+The table sorts locally by default. Capture sort changes to persist them in the view store:
+
+```tsx
+import { useViewStore } from '@vastu/workspace';
+import type { SortingState } from '@vastu/workspace';
+
+function CustomersTable({ data }) {
+  const updateSort = useViewStore((s) => s.updateSort);
+
+  return (
+    <VastuTable
+      data={data}
+      columns={columns}
+      onSortChange={(sorting: SortingState) => {
+        updateSort(sorting.map((s) => ({
+          field: s.id,
+          direction: s.desc ? 'desc' : 'asc',
+        })));
+      }}
+    />
+  );
+}
+```
+
+Click a column header to sort ascending; click again for descending; click a third time to clear. Multi-column sort is not yet supported.
+
+## Column operations
+
+Users can resize, reorder, and hide columns. Capture the changes to persist them:
+
+```tsx
+<VastuTable
+  data={data}
+  columns={columns}
+  onColumnSizingChange={(sizing) => updateColumnSizing(sizing)}
+  onColumnOrderChange={(order) => updateColumnOrder(order)}
+  onColumnVisibilityChange={(visibility) => updateColumnVisibility(visibility)}
+/>
+```
+
+To control these states externally (e.g., restored from a saved view):
+
+```tsx
+<VastuTable
+  data={data}
+  columns={columns}
+  sorting={viewState.sortingState}
+  columnSizing={viewState.columnSizing}
+  columnOrder={viewState.columnOrder}
+  columnVisibility={viewState.columnVisibility}
+/>
+```
+
+## Row selection
+
+Row selection supports single-click, shift-click (range), and ctrl-click (toggle):
+
+```tsx
+<VastuTable
+  data={data}
+  columns={columns}
+  getRowId={(row) => row.id}
+  onRowSelectionChange={(selectedIds: Set<string>) => {
+    setSelectedCustomers(selectedIds);
+  }}
+/>
+```
+
+A checkbox column is added automatically on the left when `onRowSelectionChange` is provided.
+
+## Virtual scrolling
+
+The table virtualizes rows automatically. For datasets larger than a few hundred rows, set `rowHeight` to match your actual row height to improve scroll accuracy:
+
+```tsx
+<VastuTable
+  data={largeDataset}
+  columns={columns}
+  rowHeight={36}      // default: 36px
+  overscan={5}        // rows to render outside viewport, default: 5
+  height="100%"       // container height; default fills flex container
+/>
+```
+
+Pinned columns (`pin: 'left'` or `pin: 'right'`) are excluded from the virtual scroll window and always rendered.
+
+## Loading, empty, and error states
+
+```tsx
+// Loading — shows skeleton rows
+<VastuTable data={[]} columns={columns} loading={true} />
+
+// Error — shows error message
+<VastuTable data={[]} columns={columns} error={new Error('Failed to load')} />
+
+// Empty — shows empty state message (no rows, no loading, no error)
+<VastuTable data={[]} columns={columns} />
+```
+
+## Cell context menu
+
+Right-clicking a cell triggers a context menu with "Copy value" and filter shortcuts (include/exclude for the clicked value). Wire the callbacks to act on those actions:
+
+```tsx
+<VastuTable
+  data={data}
+  columns={columns}
+  onCopyCellValue={(value, columnId) => navigator.clipboard.writeText(String(value))}
+  onFilterToValue={(value, columnId, mode) => {
+    // Add a quick filter for this cell's value
+    addFilterCondition({ column: columnId, value: String(value), mode });
+  }}
+/>
+```
+
+## VastuTableProps reference
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data` | `TData[]` | required | Array of data rows |
+| `columns` | `VastuColumn<TData>[]` | required | Column definitions |
+| `viewId` | `string` | — | Keys filter/view store state per panel |
+| `filterRoot` | `FilterGroup \| null` | — | Active filter tree for client-side filtering |
+| `loading` | `boolean` | `false` | Show skeleton rows |
+| `error` | `Error \| null` | — | Show error state |
+| `getRowId` | `(row) => string` | row index | Unique key per row |
+| `height` | `number \| string` | flex fill | Container height |
+| `rowHeight` | `number` | `36` | Row height in px for virtual scroll |
+| `overscan` | `number` | `5` | Extra rows to render outside viewport |
+| `ariaLabel` | `string` | — | `aria-label` on the table element |
+| `onSortChange` | `(SortingState) => void` | — | Called on sort change |
+| `onColumnSizingChange` | `(ColumnSizingState) => void` | — | Called after column resize |
+| `onColumnOrderChange` | `(ColumnOrderState) => void` | — | Called after column drag-reorder |
+| `onColumnVisibilityChange` | `(VisibilityState) => void` | — | Called when column shown/hidden |
+| `onRowSelectionChange` | `(Set<string>) => void` | — | Called when selection changes |
+| `onCopyCellValue` | `(value, columnId) => void` | — | Called from cell context menu |
+| `onFilterToValue` | `(value, columnId, mode) => void` | — | Called from cell context menu filter actions |
+
+## Related pages
+
+- [Filters](/docs/workspace/filters) — build filter state to pass as `filterRoot`
+- [Views](/docs/workspace/views) — persist sort, columns, and pagination
+- [Context Menus](/docs/workspace/context-menus) — the context menu system used by table cells
