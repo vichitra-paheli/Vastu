@@ -479,6 +479,7 @@
   "tenants.create.error.subdomainInvalid": "Subdomain may only contain lowercase letters, numbers, and hyphens",
 
   "workspace.title": "Workspace",
+  "workspace.description": "Your Vastu workspace — build and manage pages, data, and workflows.",
   "workspace.placeholder.message": "The workspace is being built in Phase 1. This is where Dockview, page templates, and the view engine will live.",
   "workspace.iconRail.label": "Workspace navigation",
   "workspace.iconRail.logoLabel": "Go to workspace",

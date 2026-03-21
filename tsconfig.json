@@ -16,7 +16,9 @@
       "@vastu/shared": ["./packages/shared/src/index.ts"],
       "@vastu/shared/*": ["./packages/shared/src/*"],
       "@vastu/shell": ["./packages/shell/src/index.ts"],
-      "@vastu/shell/*": ["./packages/shell/src/*"]
+      "@vastu/shell/*": ["./packages/shell/src/*"],
+      "@vastu/workspace": ["./packages/workspace/src/index.ts"],
+      "@vastu/workspace/*": ["./packages/workspace/src/*"]
     }
   },
   "exclude": ["node_modules", "**/node_modules", "**/dist", "**/.next"]
