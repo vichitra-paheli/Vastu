@@ -1,0 +1,189 @@
+/**
+ * VastuContextMenu styles.
+ * All colors via --v-* CSS custom properties. No hardcoded hex values.
+ */
+
+/* ─── Portal overlay (covers viewport, captures outside clicks) ─── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: transparent;
+}
+
+/* ─── Menu container ─── */
+.menu {
+  position: fixed;
+  z-index: 9999;
+  min-width: 200px;
+  max-width: 280px;
+  padding: var(--v-space-1) 0;
+  background-color: var(--v-bg-elevated);
+  border: 1px solid var(--v-border-default);
+  border-radius: var(--v-radius-lg);
+  box-shadow: var(--v-shadow-lg);
+  outline: none;
+  animation: menuFadeIn var(--v-duration-fast) var(--v-ease-out);
+}
+
+@keyframes menuFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu {
+    animation: none;
+  }
+}
+
+/* ─── Menu item ─── */
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-2);
+  width: 100%;
+  padding: 6px var(--v-space-3);
+  font-size: var(--v-text-sm);
+  font-family: var(--v-font-sans);
+  font-weight: var(--v-font-regular);
+  color: var(--v-text-primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  line-height: var(--v-leading-normal);
+  user-select: none;
+  transition: background-color var(--v-duration-fast) var(--v-ease-default);
+  position: relative;
+}
+
+.item:hover:not(.itemDisabled),
+.item:focus:not(.itemDisabled) {
+  background-color: var(--v-interactive-hover);
+  outline: none;
+}
+
+.item:focus-visible:not(.itemDisabled) {
+  outline: 2px solid var(--v-border-focus);
+  outline-offset: -2px;
+}
+
+.itemActive {
+  background-color: var(--v-interactive-hover);
+}
+
+.itemDisabled {
+  color: var(--v-interactive-disabled);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.itemDestructive {
+  color: var(--v-status-error);
+}
+
+.itemDestructive:hover:not(.itemDisabled),
+.itemDestructive:focus:not(.itemDisabled) {
+  background-color: var(--v-status-error-light);
+}
+
+/* ─── Item icon ─── */
+.itemIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--v-icon-sm);
+  height: var(--v-icon-sm);
+  color: var(--v-text-secondary);
+}
+
+.item:hover:not(.itemDisabled) .itemIcon,
+.item:focus:not(.itemDisabled) .itemIcon {
+  color: var(--v-text-primary);
+}
+
+.itemDestructive .itemIcon {
+  color: var(--v-status-error);
+}
+
+/* ─── Item label ─── */
+.itemLabel {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── Keyboard shortcut hint ─── */
+.itemShortcut {
+  margin-left: auto;
+  padding-left: var(--v-space-3);
+  font-size: var(--v-text-xs);
+  color: var(--v-text-tertiary);
+  flex-shrink: 0;
+  font-family: var(--v-font-sans);
+}
+
+/* ─── Submenu indicator ─── */
+.submenuChevron {
+  margin-left: auto;
+  padding-left: var(--v-space-2);
+  flex-shrink: 0;
+  color: var(--v-text-tertiary);
+}
+
+/* ─── Divider ─── */
+.divider {
+  height: 1px;
+  margin: var(--v-space-1) 0;
+  background-color: var(--v-border-subtle);
+}
+
+/* ─── Group header ─── */
+.groupHeader {
+  padding: var(--v-space-1) var(--v-space-3) 2px;
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-medium);
+  font-family: var(--v-font-sans);
+  color: var(--v-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  user-select: none;
+}
+
+/* ─── Submenu container (1 level, positioned to the right) ─── */
+.submenuContainer {
+  position: relative;
+}
+
+.submenu {
+  position: absolute;
+  top: -4px;
+  left: 100%;
+  margin-left: 2px;
+  min-width: 200px;
+  max-width: 280px;
+  padding: var(--v-space-1) 0;
+  background-color: var(--v-bg-elevated);
+  border: 1px solid var(--v-border-default);
+  border-radius: var(--v-radius-lg);
+  box-shadow: var(--v-shadow-lg);
+  outline: none;
+  animation: menuFadeIn var(--v-duration-fast) var(--v-ease-out);
+}
+
+/* Flip submenu to left when near right viewport edge */
+.submenuLeft {
+  left: auto;
+  right: 100%;
+  margin-left: 0;
+  margin-right: 2px;
+}
