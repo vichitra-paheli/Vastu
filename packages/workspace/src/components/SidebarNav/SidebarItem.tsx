@@ -83,9 +83,9 @@ export function SidebarItem({
         {icon}
       </span>
 
-      {/* Label — hidden in collapsed mode */}
+      {/* Label — hidden in collapsed mode, truncated with ellipsis */}
       {!collapsed && (
-        <span className={classes.navItemLabel}>
+        <span className={classes.navItemLabel} title={label}>
           {label}
         </span>
       )}

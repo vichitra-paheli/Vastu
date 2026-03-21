@@ -43,9 +43,8 @@ export function SidebarUserAvatar({
       src={avatarUrl ?? null}
       size={28}
       radius="xl"
-      color="blue"
       aria-label={name}
-      style={{ flexShrink: 0 }}
+      style={{ flexShrink: 0, backgroundColor: 'var(--v-accent-primary)', color: 'var(--v-text-on-accent)' }}
     >
       {initials}
     </Avatar>

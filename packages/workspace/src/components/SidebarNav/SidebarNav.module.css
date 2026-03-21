@@ -255,6 +255,7 @@
   font-weight: var(--v-font-regular);
   white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
   min-width: 0;
   opacity: 1;
   transition: opacity var(--v-duration-normal) var(--v-ease-default);
