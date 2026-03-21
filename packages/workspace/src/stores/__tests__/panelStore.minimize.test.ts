@@ -118,7 +118,7 @@ describe('panelStore — minimizePanel / restorePanel', () => {
     it('removes the item from the tray', () => {
       useTrayStore.setState({
         minimizedPanelIds: ['p1'],
-        trayItems: [{ panelId: 'p1', title: 'Panel p1' }],
+        trayItems: [{ panelId: 'p1', typeId: 'p1', title: 'Panel p1' }],
       });
 
       usePanelStore.getState().restorePanel('p1');
@@ -131,7 +131,7 @@ describe('panelStore — minimizePanel / restorePanel', () => {
       usePanelStore.getState().setApi(api);
       useTrayStore.setState({
         minimizedPanelIds: ['unknown-panel'],
-        trayItems: [{ panelId: 'unknown-panel', title: 'Unknown' }],
+        trayItems: [{ panelId: 'unknown-panel', typeId: 'unknown-panel', title: 'Unknown' }],
       });
 
       // Should not throw
@@ -145,7 +145,7 @@ describe('panelStore — minimizePanel / restorePanel', () => {
       usePanelStore.getState().setApi(api);
       useTrayStore.setState({
         minimizedPanelIds: ['welcome'],
-        trayItems: [{ panelId: 'welcome', title: 'Panel welcome' }],
+        trayItems: [{ panelId: 'welcome', typeId: 'welcome', title: 'Panel welcome' }],
       });
 
       usePanelStore.getState().restorePanel('welcome');
@@ -158,7 +158,7 @@ describe('panelStore — minimizePanel / restorePanel', () => {
     it('removes item from tray even without api', () => {
       useTrayStore.setState({
         minimizedPanelIds: ['p1'],
-        trayItems: [{ panelId: 'p1', title: 'Panel p1' }],
+        trayItems: [{ panelId: 'p1', typeId: 'p1', title: 'Panel p1' }],
       });
 
       usePanelStore.getState().restorePanel('p1');

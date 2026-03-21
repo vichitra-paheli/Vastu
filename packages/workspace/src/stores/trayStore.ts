@@ -14,6 +14,8 @@ import type { PanelId } from '../types/panel';
 export interface TrayItem {
   /** The Dockview panel instance ID. */
   panelId: PanelId;
+  /** The panel type ID from the registry (may differ from panelId for multi-instance panels). */
+  typeId: string;
   /** Display title shown in the tray chip. */
   title: string;
   /** Optional Tabler icon name for the panel. */
