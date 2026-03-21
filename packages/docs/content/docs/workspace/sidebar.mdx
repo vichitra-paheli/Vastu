@@ -1,0 +1,124 @@
+---
+title: Sidebar
+description: How the SidebarNav component works, its two display states, CASL-gated sections, and how to add pages to it.
+---
+
+The sidebar is a collapsible navigation rail on the left side of the workspace. It renders automatically inside `WorkspaceShell` — you configure it by populating the panel registry and passing the correct props to the shell.
+
+## Prerequisites
+
+- Read [Workspace Overview](/docs/workspace/overview)
+- Read [Panels](/docs/workspace/panels) — sidebar items open panels
+
+## Two states
+
+| State | Width | Shows |
+|-------|-------|-------|
+| Expanded | 200px | Logo text, search input, section labels, pin toggles, user name and role |
+| Collapsed | 48px | Icon rail with tooltips, logo icon, user avatar only |
+
+The state is controlled by `useSidebarStore` and persisted to `localStorage` under `vastu-sidebar-state`. Expanded/collapsed state and pinned page IDs survive page refreshes. The search query is not persisted.
+
+**Keyboard shortcut:** `⌘B` on macOS, `Ctrl+B` on Windows/Linux toggles the sidebar.
+
+## Sections
+
+The sidebar has three sections:
+
+| Section | Visibility | Contents |
+|---------|-----------|----------|
+| PAGES | Always | Page links from the panel registry; searchable; pin-able |
+| SYSTEM | Always | Settings link (opens `/settings` in a new tab) |
+| ADMIN | Admins only | Admin link (opens `/admin` in a new tab); hidden via CASL |
+
+The ADMIN section is shown when `ability.can('manage', 'all')` returns true. Pass the user's resolved ability to `WorkspaceShell`:
+
+```tsx
+import { WorkspaceShell } from '@vastu/workspace';
+import { defineAbilitiesFor } from '@vastu/shared/permissions';
+
+const ability = defineAbilitiesFor({ roles: session.user.roles });
+
+<WorkspaceShell ability={ability} user={...} />
+```
+
+## Adding pages to the sidebar
+
+The PAGES section is currently populated from a static list (`MOCK_PAGES`). In your application, replace this by registering your pages as panels. The sidebar renders items for each entry in the pages list.
+
+Each page item maps a panel type ID to an icon. The sidebar calls `openPanelByTypeId(page.id)` when the user clicks an item, and highlights the item when `activePanelId === page.id`.
+
+To integrate your pages, pass `activePageId` to `WorkspaceShell` so the sidebar highlights the correct item:
+
+```tsx
+import { usePanelStore } from '@vastu/workspace';
+
+function WorkspacePage() {
+  const activePanelId = usePanelStore((s) => s.activePanelId);
+
+  return (
+    <WorkspaceShell
+      activePageId={activePanelId ?? undefined}
+      ...
+    />
+  );
+}
+```
+
+## Pin toggle
+
+Users can pin pages in expanded mode by hovering an item and clicking the pin icon. Pinned pages float to the top of the PAGES section on the next visit. Pin state is stored in `sidebarStore.pinnedPages` and persisted to `localStorage`.
+
+## useSidebarStore
+
+```ts
+import { useSidebarStore } from '@vastu/workspace';
+
+const collapsed  = useSidebarStore((s) => s.collapsed);
+const toggle     = useSidebarStore((s) => s.toggle);
+const pinned     = useSidebarStore((s) => s.pinnedPages);
+const togglePin  = useSidebarStore((s) => s.togglePin);
+const search     = useSidebarStore((s) => s.searchQuery);
+const setSearch  = useSidebarStore((s) => s.setSearchQuery);
+```
+
+| Property / Action | Type | Persisted | Description |
+|-------------------|------|-----------|-------------|
+| `collapsed` | `boolean` | Yes | Whether sidebar is in icon-only mode |
+| `toggle` | `() => void` | — | Toggle collapsed state |
+| `pinnedPages` | `string[]` | Yes | IDs of pinned pages |
+| `togglePin` | `(id) => void` | — | Add or remove a page from pins |
+| `searchQuery` | `string` | No | Current PAGES search string |
+| `setSearchQuery` | `(q) => void` | — | Update search |
+
+## SidebarNav props
+
+`SidebarNav` is rendered internally by `WorkspaceShell`. If you need to use it standalone:
+
+```tsx
+import { SidebarNav } from '@vastu/workspace';
+
+<SidebarNav
+  ability={ability}
+  user={{ name: 'Alice', role: 'Admin', avatarUrl: '/avatars/alice.jpg' }}
+  t={{
+    logoLabel: 'Vastu',
+    collapseLabel: 'Collapse sidebar',
+    expandLabel: 'Expand sidebar',
+    pagesSection: 'PAGES',
+    systemSection: 'SYSTEM',
+    adminSection: 'ADMIN',
+    settingsLabel: 'Settings',
+    adminLabel: 'Admin',
+    searchPlaceholder: 'Search pages...',
+    noResults: 'No pages found',
+  }}
+/>
+```
+
+All user-facing strings are passed through the `t` prop to support future i18n. If you use `WorkspaceShell`, the default English translations are applied automatically.
+
+## Related pages
+
+- [Panels](/docs/workspace/panels) — register panel types that sidebar links open
+- [Authentication](/docs/workspace/authentication) — CASL permissions for ADMIN section

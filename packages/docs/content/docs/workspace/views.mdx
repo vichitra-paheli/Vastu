@@ -1,0 +1,172 @@
+---
+title: Views
+description: How to save, load, and manage named view states — filters, sort, columns, and pagination — with the ViewToolbar and ViewSelector components.
+---
+
+A view is a named snapshot of a panel's data presentation: which filters are active, how data is sorted, which columns are visible, and what the pagination is set to. Users save views and switch between them without losing their work.
+
+## Prerequisites
+
+- Read [Workspace Overview](/docs/workspace/overview)
+- Read [Filters](/docs/workspace/filters) — views persist filter state
+- Read [Tables](/docs/workspace/tables) — views control column and sort state
+
+## ViewState structure
+
+`ViewState` is defined in `@vastu/shared/types`:
+
+```ts
+interface ViewState {
+  filters: FilterNode | null;
+  sort: SortState[];           // [{ field: 'name', direction: 'asc' }]
+  columns: ColumnState[];      // [{ id: 'name', visible: true, width: 200, order: 0 }]
+  pagination: { page: number; pageSize: number };
+  scrollPosition: { x: number; y: number };
+}
+```
+
+`scrollPosition` is excluded from the "is modified" comparison — scrolling never marks a view as dirty.
+
+## useViewStore
+
+The view store is headless. `ViewToolbar` consumes it, but you can also read from it directly to react to view changes.
+
+```ts
+import { useViewStore } from '@vastu/workspace';
+
+const {
+  currentViewId,
+  currentState,
+  savedState,
+  isModified,
+  saveView,
+  loadView,
+  resetView,
+  updateFilters,
+  updateSort,
+  updateColumns,
+  updatePagination,
+} = useViewStore();
+```
+
+| Action | Signature | Description |
+|--------|-----------|-------------|
+| `saveView` | `(name, pageId) => Promise<void>` | POST or PATCH `/api/workspace/views` |
+| `loadView` | `(id) => Promise<void>` | GET `/api/workspace/views/:id` |
+| `resetView` | `() => void` | Revert `currentState` to `savedState` |
+| `isModified` | `() => boolean` | True when current differs from saved (ignoring scroll) |
+| `updateFilters` | `(filters) => void` | Update filter tree |
+| `updateSort` | `(sort) => void` | Update sort state array |
+| `updateColumns` | `(columns) => void` | Update column state array |
+| `updatePagination` | `(page, pageSize) => void` | Update pagination |
+| `updateScrollPosition` | `(x, y) => void` | Update scroll position (not tracked for modification) |
+| `setViewState` | `(state, viewId?) => void` | Bulk-set state, used when loading |
+
+## ViewToolbar
+
+`ViewToolbar` renders the full view management UI in a horizontal toolbar. `WorkspaceShell` mounts it automatically above `DockviewHost`.
+
+```tsx
+import { ViewToolbar } from '@vastu/workspace';
+import { useQuery } from '@tanstack/react-query';
+import type { View } from '@vastu/shared/types';
+
+function MyPanelToolbar() {
+  const { data: views = [] } = useQuery<View[]>({
+    queryKey: ['views', 'customers'],
+    queryFn: () => fetch('/api/workspace/views?pageId=customers').then(r => r.json()),
+  });
+
+  return (
+    <ViewToolbar
+      pageId="customers"
+      views={views}
+      currentUserId={session.user.id}
+      onViewChange={(id) => console.log('switched to', id)}
+      onCreateView={() => openCreateViewDialog()}
+      onRenameView={(id, name) => renameViewMutation.mutate({ id, name })}
+      onDeleteView={(id) => deleteViewMutation.mutate(id)}
+    />
+  );
+}
+```
+
+`ViewToolbar` props:
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `pageId` | `string` | Yes | Associates saved views with this page |
+| `views` | `View[]` | No | Views to show in the selector; default `[]` |
+| `currentUserId` | `string` | No | Splits MY VIEWS vs SHARED WITH ME |
+| `onViewChange` | `(id) => void` | No | Called after loading a different view |
+| `onCreateView` | `() => void` | No | Called when user clicks "+ Create new view" |
+| `onRenameView` | `(id, name) => void` | No | Called when user renames a view in the selector |
+| `onDeleteView` | `(id) => void` | No | Called when user deletes a view |
+
+### Toolbar layout
+
+```
+[ ▾ ] [ View name (editable) ] [ ● Modified  Reset ]  |  [ Save ]  [ Share ]  [ ⋯ ]
+```
+
+- The **view name** is inline-editable. Click it to rename. Press Enter or blur to commit. Press Escape to cancel.
+- The **modified indicator** (goldenrod dot + "Modified" label + "Reset" link) appears when `isModified()` is true.
+- The **Save button** is active (blue) when modified, dimmed when clean.
+- **⌘S / Ctrl+S** triggers Save from anywhere in the toolbar. It does not interfere with other input fields.
+- **Share** and **⋯ overflow** are rendered as disabled placeholders — they will be activated in a future phase.
+
+## ViewSelector
+
+The dropdown popover accessed via the `▾` button:
+
+- **MY VIEWS** — views where `createdBy === currentUserId`
+- **SHARED WITH ME** — views where `isShared && createdBy !== currentUserId`
+- Each entry shows a color dot, the view name (truncated), and a `⋯` menu (Rename / Delete)
+- Search input filters both sections
+- "+ Create new view" at the bottom clears the current state and calls `onCreateView`
+
+## API routes
+
+Views are persisted by the workspace API routes in the shell package:
+
+| Method | URL | Description |
+|--------|-----|-------------|
+| `GET` | `/api/workspace/views?pageId=:id` | List views for a page |
+| `POST` | `/api/workspace/views` | Create a new view |
+| `GET` | `/api/workspace/views/:id` | Load a single view |
+| `PATCH` | `/api/workspace/views/:id` | Update a view |
+| `DELETE` | `/api/workspace/views/:id` | Delete a view |
+
+The store calls these routes automatically via `saveView` and `loadView`. You only need to implement the route handlers in the shell.
+
+## Per-view filter state
+
+For panels that manage filter state independently of the shared `useViewStore`, use `useViewFilters`:
+
+```ts
+import { useViewFilters } from '@vastu/workspace';
+
+function MyPanel() {
+  const { filterState, setFilterState, clearFilters, activeFilterCount } =
+    useViewFilters('customers');
+
+  // filterState.root is the FilterGroup | null passed to VastuTable
+}
+```
+
+The IER mode (Include/Exclude/Regex) per view is managed by `useViewMode`:
+
+```ts
+import { useViewMode } from '@vastu/workspace';
+
+const { mode, setMode } = useViewMode('customers');
+// mode: 'include' | 'exclude' | 'regex'
+```
+
+Both hooks are keyed by view ID so each panel maintains independent state.
+
+## Related pages
+
+- [Filters](/docs/workspace/filters) — filter state that views persist
+- [Tables](/docs/workspace/tables) — column and sort state consumed by views
+- [Panels](/docs/workspace/panels) — panel IDs used as `pageId` in view storage

@@ -1,0 +1,94 @@
+---
+title: Workspace Overview
+description: What the workspace is, how it relates to the shell, and the key concepts you need to build on top of it.
+---
+
+The workspace is the client-rendered panel environment that sits at the core of every Vastu application. When users open your product, they land in the workspace: a three-region layout with a collapsible sidebar, a Dockview panel host, and a tray bar at the bottom.
+
+## Shell vs workspace
+
+Vastu splits into two packages with different rendering strategies.
+
+| Package | Rendering | Purpose |
+|---------|-----------|---------|
+| `@vastu/shell` | Server-side (Next.js App Router) | Auth, settings, admin, middleware |
+| `@vastu/workspace` | Client-side | Panel management, data tables, filters, views |
+
+The shell owns routing and authentication. It mounts the workspace as a client component within a protected route segment. If you need a server-rendered page (settings, admin), it lives in the shell. If you need a data-heavy interactive view, it lives as a workspace panel.
+
+## Layout regions
+
+`WorkspaceShell` composes the three regions:
+
+```
+┌──────────────────────────────────────────────────┐
+│  Sidebar (48px collapsed / 200px expanded)       │
+│  ┌────────────────────────────────────────────┐  │
+│  │  ViewToolbar                               │  │
+│  │  ┌──────────────────────────────────────┐ │  │
+│  │  │  DockviewHost (panels)               │ │  │
+│  │  └──────────────────────────────────────┘ │  │
+│  └────────────────────────────────────────────┘  │
+│  TrayBar (44px)                                  │
+└──────────────────────────────────────────────────┘
+```
+
+Render the workspace by mounting `WorkspaceShell` in a client component:
+
+```tsx
+import { WorkspaceShell } from '@vastu/workspace';
+import { defineAbilitiesFor } from '@vastu/shared/permissions';
+
+export default function WorkspacePage() {
+  const ability = defineAbilitiesFor({ roles: session.user.roles });
+
+  return (
+    <WorkspaceShell
+      user={{ name: session.user.name, role: 'Admin' }}
+      ability={ability}
+      activePageId={activePanelId}
+      currentUserId={session.user.id}
+    />
+  );
+}
+```
+
+`WorkspaceShell` props:
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `user` | `WorkspaceUser` | No | Name, role, and optional avatar URL for the sidebar footer |
+| `ability` | `AppAbility` | No | CASL ability — hides ADMIN section when omitted |
+| `activePageId` | `string` | No | Currently active panel ID; forwarded to `ViewToolbar` |
+| `currentUserId` | `string` | No | Current user ID; used to split MY VIEWS vs SHARED WITH ME |
+
+## Key concepts
+
+**Panel** — a named view rendered inside Dockview. Panels can be split, floated, minimized, and restored. Every panel type is registered in the panel registry before it can be opened.
+
+**View state** — the persistent configuration of a panel: active filters, sort order, visible columns, and pagination. View state is saved to the database and can be shared between users.
+
+**Store** — Vastu uses Zustand stores for all workspace state. `usePanelStore` manages Dockview's API and panel lifecycle. `useSidebarStore` manages collapse state. `useViewStore` manages view persistence. `useTrayStore` manages minimized panels.
+
+**Tray** — the 44px bar at the bottom. Minimized panels appear here as chips. Clicking a chip restores the panel.
+
+## Providers
+
+Wrap the workspace in `WorkspaceProviders` if you need access to workspace stores outside of `WorkspaceShell`:
+
+```tsx
+import { WorkspaceProviders } from '@vastu/workspace';
+
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return <WorkspaceProviders>{children}</WorkspaceProviders>;
+}
+```
+
+`WorkspaceShell` already includes `WorkspaceProviders` internally, so you only need to add this manually if you are mounting workspace components outside the shell.
+
+## Related pages
+
+- [Panels](/docs/workspace/panels) — register and open panels
+- [Sidebar](/docs/workspace/sidebar) — configure sidebar navigation
+- [Views](/docs/workspace/views) — save and restore view state
+- [Theming](/docs/workspace/theming) — design tokens and CSS custom properties

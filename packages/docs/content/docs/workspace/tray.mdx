@@ -1,0 +1,137 @@
+---
+title: Tray
+description: How the 44px tray bar works — minimizing panels to tray chips, restoring them, and using trayStore directly.
+---
+
+The tray bar is the 44px fixed strip at the bottom of the workspace. It shows chips for every minimized panel. Clicking a chip restores the panel to the Dockview layout. Right-clicking a chip offers a "Close" option that discards the panel entirely.
+
+## Prerequisites
+
+- Read [Panels](/docs/workspace/panels) — panels are minimized from the panel store
+
+## Tray behavior
+
+When a user minimizes a panel:
+
+1. `usePanelStore.minimizePanel(panelId)` is called
+2. The panel is removed from Dockview
+3. A `TrayItem` is added to `useTrayStore` with the panel's title and icon
+4. A chip appears in the tray bar
+
+When the user clicks a chip:
+
+1. `usePanelStore.restorePanel(panelId)` is called
+2. The item is removed from `useTrayStore`
+3. The panel type definition is looked up from the registry
+4. `openPanel` re-adds it to Dockview
+
+When the user right-clicks a chip and selects "Close":
+
+1. The item is removed from `useTrayStore` via `removeFromTray`
+2. The panel is not re-opened — it is gone
+
+## TrayBar and TrayItem
+
+Both components are rendered automatically by `WorkspaceShell`. You do not need to mount them manually.
+
+If you need to use them in a custom layout:
+
+```tsx
+import { TrayBar } from '@vastu/workspace';
+
+export function CustomWorkspace() {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      <main style={{ flex: 1 }}>
+        {/* your content */}
+      </main>
+      <div style={{ height: 44, flexShrink: 0 }}>
+        <TrayBar />
+      </div>
+    </div>
+  );
+}
+```
+
+`TrayBar` reads from `useTrayStore` and `usePanelStore` internally — no props required.
+
+## TrayItem chip
+
+Each chip shows the panel icon (from the registry's `iconName`) and a truncated title (max 140px). The chip is a button with `role="button"` and an accessible label.
+
+`TrayItemChip` (exported as `TrayItemChip` from `@vastu/workspace`) is available if you need to render an individual chip outside of `TrayBar`:
+
+```tsx
+import { TrayItemChip } from '@vastu/workspace';
+import type { TrayItemProps } from '@vastu/workspace';
+
+<TrayItemChip
+  item={{ panelId: 'customers', typeId: 'customers', title: 'Customers', iconName: 'Users' }}
+  onRestore={(panelId) => usePanelStore.getState().restorePanel(panelId)}
+  onClose={(panelId) => useTrayStore.getState().removeFromTray(panelId)}
+/>
+```
+
+`TrayItemProps`:
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `item` | `TrayItem` | Yes | The tray item data |
+| `onRestore` | `(panelId) => void` | Yes | Called when user clicks to restore |
+| `onClose` | `(panelId) => void` | Yes | Called when user chooses Close |
+
+## useTrayStore
+
+```ts
+import { useTrayStore } from '@vastu/workspace';
+
+const trayItems        = useTrayStore((s) => s.trayItems);
+const minimizedIds     = useTrayStore((s) => s.minimizedPanelIds);
+const addToTray        = useTrayStore((s) => s.addToTray);
+const removeFromTray   = useTrayStore((s) => s.removeFromTray);
+const restoreFromTray  = useTrayStore((s) => s.restoreFromTray);
+```
+
+| Action / Property | Type | Description |
+|-------------------|------|-------------|
+| `trayItems` | `TrayItem[]` | Ordered list of minimized panels |
+| `minimizedPanelIds` | `string[]` | Panel IDs currently in the tray |
+| `addToTray` | `(item: TrayItem) => void` | Add a panel to the tray; no-op if already present |
+| `removeFromTray` | `(panelId) => void` | Permanently remove (Close action) |
+| `restoreFromTray` | `(panelId) => void` | Remove from tray (caller opens panel separately) |
+
+### TrayItem type
+
+```ts
+interface TrayItem {
+  panelId: string;     // Dockview panel instance ID
+  typeId: string;      // Panel type ID from the registry
+  title: string;       // Display title for the chip
+  iconName?: string;   // Tabler icon name (optional)
+}
+```
+
+`typeId` may differ from `panelId` when you open multiple instances of the same panel type (e.g., `panelId: 'customer-42'`, `typeId: 'customer-detail'`). The tray uses `typeId` to look up the definition when restoring.
+
+## Status indicator area
+
+The right side of the tray bar is reserved for status indicators — connection status, sync state, agent activity. This area is a placeholder in Phase 1A and will be populated in later phases.
+
+## Programmatically minimizing
+
+```ts
+import { usePanelStore } from '@vastu/workspace';
+
+// Minimize a panel — you need its Dockview instance ID
+usePanelStore.getState().minimizePanel('customers');
+
+// Restore it
+usePanelStore.getState().restorePanel('customers');
+```
+
+Use `usePanelStore.activePanelId` or `usePanelStore.openPanelIds` to find the ID of a panel you want to minimize.
+
+## Related pages
+
+- [Panels](/docs/workspace/panels) — minimize and restore lifecycle
+- [Workspace Overview](/docs/workspace/overview) — tray bar region

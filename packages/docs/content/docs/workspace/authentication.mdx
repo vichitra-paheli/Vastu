@@ -1,0 +1,146 @@
+---
+title: Authentication
+description: How Keycloak and next-auth protect workspace routes, how CASL permissions gate workspace features, and what the standard roles grant.
+---
+
+Authentication in Vastu flows through Keycloak via `next-auth`. The shell middleware protects all routes except a short public allowlist. Once authenticated, a session carries the user's roles and a serialized CASL ability instance used for client-side authorization.
+
+## Prerequisites
+
+- Read [Architecture Overview](/docs/architecture/overview)
+- Docker services running (Keycloak on `localhost:8080`)
+
+## Auth flow
+
+1. Middleware checks the session on every request to protected routes
+2. No session → redirect to `/login?redirect={originalUrl}`
+3. Login page submits to next-auth's Keycloak provider
+4. On success → session created in the database → redirect to the original URL
+5. Session contains: `userId`, `email`, `name`, `roles`, `tenantId`
+
+Public routes that bypass middleware:
+
+```
+/login
+/register
+/forgot-password
+/reset-password
+/verify-email
+/sso
+/404
+/500
+```
+
+All other routes require a valid session, including all workspace routes.
+
+## CASL permissions
+
+Client-side authorization uses CASL.js. The ability is built from the user's roles via `defineAbilitiesFor`:
+
+```ts
+import { defineAbilitiesFor } from '@vastu/shared/permissions';
+
+// Build ability from the session's roles array
+const ability = defineAbilitiesFor({ roles: session.user.roles });
+
+// Check permissions
+ability.can('read', 'Record')        // true for editor, builder, admin
+ability.can('manage', 'all')         // true for admin only
+ability.can('configure', 'Page')     // true for builder, admin
+```
+
+Pass the ability to `WorkspaceShell` to gate the ADMIN sidebar section:
+
+```tsx
+<WorkspaceShell ability={ability} user={...} />
+```
+
+## Built-in roles
+
+| Role | Permissions |
+|------|------------|
+| `admin` | `manage` all resources |
+| `builder` | `read` all, `configure/create/update/delete` Page |
+| `editor` | `read` all, `create/update/delete` Record |
+| `viewer` | `read` all |
+
+Custom roles can be created in the admin panel. Their permissions are stored in the database and merged with the role grants at ability-build time.
+
+## Actions and resources
+
+**Actions:** `create`, `read`, `update`, `delete`, `export`, `manage`, `configure`
+
+**Resources:** `User`, `Role`, `Permission`, `Tenant`, `Organization`, `ApiKey`, `DbConnection`, `AuditEvent`, `SsoProvider`, `Page`, `Record`, `all`
+
+Use these in permission checks inside your panels:
+
+```tsx
+import { useAbility } from '@casl/react';
+
+function ActionBar({ ability }: { ability: AppAbility }) {
+  const canCreate = ability.can('create', 'Record');
+  const canDelete = ability.can('delete', 'Record');
+
+  return (
+    <div>
+      {canCreate && <button onClick={...}>Add row</button>}
+      {canDelete && <button onClick={...}>Delete selected</button>}
+    </div>
+  );
+}
+```
+
+## Protecting panel content
+
+Check permissions inside your panel component before rendering sensitive actions. Do not rely on route protection alone for per-feature access control:
+
+```tsx
+import type { PanelProps } from '@vastu/workspace';
+import type { AppAbility } from '@vastu/shared/permissions';
+
+interface AdminPanelProps extends PanelProps {
+  ability: AppAbility;
+}
+
+export function AdminPanel({ params, ability }: AdminPanelProps) {
+  if (!ability.can('manage', 'all')) {
+    return (
+      <div style={{ padding: 'var(--v-space-4)' }}>
+        You do not have permission to access this panel.
+      </div>
+    );
+  }
+
+  return <AdminContent />;
+}
+```
+
+## MFA enforcement
+
+Multi-factor authentication is enforced at the Keycloak realm level. When a user with MFA enabled logs in, Keycloak handles the MFA challenge before issuing a token to next-auth. No additional workspace code is required for MFA support.
+
+Configure MFA in the Keycloak admin console at `localhost:8080` under Authentication → Required Actions.
+
+## Session in server components
+
+In shell server components, read the session via `next-auth`:
+
+```tsx
+import { auth } from '@/auth';
+
+export default async function ProtectedPage() {
+  const session = await auth();
+  if (!session) redirect('/login');
+
+  const ability = defineAbilitiesFor({ roles: session.user.roles });
+
+  return <WorkspaceShell ability={ability} user={session.user} />;
+}
+```
+
+The workspace receives the pre-built ability as a prop. It does not call the auth system directly.
+
+## Related pages
+
+- [Architecture Overview](/docs/architecture/overview) — auth flow and package boundaries
+- [Sidebar](/docs/workspace/sidebar) — ADMIN section gated by CASL

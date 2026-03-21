@@ -1,0 +1,182 @@
+---
+title: Context Menus
+description: How to add right-click context menus to tables, panels, and any other content area using ContextMenu, ContextMenuItem, ContextMenuDivider, and ContextMenuGroup.
+---
+
+`ContextMenu` is a portal-rendered right-click menu that intercepts clicks on elements with a `data-context` attribute. It stays within the viewport, traps keyboard focus, and closes on Escape or outside click.
+
+## Prerequisites
+
+- Read [Workspace Overview](/docs/workspace/overview)
+
+## Basic usage
+
+Wrap the content area where you want to handle right-clicks. Add `data-context`, `data-context-type`, and `data-context-value` attributes to the elements that should trigger the menu. The `renderMenu` prop receives those values and returns the menu items.
+
+```tsx
+import {
+  ContextMenu,
+  ContextMenuItem,
+  ContextMenuDivider,
+  ContextMenuGroup,
+} from '@vastu/workspace';
+import { IconCopy, IconTrash, IconPencil } from '@tabler/icons-react';
+
+function CustomerTable() {
+  return (
+    <ContextMenu
+      renderMenu={({ contextType, contextValue }) => {
+        if (contextType === 'row') {
+          return (
+            <>
+              <ContextMenuGroup label="Actions">
+                <ContextMenuItem
+                  label="Edit customer"
+                  icon={<IconPencil size={16} />}
+                  shortcut="⌘E"
+                  onSelect={() => editCustomer(contextValue)}
+                />
+                <ContextMenuItem
+                  label="Copy ID"
+                  icon={<IconCopy size={16} />}
+                  onSelect={() => navigator.clipboard.writeText(contextValue)}
+                />
+              </ContextMenuGroup>
+              <ContextMenuDivider />
+              <ContextMenuItem
+                label="Delete customer"
+                icon={<IconTrash size={16} />}
+                destructive
+                onSelect={() => deleteCustomer(contextValue)}
+              />
+            </>
+          );
+        }
+        return null; // return null to suppress menu for other context types
+      }}
+    >
+      <table>
+        <tbody>
+          {customers.map((customer) => (
+            <tr
+              key={customer.id}
+              data-context="true"
+              data-context-type="row"
+              data-context-value={customer.id}
+            >
+              <td>{customer.name}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </ContextMenu>
+  );
+}
+```
+
+## ContextMenu props
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `renderMenu` | `(context: ContextMenuContextData) => ReactNode` | Yes | Return menu items or `null` to suppress |
+| `children` | `ReactNode` | Yes | Content area to intercept right-clicks in |
+| `className` | `string` | No | CSS class on the wrapper `div` |
+
+### ContextMenuContextData
+
+```ts
+interface ContextMenuContextData {
+  contextType: string;   // data-context-type of the right-clicked element
+  contextValue: string;  // data-context-value of the right-clicked element
+  target: HTMLElement;   // the element that was right-clicked
+}
+```
+
+The menu opens at the cursor position and flips horizontally or vertically when near the viewport edge.
+
+## ContextMenuItem props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `label` | `string` | required | Item text |
+| `icon` | `ReactNode` | — | Tabler icon at 16px |
+| `shortcut` | `string` | — | Right-aligned hint, e.g. `"⌘C"` |
+| `destructive` | `boolean` | `false` | Red text and hover background |
+| `disabled` | `boolean` | `false` | Non-interactive, visually dimmed |
+| `onSelect` | `() => void` | — | Called on click or Enter/Space |
+| `submenu` | `ReactNode` | — | Items to show in a nested submenu |
+
+Selecting an item automatically closes the root menu. Disabled items are not activated by keyboard.
+
+## Submenus
+
+Pass `submenu` to `ContextMenuItem` for a one-level deep nested menu. The submenu opens on hover (80ms delay) or `ArrowRight`:
+
+```tsx
+<ContextMenuItem
+  label="Move to"
+  icon={<IconFolderSymlink size={16} />}
+  submenu={
+    <>
+      <ContextMenuItem label="Archive" onSelect={() => moveTo('archive')} />
+      <ContextMenuItem label="Trash"   onSelect={() => moveTo('trash')} />
+    </>
+  }
+/>
+```
+
+Submenus flip to the left when there is insufficient space to the right of the trigger. Maximum nesting depth is one level.
+
+## ContextMenuGroup
+
+Groups add a labeled section header above their children:
+
+```tsx
+<ContextMenuGroup label="QUICK ACTIONS">
+  <ContextMenuItem label="View details" onSelect={...} />
+  <ContextMenuItem label="Open in new panel" onSelect={...} />
+</ContextMenuGroup>
+```
+
+The group header is rendered in uppercase with tertiary text color. Groups use `role="group"` with an `aria-label` matching the `label` prop.
+
+## ContextMenuDivider
+
+A horizontal separator between sections:
+
+```tsx
+<ContextMenuItem label="Copy" onSelect={...} />
+<ContextMenuDivider />
+<ContextMenuItem label="Delete" destructive onSelect={...} />
+```
+
+## Keyboard navigation
+
+| Key | Action |
+|-----|--------|
+| `ArrowDown` | Move focus to next item |
+| `ArrowUp` | Move focus to previous item |
+| `Home` | Focus first item |
+| `End` | Focus last item |
+| `Enter` / `Space` | Activate focused item |
+| `ArrowRight` | Open submenu (if present) |
+| `ArrowLeft` | Close submenu, return to parent |
+| `Escape` | Close menu, return focus to trigger |
+| `Tab` | Trapped — does not leave the menu |
+
+Focus is placed on the first item automatically when the menu opens. When the menu closes, focus returns to the element that was right-clicked.
+
+## Using context menus with VastuTable
+
+`VastuTable` has built-in cell context menus wired through `onCopyCellValue` and `onFilterToValue`. For row-level menus, wrap `VastuTable` in a `ContextMenu` and set `data-context` on each row.
+
+However, `VastuTable` uses virtualized rendering which means rows are not standard DOM elements. Use the `onFilterToValue` and `onCopyCellValue` callbacks on `VastuTable` for cell-level actions, and add a separate `ContextMenu` wrapper if you need row-level menus outside of cell context.
+
+## ARIA
+
+The menu container has `role="menu"`. Each `ContextMenuItem` button has `role="menuitem"`. When a submenu is present, the item also has `aria-haspopup="menu"` and `aria-expanded`. `ContextMenuGroup` uses `role="group"`. `ContextMenuDivider` uses `role="separator"`.
+
+## Related pages
+
+- [Tables](/docs/workspace/tables) — built-in cell context menu callbacks
+- [Tray](/docs/workspace/tray) — tray items have their own inline context menu

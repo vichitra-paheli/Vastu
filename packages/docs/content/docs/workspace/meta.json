@@ -1,0 +1,15 @@
+{
+  "title": "Workspace",
+  "pages": [
+    "overview",
+    "panels",
+    "sidebar",
+    "views",
+    "tables",
+    "filters",
+    "context-menus",
+    "tray",
+    "theming",
+    "authentication"
+  ]
+}
