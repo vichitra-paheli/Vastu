@@ -122,5 +122,13 @@
   "contextMenu.header.resetWidth": "Reset width",
   "contextMenu.badge.includeFilter": "Include filter",
   "contextMenu.badge.excludeFilter": "Exclude filter",
-  "contextMenu.badge.copyValue": "Copy value"
+  "contextMenu.badge.copyValue": "Copy value",
+
+  "tray.bar.panelListAriaLabel": "Minimized panels",
+  "tray.bar.statusAreaAriaLabel": "Status indicators",
+  "tray.bar.empty": "No minimized panels",
+
+  "tray.item.ariaLabel": "Restore panel: {title}",
+  "tray.item.close": "Close",
+  "tray.item.contextMenuAriaLabel": "Panel tray options"
 }

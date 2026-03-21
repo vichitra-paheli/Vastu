@@ -1,0 +1,61 @@
+/**
+ * TrayBar — bottom tray bar styles.
+ *
+ * The outer shell (.tray in WorkspaceShell.module.css) is already 44px and
+ * has border-top, padding, and background. These styles handle the internal
+ * layout of items within that container.
+ *
+ * All colors and spacing via --v-* design tokens only.
+ */
+
+/* ============================================================
+ * TRAY BAR LAYOUT
+ * ============================================================ */
+.trayBar {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  gap: var(--v-space-1);
+  min-width: 0;
+}
+
+/* Left region: minimized panel chips */
+.panelList {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: var(--v-space-1);
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* Right region: status indicators */
+.statusArea {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-2);
+  flex-shrink: 0;
+  padding-left: var(--v-space-3);
+  border-left: 1px solid var(--v-border-subtle);
+}
+
+/* Empty state message */
+.emptyHint {
+  font-size: var(--v-text-xs);
+  color: var(--v-text-tertiary);
+  font-family: var(--v-font-sans);
+  font-weight: var(--v-font-regular);
+  white-space: nowrap;
+  user-select: none;
+  padding: 0 var(--v-space-1);
+}
+
+/* Status placeholder dot */
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--v-radius-full);
+  background-color: var(--v-text-tertiary);
+  opacity: 0.4;
+}

@@ -1,0 +1,113 @@
+/**
+ * TrayItem — minimized panel chip styles.
+ *
+ * All colors and spacing via --v-* design tokens only.
+ */
+
+.wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+ * CHIP — the tray item button
+ * ============================================================ */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--v-space-1);
+  height: 28px;
+  padding: 0 var(--v-space-2);
+  border: 1px solid var(--v-border-default);
+  border-radius: var(--v-radius-md);
+  background-color: var(--v-bg-primary);
+  color: var(--v-text-secondary);
+  font-family: var(--v-font-sans);
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-regular);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color var(--v-duration-fast) var(--v-ease-default),
+    border-color var(--v-duration-fast) var(--v-ease-default),
+    color var(--v-duration-fast) var(--v-ease-default);
+  outline: none;
+  min-width: 0;
+}
+
+.chip:hover {
+  background-color: var(--v-interactive-hover);
+  border-color: var(--v-border-strong);
+  color: var(--v-text-primary);
+}
+
+.chip:active {
+  background-color: var(--v-interactive-pressed);
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--v-border-focus);
+  outline-offset: 1px;
+}
+
+/* Icon within the chip */
+.icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--v-text-tertiary);
+}
+
+.chip:hover .icon {
+  color: var(--v-text-secondary);
+}
+
+/* Title text — truncated by TruncatedText component */
+.title {
+  color: inherit;
+}
+
+/* ============================================================
+ * INLINE CONTEXT MENU
+ * ============================================================ */
+.contextMenu {
+  min-width: 140px;
+  background-color: var(--v-bg-elevated);
+  border: 1px solid var(--v-border-default);
+  border-radius: var(--v-radius-md);
+  box-shadow: var(--v-shadow-md);
+  padding: var(--v-space-1) 0;
+  outline: none;
+}
+
+.contextMenuItem {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-2);
+  width: 100%;
+  padding: var(--v-space-1) var(--v-space-3);
+  border: none;
+  background: transparent;
+  color: var(--v-text-secondary);
+  font-family: var(--v-font-sans);
+  font-size: var(--v-text-sm);
+  font-weight: var(--v-font-regular);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    background-color var(--v-duration-fast) var(--v-ease-default),
+    color var(--v-duration-fast) var(--v-ease-default);
+  outline: none;
+}
+
+.contextMenuItem:hover {
+  background-color: var(--v-interactive-hover);
+  color: var(--v-text-primary);
+}
+
+.contextMenuItem:focus-visible {
+  outline: 2px solid var(--v-border-focus);
+  outline-offset: -2px;
+}
