@@ -8,14 +8,14 @@
  * which calls serializeLayout() on changes and restoreLayout() on mount.
  *
  * Implements US-107 (AC-2, AC-7, AC-8, AC-9, AC-10).
- *
- * Note: minimizePanel is a stub for US-115 (Tray bar).
+ * Updated in US-115: minimizePanel now moves the panel to trayStore.
  */
 
 import { create } from 'zustand';
 import type { DockviewApi } from 'dockview-core';
 import type { PanelDefinition, PanelId, SerializedLayout } from '../types/panel';
 import { getPanel } from '../panels/registry';
+import { useTrayStore } from './trayStore';
 
 interface PanelStoreState {
   /**
@@ -70,12 +70,24 @@ interface PanelStoreState {
   /**
    * Minimize a panel to the tray bar.
    *
-   * Stub for US-115. Currently just closes the panel.
-   * Will be replaced with actual minimize-to-tray logic in US-115.
+   * Removes the panel from Dockview and adds a TrayItem to trayStore.
+   * The panel title and iconName are captured from the Dockview panel
+   * params or the registered panel definition before removal.
    *
-   * @see US-115: Tray bar implementation
+   * Implements US-115 (AC-7).
    */
   minimizePanel: (panelId: PanelId) => void;
+
+  /**
+   * Restore a minimized panel from the tray back to Dockview.
+   *
+   * Re-opens the panel via openPanel and removes it from trayStore.
+   * If the panel type is not registered, logs a warning and only
+   * removes it from the tray.
+   *
+   * Implements US-115 (AC-3).
+   */
+  restorePanel: (panelId: PanelId) => void;
 
   /**
    * Serialize the current Dockview layout to JSON.
@@ -172,10 +184,52 @@ export const usePanelStore = create<PanelStoreState>()((set, get) => ({
     set({ activePanelId: panelId });
   },
 
-  // Stub for US-115 — will minimize to tray, for now just closes
   minimizePanel: (panelId) => {
-    // TODO: US-115 — move panel to tray instead of closing
-    get().closePanel(panelId);
+    const { api } = get();
+    if (!api) return;
+
+    const panel = api.getPanel(panelId);
+    if (!panel) return;
+
+    // Capture title and iconName before removing from Dockview.
+    // Prefer the live panel title; fall back to the registry definition.
+    const title = panel.title ?? panelId;
+    const panelTypeId = (panel.params as { panelTypeId?: string } | undefined)?.panelTypeId;
+    const definition = panelTypeId ? getPanel(panelTypeId) : undefined;
+    const iconName = definition?.iconName;
+
+    // Add to tray before removing so the item is available immediately
+    useTrayStore.getState().addToTray({ panelId, title, iconName });
+
+    // Remove from Dockview
+    api.removePanel(panel);
+
+    set((state) => ({
+      openPanelIds: state.openPanelIds.filter((id) => id !== panelId),
+      activePanelId: state.activePanelId === panelId ? null : state.activePanelId,
+    }));
+  },
+
+  restorePanel: (panelId) => {
+    const { api } = get();
+
+    // Remove from tray regardless of whether we can re-open it
+    const trayItem = useTrayStore.getState().trayItems.find((t) => t.panelId === panelId);
+    useTrayStore.getState().restoreFromTray(panelId);
+
+    if (!api || !trayItem) return;
+
+    // We need a registered panel definition to re-open.
+    // Try to find it by panelId (which equals the type ID for single-instance panels).
+    const definition = getPanel(panelId);
+    if (!definition) {
+      console.warn(
+        `[panelStore] Cannot restore panel "${panelId}" — no registered definition found.`,
+      );
+      return;
+    }
+
+    get().openPanel(definition, panelId);
   },
 
   serializeLayout: () => {

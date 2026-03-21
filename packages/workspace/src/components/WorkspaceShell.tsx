@@ -7,7 +7,7 @@
  *   - Sidebar (left): 48px collapsed (icon rail) / 200px expanded.
  *     Controlled by sidebarStore, persisted to localStorage.
  *   - Main content (center): hosts DockviewHost (US-107).
- *   - Tray bar (bottom): 44px fixed. Populated in US-115.
+ *   - Tray bar (bottom): 44px fixed. Implemented in US-115 (TrayBar component).
  *
  * Built-in panels are registered at import time via panels/index.ts.
  * Updated in US-109: renders SidebarNav with user + ability props.
@@ -23,6 +23,7 @@ import { defineAbilitiesFor, type AppAbility } from '@vastu/shared/permissions';
 import { useSidebarStore } from '../stores/sidebarStore';
 import { DockviewHost } from './DockviewHost/DockviewHost';
 import { SidebarNav } from './SidebarNav';
+import { TrayBar } from './TrayBar';
 import { ViewToolbar } from './ViewToolbar';
 import classes from './WorkspaceShell.module.css';
 
@@ -124,7 +125,7 @@ export function WorkspaceShell({
       </main>
 
       <div className={classes.tray} role="region" aria-label="Workspace tray">
-        {/* Tray bar items populated in US-115 */}
+        <TrayBar />
       </div>
     </div>
   );

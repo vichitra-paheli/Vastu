@@ -136,5 +136,12 @@
   "table.header.dragToReorder": "Drag to reorder column",
   "table.header.resizeColumn": "Resize column",
   "table.cell.boolean.true": "True",
-  "table.cell.boolean.false": "False"
+  "table.cell.boolean.false": "False",
+
+  "tray.bar.panelListAriaLabel": "Minimized panels",
+  "tray.bar.statusAreaAriaLabel": "Status indicators",
+  "tray.bar.empty": "No minimized panels",
+  "tray.item.ariaLabel": "Restore panel: {title}",
+  "tray.item.close": "Close",
+  "tray.item.contextMenuAriaLabel": "Panel tray options"
 }

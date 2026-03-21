@@ -12,6 +12,8 @@ export { PanelTab } from './components/DockviewHost/PanelTab';
 export { DropIndicator } from './components/DockviewHost/DropIndicator';
 export { TruncatedText } from './components/TruncatedText';
 export { SidebarNav } from './components/SidebarNav';
+export { TrayBar, TrayItem } from './components/TrayBar';
+export type { TrayItemProps } from './components/TrayBar';
 export { ViewToolbar, ViewSelector } from './components/ViewToolbar';
 export type { ViewToolbarProps, ViewSelectorProps } from './components/ViewToolbar';
 export type { WorkspaceUser, WorkspaceShellProps } from './components/WorkspaceShell';
@@ -30,6 +32,7 @@ export { WelcomePanel, WELCOME_PANEL_TYPE_ID } from './panels/WelcomePanel';
 export { useSidebarStore } from './stores/sidebarStore';
 export { usePanelStore, openPanelByTypeId } from './stores/panelStore';
 export { useTrayStore } from './stores/trayStore';
+export type { TrayItem } from './stores/trayStore';
 export { useViewStore } from './stores/viewStore';
 export { useViewFilterStore, useViewFilters, useViewMode } from './stores/viewFilterStore';
 
