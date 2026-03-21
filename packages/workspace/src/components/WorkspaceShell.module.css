@@ -1,0 +1,62 @@
+/**
+ * WorkspaceShell layout — three-region workspace surface.
+ *
+ * Layout:
+ *   [ Sidebar (left, 48px collapsed / 200px expanded) ]
+ *   [ Main content area (fills remaining space)        ]
+ *   [ Tray bar (bottom, 44px fixed)                    ]
+ *
+ * All colors and spacing via --v-* design tokens only.
+ */
+
+.workspace {
+  display: grid;
+  grid-template-columns: var(--sidebar-width, 48px) 1fr;
+  grid-template-rows: 1fr 44px;
+  grid-template-areas:
+    'sidebar main'
+    'sidebar tray';
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--v-bg-primary);
+  transition: grid-template-columns var(--v-duration-normal) var(--v-ease-default);
+}
+
+/* ============================================================
+ * SIDEBAR
+ * ============================================================ */
+.sidebar {
+  grid-area: sidebar;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--v-bg-secondary);
+  border-right: 1px solid var(--v-border-default);
+  overflow: hidden;
+  z-index: var(--v-z-sidebar);
+}
+
+/* ============================================================
+ * MAIN CONTENT AREA
+ * ============================================================ */
+.main {
+  grid-area: main;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--v-bg-primary);
+}
+
+/* ============================================================
+ * TRAY BAR
+ * ============================================================ */
+.tray {
+  grid-area: tray;
+  display: flex;
+  align-items: center;
+  height: 44px;
+  background-color: var(--v-bg-secondary);
+  border-top: 1px solid var(--v-border-default);
+  padding: 0 var(--v-space-3);
+  z-index: var(--v-z-tray);
+  overflow: hidden;
+}
