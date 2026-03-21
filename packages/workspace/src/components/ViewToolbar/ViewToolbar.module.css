@@ -1,0 +1,163 @@
+/**
+ * ViewToolbar styles.
+ *
+ * Horizontal toolbar rendered below the Dockview tab bar in every panel.
+ * Shows current view name, modified indicator, Save / Reset controls,
+ * and a view-selector dropdown.
+ *
+ * All colors and spacing via --v-* CSS custom properties only.
+ */
+
+/* ================================================================
+ * Toolbar root
+ * ================================================================ */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: 36px;
+  min-height: 36px;
+  padding: 0 var(--v-space-3);
+  background-color: var(--v-bg-secondary);
+  border-bottom: 1px solid var(--v-border-default);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* ================================================================
+ * Left section — view selector + view name
+ * ================================================================ */
+.left {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-2);
+  flex: 1;
+  min-width: 0;
+}
+
+/* ================================================================
+ * Right section — controls
+ * ================================================================ */
+.right {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-2);
+  flex-shrink: 0;
+  margin-left: var(--v-space-3);
+}
+
+/* ================================================================
+ * View name (inline editable)
+ * ================================================================ */
+.viewNameWrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-1);
+  min-width: 0;
+  max-width: 280px;
+  cursor: pointer;
+}
+
+.viewNameInput {
+  border: none;
+  background: transparent;
+  font-family: var(--v-font-sans);
+  font-size: var(--v-text-sm);
+  font-weight: var(--v-font-medium);
+  color: var(--v-text-primary);
+  padding: 2px 4px;
+  border-radius: var(--v-radius-sm);
+  outline: none;
+  width: 100%;
+  min-width: 60px;
+  cursor: pointer;
+}
+
+.viewNameInput:focus {
+  background-color: var(--v-bg-primary);
+  border: 1px solid var(--v-border-strong);
+  cursor: text;
+}
+
+.viewNameInput:hover:not(:focus) {
+  background-color: var(--v-bg-tertiary);
+}
+
+/* ================================================================
+ * Modified indicator — goldenrod dot + "Modified" label + Reset link
+ * ================================================================ */
+.modifiedIndicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--v-space-1);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.modifiedDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--v-accent-tertiary);
+  flex-shrink: 0;
+}
+
+.modifiedLabel {
+  font-family: var(--v-font-sans);
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-regular);
+  color: var(--v-accent-tertiary);
+  white-space: nowrap;
+}
+
+.resetLink {
+  font-family: var(--v-font-sans);
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-regular);
+  color: var(--v-text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  white-space: nowrap;
+}
+
+.resetLink:hover {
+  color: var(--v-text-primary);
+}
+
+/* ================================================================
+ * Save button state overrides
+ * ================================================================ */
+
+/* When modified: primary blue */
+.saveButtonModified {
+  background-color: var(--v-accent-primary) !important;
+  color: var(--v-text-inverted) !important;
+  border-color: var(--v-accent-primary) !important;
+}
+
+.saveButtonModified:hover {
+  background-color: var(--v-accent-primary-hover) !important;
+  border-color: var(--v-accent-primary-hover) !important;
+}
+
+/* When clean: dimmed */
+.saveButtonClean {
+  opacity: 0.45;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+/* ================================================================
+ * Separator between left and right sections
+ * ================================================================ */
+.separator {
+  width: 1px;
+  height: 18px;
+  background-color: var(--v-border-default);
+  flex-shrink: 0;
+  margin: 0 var(--v-space-2);
+}
