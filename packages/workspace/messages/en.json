@@ -17,6 +17,11 @@
   "filter.mode.regex.short": "R",
   "filter.mode.ariaLabel": "Filter mode",
 
+  "filter.modeSwitch.ariaLabel": "Filter mode switch",
+  "filter.modeSwitch.include.tooltip": "Include rows matching this value",
+  "filter.modeSwitch.exclude.tooltip": "Exclude rows matching this value",
+  "filter.modeSwitch.regex.tooltip": "Match rows against a regular expression",
+
   "filter.bar.addFilter": "+ Add filter",
   "filter.bar.advanced": "Advanced",
   "filter.bar.simple": "Simple",

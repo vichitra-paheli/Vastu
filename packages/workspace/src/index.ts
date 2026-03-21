@@ -29,7 +29,7 @@ export { useSidebarStore } from './stores/sidebarStore';
 export { usePanelStore, openPanelByTypeId } from './stores/panelStore';
 export { useTrayStore } from './stores/trayStore';
 export { useViewStore } from './stores/viewStore';
-export { useViewFilterStore, useViewFilters } from './stores/viewFilterStore';
+export { useViewFilterStore, useViewFilters, useViewMode } from './stores/viewFilterStore';
 
 // Hooks
 export { usePanelPersistence, PANEL_LAYOUT_STORAGE_KEY } from './hooks/usePanelPersistence';
@@ -45,6 +45,10 @@ export type {
   PanelState,
   SerializedLayout,
 } from './types/panel';
+
+// ModeSwitch
+export { ModeSwitch } from './components/ModeSwitch';
+export type { ModeSwitchProps } from './components/ModeSwitch';
 
 // FilterSystem
 export {
