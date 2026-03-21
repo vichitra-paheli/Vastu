@@ -17,7 +17,7 @@
  * Implements US-108 (AC-1 through AC-7).
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { t } from '../../lib/i18n';
 import type { FilterMode } from '../FilterSystem/types';
 import classes from './ModeSwitch.module.css';
@@ -64,9 +64,17 @@ export function ModeSwitch({
     ? ALL_OPTIONS.filter((o) => o.mode !== 'regex')
     : ALL_OPTIONS;
 
+  // Fallback: if regex is disabled but currently selected (e.g. from persisted state),
+  // reset to 'include' to avoid rendering with no active segment.
+  useEffect(() => {
+    if (disableRegex && value === 'regex') {
+      onChange('include');
+    }
+  }, [disableRegex, value, onChange]);
+
   return (
     <div
-      role="group"
+      role="radiogroup"
       aria-label={ariaLabel ?? t('filter.modeSwitch.ariaLabel')}
       className={`${classes.root} ${disabled ? classes.disabled : ''}`}
     >
@@ -83,7 +91,7 @@ export function ModeSwitch({
             onClick={() => {
               if (!disabled) onChange(mode);
             }}
-            title={t(labelKey)}
+            title={t(`filter.modeSwitch.${mode}.tooltip`)}
           >
             <span className={classes.short} aria-hidden="true">
               {t(shortKey)}

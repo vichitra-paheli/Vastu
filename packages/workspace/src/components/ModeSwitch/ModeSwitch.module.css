@@ -63,7 +63,7 @@
   justify-content: center;
   width: 16px;
   height: 16px;
-  border-radius: var(--v-radius-xs);
+  border-radius: var(--v-radius-sm);
   font-size: var(--v-text-xs);
   font-weight: var(--v-font-medium);
   flex-shrink: 0;
