@@ -45,3 +45,18 @@ export type {
   CreateDbConnectionInput,
   UpdateDbConnectionInput,
 } from './db-connection';
+
+export type { Page } from './page';
+
+export type {
+  View,
+  ViewState,
+  FilterNode,
+  FilterCondition,
+  FilterGroup,
+  FilterMode,
+  DataType,
+  SortState,
+  ColumnState,
+  PaginationState,
+} from './view';

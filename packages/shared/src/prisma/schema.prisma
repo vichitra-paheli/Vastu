@@ -54,6 +54,8 @@ model Organization {
   dbConnections DbConnection[]
   ssoProviders  SsoProvider[]
   auditEvents   AuditEvent[]
+  pages         Page[]
+  views         View[]
 
   @@map("organizations")
 }
@@ -87,6 +89,7 @@ model User {
   auditEvents  AuditEvent[]
   sessions     Session[]
   accounts     Account[]
+  views        View[]
 
   @@index([organizationId])
   @@index([email])
@@ -338,4 +341,53 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verification_tokens")
+}
+
+// ---------------------------------------------------------------------------
+// Page — registered page definitions (US-110)
+// ---------------------------------------------------------------------------
+
+model Page {
+  id             String    @id @default(uuid())
+  name           String
+  slug           String    @unique
+  icon           String?
+  templateType   String    @map("template_type")
+  organizationId String    @map("organization_id")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  views        View[]
+
+  @@index([organizationId])
+  @@map("pages")
+}
+
+// ---------------------------------------------------------------------------
+// View — saved view state snapshots (US-110)
+// ---------------------------------------------------------------------------
+
+model View {
+  id             String    @id @default(uuid())
+  name           String
+  pageId         String    @map("page_id")
+  stateJson      Json      @map("state_json")
+  createdBy      String    @map("created_by")
+  isShared       Boolean   @default(false) @map("is_shared")
+  colorDot       String?   @map("color_dot")
+  organizationId String    @map("organization_id")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
+
+  page          Page         @relation(fields: [pageId], references: [id])
+  createdByUser User         @relation(fields: [createdBy], references: [id])
+  organization  Organization @relation(fields: [organizationId], references: [id])
+
+  @@index([pageId])
+  @@index([createdBy])
+  @@index([organizationId])
+  @@map("views")
 }

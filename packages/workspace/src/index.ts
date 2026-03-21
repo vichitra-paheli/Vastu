@@ -28,6 +28,7 @@ export { WelcomePanel, WELCOME_PANEL_TYPE_ID } from './panels/WelcomePanel';
 export { useSidebarStore } from './stores/sidebarStore';
 export { usePanelStore, openPanelByTypeId } from './stores/panelStore';
 export { useTrayStore } from './stores/trayStore';
+export { useViewStore } from './stores/viewStore';
 
 // Hooks
 export { usePanelPersistence, PANEL_LAYOUT_STORAGE_KEY } from './hooks/usePanelPersistence';
