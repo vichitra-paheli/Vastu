@@ -1,0 +1,50 @@
+/**
+ * DimensionPicker styles.
+ * All colors via --v-* CSS custom properties.
+ */
+
+.dropdown {
+  min-width: 220px;
+  max-width: 280px;
+  padding: 12px;
+  background-color: var(--v-bg-elevated);
+  border: 1px solid var(--v-border-default);
+  border-radius: var(--v-radius-md);
+  box-shadow: var(--v-shadow-md);
+}
+
+.searchInput {
+  width: 100%;
+}
+
+/* Data type group header */
+.groupHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px 2px 8px;
+}
+
+.groupIcon {
+  color: var(--v-text-tertiary);
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Individual dimension option */
+.dimensionItem {
+  display: block;
+  width: 100%;
+  padding: 5px 8px 5px 24px;
+  border-radius: var(--v-radius-sm);
+  font-size: var(--v-text-sm);
+  font-family: var(--v-font-sans);
+  color: var(--v-text-primary);
+  cursor: pointer;
+  transition: background-color var(--v-duration-fast) var(--v-ease-default);
+}
+
+.dimensionItem:hover {
+  background-color: var(--v-accent-primary-light);
+  color: var(--v-accent-primary);
+}

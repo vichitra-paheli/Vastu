@@ -1,0 +1,79 @@
+/**
+ * FilterBar styles.
+ * All colors via --v-* CSS custom properties.
+ */
+
+.bar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: var(--v-bg-secondary);
+  border-bottom: 1px solid var(--v-border-default);
+  min-height: 44px;
+}
+
+.innerGroup {
+  min-height: 28px;
+}
+
+/* Scrollable area for pills */
+.pillScroll {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.pillRow {
+  padding-bottom: 2px; /* Avoids scrollbar clipping pills */
+}
+
+.emptyLabel {
+  font-style: italic;
+}
+
+/* Right-side action controls */
+.controls {
+  flex-shrink: 0;
+}
+
+/* Active indicator badge */
+.activeIndicator {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--v-radius-full);
+  background-color: var(--v-accent-primary-light);
+  color: var(--v-accent-primary);
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-medium);
+  font-family: var(--v-font-sans);
+  white-space: nowrap;
+}
+
+/* Add filter button */
+.addButton {
+  color: var(--v-accent-primary) !important;
+  font-size: var(--v-text-sm) !important;
+}
+
+.addButton:hover {
+  background-color: var(--v-accent-primary-light) !important;
+}
+
+/* Generic action button */
+.actionButton {
+  color: var(--v-text-secondary) !important;
+  font-size: var(--v-text-sm) !important;
+}
+
+.actionButton:hover {
+  background-color: var(--v-bg-tertiary) !important;
+  color: var(--v-text-primary) !important;
+}
+
+/* Advanced mode header */
+.advancedHeader {
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--v-border-subtle);
+}
