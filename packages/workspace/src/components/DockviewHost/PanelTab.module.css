@@ -1,0 +1,52 @@
+/**
+ * PanelTab — custom tab styles.
+ *
+ * All colors via --v-* CSS custom properties.
+ */
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-1);
+  height: 100%;
+  padding: 0 var(--v-space-2) 0 var(--v-space-3);
+  min-width: 0;
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--v-text-sm);
+  font-weight: var(--v-font-regular);
+  color: inherit;
+  font-family: var(--v-font-sans);
+}
+
+.closeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border: none;
+  background: transparent;
+  border-radius: var(--v-radius-sm);
+  color: var(--v-text-tertiary);
+  cursor: pointer;
+  padding: 0;
+  transition:
+    background-color var(--v-duration-fast) var(--v-ease-default),
+    color var(--v-duration-fast) var(--v-ease-default);
+  outline: none;
+}
+
+.closeButton:hover {
+  background-color: var(--v-interactive-hover);
+  color: var(--v-text-primary);
+}
+
+.closeButton:focus-visible {
+  outline: 2px solid var(--v-border-focus);
+  outline-offset: 1px;
+}
