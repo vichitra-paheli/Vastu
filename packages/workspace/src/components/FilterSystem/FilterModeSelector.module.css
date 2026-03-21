@@ -1,0 +1,71 @@
+/**
+ * FilterModeSelector styles.
+ * All colors via --v-* CSS custom properties.
+ */
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--v-radius-sm);
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-medium);
+  font-family: var(--v-font-sans);
+  cursor: pointer;
+  transition: background-color var(--v-duration-fast) var(--v-ease-default);
+  flex-shrink: 0;
+}
+
+.trigger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Include mode — accent-primary (blue) */
+.include {
+  color: var(--v-accent-primary);
+  background-color: var(--v-accent-primary-light);
+}
+
+.include:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--v-accent-primary) 20%, transparent);
+}
+
+/* Exclude mode — status-error (red) */
+.exclude {
+  color: var(--v-status-error);
+  background-color: var(--v-status-error-light);
+}
+
+.exclude:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--v-status-error) 20%, transparent);
+}
+
+/* Regex mode — accent-quaternary (muted violet) */
+.regex {
+  color: var(--v-accent-quaternary);
+  background-color: var(--v-accent-quaternary-light);
+}
+
+.regex:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--v-accent-quaternary) 20%, transparent);
+}
+
+/* Short badge inside menu item */
+.shortBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--v-radius-sm);
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-medium);
+}
+
+/* Highlight selected item in menu */
+.activeItem {
+  background-color: var(--v-bg-tertiary);
+}

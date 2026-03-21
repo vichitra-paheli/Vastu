@@ -28,6 +28,7 @@ export { WelcomePanel, WELCOME_PANEL_TYPE_ID } from './panels/WelcomePanel';
 export { useSidebarStore } from './stores/sidebarStore';
 export { usePanelStore, openPanelByTypeId } from './stores/panelStore';
 export { useTrayStore } from './stores/trayStore';
+export { useViewFilterStore, useViewFilters } from './stores/viewFilterStore';
 
 // Hooks
 export { usePanelPersistence, PANEL_LAYOUT_STORAGE_KEY } from './hooks/usePanelPersistence';
@@ -43,3 +44,46 @@ export type {
   PanelState,
   SerializedLayout,
 } from './types/panel';
+
+// FilterSystem
+export {
+  FilterBar,
+  FilterPill,
+  FilterModeSelector,
+  FilterInput,
+  DimensionPicker,
+  CompositeFilterBuilder,
+  TextFilterInput,
+  NumberFilterInput,
+  DateFilterInput,
+  EnumFilterInput,
+  BooleanFilterInput,
+  evaluateCondition,
+  evaluateGroup,
+  evaluateFilter,
+  applyFilters,
+  validateRegex,
+  createRootGroup,
+  createCondition,
+  isFilterFlat,
+  countConditions,
+} from './components/FilterSystem';
+export type {
+  FilterMode,
+  DataType,
+  FilterCondition,
+  FilterGroup,
+  FilterNode,
+  FilterValue,
+  NumberRangeValue,
+  DateRangeValue,
+  FilterDimension,
+  EnumOption,
+  FilterState,
+  FilterBarProps,
+  FilterPillProps,
+  FilterModeSelectorProps,
+  FilterInputProps,
+  DimensionPickerProps,
+  CompositeFilterBuilderProps,
+} from './components/FilterSystem';

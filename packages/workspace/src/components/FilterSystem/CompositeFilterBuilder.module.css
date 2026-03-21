@@ -1,0 +1,117 @@
+/**
+ * CompositeFilterBuilder styles.
+ * All colors via --v-* CSS custom properties.
+ */
+
+.builder {
+  padding: 8px 0;
+}
+
+.whereLabel {
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Group container */
+.groupContainer {
+  border-left: 2px solid var(--v-border-default);
+  padding: 8px 0 8px 12px;
+  margin-bottom: 4px;
+  border-radius: 0 var(--v-radius-sm) var(--v-radius-sm) 0;
+}
+
+.groupContainer:first-of-type {
+  border-left-color: var(--v-accent-primary);
+}
+
+/* Group header with connector toggle */
+.groupHeader {
+  margin-bottom: 8px;
+}
+
+/* AND/OR connector toggle button */
+.connectorToggle {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: var(--v-radius-full);
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-medium);
+  font-family: var(--v-font-sans);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition:
+    background-color var(--v-duration-fast) var(--v-ease-default),
+    color var(--v-duration-fast) var(--v-ease-default);
+}
+
+.connectorAnd {
+  background-color: var(--v-accent-primary-light);
+  color: var(--v-accent-primary);
+  border-color: var(--v-accent-primary);
+}
+
+.connectorAnd:hover {
+  background-color: color-mix(in srgb, var(--v-accent-primary) 20%, transparent);
+}
+
+.connectorOr {
+  background-color: var(--v-accent-quaternary-light);
+  color: var(--v-accent-quaternary);
+  border-color: var(--v-accent-quaternary);
+}
+
+.connectorOr:hover {
+  background-color: color-mix(in srgb, var(--v-accent-quaternary) 20%, transparent);
+}
+
+/* Nesting warning */
+.nestingWarning {
+  margin-bottom: 8px;
+}
+
+/* Children container */
+.childrenContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Add controls */
+.addControls {
+  margin-top: 8px;
+}
+
+.addButton {
+  color: var(--v-text-secondary) !important;
+  font-size: var(--v-text-xs) !important;
+}
+
+.addButton:hover {
+  background-color: var(--v-bg-tertiary) !important;
+  color: var(--v-text-primary) !important;
+}
+
+/* Condition row */
+.conditionRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 0;
+}
+
+.columnSelect {
+  width: 140px;
+  flex-shrink: 0;
+}
+
+.conditionInput {
+  flex: 1;
+  min-width: 0;
+}
+
+.removeButton {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
