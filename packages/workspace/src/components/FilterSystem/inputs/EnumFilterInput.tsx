@@ -99,7 +99,7 @@ export function EnumFilterInput({ condition, onChange, options }: EnumFilterInpu
             <Stack gap={2}>
               {filteredOptions.length === 0 ? (
                 <Text size="xs" c="var(--v-text-tertiary)" ta="center" py={8}>
-                  {search ? `No values matching "${search}"` : 'No options'}
+                  {search ? t('filter.input.enum.noMatch') : t('filter.input.enum.noOptions')}
                 </Text>
               ) : (
                 filteredOptions.map((opt) => (

@@ -65,5 +65,8 @@
   "filter.builder.nestingWarning": "Deeply nested filters may impact performance",
   "filter.builder.whereLabel": "WHERE",
   "filter.builder.column": "Column",
-  "filter.builder.columnPlaceholder": "Select column..."
+  "filter.builder.columnPlaceholder": "Select column...",
+  "filter.dimension.noMatch": "No columns match",
+  "filter.input.enum.noMatch": "No values found",
+  "filter.input.enum.noOptions": "No options"
 }

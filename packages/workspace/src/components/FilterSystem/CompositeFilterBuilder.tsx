@@ -162,10 +162,16 @@ function FilterGroupEditor({
       {/* Children */}
       <div className={classes.childrenContainer}>
         {group.children.map((child, index) => {
+          // Stable key: use column name for conditions, operator+index for groups.
+          // This avoids key={index} reconciliation bugs when items are removed.
+          const childKey = child.type === 'condition'
+            ? `cond-${child.column || 'empty'}-${index}`
+            : `group-${(child as FilterGroup).connector || 'and'}-${index}`;
+
           if (child.type === 'condition') {
             return (
               <FilterConditionEditor
-                key={index}
+                key={childKey}
                 condition={child}
                 dimensions={dimensions}
                 onChange={(updated) => updateChild(index, updated)}
@@ -177,7 +183,7 @@ function FilterGroupEditor({
           // child is a group
           return (
             <FilterGroupEditor
-              key={index}
+              key={childKey}
               group={child}
               dimensions={dimensions}
               depth={depth + 1}

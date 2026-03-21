@@ -114,7 +114,7 @@ export function DimensionPicker({ dimensions, onSelect, children }: DimensionPic
         <ScrollArea h={Math.min((filteredDimensions.length + grouped.size) * 26 + 16, 280)} type="scroll">
           {grouped.size === 0 ? (
             <Text size="xs" c="var(--v-text-tertiary)" ta="center" py={8}>
-              No columns match
+              {t('filter.dimension.noMatch')}
             </Text>
           ) : (
             <Stack gap={0}>

@@ -74,11 +74,11 @@ export function useViewFilters(viewId: string): {
   activeFilterCount: number;
   root: FilterGroup | null;
 } {
-  const filtersByView = useViewFilterStore((s) => s.filtersByView);
+  const filterState = useViewFilterStore(
+    (s) => s.filtersByView[viewId] ?? DEFAULT_FILTER_STATE,
+  );
   const setFilters = useViewFilterStore((s) => s.setFilters);
   const clearFilters = useViewFilterStore((s) => s.clearFilters);
-
-  const filterState = filtersByView[viewId] ?? DEFAULT_FILTER_STATE;
 
   function setFilterState(state: FilterState) {
     setFilters(viewId, state);
