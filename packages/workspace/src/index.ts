@@ -46,6 +46,20 @@ export type {
   SerializedLayout,
 } from './types/panel';
 
+// ContextMenu
+export {
+  ContextMenu,
+  ContextMenuItem,
+  ContextMenuDivider,
+  ContextMenuGroup,
+} from './components/ContextMenu';
+export type {
+  ContextMenuProps,
+  ContextMenuContextData,
+  ContextMenuItemProps,
+  ContextMenuGroupProps,
+} from './components/ContextMenu';
+
 // FilterSystem
 export {
   FilterBar,
