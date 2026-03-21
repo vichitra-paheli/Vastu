@@ -52,6 +52,15 @@ export type {
 export { ModeSwitch } from './components/ModeSwitch';
 export type { ModeSwitchProps } from './components/ModeSwitch';
 
+// ContextMenu
+export {
+  ContextMenu,
+  ContextMenuItem,
+  ContextMenuDivider,
+  ContextMenuGroup,
+} from './components/ContextMenu';
+export type { ContextMenuContextData } from './components/ContextMenu/ContextMenu';
+
 // FilterSystem
 export {
   FilterBar,
