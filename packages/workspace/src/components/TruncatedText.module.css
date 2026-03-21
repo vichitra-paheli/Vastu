@@ -1,0 +1,12 @@
+/**
+ * TruncatedText — single-line truncation styles.
+ */
+
+.truncated {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  vertical-align: middle;
+}

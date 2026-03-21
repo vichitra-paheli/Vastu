@@ -230,6 +230,15 @@ importers:
       '@vastu/shared':
         specifier: workspace:*
         version: link:../shared
+      dockview:
+        specifier: ^4.2.4
+        version: 4.13.1(react@18.3.1)
+      dockview-core:
+        specifier: ^4.2.4
+        version: 4.13.1
+      dockview-react:
+        specifier: ^4.2.4
+        version: 4.13.1(react@18.3.1)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -2416,6 +2425,17 @@ packages:
 
   dijkstrajs@1.0.3:
     resolution: {integrity: sha512-qiSlmBq9+BCdCA/L46dw8Uy93mloxsPSbwnm5yrKn2vMPiy8KyAskTF6zuV/j5BMsmOGZDPs7KjU+mjb670kfA==}
+
+  dockview-core@4.13.1:
+    resolution: {integrity: sha512-+7vR0ZEoL8CNck6NqDVUMqBT22niwBu5CMMI137dZ3c8NDc7c5Si+3dGEqQgM4lNtHBLAtvypo1C4p21J2wkiQ==}
+
+  dockview-react@4.13.1:
+    resolution: {integrity: sha512-xnK0mUq+gzME/QyzM5nn+SsQO26AA2qZlCuqi1KX7wux52KIUSMraQHN5AY9Qm2qCVb/NHhCZoZNSysb/GS79A==}
+
+  dockview@4.13.1:
+    resolution: {integrity: sha512-K8xnYt3Rvkx8MYKHaEsb8aFaPyQclKRRkXS9JcpQPZUgqxumTLnSidgdd6uIfzEps6yJsXoZGQGJ9PtcaKyDcQ==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   doctrine@2.1.0:
     resolution: {integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==}
@@ -6454,6 +6474,19 @@ snapshots:
       dequal: 2.0.3
 
   dijkstrajs@1.0.3: {}
+
+  dockview-core@4.13.1: {}
+
+  dockview-react@4.13.1(react@18.3.1):
+    dependencies:
+      dockview: 4.13.1(react@18.3.1)
+    transitivePeerDependencies:
+      - react
+
+  dockview@4.13.1(react@18.3.1):
+    dependencies:
+      dockview-core: 4.13.1
+      react: 18.3.1
 
   doctrine@2.1.0:
     dependencies:

@@ -1,0 +1,98 @@
+/**
+ * DockviewHost — container and Dockview override styles.
+ *
+ * All colors via --v-* CSS custom properties.
+ * Dockview's own CSS is imported in DockviewHost.tsx.
+ *
+ * Panel resize: 200ms ease-out (matches style guide motion tokens).
+ * Tab reorder: 150ms (matches --v-duration-fast + buffer).
+ */
+
+/* ============================================================
+ * HOST CONTAINER
+ * ============================================================ */
+.host {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  background-color: var(--v-bg-primary);
+}
+
+/* ============================================================
+ * DOCKVIEW OVERRIDES — Integrate with Vastu design tokens
+ * ============================================================ */
+
+/* Tab bar background */
+.host :global(.dv-tabs-and-actions-container) {
+  background-color: var(--v-bg-secondary);
+  border-bottom: 1px solid var(--v-border-default);
+}
+
+/* Tab container */
+.host :global(.dv-tab) {
+  background-color: transparent;
+  border-right: 1px solid var(--v-border-default);
+  color: var(--v-text-secondary);
+  font-size: var(--v-text-sm);
+  font-weight: var(--v-font-regular);
+  font-family: var(--v-font-sans);
+  transition:
+    background-color var(--v-duration-fast) var(--v-ease-default),
+    color var(--v-duration-fast) var(--v-ease-default);
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Active tab */
+.host :global(.dv-tab.dv-active-tab) {
+  color: var(--v-text-primary);
+  background-color: var(--v-bg-primary);
+  border-bottom: 2px solid var(--v-accent-primary);
+}
+
+/* Tab hover */
+.host :global(.dv-tab:hover:not(.dv-active-tab)) {
+  background-color: var(--v-interactive-hover);
+  color: var(--v-text-primary);
+}
+
+/* Panel content area */
+.host :global(.dv-groupview-content-container) {
+  background-color: var(--v-bg-primary);
+}
+
+/* Sash/resize handles */
+.host :global(.dv-sash) {
+  transition: opacity var(--v-duration-fast) var(--v-ease-default);
+}
+
+/* Panel resize animation — 200ms ease-out */
+.host :global(.dv-view) {
+  transition: flex 200ms var(--v-ease-out);
+}
+
+/* Floating panel shadow */
+.host :global(.dv-overlay-render-container) {
+  box-shadow: var(--v-shadow-md);
+  border: 1px solid var(--v-border-default);
+  border-radius: var(--v-radius-md);
+  overflow: hidden;
+}
+
+/* Drop indicator color */
+.host :global(.dv-drop-target-anchor) {
+  background-color: var(--v-accent-primary);
+  opacity: 0.25;
+  border-radius: var(--v-radius-sm);
+  transition: opacity var(--v-duration-fast) var(--v-ease-default);
+}
+
+.host :global(.dv-drop-target-anchor-container) {
+  background-color: transparent;
+}
+
+/* Tab reorder drag ghost — 150ms */
+.host :global(.dv-tabs-container) {
+  transition: none;
+}

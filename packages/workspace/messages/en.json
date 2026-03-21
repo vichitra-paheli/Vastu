@@ -1,0 +1,11 @@
+{
+  "workspace.welcome.ariaLabel": "Workspace welcome screen",
+  "workspace.welcome.title": "Open a page from the sidebar or press \u2318K",
+  "workspace.welcome.hint": "Split, float, and arrange panels to fit your workflow.",
+
+  "workspace.panel.closeAriaLabel": "Close panel",
+  "workspace.panel.tab.activeAriaLabel": "Active panel",
+
+  "workspace.dockview.loadError": "Failed to restore workspace layout. Starting fresh.",
+  "workspace.dockview.empty": "No panels open"
+}

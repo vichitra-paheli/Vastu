@@ -6,15 +6,20 @@
  * Regions:
  *   - Sidebar (left): 48px collapsed (icon rail) / 200px expanded.
  *     Controlled by sidebarStore, persisted to localStorage.
- *   - Main content (center): fills remaining space.
- *     This is where Dockview will be mounted in US-107.
+ *   - Main content (center): hosts DockviewHost (US-107).
  *   - Tray bar (bottom): 44px fixed. Populated in US-115.
  *
+ * Built-in panels are registered at import time via panels/index.ts.
  * All colors via --v-* CSS custom properties. No hardcoded values.
  */
 
+// Register all built-in panel types before DockviewHost mounts.
+// This import has a side effect: it calls registerPanel() for each built-in.
+import '../panels/index';
+
 import React from 'react';
 import { useSidebarStore } from '../stores/sidebarStore';
+import { DockviewHost } from './DockviewHost/DockviewHost';
 import classes from './WorkspaceShell.module.css';
 
 const SIDEBAR_COLLAPSED_WIDTH = 48;
@@ -40,10 +45,13 @@ export function WorkspaceShell({ children }: WorkspaceShellProps) {
         style={{ width: sidebarWidth }}
         data-collapsed={collapsed}
       >
-        {/* Sidebar content — icon rail and expanded nav populated in US-107 */}
+        {/* Sidebar content — icon rail and expanded nav populated in US-109 */}
       </aside>
 
       <main className={classes.main} id="workspace-main">
+        {/* DockviewHost is the primary content area (US-107) */}
+        <DockviewHost />
+        {/* Legacy children prop — kept for backward compatibility with existing tests */}
         {children}
       </main>
 
