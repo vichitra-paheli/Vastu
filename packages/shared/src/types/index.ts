@@ -54,6 +54,7 @@ export type {
   FilterNode,
   FilterCondition,
   FilterGroup,
+  FilterValue,
   FilterMode,
   DataType,
   SortState,

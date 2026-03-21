@@ -350,7 +350,7 @@ model VerificationToken {
 model Page {
   id             String    @id @default(uuid())
   name           String
-  slug           String    @unique
+  slug           String
   icon           String?
   templateType   String    @map("template_type")
   organizationId String    @map("organization_id")
@@ -361,6 +361,7 @@ model Page {
   organization Organization @relation(fields: [organizationId], references: [id])
   views        View[]
 
+  @@unique([slug, organizationId])
   @@index([organizationId])
   @@map("pages")
 }

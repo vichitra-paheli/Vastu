@@ -11,13 +11,22 @@ export type FilterMode = 'include' | 'exclude' | 'regex';
 /** Supported data types for filter inputs. */
 export type DataType = 'text' | 'number' | 'date' | 'enum' | 'boolean';
 
+/** Concrete value types for filter conditions. */
+export type FilterValue =
+  | string
+  | string[]
+  | number
+  | [number, number]
+  | boolean
+  | null;
+
 /** A single filter condition on one field. */
 export interface FilterCondition {
   type: 'condition';
   field: string;
   mode: FilterMode;
   dataType: DataType;
-  value: unknown;
+  value: FilterValue;
 }
 
 /** A group of filter conditions combined with AND or OR. */

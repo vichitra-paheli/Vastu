@@ -31,7 +31,7 @@ CREATE TABLE "views" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "pages_slug_key" ON "pages"("slug");
+CREATE UNIQUE INDEX "pages_slug_organization_id_key" ON "pages"("slug", "organization_id");
 CREATE INDEX "pages_organization_id_idx" ON "pages"("organization_id");
 CREATE INDEX "views_page_id_idx" ON "views"("page_id");
 CREATE INDEX "views_created_by_idx" ON "views"("created_by");

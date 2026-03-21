@@ -8,11 +8,11 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { prisma } from '@vastu/shared/prisma';
-import { getSession } from '@/lib/session';
+import { getSessionWithAbility } from '@/lib/session';
 
 export async function GET(request: NextRequest) {
-  const session = await getSession();
-  if (!session) {
+  const { session, ability } = await getSessionWithAbility();
+  if (!session || !ability) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -40,9 +40,13 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await getSession();
-  if (!session) {
+  const { session, ability } = await getSessionWithAbility();
+  if (!session || !ability) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  if (!ability.can('read', 'Page')) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
   const body = (await request.json()) as {
@@ -58,6 +62,18 @@ export async function POST(request: NextRequest) {
       { error: 'name, pageId, and stateJson are required' },
       { status: 400 },
     );
+  }
+
+  // Validate pageId belongs to user's organization
+  const page = await prisma.page.findFirst({
+    where: {
+      id: body.pageId,
+      organizationId: session.user.organizationId,
+      deletedAt: null,
+    },
+  });
+  if (!page) {
+    return NextResponse.json({ error: 'Page not found' }, { status: 404 });
   }
 
   // Validate stateJson size (warn at 100KB)
