@@ -2,6 +2,10 @@
 node_modules/
 .pnpm-store/
 
+# Claude Code worktrees
+.claude/worktrees/
+.claire/
+
 # Build outputs
 dist/
 .next/
