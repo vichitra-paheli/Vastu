@@ -61,6 +61,17 @@ export {
 } from './components/ContextMenu';
 export type { ContextMenuContextData } from './components/ContextMenu/ContextMenu';
 
+// VastuTable
+export { VastuTable, VastuTableHeader, VastuTableRow, VastuTableCell, useVastuTable } from './components/VastuTable';
+export type {
+  VastuColumn,
+  VastuTableProps,
+  CellDataType,
+  HeaderContextData,
+  CellContextData,
+  DragColumnState,
+} from './components/VastuTable';
+
 // FilterSystem
 export {
   FilterBar,
