@@ -22,20 +22,30 @@ export function PanelTab({ api }: IDockviewPanelHeaderProps) {
   const apiRef = useRef(api);
   // Initialize title from the current API state at the time of first render
   const [title, setTitle] = useState<string>(() => api.title ?? '');
+  const [isActive, setIsActive] = useState<boolean>(() => api.isActive);
 
   useEffect(() => {
     // When the api prop changes identity (different panel reuses this tab slot),
-    // update the title to reflect the new panel.
+    // sync the title to the new panel's title immediately.
     if (apiRef.current !== api) {
       apiRef.current = api;
+      setTitle(api.title ?? '');
     }
 
     // Subscribe to title change events from Dockview (e.g. after api.setTitle())
-    const subscription = api.onDidTitleChange((event) => {
+    const titleSub = api.onDidTitleChange((event) => {
       setTitle(event.title);
     });
 
-    return () => subscription.dispose();
+    // Track active state for aria-selected
+    const activeSub = api.onDidActiveChange(() => {
+      setIsActive(api.isActive);
+    });
+
+    return () => {
+      titleSub.dispose();
+      activeSub.dispose();
+    };
   }, [api]);
 
   function handleClose(e: React.MouseEvent) {
@@ -45,7 +55,7 @@ export function PanelTab({ api }: IDockviewPanelHeaderProps) {
   }
 
   return (
-    <div className={classes.tab} role="tab">
+    <div className={classes.tab} role="tab" aria-selected={isActive}>
       <TruncatedText className={classes.title} maxWidth={160}>
         {title}
       </TruncatedText>
