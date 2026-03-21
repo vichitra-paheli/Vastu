@@ -1,0 +1,388 @@
+/**
+ * SidebarNav styles — workspace sidebar navigation.
+ *
+ * Two states:
+ *   - Collapsed: 48px icon-only rail
+ *   - Expanded:  200px with labels and sections
+ *
+ * All colors via --v-* CSS custom properties.
+ * Width transition: 200ms --v-ease-default (--v-duration-normal).
+ */
+
+/* ============================================================
+ * ROOT SIDEBAR
+ * ============================================================ */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background-color: var(--v-bg-secondary);
+  overflow: hidden;
+  transition: width var(--v-duration-normal) var(--v-ease-default);
+  user-select: none;
+}
+
+/* ============================================================
+ * LOGO AREA
+ * ============================================================ */
+.logo {
+  display: flex;
+  align-items: center;
+  height: 48px;
+  flex-shrink: 0;
+  padding: 0 var(--v-space-3);
+  border-bottom: 1px solid var(--v-border-subtle);
+  gap: var(--v-space-2);
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--v-text-primary);
+}
+
+.logo:hover {
+  background-color: var(--v-bg-tertiary);
+}
+
+.logoIconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.logoText {
+  font-size: var(--v-text-md);
+  font-weight: var(--v-font-medium);
+  color: var(--v-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity var(--v-duration-normal) var(--v-ease-default);
+}
+
+.sidebar[data-collapsed='true'] .logoText {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ============================================================
+ * SEARCH AREA
+ * ============================================================ */
+.searchWrapper {
+  padding: var(--v-space-2) var(--v-space-3);
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--v-border-subtle);
+}
+
+/* ============================================================
+ * SCROLLABLE NAV BODY
+ * ============================================================ */
+.navBody {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--v-space-2) 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--v-border-default) transparent;
+}
+
+.navBody::-webkit-scrollbar {
+  width: 4px;
+}
+
+.navBody::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.navBody::-webkit-scrollbar-thumb {
+  background-color: var(--v-border-default);
+  border-radius: var(--v-radius-full);
+}
+
+/* ============================================================
+ * TOGGLE BUTTON
+ * ============================================================ */
+.toggleButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--v-radius-md);
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--v-text-secondary);
+  transition: background-color var(--v-duration-fast) var(--v-ease-default),
+    color var(--v-duration-fast) var(--v-ease-default);
+  flex-shrink: 0;
+}
+
+.toggleButton:hover {
+  background-color: var(--v-bg-tertiary);
+  color: var(--v-text-primary);
+}
+
+/* ============================================================
+ * SECTION
+ * ============================================================ */
+.section {
+  margin-bottom: var(--v-space-2);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 28px;
+  padding: 0 var(--v-space-3);
+  cursor: pointer;
+  gap: var(--v-space-2);
+  color: var(--v-text-tertiary);
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-medium);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: color var(--v-duration-fast) var(--v-ease-default);
+}
+
+.sectionHeader:hover {
+  color: var(--v-text-secondary);
+}
+
+.sectionHeaderLabel {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity var(--v-duration-normal) var(--v-ease-default);
+}
+
+.sidebar[data-collapsed='true'] .sectionHeaderLabel {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sectionChevron {
+  flex-shrink: 0;
+  color: var(--v-text-tertiary);
+  transition: transform var(--v-duration-normal) var(--v-ease-default),
+    opacity var(--v-duration-normal) var(--v-ease-default);
+}
+
+.sidebar[data-collapsed='true'] .sectionChevron {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sectionChevron[data-open='false'] {
+  transform: rotate(-90deg);
+}
+
+.sectionItems {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* ============================================================
+ * NAV ITEM
+ * ============================================================ */
+
+/* Row wrapper: positions item button + pin button relative to each other */
+.navItemRow {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+
+.navItemRow:hover .navItemPin,
+.navItemRow:focus-within .navItemPin {
+  opacity: 1;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 var(--v-space-3);
+  gap: var(--v-space-2);
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  color: var(--v-text-secondary);
+  border-radius: 0;
+  transition: background-color var(--v-duration-fast) var(--v-ease-default),
+    color var(--v-duration-fast) var(--v-ease-default);
+  flex: 1;
+  min-width: 0;
+}
+
+.navItem:hover {
+  background-color: var(--v-bg-tertiary);
+  color: var(--v-text-primary);
+}
+
+.navItem[data-active='true'] {
+  background-color: var(--v-accent-primary-light);
+  color: var(--v-accent-primary);
+}
+
+.navItem[data-active='true']:hover {
+  background-color: var(--v-accent-primary-light);
+}
+
+.navItemIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.navItemLabel {
+  flex: 1;
+  font-size: var(--v-text-sm);
+  font-weight: var(--v-font-regular);
+  white-space: nowrap;
+  overflow: hidden;
+  min-width: 0;
+  opacity: 1;
+  transition: opacity var(--v-duration-normal) var(--v-ease-default);
+}
+
+.navItem[data-active='true'] .navItemLabel {
+  font-weight: var(--v-font-medium);
+}
+
+.sidebar[data-collapsed='true'] .navItemLabel {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.navItemPin {
+  position: absolute;
+  right: var(--v-space-2);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--v-radius-sm);
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--v-text-tertiary);
+  opacity: 0;
+  transition: opacity var(--v-duration-fast) var(--v-ease-default),
+    color var(--v-duration-fast) var(--v-ease-default),
+    background-color var(--v-duration-fast) var(--v-ease-default);
+  flex-shrink: 0;
+}
+
+.navItemPin[data-pinned='true'] {
+  opacity: 1;
+  color: var(--v-accent-primary);
+}
+
+.navItemPin:hover {
+  background-color: var(--v-bg-secondary);
+  color: var(--v-text-primary);
+}
+
+.sidebar[data-collapsed='true'] .navItemPin {
+  display: none;
+}
+
+/* ============================================================
+ * SEARCH INPUT
+ * ============================================================ */
+.searchInput {
+  width: 100%;
+  height: 28px;
+  padding: 0 var(--v-space-2);
+  border: 1px solid var(--v-border-default);
+  border-radius: var(--v-radius-md);
+  background-color: var(--v-bg-primary);
+  color: var(--v-text-primary);
+  font-size: var(--v-text-sm);
+  font-family: var(--v-font-sans);
+  outline: none;
+  transition: border-color var(--v-duration-fast) var(--v-ease-default),
+    box-shadow var(--v-duration-fast) var(--v-ease-default);
+}
+
+.searchInput::placeholder {
+  color: var(--v-text-tertiary);
+}
+
+.searchInput:focus {
+  border-color: var(--v-border-focus);
+  box-shadow: var(--v-shadow-focus);
+}
+
+/* ============================================================
+ * USER AVATAR AREA
+ * ============================================================ */
+.userArea {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-2);
+  padding: var(--v-space-2) var(--v-space-3);
+  height: 52px;
+  border-top: 1px solid var(--v-border-subtle);
+  flex-shrink: 0;
+  cursor: default;
+}
+
+.userInfo {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity var(--v-duration-normal) var(--v-ease-default);
+}
+
+.sidebar[data-collapsed='true'] .userInfo {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.userName {
+  font-size: var(--v-text-sm);
+  font-weight: var(--v-font-medium);
+  color: var(--v-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.userRole {
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-regular);
+  color: var(--v-text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================================
+ * COLLAPSED DIVIDER LINE
+ * (replaces section headers in collapsed mode)
+ * ============================================================ */
+.collapsedDivider {
+  height: 1px;
+  background-color: var(--v-border-subtle);
+  margin: var(--v-space-2) var(--v-space-3);
+}
