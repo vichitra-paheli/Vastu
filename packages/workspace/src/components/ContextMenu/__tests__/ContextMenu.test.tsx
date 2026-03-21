@@ -116,6 +116,37 @@ describe('ContextMenu', () => {
     expect(screen.queryByRole('menu')).toBeNull();
   });
 
+  it('closes the menu automatically when an item is selected via click', async () => {
+    const onSelect = vi.fn();
+    renderContextMenu(() => <ContextMenuItem label="Close Me" onSelect={onSelect} />);
+    rightClick(screen.getByText('cell content'));
+    expect(screen.getByRole('menu')).toBeTruthy();
+    fireEvent.click(screen.getByRole('menuitem'));
+    expect(onSelect).toHaveBeenCalledOnce();
+    await waitFor(() => {
+      expect(screen.queryByRole('menu')).toBeNull();
+    });
+  });
+
+  it('closes the menu automatically when an item is selected via Enter', async () => {
+    const onSelect = vi.fn();
+    renderContextMenu(() => <ContextMenuItem label="Close Me" onSelect={onSelect} />);
+    rightClick(screen.getByText('cell content'));
+    expect(screen.getByRole('menu')).toBeTruthy();
+    fireEvent.keyDown(screen.getByRole('menuitem'), { key: 'Enter' });
+    expect(onSelect).toHaveBeenCalledOnce();
+    await waitFor(() => {
+      expect(screen.queryByRole('menu')).toBeNull();
+    });
+  });
+
+  it('has tabIndex={-1} on the menu container', () => {
+    renderContextMenu();
+    rightClick(screen.getByText('cell content'));
+    const menu = screen.getByRole('menu');
+    expect(menu.getAttribute('tabindex')).toBe('-1');
+  });
+
   describe('Keyboard navigation', () => {
     function renderWithMultipleItems() {
       return renderContextMenu(() => (

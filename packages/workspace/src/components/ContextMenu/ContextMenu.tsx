@@ -39,6 +39,12 @@ import ReactDOM from 'react-dom';
 import { t } from '../../lib/i18n';
 import classes from './ContextMenu.module.css';
 
+/**
+ * Context that provides the `close()` function to child menu items so that
+ * selecting an item automatically closes the root menu.
+ */
+export const ContextMenuCloseContext = React.createContext<(() => void) | null>(null);
+
 export interface ContextMenuContextData {
   /** The data-context-type attribute value of the right-clicked element. */
   contextType: string;
@@ -174,8 +180,15 @@ export function ContextMenu({ renderMenu, children, className }: ContextMenuProp
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       if (!menuRef.current) return;
 
+      // Scope to top-level items only to avoid traversing into open submenus.
+      // ContextMenuItem renders: <div (optional submenuContainer)> <button role="menuitem">
+      // ContextMenuGroup renders: <div role="group"> <div class=groupHeader> {children…}
+      // So direct-child items sit one <div> deep; grouped items sit two levels deep inside
+      // role="group". We deliberately do NOT descend into submenu containers.
       const items = Array.from(
-        menuRef.current.querySelectorAll<HTMLElement>('[role="menuitem"]:not([aria-disabled="true"])'),
+        menuRef.current.querySelectorAll<HTMLElement>(
+          ':scope > div > [role="menuitem"]:not([aria-disabled="true"]), :scope > [role="group"] > div > [role="menuitem"]:not([aria-disabled="true"])',
+        ),
       );
       if (items.length === 0) return;
 
@@ -266,10 +279,15 @@ export function ContextMenu({ renderMenu, children, className }: ContextMenuProp
               className={classes.menu}
               style={{ left: position.x, top: position.y }}
               onKeyDown={handleKeyDown}
+              // tabIndex={-1} required by WAI-ARIA menu widget spec so the
+              // container can receive programmatic focus without being in tab order.
+              tabIndex={-1}
               // Prevent clicks inside the menu from closing via the overlay
               onClick={(e) => e.stopPropagation()}
             >
-              {menuContent}
+              <ContextMenuCloseContext.Provider value={close}>
+                {menuContent}
+              </ContextMenuCloseContext.Provider>
             </div>
           </>,
           document.body,

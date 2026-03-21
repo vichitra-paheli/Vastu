@@ -23,6 +23,8 @@
 
 import React from 'react';
 import { IconChevronRight } from '@tabler/icons-react';
+import { TruncatedText } from '../TruncatedText';
+import { ContextMenuCloseContext } from './ContextMenu';
 import classes from './ContextMenu.module.css';
 
 export interface ContextMenuItemProps {
@@ -59,6 +61,7 @@ export function ContextMenuItem({
   const closeTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const hasSubmenu = Boolean(submenu);
+  const closeMenu = React.useContext(ContextMenuCloseContext);
 
   // Determine if submenu should flip left based on available right-side space
   function checkSubmenuPosition() {
@@ -114,6 +117,7 @@ export function ContextMenuItem({
       return;
     }
     onSelect?.();
+    closeMenu?.();
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -133,6 +137,7 @@ export function ContextMenuItem({
           });
         } else {
           onSelect?.();
+          closeMenu?.();
         }
         break;
       }
@@ -197,7 +202,7 @@ export function ContextMenuItem({
         tabIndex={-1}
       >
         {icon && <span className={classes.itemIcon} aria-hidden="true">{icon}</span>}
-        <span className={classes.itemLabel}>{label}</span>
+        <TruncatedText className={classes.itemLabel}>{label}</TruncatedText>
         {shortcut && !hasSubmenu && (
           <span className={classes.itemShortcut} aria-label={`Shortcut: ${shortcut}`}>
             {shortcut}
