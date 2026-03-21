@@ -26,6 +26,16 @@ export default defineConfig({
   resolve: {
     alias: [
       {
+        // Sub-path imports like '@vastu/shared/permissions' must be listed BEFORE
+        // the bare '@vastu/shared' alias so they're matched first.
+        find: '@vastu/shared/permissions',
+        replacement: path.resolve(__dirname, '../shared/src/permissions/index.ts'),
+      },
+      {
+        find: '@vastu/shared/utils',
+        replacement: path.resolve(__dirname, '../shared/src/utils/index.ts'),
+      },
+      {
         find: '@vastu/shared',
         replacement: path.resolve(__dirname, '../shared/src/index.ts'),
       },
