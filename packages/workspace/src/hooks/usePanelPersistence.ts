@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * usePanelPersistence — Dockview layout persistence to localStorage.
  *

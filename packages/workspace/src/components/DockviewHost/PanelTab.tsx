@@ -18,20 +18,21 @@ import { TruncatedText } from '../TruncatedText';
 import classes from './PanelTab.module.css';
 
 export function PanelTab({ api }: IDockviewPanelHeaderProps) {
-  // Track the latest API reference to detect when a different panel is mounted
+  // Derive title and active state from the current api prop.
+  // When Dockview recycles this tab with a different panel, the api prop changes
+  // and React re-renders with the new panel's title.
+  const [title, setTitle] = useState<string>(api.title ?? '');
+  const [isActive, setIsActive] = useState<boolean>(api.isActive);
+
+  // Sync title and active state when api identity changes (tab recycling).
   const apiRef = useRef(api);
-  // Initialize title from the current API state at the time of first render
-  const [title, setTitle] = useState<string>(() => api.title ?? '');
-  const [isActive, setIsActive] = useState<boolean>(() => api.isActive);
+  if (apiRef.current !== api) {
+    apiRef.current = api;
+    setTitle(api.title ?? '');
+    setIsActive(api.isActive);
+  }
 
   useEffect(() => {
-    // When the api prop changes identity (different panel reuses this tab slot),
-    // sync the title to the new panel's title immediately.
-    if (apiRef.current !== api) {
-      apiRef.current = api;
-      setTitle(api.title ?? '');
-    }
-
     // Subscribe to title change events from Dockview (e.g. after api.setTitle())
     const titleSub = api.onDidTitleChange((event) => {
       setTitle(event.title);
