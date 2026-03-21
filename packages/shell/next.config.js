@@ -10,7 +10,7 @@ const withNextIntl = createNextIntlPlugin('./src/i18n.ts');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ['@vastu/shared'],
+  transpilePackages: ['@vastu/shared', '@vastu/workspace'],
   experimental: {
     // Enable server actions
     serverActions: {

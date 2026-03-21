@@ -5,21 +5,18 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "module": "esnext",
     "moduleResolution": "bundler",
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "allowJs": true,
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
     "incremental": true,
-    "plugins": [{ "name": "next" }],
     "paths": {
       "@vastu/shared": ["../shared/src/index.ts"],
       "@vastu/shared/*": ["../shared/src/*"],
-      "@vastu/workspace": ["../workspace/src/index.ts"],
-      "@vastu/workspace/*": ["../workspace/src/*"],
-      "@/*": ["./src/*"]
+      "@vastu/workspace/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "e2e"]
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules"]
 }
