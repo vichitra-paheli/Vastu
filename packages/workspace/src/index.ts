@@ -12,6 +12,8 @@ export { PanelTab } from './components/DockviewHost/PanelTab';
 export { DropIndicator } from './components/DockviewHost/DropIndicator';
 export { TruncatedText } from './components/TruncatedText';
 export { SidebarNav } from './components/SidebarNav';
+export { ViewToolbar, ViewSelector } from './components/ViewToolbar';
+export type { ViewToolbarProps, ViewSelectorProps } from './components/ViewToolbar';
 export type { WorkspaceUser, WorkspaceShellProps } from './components/WorkspaceShell';
 
 // Panel registry and built-in panels
@@ -29,7 +31,7 @@ export { useSidebarStore } from './stores/sidebarStore';
 export { usePanelStore, openPanelByTypeId } from './stores/panelStore';
 export { useTrayStore } from './stores/trayStore';
 export { useViewStore } from './stores/viewStore';
-export { useViewFilterStore, useViewFilters } from './stores/viewFilterStore';
+export { useViewFilterStore, useViewFilters, useViewMode } from './stores/viewFilterStore';
 
 // Hooks
 export { usePanelPersistence, PANEL_LAYOUT_STORAGE_KEY } from './hooks/usePanelPersistence';
@@ -46,6 +48,10 @@ export type {
   SerializedLayout,
 } from './types/panel';
 
+// ModeSwitch
+export { ModeSwitch } from './components/ModeSwitch';
+export type { ModeSwitchProps } from './components/ModeSwitch';
+
 // ContextMenu
 export {
   ContextMenu,
@@ -53,12 +59,7 @@ export {
   ContextMenuDivider,
   ContextMenuGroup,
 } from './components/ContextMenu';
-export type {
-  ContextMenuProps,
-  ContextMenuContextData,
-  ContextMenuItemProps,
-  ContextMenuGroupProps,
-} from './components/ContextMenu';
+export type { ContextMenuContextData } from './components/ContextMenu/ContextMenu';
 
 // FilterSystem
 export {
