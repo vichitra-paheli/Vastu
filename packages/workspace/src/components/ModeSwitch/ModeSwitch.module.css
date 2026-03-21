@@ -1,0 +1,127 @@
+/**
+ * ModeSwitch styles.
+ * All colors via --v-* CSS custom properties.
+ * Implements the IER segmented control appearance.
+ */
+
+/* Container — inline flex row of segments */
+.root {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--v-radius-sm);
+  border: 1px solid var(--v-border-default);
+  background-color: var(--v-bg-secondary);
+  overflow: hidden;
+  gap: 0;
+}
+
+.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Individual segment button */
+.segment {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--v-space-1);
+  padding: 0 var(--v-space-2);
+  height: 28px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: var(--v-font-sans);
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-medium);
+  color: var(--v-text-secondary);
+  transition:
+    background-color var(--v-duration-fast) var(--v-ease-default),
+    color var(--v-duration-fast) var(--v-ease-default);
+  white-space: nowrap;
+  /* Separator between segments */
+  border-right: 1px solid var(--v-border-default);
+}
+
+.segment:last-child {
+  border-right: none;
+}
+
+.segment:disabled {
+  cursor: not-allowed;
+}
+
+/* Inactive hover state */
+.inactive:hover:not(:disabled) {
+  background-color: var(--v-bg-tertiary);
+  color: var(--v-text-primary);
+}
+
+/* Short single-letter badge */
+.short {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--v-radius-xs);
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-medium);
+  flex-shrink: 0;
+}
+
+/* Full mode label — shown next to the short badge */
+.label {
+  font-size: var(--v-text-xs);
+}
+
+/* ---- Active states ---- */
+
+/* Base active styles */
+.active {
+  font-weight: var(--v-font-medium);
+}
+
+/* Include mode — accent-primary (blue) */
+.activeInclude {
+  background-color: var(--v-accent-primary-light);
+  color: var(--v-accent-primary);
+}
+
+.activeInclude .short {
+  background-color: var(--v-accent-primary);
+  color: var(--v-bg-primary);
+}
+
+.activeInclude:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--v-accent-primary) 18%, transparent);
+}
+
+/* Exclude mode — status-error (red) */
+.activeExclude {
+  background-color: var(--v-status-error-light);
+  color: var(--v-status-error);
+}
+
+.activeExclude .short {
+  background-color: var(--v-status-error);
+  color: var(--v-bg-primary);
+}
+
+.activeExclude:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--v-status-error) 18%, transparent);
+}
+
+/* Regex mode — accent-quaternary (muted violet) */
+.activeRegex {
+  background-color: var(--v-accent-quaternary-light);
+  color: var(--v-accent-quaternary);
+}
+
+.activeRegex .short {
+  background-color: var(--v-accent-quaternary);
+  color: var(--v-bg-primary);
+}
+
+.activeRegex:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--v-accent-quaternary) 18%, transparent);
+}
