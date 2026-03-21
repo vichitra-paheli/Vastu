@@ -23,6 +23,7 @@ import { defineAbilitiesFor, type AppAbility } from '@vastu/shared/permissions';
 import { useSidebarStore } from '../stores/sidebarStore';
 import { DockviewHost } from './DockviewHost/DockviewHost';
 import { SidebarNav } from './SidebarNav';
+import { ViewToolbar } from './ViewToolbar';
 import classes from './WorkspaceShell.module.css';
 
 const SIDEBAR_COLLAPSED_WIDTH = 48;
@@ -44,6 +45,17 @@ export interface WorkspaceShellProps {
    * If omitted, a no-permissions ability is used (hides ADMIN section).
    */
   ability?: AppAbility;
+  /**
+   * Page ID for the currently active panel.
+   * Forwarded to ViewToolbar so it can associate saved views with a page.
+   * When not provided, ViewToolbar is not rendered (e.g., during initial load).
+   */
+  activePageId?: string;
+  /**
+   * Current user's ID — forwarded to ViewToolbar / ViewSelector for
+   * splitting MY VIEWS vs SHARED WITH ME.
+   */
+  currentUserId?: string;
 }
 
 /** Fallback no-permissions ability when none is provided. */
@@ -65,7 +77,13 @@ const DEFAULT_TRANSLATIONS = {
   noResults: 'No pages found',
 };
 
-export function WorkspaceShell({ children, user, ability }: WorkspaceShellProps) {
+export function WorkspaceShell({
+  children,
+  user,
+  ability,
+  activePageId,
+  currentUserId,
+}: WorkspaceShellProps) {
   const collapsed = useSidebarStore((state) => state.collapsed);
 
   const sidebarWidth = collapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_EXPANDED_WIDTH;
@@ -96,6 +114,11 @@ export function WorkspaceShell({ children, user, ability }: WorkspaceShellProps)
       </aside>
 
       <main className={classes.main} id="workspace-main">
+        {/* ViewToolbar sits between the sidebar and the Dockview panel area.
+            Only rendered when a page is active (activePageId is set). */}
+        {activePageId && (
+          <ViewToolbar pageId={activePageId} currentUserId={currentUserId} />
+        )}
         <DockviewHost />
         {children}
       </main>
