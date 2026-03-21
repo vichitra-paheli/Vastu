@@ -106,9 +106,10 @@ export interface VastuTableProps<TData extends Record<string, unknown>> {
    */
   onCopyCellValue?: (value: unknown, columnId: string) => void;
   /**
-   * Called when the user right-clicks a cell and selects "Filter to only this".
+   * Called when the user right-clicks a cell and selects include/exclude filter.
+   * The mode parameter distinguishes between "Include filter" and "Exclude filter".
    */
-  onFilterToValue?: (value: unknown, columnId: string) => void;
+  onFilterToValue?: (value: unknown, columnId: string, mode: 'include' | 'exclude') => void;
   /**
    * Row key accessor — determines the unique key per row.
    * Default: uses the row index.

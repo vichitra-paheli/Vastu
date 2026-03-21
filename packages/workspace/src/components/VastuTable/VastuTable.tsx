@@ -274,7 +274,7 @@ function VastuTableInner<TData extends Record<string, unknown>>({
         }}
         onFilterColumn={(columnId) => {
           // Emit to parent — filter UI is managed by FilterBar outside the table
-          onFilterToValue?.(null, columnId);
+          onFilterToValue?.(null, columnId, 'include');
         }}
       />
 
@@ -346,11 +346,11 @@ function VastuTableInner<TData extends Record<string, unknown>>({
               closeCellMenu();
             }}
             onIncludeFilter={() => {
-              onFilterToValue?.(cellMenu.value, cellMenu.columnId);
+              onFilterToValue?.(cellMenu.value, cellMenu.columnId, 'include');
               closeCellMenu();
             }}
             onExcludeFilter={() => {
-              onFilterToValue?.(cellMenu.value, cellMenu.columnId);
+              onFilterToValue?.(cellMenu.value, cellMenu.columnId, 'exclude');
               closeCellMenu();
             }}
           />,

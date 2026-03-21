@@ -80,9 +80,9 @@ function renderCellContent<TData extends Record<string, unknown>>(
   switch (dataType) {
     case 'number': {
       return (
-        <span>
+        <TruncatedText>
           {formatNumber(value)}
-        </span>
+        </TruncatedText>
       );
     }
 

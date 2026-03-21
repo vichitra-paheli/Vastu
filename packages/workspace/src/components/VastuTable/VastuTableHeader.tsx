@@ -177,7 +177,7 @@ function HeaderCell<TData extends Record<string, unknown>>({
   const sorted = column.getIsSorted();
   const canSort = column.getCanSort();
   const sortIndex = column.getSortIndex();
-  const isMultiSort = sortIndex > 0;
+  const isMultiSort = header.getContext().table.getState().sorting.length > 1;
   const meta = column.columnDef.meta as VastuColumn<TData> | undefined;
   const canReorder = meta?.reorderable !== false;
   const isDragOver = dragOverColumnId === column.id;
