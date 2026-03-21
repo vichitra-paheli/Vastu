@@ -1,0 +1,398 @@
+/**
+ * VastuTable styles.
+ * All colors and spacing via --v-* CSS custom properties. No hardcoded hex values.
+ */
+
+/* ─── Root container ─── */
+.root {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background-color: var(--v-bg-primary);
+  border: 1px solid var(--v-border-default);
+  border-radius: var(--v-radius-md);
+  font-family: var(--v-font-sans);
+  font-size: var(--v-text-sm);
+  color: var(--v-text-primary);
+  position: relative;
+}
+
+/* ─── Scroll container ─── */
+.scrollContainer {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+  position: relative;
+}
+
+/* ─── Table element ─── */
+.table {
+  width: 100%;
+  min-width: max-content;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+
+/* ─── thead / header ─── */
+.thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* ─── Header row ─── */
+.headerRow {
+  display: flex;
+  height: 32px;
+  background-color: var(--v-bg-secondary);
+  border-bottom: 1px solid var(--v-border-default);
+}
+
+/* ─── Header cell ─── */
+.th {
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding: 0 var(--v-space-2);
+  gap: var(--v-space-1);
+  overflow: hidden;
+  flex-shrink: 0;
+  user-select: none;
+  background-color: var(--v-bg-secondary);
+  border-right: 1px solid var(--v-border-subtle);
+  transition: background-color var(--v-duration-fast) var(--v-ease-default);
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-medium);
+  color: var(--v-text-secondary);
+  cursor: default;
+}
+
+.th:last-child {
+  border-right: none;
+}
+
+.thSortable {
+  cursor: pointer;
+}
+
+.thSortable:hover {
+  background-color: var(--v-interactive-hover);
+  color: var(--v-text-primary);
+}
+
+.thSortActive {
+  color: var(--v-accent-primary);
+  background-color: var(--v-accent-primary-light);
+}
+
+.thDragOver {
+  background-color: var(--v-accent-primary-light);
+  border-left: 2px solid var(--v-accent-primary);
+}
+
+/* ─── Checkbox column ─── */
+.checkboxTh,
+.checkboxTd {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  min-width: 40px;
+  flex-shrink: 0;
+  padding: 0;
+  border-right: 1px solid var(--v-border-subtle);
+  background-color: var(--v-bg-secondary);
+}
+
+.checkboxTd {
+  background-color: var(--v-bg-primary);
+}
+
+/* ─── Header label ─── */
+.thLabel {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-medium);
+}
+
+/* ─── Sort indicator ─── */
+.sortIcon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  color: var(--v-accent-primary);
+  opacity: 0.85;
+}
+
+.sortIconInactive {
+  opacity: 0;
+  color: var(--v-text-tertiary);
+}
+
+.th:hover .sortIconInactive {
+  opacity: 0.4;
+}
+
+/* ─── Sort rank indicator (for multi-sort) ─── */
+.sortRank {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: var(--v-font-medium);
+  color: var(--v-accent-primary);
+  background-color: var(--v-accent-primary-light);
+  border-radius: var(--v-radius-full);
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* ─── Resize handle ─── */
+.resizeHandle {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  cursor: col-resize;
+  background-color: transparent;
+  z-index: 1;
+  transition: background-color var(--v-duration-fast) var(--v-ease-default);
+  touch-action: none;
+}
+
+.resizeHandle:hover,
+.resizeHandleActive {
+  background-color: var(--v-accent-primary);
+}
+
+/* ─── Drag handle (column reorder) ─── */
+.dragHandle {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  color: var(--v-text-tertiary);
+  cursor: grab;
+  opacity: 0;
+  transition: opacity var(--v-duration-fast) var(--v-ease-default);
+}
+
+.th:hover .dragHandle {
+  opacity: 1;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+/* ─── tbody / data rows ─── */
+.tbody {
+  display: block;
+  position: relative;
+}
+
+/* ─── Data row ─── */
+.tr {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid var(--v-border-subtle);
+  position: absolute;
+  left: 0;
+  right: 0;
+  background-color: var(--v-bg-primary);
+  transition: background-color var(--v-duration-fast) var(--v-ease-default);
+  cursor: default;
+}
+
+.tr:hover {
+  background-color: var(--v-interactive-hover);
+}
+
+.trSelected {
+  background-color: var(--v-accent-primary-light);
+}
+
+.trSelected:hover {
+  background-color: var(--v-accent-primary-light);
+}
+
+/* ─── Data cell ─── */
+.td {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--v-space-2);
+  overflow: hidden;
+  flex-shrink: 0;
+  border-right: 1px solid var(--v-border-subtle);
+  height: 100%;
+  font-size: var(--v-text-sm);
+  color: var(--v-text-primary);
+}
+
+.td:last-child {
+  border-right: none;
+}
+
+/* ─── Cell type variants ─── */
+.cellNumber {
+  justify-content: flex-end;
+  font-variant-numeric: tabular-nums;
+}
+
+.cellBoolean {
+  justify-content: center;
+}
+
+.cellBadge {
+  gap: var(--v-space-1);
+}
+
+/* ─── Badge pill ─── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: var(--v-radius-full);
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-medium);
+  background-color: var(--v-bg-tertiary);
+  color: var(--v-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* ─── Boolean indicator ─── */
+.boolTrue {
+  color: var(--v-status-success);
+}
+
+.boolFalse {
+  color: var(--v-status-error);
+}
+
+/* ─── Loading skeleton rows ─── */
+.skeletonRow {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--v-border-subtle);
+  background-color: var(--v-bg-primary);
+  height: 36px;
+}
+
+.skeletonCell {
+  padding: 0 var(--v-space-2);
+  flex-shrink: 0;
+  border-right: 1px solid var(--v-border-subtle);
+  display: flex;
+  align-items: center;
+}
+
+.skeletonCell:last-child {
+  border-right: none;
+}
+
+.skeletonPulse {
+  height: 12px;
+  border-radius: var(--v-radius-sm);
+  background: linear-gradient(
+    90deg,
+    var(--v-bg-tertiary) 25%,
+    var(--v-bg-secondary) 50%,
+    var(--v-bg-tertiary) 75%
+  );
+  background-size: 400% 100%;
+  animation: skeletonShimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skeletonShimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletonPulse {
+    animation: none;
+    background: var(--v-bg-tertiary);
+  }
+}
+
+/* ─── Empty state ─── */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--v-space-8) var(--v-space-4);
+  gap: var(--v-space-2);
+  color: var(--v-text-tertiary);
+  font-size: var(--v-text-sm);
+}
+
+.emptyStateIcon {
+  color: var(--v-text-tertiary);
+  opacity: 0.5;
+}
+
+.emptyStateTitle {
+  font-weight: var(--v-font-medium);
+  color: var(--v-text-secondary);
+}
+
+/* ─── Error state ─── */
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--v-space-8) var(--v-space-4);
+  gap: var(--v-space-2);
+  color: var(--v-status-error);
+  font-size: var(--v-text-sm);
+}
+
+.errorStateTitle {
+  font-weight: var(--v-font-medium);
+  color: var(--v-status-error);
+}
+
+.errorStateMessage {
+  color: var(--v-text-tertiary);
+  text-align: center;
+  max-width: 360px;
+}
+
+/* ─── Row count footer ─── */
+.footer {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 var(--v-space-3);
+  background-color: var(--v-bg-secondary);
+  border-top: 1px solid var(--v-border-default);
+  font-size: var(--v-text-xs);
+  color: var(--v-text-tertiary);
+  flex-shrink: 0;
+  gap: var(--v-space-3);
+}
+
+.footerCount {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Checkbox ─── */
+.checkbox {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  accent-color: var(--v-accent-primary);
+}

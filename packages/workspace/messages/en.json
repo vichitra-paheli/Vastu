@@ -122,5 +122,19 @@
   "contextMenu.header.resetWidth": "Reset width",
   "contextMenu.badge.includeFilter": "Include filter",
   "contextMenu.badge.excludeFilter": "Exclude filter",
-  "contextMenu.badge.copyValue": "Copy value"
+  "contextMenu.badge.copyValue": "Copy value",
+
+  "table.ariaLabel": "Data table",
+  "table.loading.ariaLabel": "Loading table data",
+  "table.error.ariaLabel": "Table error",
+  "table.error.title": "Failed to load data",
+  "table.empty.title": "No rows to display",
+  "table.empty.description": "Try adjusting your filters or check back later.",
+  "table.footer.rowCount": "{visible} of {total} rows",
+  "table.footer.selectedCount": "{count} selected",
+  "table.header.selectAll": "Select all rows",
+  "table.header.dragToReorder": "Drag to reorder column",
+  "table.header.resizeColumn": "Resize column",
+  "table.cell.boolean.true": "True",
+  "table.cell.boolean.false": "False"
 }
