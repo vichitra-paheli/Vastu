@@ -23,6 +23,8 @@
  */
 
 import React from 'react';
+import { ActionIcon } from '@mantine/core';
+import { IconSearch } from '@tabler/icons-react';
 import { t } from '../../lib/i18n';
 import { useTrayStore } from '../../stores/trayStore';
 import { usePanelStore } from '../../stores/panelStore';
@@ -67,16 +69,17 @@ export function TrayBar() {
         role="status"
       >
         {/* Search button triggers the command palette (US-125) */}
-        <button
-          type="button"
+        <ActionIcon
+          variant="subtle"
+          size="sm"
           className={classes.searchButton}
           onClick={openCommandPalette}
           aria-label={t('commandPalette.searchButton.ariaLabel')}
           title={t('commandPalette.searchButton.tooltip')}
           data-testid="tray-search-button"
         >
-          &#128269;
-        </button>
+          <IconSearch size={16} />
+        </ActionIcon>
         <span className={classes.statusDot} aria-hidden="true" />
       </div>
     </div>

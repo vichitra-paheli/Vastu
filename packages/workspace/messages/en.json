@@ -200,6 +200,17 @@
   "commandPalette.searchButton.ariaLabel": "Open command palette",
   "commandPalette.searchButton.tooltip": "Search (Ctrl+K)",
 
+  "commandPalette.commands.toggleSidebar.label": "Toggle sidebar",
+  "commandPalette.commands.toggleSidebar.description": "Show or hide the left sidebar",
+  "commandPalette.commands.newPanel.label": "New panel",
+  "commandPalette.commands.newPanel.description": "Open a new panel in the workspace",
+  "commandPalette.commands.closeAllPanels.label": "Close all panels",
+  "commandPalette.commands.closeAllPanels.description": "Close all open panels",
+  "commandPalette.commands.openSettings.label": "Open settings",
+  "commandPalette.commands.openSettings.description": "Navigate to the settings page",
+  "commandPalette.commands.keyboardShortcuts.label": "Keyboard shortcuts",
+  "commandPalette.commands.keyboardShortcuts.description": "View all keyboard shortcuts",
+
   "template.skeleton.loading": "Loading template",
   "template.config.loading": "Loading page configuration",
   "template.config.error": "Failed to load page configuration",

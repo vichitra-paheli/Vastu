@@ -13,6 +13,7 @@
  */
 
 import { useMemo } from 'react';
+import { t } from '../lib/i18n';
 import { getAllPanels } from '../panels/registry';
 import { useSidebarStore } from '../stores/sidebarStore';
 
@@ -118,38 +119,38 @@ function buildStaticCommands(
   return [
     {
       id: 'cmd:toggle-sidebar',
-      label: 'Toggle sidebar',
+      label: t('commandPalette.commands.toggleSidebar.label'),
       group: 'commands',
-      description: 'Show or hide the left sidebar',
+      description: t('commandPalette.commands.toggleSidebar.description'),
       iconName: 'LayoutSidebar',
       onActivate: toggleSidebar,
     },
     {
       id: 'cmd:new-panel',
-      label: 'New panel',
+      label: t('commandPalette.commands.newPanel.label'),
       group: 'commands',
-      description: 'Open a new panel in the workspace',
+      description: t('commandPalette.commands.newPanel.description'),
       iconName: 'Plus',
     },
     {
       id: 'cmd:close-all',
-      label: 'Close all panels',
+      label: t('commandPalette.commands.closeAllPanels.label'),
       group: 'commands',
-      description: 'Close all open panels',
+      description: t('commandPalette.commands.closeAllPanels.description'),
       iconName: 'X',
     },
     {
       id: 'cmd:settings',
-      label: 'Open settings',
+      label: t('commandPalette.commands.openSettings.label'),
       group: 'commands',
-      description: 'Navigate to the settings page',
+      description: t('commandPalette.commands.openSettings.description'),
       iconName: 'Settings',
     },
     {
       id: 'cmd:help',
-      label: 'Keyboard shortcuts',
+      label: t('commandPalette.commands.keyboardShortcuts.label'),
       group: 'commands',
-      description: 'View all keyboard shortcuts',
+      description: t('commandPalette.commands.keyboardShortcuts.description'),
       iconName: 'Keyboard',
     },
   ];

@@ -162,8 +162,7 @@ export type {
 } from './components/VastuChart';
 
 // CommandPalette
-export { CommandPalette, openCommandPalette, CommandPaletteResult } from './components/CommandPalette';
-export type { CommandPaletteResultProps } from './components/CommandPalette';
+export { CommandPalette, openCommandPalette } from './components/CommandPalette';
 
 // CommandPalette hooks
 export {

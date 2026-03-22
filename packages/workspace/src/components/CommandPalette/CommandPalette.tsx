@@ -88,6 +88,7 @@ export function CommandPalette() {
       query={rawQuery}
       onQueryChange={handleQueryChange}
       shortcut="mod + K"
+      zIndex={70}
       classNames={{
         content: classes.spotlight,
         search: classes.searchInput,
