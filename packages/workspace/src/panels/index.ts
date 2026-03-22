@@ -13,6 +13,7 @@ import { registerPanel } from './registry';
 import { WelcomePanel, WELCOME_PANEL_TYPE_ID } from './WelcomePanel';
 import { DataExplorerPanelWrapper } from './DataExplorerPanelWrapper';
 import { TableListingTemplate } from '../templates/TableListing/TableListingTemplate';
+import { MultiTabDetailTemplate, MULTI_TAB_DETAIL_PANEL_TYPE_ID } from '../templates/MultiTabDetail/MultiTabDetailTemplate';
 import type { PanelProps } from '../types/panel';
 
 /** Panel type ID for the data explorer template. */
@@ -59,8 +60,29 @@ registerPanel({
   component: TableListingPanelWrapper,
 });
 
+/**
+ * Adapter that bridges PanelProps (from Dockview) to MultiTabDetailTemplate.
+ * Reads pageId and optional entityId from panel params.
+ */
+function MultiTabDetailPanelWrapper({ params }: PanelProps) {
+  const pageId = typeof params.pageId === 'string' ? params.pageId : 'unknown';
+  return React.createElement(MultiTabDetailTemplate, { pageId });
+}
+
+// Register the MultiTabDetail panel (US-131)
+registerPanel({
+  id: MULTI_TAB_DETAIL_PANEL_TYPE_ID,
+  title: 'Detail',
+  iconName: 'IconLayout2',
+  component: MultiTabDetailPanelWrapper,
+});
+
 // Re-export for convenience
 export { registerPanel, getPanel, getAllPanels, unregisterPanel, clearRegistry } from './registry';
 export { WelcomePanel, WELCOME_PANEL_TYPE_ID } from './WelcomePanel';
 export { DataExplorerPanelWrapper } from './DataExplorerPanelWrapper';
 export { TableListingTemplate } from '../templates/TableListing/TableListingTemplate';
+export {
+  MultiTabDetailTemplate,
+  MULTI_TAB_DETAIL_PANEL_TYPE_ID,
+} from '../templates/MultiTabDetail/MultiTabDetailTemplate';

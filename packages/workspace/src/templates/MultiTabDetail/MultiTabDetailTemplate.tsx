@@ -50,6 +50,15 @@ export type MultiTabDetailTab =
 
 const DEFAULT_TAB: MultiTabDetailTab = 'overview';
 
+/** All valid tab keys, used to validate the ?tab= URL param. */
+const VALID_TABS: ReadonlySet<string> = new Set<MultiTabDetailTab>([
+  'overview',
+  'activity',
+  'notes',
+  'files',
+  'permissions',
+]);
+
 // ── Entity data types ─────────────────────────────────────────────────────────
 
 /** Minimal entity data to drive EntityHeader and the Overview tab. */
@@ -99,11 +108,16 @@ export interface MultiTabDetailTemplateProps {
 
 // ── URL tab helper ────────────────────────────────────────────────────────────
 
-/** Read the ?tab= query param from the current URL (browser only). */
+/**
+ * Read the ?tab= query param from the current URL (browser only).
+ * Returns null if the value is absent or not a recognised tab key.
+ */
 function getTabFromUrl(): string | null {
   if (typeof window === 'undefined') return null;
   try {
-    return new URL(window.location.href).searchParams.get('tab');
+    const tab = new URL(window.location.href).searchParams.get('tab');
+    if (tab === null || !VALID_TABS.has(tab)) return null;
+    return tab;
   } catch {
     return null;
   }
@@ -146,16 +160,8 @@ function buildTabDefs(canManageAll: boolean): TabDefinition[] {
 
 function PlaceholderTab({ tabKey }: { tabKey: string }) {
   return (
-    <div className={classes.content} style={{ padding: 'var(--v-space-6)' }}>
-      <p
-        style={{
-          fontFamily: 'var(--v-font-sans)',
-          fontSize: 'var(--v-text-sm)',
-          color: 'var(--v-text-secondary)',
-          fontWeight: 'var(--v-font-regular)',
-          margin: 0,
-        }}
-      >
+    <div className={classes.placeholderTab}>
+      <p className={classes.placeholderText}>
         {t('multiTabDetail.tab.placeholder', { tab: tabKey })}
       </p>
     </div>

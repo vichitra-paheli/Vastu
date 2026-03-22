@@ -221,3 +221,26 @@ export type { KPIMetric, KPISummaryStripProps } from './templates/TableListing/K
 // KPICard (US-129b)
 export { KPICard } from './components/KPICard/KPICard';
 export type { KPICardProps, KPICardSparklineData } from './components/KPICard/KPICard';
+
+// MultiTabDetail Template (US-131)
+export {
+  MultiTabDetailTemplate,
+  MULTI_TAB_DETAIL_PANEL_TYPE_ID,
+} from './templates/MultiTabDetail/MultiTabDetailTemplate';
+export type {
+  MultiTabDetailTemplateProps,
+  MultiTabDetailTab,
+  EntityData,
+} from './templates/MultiTabDetail/MultiTabDetailTemplate';
+export { EntityHeader } from './templates/MultiTabDetail/EntityHeader';
+export type {
+  EntityHeaderProps,
+  EntityAction,
+} from './templates/MultiTabDetail/EntityHeader';
+export { OverviewTab } from './templates/MultiTabDetail/tabs/OverviewTab';
+export type {
+  OverviewTabProps,
+  OverviewField,
+  SubTableConfig,
+  ActivityEntry,
+} from './templates/MultiTabDetail/tabs/OverviewTab';
