@@ -9,6 +9,12 @@
  *
  * All strings via t(). No hardcoded colors.
  * Implements US-130.
+ *
+ * TODO (US-131 or US-130 builder): When the user selects the "Custom range"
+ * preset, show a date-range picker (e.g. Mantine DatePickerInput with type="range")
+ * so they can set customStart / customEnd on the TimeRange value.
+ * Until that UI is added, selecting "Custom" leaves the dates unset and callers
+ * should treat it as a no-op filter.
  */
 
 import React from 'react';
@@ -42,6 +48,8 @@ const PRESET_OPTIONS: Array<{ value: TimeRangePreset; label: string }> = [
   { value: '30d', label: 'dashboard.timeRange.last30d' },
   { value: '90d', label: 'dashboard.timeRange.last90d' },
   { value: 'ytd', label: 'dashboard.timeRange.ytd' },
+  // TODO: selecting 'custom' should reveal a date-range picker.
+  // See file-level JSDoc for details.
   { value: 'custom', label: 'dashboard.timeRange.custom' },
 ];
 

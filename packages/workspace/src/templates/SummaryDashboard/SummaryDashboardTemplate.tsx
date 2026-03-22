@@ -10,7 +10,7 @@
  * - KPICardRow: metric cards with sparklines via VastuChart
  * - ChartRow: 1–2 full charts (line/area/bar/donut) from config
  * - MiniSummaryTable: top-N records with "View all" link
- * - Auto-refresh toggle
+ * - Auto-refresh toggle (initial state read from metadata.autoRefreshEnabled)
  * - ViewToolbar active
  * - Loading: TemplateSkeleton variant='summary-dashboard'
  *
@@ -94,9 +94,24 @@ interface DashboardMetadata {
   autoRefreshIntervalMs?: number;
 }
 
+/**
+ * Parse and validate dashboard metadata from the raw config object.
+ * Each field is checked individually to avoid an unsafe blanket `as` cast.
+ * Unknown or mistyped fields fall back to `undefined` and callers apply defaults.
+ */
 function parseDashboardMetadata(metadata: Record<string, unknown> | undefined): DashboardMetadata {
   if (!metadata) return {};
-  return metadata as DashboardMetadata;
+  return {
+    kpiCards: Array.isArray(metadata['kpiCards']) ? (metadata['kpiCards'] as KPICardConfig[]) : undefined,
+    charts: Array.isArray(metadata['charts']) ? (metadata['charts'] as ChartDefinition[]) : undefined,
+    miniTables: Array.isArray(metadata['miniTables'])
+      ? (metadata['miniTables'] as DashboardMetadata['miniTables'])
+      : undefined,
+    autoRefreshEnabled:
+      typeof metadata['autoRefreshEnabled'] === 'boolean' ? metadata['autoRefreshEnabled'] : undefined,
+    autoRefreshIntervalMs:
+      typeof metadata['autoRefreshIntervalMs'] === 'number' ? metadata['autoRefreshIntervalMs'] : undefined,
+  };
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
@@ -109,11 +124,8 @@ export function SummaryDashboardTemplate({ pageId, config: propConfig, loading: 
   const loading = propLoading ?? fetchLoading;
   const error = propError ?? fetchError;
 
-  // Local state
-  const [timeRange, setTimeRange] = useState<TimeRange>(DEFAULT_TIME_RANGE);
-  const [autoRefresh, setAutoRefresh] = useState(false);
-
-  // Parse dashboard-specific config
+  // Parse dashboard-specific config. Done before state init so we can read
+  // autoRefreshEnabled as the initial value for the toggle.
   const meta = parseDashboardMetadata(config?.metadata);
 
   const kpiCards = meta.kpiCards ?? buildPlaceholderKPICards();
@@ -121,16 +133,27 @@ export function SummaryDashboardTemplate({ pageId, config: propConfig, loading: 
   const miniTables = meta.miniTables ?? [];
   const refreshIntervalMs = meta.autoRefreshIntervalMs ?? DEFAULT_REFRESH_INTERVAL_MS;
 
+  // Local state — autoRefresh is initialised from metadata so a persisted
+  // auto-refresh setting is honoured on mount instead of being silently ignored.
+  const [timeRange, setTimeRange] = useState<TimeRange>(DEFAULT_TIME_RANGE);
+  const [autoRefresh, setAutoRefresh] = useState<boolean>(meta.autoRefreshEnabled ?? false);
+
+  // Monotonic counter incremented on every refresh trigger (auto or manual).
+  // Using a counter avoids the object-identity trick `{ ...prev }` which
+  // produces a new object without any meaningful state change.
+  // In a real app this value would be passed to query hooks as a dependency.
+  const [refreshTick, setRefreshTick] = useState(0);
+
+  function triggerRefresh() {
+    setRefreshTick((n) => n + 1);
+  }
+
   // Auto-refresh logic
   const refreshRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     if (autoRefresh) {
-      refreshRef.current = setInterval(() => {
-        // In production, this would trigger a data refetch.
-        // Here we just update the time-range state to signal a reload.
-        setTimeRange((prev) => ({ ...prev }));
-      }, refreshIntervalMs);
+      refreshRef.current = setInterval(triggerRefresh, refreshIntervalMs);
     } else {
       if (refreshRef.current !== null) {
         clearInterval(refreshRef.current);
@@ -162,7 +185,13 @@ export function SummaryDashboardTemplate({ pageId, config: propConfig, loading: 
   const isUnconfigured = !meta.kpiCards;
 
   return (
-    <div className={classes.root} data-testid="summary-dashboard-template">
+    // refreshTick is attached to the root element so data-fetching hooks wired
+    // in the future can consume it; prevents the value becoming dead code.
+    <div
+      className={classes.root}
+      data-testid="summary-dashboard-template"
+      data-refresh-tick={refreshTick}
+    >
       {/* Toolbar */}
       <div className={classes.toolbar}>
         <div className={classes.toolbarLeft}>
@@ -186,7 +215,7 @@ export function SummaryDashboardTemplate({ pageId, config: propConfig, loading: 
             <ActionIcon
               size="sm"
               variant="subtle"
-              onClick={() => setTimeRange((prev) => ({ ...prev }))}
+              onClick={triggerRefresh}
               aria-label={t('dashboard.toolbar.refreshNow')}
               data-testid="refresh-now-button"
             >
