@@ -35,10 +35,10 @@ interface EmptyStateProps {
 
 export function EmptyState({ icon, message, actionLabel, onAction, className }: EmptyStateProps) {
   const iconEl = React.cloneElement(icon, {
+    ...icon.props,
     size: 32,
     'aria-hidden': true,
     className: classes.icon,
-    ...icon.props,
   });
 
   return (
