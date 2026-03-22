@@ -68,28 +68,15 @@ export {
 } from './components/ContextMenu';
 export type { ContextMenuContextData } from './components/ContextMenu/ContextMenu';
 
-// VastuChart
-export {
-  VastuChart,
-  ChartLegend,
-  ChartTooltip,
-  ChartConfigPanel,
-  CHART_SERIES_COLORS,
-  CHART_OTHER_COLOR,
-  getSeriesColor,
-} from './components/VastuChart';
+// ConfirmDialog
+export { ConfirmDialog, ConfirmDialogProvider } from './components/ConfirmDialog';
 export type {
-  ChartType,
-  ScaleType,
-  BarOrientation,
-  LegendPosition,
-  SeriesConfig as ChartSeriesConfig,
-  ChartConfig,
-  ChartDataPoint,
-  VastuChartProps,
-  ReferenceLineConfig,
-  ChartTooltipProps,
-} from './components/VastuChart';
+  ConfirmDialogProps,
+  ConfirmDialogVariant,
+  ConfirmDialogProviderProps,
+} from './components/ConfirmDialog';
+export { useConfirmDialog } from './components/ConfirmDialog';
+export type { ConfirmOptions } from './components/ConfirmDialog';
 
 // VastuTable
 export { VastuTable, VastuTableHeader, VastuTableRow, VastuTableCell, useVastuTable } from './components/VastuTable';

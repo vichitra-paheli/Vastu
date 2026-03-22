@@ -7,7 +7,7 @@
 export { ConfirmDialog } from './ConfirmDialog';
 export type { ConfirmDialogProps, ConfirmDialogVariant } from './ConfirmDialog';
 
-export { ConfirmDialogProvider, ConfirmDialogContext } from './ConfirmDialogProvider';
+export { ConfirmDialogProvider } from './ConfirmDialogProvider';
 export type { ConfirmDialogProviderProps } from './ConfirmDialogProvider';
 
 export { useConfirmDialog } from './useConfirmDialog';

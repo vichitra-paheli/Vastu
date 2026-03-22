@@ -143,31 +143,76 @@ describe('useConfirmDialog', () => {
 describe('ConfirmDialogProvider — queuing', () => {
   it('processes multiple queued confirms in FIFO order', async () => {
     const results: Array<{ confirmed: boolean; index: number }> = [];
-    const onResult = (confirmed: boolean, index: number) => {
-      results.push({ confirmed, index });
-    };
 
-    // Render a harness that fires 2 confirms sequentially from the same click.
-    renderWithProvider({ onResult, confirmCount: 2 });
-    clickOpen();
+    /**
+     * ConcurrentHarness fires all confirm() calls simultaneously (no await
+     * between them) so the queue is populated before any dialog is dismissed.
+     * Each resolved promise records its result and the call index so we can
+     * verify FIFO resolution order.
+     */
+    function ConcurrentHarness() {
+      const confirm = useConfirmDialog();
 
-    // First dialog (index 0) should appear.
-    await waitFor(() => screen.getByRole('button', { name: /^delete$/i }));
-    // Confirm the first one → resolves with true, queued #1 becomes visible.
+      const handleClick = () => {
+        // Fire three concurrent calls — none awaited, intentional.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        confirm({ title: 'Confirm 0', description: 'Desc 0', variant: 'delete' }).then(
+          (confirmed) => results.push({ confirmed, index: 0 }),
+        );
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        confirm({ title: 'Confirm 1', description: 'Desc 1', variant: 'delete' }).then(
+          (confirmed) => results.push({ confirmed, index: 1 }),
+        );
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        confirm({ title: 'Confirm 2', description: 'Desc 2', variant: 'delete' }).then(
+          (confirmed) => results.push({ confirmed, index: 2 }),
+        );
+      };
+
+      return (
+        <button type="button" onClick={handleClick}>
+          Open concurrent
+        </button>
+      );
+    }
+
+    render(
+      <MantineProvider>
+        <ConfirmDialogProvider>
+          <ConcurrentHarness />
+        </ConfirmDialogProvider>
+      </MantineProvider>,
+    );
+
+    // Trigger all three concurrent confirm() calls.
+    fireEvent.click(screen.getByRole('button', { name: /open concurrent/i }));
+
+    // Dialog 0 (first in queue) should appear immediately.
+    await waitFor(() => screen.getByRole('dialog'));
+    expect(screen.getByText('Confirm 0')).toBeInTheDocument();
+    // Confirm dialog 0 → resolves true, dialog 1 becomes visible.
     fireEvent.click(screen.getByRole('button', { name: /^delete$/i }));
 
-    // Second dialog (index 1) should appear.
+    // Dialog 1 should now be visible.
     await waitFor(() => {
-      // The dialog should still be visible for the second queued item.
-      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      expect(screen.getByText('Confirm 1')).toBeInTheDocument();
     });
-    // Cancel the second one → resolves with false.
+    // Cancel dialog 1 → resolves false, dialog 2 becomes visible.
     fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
 
+    // Dialog 2 should now be visible.
     await waitFor(() => {
-      expect(results).toHaveLength(2);
+      expect(screen.getByText('Confirm 2')).toBeInTheDocument();
+    });
+    // Confirm dialog 2 → resolves true.
+    fireEvent.click(screen.getByRole('button', { name: /^delete$/i }));
+
+    // All three should have resolved in FIFO order with correct values.
+    await waitFor(() => {
+      expect(results).toHaveLength(3);
       expect(results[0]).toEqual({ confirmed: true, index: 0 });
       expect(results[1]).toEqual({ confirmed: false, index: 1 });
+      expect(results[2]).toEqual({ confirmed: true, index: 2 });
     });
   });
 });
