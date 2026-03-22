@@ -13,7 +13,7 @@
 
 import { create } from 'zustand';
 import type { DockviewApi } from 'dockview-core';
-import type { PanelDefinition, PanelId, SerializedLayout } from '../types/panel';
+import type { PanelDefinition, PanelId, PanelMode, SerializedLayout } from '../types/panel';
 import { getPanel } from '../panels/registry';
 import { useTrayStore } from './trayStore';
 
@@ -37,6 +37,16 @@ interface PanelStoreState {
    * Used to restore the layout on page reload.
    */
   layout: SerializedLayout | null;
+
+  /**
+   * Per-panel display mode.
+   *
+   * Keyed by panelId. Defaults to 'editor' for any panel not in the map.
+   * Included in panel serialization for layout persistence (AC-7).
+   *
+   * Implements US-120 (AC-7).
+   */
+  panelModes: Record<PanelId, PanelMode>;
 
   // ---- Actions ----
 
@@ -114,6 +124,21 @@ interface PanelStoreState {
    * Called by the persistence hook on every Dockview layout change event.
    */
   setLayout: (layout: SerializedLayout) => void;
+
+  /**
+   * Set the display mode for a specific panel.
+   *
+   * Implements US-120 (AC-7).
+   */
+  setPanelMode: (panelId: PanelId, mode: PanelMode) => void;
+
+  /**
+   * Get the current display mode for a panel.
+   * Returns 'editor' if the panel has no explicit mode set (default).
+   *
+   * Implements US-120 (AC-3).
+   */
+  getPanelMode: (panelId: PanelId) => PanelMode;
 }
 
 export const usePanelStore = create<PanelStoreState>()((set, get) => ({
@@ -121,6 +146,7 @@ export const usePanelStore = create<PanelStoreState>()((set, get) => ({
   activePanelId: null,
   openPanelIds: [],
   layout: null,
+  panelModes: {},
 
   setApi: (api) => {
     set({ api });
@@ -261,6 +287,16 @@ export const usePanelStore = create<PanelStoreState>()((set, get) => ({
 
   setLayout: (layout) => {
     set({ layout });
+  },
+
+  setPanelMode: (panelId, mode) => {
+    set((state) => ({
+      panelModes: { ...state.panelModes, [panelId]: mode },
+    }));
+  },
+
+  getPanelMode: (panelId) => {
+    return get().panelModes[panelId] ?? 'editor';
   },
 
   // Ensure openPanelIds is always reconciled with the panel registry

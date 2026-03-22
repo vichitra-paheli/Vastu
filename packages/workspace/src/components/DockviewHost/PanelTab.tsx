@@ -6,6 +6,11 @@
  * Shows the panel title with a close button (IconX at --v-icon-xs).
  * Active tab is highlighted with --v-accent-primary bottom border (applied via CSS).
  *
+ * In US-120: ModeSwitch is rendered inline in the tab when there are multiple
+ * modes available for the current user. The switch is only shown when the user
+ * has builder or admin capabilities (otherwise it would only contain Editor,
+ * and ModeSwitch renders null in that case).
+ *
  * All colors via --v-* CSS custom properties.
  * All strings via t('key').
  */
@@ -15,6 +20,7 @@ import type { IDockviewPanelHeaderProps } from 'dockview-react';
 import { IconX } from '@tabler/icons-react';
 import { t } from '../../lib/i18n';
 import { TruncatedText } from '../TruncatedText';
+import { ModeSwitch } from '../ModeSwitch';
 import classes from './PanelTab.module.css';
 
 export function PanelTab({ api }: IDockviewPanelHeaderProps) {
@@ -53,6 +59,8 @@ export function PanelTab({ api }: IDockviewPanelHeaderProps) {
       <TruncatedText className={classes.title} maxWidth={160}>
         {title}
       </TruncatedText>
+      {/* ModeSwitch renders null when user only has Editor access (no builder/admin) */}
+      <ModeSwitch panelId={api.id} />
       <button
         type="button"
         className={classes.closeButton}

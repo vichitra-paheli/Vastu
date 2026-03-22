@@ -8,6 +8,17 @@
 import type React from 'react';
 import type { SerializedDockview } from 'dockview-core';
 
+/**
+ * The display mode of a panel.
+ *
+ * - 'editor'   — Default content view. Always available.
+ * - 'builder'  — Page configuration view. Requires 'configure' on 'Page' or 'manage' on 'all'.
+ * - 'workflow' — Workflow canvas. Requires 'manage' on 'all' AND page has ephemeral mode enabled.
+ *
+ * Implements US-120 (AC-2, AC-3, AC-4, AC-5, AC-7).
+ */
+export type PanelMode = 'editor' | 'builder' | 'workflow';
+
 /** Unique identifier for a panel within the Dockview layout. */
 export type PanelId = string;
 

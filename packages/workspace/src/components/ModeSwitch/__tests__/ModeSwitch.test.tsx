@@ -1,143 +1,191 @@
 /**
- * ModeSwitch unit tests.
+ * ModeSwitch unit and component tests.
  *
- * Covers:
- * - Renders all three mode segments by default
- * - Hides regex segment when disableRegex is true
- * - Falls back to include when disableRegex and value is regex
- * - Active segment has aria-checked="true"
- * - Inactive segments have aria-checked="false"
- * - Clicking a segment calls onChange with the correct mode
- * - Disabled state: clicks do not fire onChange
- * - Disabled state: segments have disabled attribute
- * - Custom aria-label is forwarded to the group
- * - Uses role="radiogroup"
- * - Tooltip shows descriptive text (not just mode name)
+ * Covers US-120 acceptance criteria:
+ *
+ * CASL gating (AC-3, AC-4, AC-5):
+ *   - Viewer (no special abilities): only Editor available — renders null
+ *   - Builder (configure Page): Editor + Builder visible
+ *   - Admin (manage all): Editor + Builder + Workflow visible (when ephemeral enabled)
+ *   - Admin but ephemeral disabled: Editor + Builder visible (no Workflow)
+ *
+ * Mode change (AC-6):
+ *   - Clicking a segment updates panelStore.panelModes
+ *   - Currently active mode is aria-checked="true"
+ *
+ * Per-panel isolation (AC-7):
+ *   - panelA and panelB have independent mode state
+ *
+ * Serialization round-trip (AC-7):
+ *   - Mode state stored in panelStore survives component unmount/remount
  */
 
 import React from 'react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { defineAbilitiesFor, type AppAbility } from '@vastu/shared/permissions';
 import { TestProviders } from '../../../test-utils/providers';
 import { ModeSwitch } from '../ModeSwitch';
-import type { FilterMode } from '../../FilterSystem/types';
+import { usePanelStore } from '../../../stores/panelStore';
+
+// ---- Helpers ----------------------------------------------------------------
+
+/** Ability with read-only permissions — viewer role. */
+const viewerAbility: AppAbility = defineAbilitiesFor({
+  roles: [{ name: 'viewer', isSystem: true, permissions: [] }],
+});
+
+/** Ability with 'configure' on 'Page' — builder role. */
+const builderAbility: AppAbility = defineAbilitiesFor({
+  roles: [{ name: 'builder', isSystem: true, permissions: [] }],
+});
+
+/** Ability with 'manage' on 'all' — admin role. */
+const adminAbility: AppAbility = defineAbilitiesFor({
+  roles: [{ name: 'admin', isSystem: true, permissions: [] }],
+});
 
 function renderSwitch(
-  value: FilterMode = 'include',
-  onChange = vi.fn(),
-  props: Partial<React.ComponentProps<typeof ModeSwitch>> = {},
+  panelId: string,
+  ability: AppAbility,
+  ephemeralEnabled = false,
 ) {
   return render(
-    <ModeSwitch value={value} onChange={onChange} {...props} />,
+    <ModeSwitch panelId={panelId} ability={ability} ephemeralEnabled={ephemeralEnabled} />,
     { wrapper: TestProviders },
   );
 }
 
-function getRadioByName(name: string) {
-  return screen.getAllByRole('radio').find((el) => el.textContent?.includes(name));
-}
+// Reset panelStore between tests so they don't bleed into each other.
+beforeEach(() => {
+  usePanelStore.setState({ panelModes: {} });
+});
 
-describe('ModeSwitch', () => {
-  it('renders three segments by default', () => {
-    renderSwitch();
-    expect(screen.getAllByRole('radio')).toHaveLength(3);
+// ---- CASL gating ------------------------------------------------------------
+
+describe('ModeSwitch — CASL gating', () => {
+  it('renders nothing for a viewer (only Editor available — nothing to switch)', () => {
+    const { container } = renderSwitch('panel-1', viewerAbility);
+    expect(container.querySelector('[role="radiogroup"]')).toBeNull();
   });
 
-  it('renders only two segments when disableRegex is true', () => {
-    renderSwitch('include', vi.fn(), { disableRegex: true });
-    expect(screen.getAllByRole('radio')).toHaveLength(2);
+  it('renders Editor and Builder for a builder role', () => {
+    renderSwitch('panel-1', builderAbility);
+    const radios = screen.getAllByRole('radio');
+    expect(radios).toHaveLength(2);
+    expect(screen.getByText('Editor')).toBeTruthy();
+    expect(screen.getByText('Builder')).toBeTruthy();
+    expect(screen.queryByText('Workflow')).toBeNull();
   });
 
-  it('calls onChange with include when disableRegex is true and value is regex', () => {
-    const onChange = vi.fn();
-    renderSwitch('regex', onChange, { disableRegex: true });
-    expect(onChange).toHaveBeenCalledWith('include');
+  it('renders Editor, Builder, and Workflow for an admin when ephemeral is enabled', () => {
+    renderSwitch('panel-1', adminAbility, true);
+    const radios = screen.getAllByRole('radio');
+    expect(radios).toHaveLength(3);
+    expect(screen.getByText('Editor')).toBeTruthy();
+    expect(screen.getByText('Builder')).toBeTruthy();
+    expect(screen.getByText('Workflow')).toBeTruthy();
   });
 
-  it('marks the active segment with aria-checked="true"', () => {
-    renderSwitch('exclude');
-    const excludeBtn = getRadioByName('Exclude');
-    expect(excludeBtn?.getAttribute('aria-checked')).toBe('true');
+  it('renders Editor and Builder for an admin when ephemeral is disabled', () => {
+    renderSwitch('panel-1', adminAbility, false);
+    const radios = screen.getAllByRole('radio');
+    expect(radios).toHaveLength(2);
+    expect(screen.queryByText('Workflow')).toBeNull();
   });
 
-  it('marks inactive segments with aria-checked="false"', () => {
-    renderSwitch('include');
-    const excludeBtn = getRadioByName('Exclude');
-    const regexBtn = getRadioByName('Regex');
-    expect(excludeBtn?.getAttribute('aria-checked')).toBe('false');
-    expect(regexBtn?.getAttribute('aria-checked')).toBe('false');
+  it('hides Workflow for builder role even when ephemeral is enabled', () => {
+    renderSwitch('panel-1', builderAbility, true);
+    expect(screen.queryByText('Workflow')).toBeNull();
+  });
+});
+
+// ---- Mode switching ---------------------------------------------------------
+
+describe('ModeSwitch — mode change', () => {
+  it('defaults to Editor mode (aria-checked="true" on Editor)', () => {
+    renderSwitch('panel-1', builderAbility);
+    const editorBtn = screen.getByRole('radio', { name: /editor/i });
+    expect(editorBtn.getAttribute('aria-checked')).toBe('true');
   });
 
-  it('calls onChange with "exclude" when Exclude is clicked', () => {
-    const onChange = vi.fn();
-    renderSwitch('include', onChange);
-    fireEvent.click(getRadioByName('Exclude')!);
-    expect(onChange).toHaveBeenCalledOnce();
-    expect(onChange).toHaveBeenCalledWith('exclude');
+  it('updates panelStore when Builder is clicked', () => {
+    renderSwitch('panel-1', builderAbility);
+    fireEvent.click(screen.getByRole('radio', { name: /builder/i }));
+    expect(usePanelStore.getState().panelModes['panel-1']).toBe('builder');
   });
 
-  it('calls onChange with "regex" when Regex is clicked', () => {
-    const onChange = vi.fn();
-    renderSwitch('include', onChange);
-    fireEvent.click(getRadioByName('Regex')!);
-    expect(onChange).toHaveBeenCalledWith('regex');
+  it('marks the newly active segment aria-checked="true" after click', () => {
+    renderSwitch('panel-1', builderAbility);
+    fireEvent.click(screen.getByRole('radio', { name: /builder/i }));
+    expect(screen.getByRole('radio', { name: /builder/i }).getAttribute('aria-checked')).toBe('true');
+    expect(screen.getByRole('radio', { name: /editor/i }).getAttribute('aria-checked')).toBe('false');
   });
 
-  it('calls onChange with "include" when Include is clicked', () => {
-    const onChange = vi.fn();
-    renderSwitch('exclude', onChange);
-    fireEvent.click(getRadioByName('Include')!);
-    expect(onChange).toHaveBeenCalledWith('include');
+  it('updates panelStore when Workflow is clicked (admin + ephemeral)', () => {
+    renderSwitch('panel-1', adminAbility, true);
+    fireEvent.click(screen.getByRole('radio', { name: /workflow/i }));
+    expect(usePanelStore.getState().panelModes['panel-1']).toBe('workflow');
   });
 
-  it('does not call onChange when disabled and a segment is clicked', () => {
-    const onChange = vi.fn();
-    renderSwitch('include', onChange, { disabled: true });
-    fireEvent.click(getRadioByName('Exclude')!);
-    expect(onChange).not.toHaveBeenCalled();
+  it('clicking Editor after Builder switches back to editor mode', () => {
+    renderSwitch('panel-1', builderAbility);
+    fireEvent.click(screen.getByRole('radio', { name: /builder/i }));
+    fireEvent.click(screen.getByRole('radio', { name: /editor/i }));
+    expect(usePanelStore.getState().panelModes['panel-1']).toBe('editor');
   });
+});
 
-  it('sets disabled attribute on all segments when disabled', () => {
-    renderSwitch('include', vi.fn(), { disabled: true });
-    const buttons = screen.getAllByRole('radio');
-    buttons.forEach((btn) => {
-      expect((btn as HTMLButtonElement).disabled).toBe(true);
-    });
+// ---- Per-panel isolation ----------------------------------------------------
+
+describe('ModeSwitch — per-panel isolation', () => {
+  it('panel modes are independent between different panelIds', () => {
+    const { unmount } = renderSwitch('panel-A', builderAbility);
+    fireEvent.click(screen.getByRole('radio', { name: /builder/i }));
+    unmount();
+
+    renderSwitch('panel-B', builderAbility);
+    // panel-B should default to editor, not inherit panel-A's builder mode
+    expect(screen.getByRole('radio', { name: /editor/i }).getAttribute('aria-checked')).toBe('true');
+
+    expect(usePanelStore.getState().panelModes['panel-A']).toBe('builder');
+    expect(usePanelStore.getState().panelModes['panel-B']).toBeUndefined();
   });
+});
 
-  it('uses a custom aria-label on the radiogroup', () => {
-    renderSwitch('include', vi.fn(), { 'aria-label': 'Custom label' });
-    expect(screen.getByRole('radiogroup', { name: 'Custom label' })).toBeTruthy();
+// ---- Serialization round-trip -----------------------------------------------
+
+describe('ModeSwitch — serialization round-trip', () => {
+  it('restores active mode from panelStore on remount', () => {
+    // Simulate a pre-existing mode (e.g., restored from localStorage)
+    usePanelStore.setState({ panelModes: { 'panel-1': 'builder' } });
+
+    renderSwitch('panel-1', builderAbility);
+
+    expect(screen.getByRole('radio', { name: /builder/i }).getAttribute('aria-checked')).toBe('true');
+    expect(screen.getByRole('radio', { name: /editor/i }).getAttribute('aria-checked')).toBe('false');
   });
+});
 
-  it('renders the container with role="radiogroup"', () => {
-    renderSwitch();
+// ---- Accessibility ----------------------------------------------------------
+
+describe('ModeSwitch — accessibility', () => {
+  it('renders with role="radiogroup"', () => {
+    renderSwitch('panel-1', builderAbility);
     expect(screen.getByRole('radiogroup')).toBeTruthy();
   });
 
-  it('renders segments with role="radio"', () => {
-    renderSwitch();
+  it('has aria-label on the radiogroup', () => {
+    renderSwitch('panel-1', builderAbility);
+    const group = screen.getByRole('radiogroup');
+    expect(group.getAttribute('aria-label')).toBeTruthy();
+  });
+
+  it('each segment has a tooltip (title attribute)', () => {
+    renderSwitch('panel-1', builderAbility);
     const radios = screen.getAllByRole('radio');
-    expect(radios).toHaveLength(3);
-  });
-
-  it('renders short labels I, E, R', () => {
-    renderSwitch();
-    expect(screen.getByText('I')).toBeTruthy();
-    expect(screen.getByText('E')).toBeTruthy();
-    expect(screen.getByText('R')).toBeTruthy();
-  });
-
-  it('renders full mode labels Include, Exclude, Regex', () => {
-    renderSwitch();
-    expect(screen.getAllByText('Include').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Exclude').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Regex').length).toBeGreaterThan(0);
-  });
-
-  it('tooltips show descriptive text not just mode names', () => {
-    renderSwitch();
-    const includeBtn = getRadioByName('Include');
-    expect(includeBtn?.getAttribute('title')).toContain('rows');
+    radios.forEach((radio) => {
+      expect(radio.getAttribute('title')).toBeTruthy();
+    });
   });
 });

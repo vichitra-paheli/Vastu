@@ -7,7 +7,7 @@
 .tab {
   display: flex;
   align-items: center;
-  gap: var(--v-space-1);
+  gap: var(--v-space-2);
   height: 100%;
   padding: 0 var(--v-space-2) 0 var(--v-space-3);
   min-width: 0;

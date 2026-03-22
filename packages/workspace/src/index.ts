@@ -4,6 +4,8 @@
 
 // Providers
 export { WorkspaceProviders } from './providers/WorkspaceProviders';
+export { AbilityProvider, useAbility } from './providers/AbilityContext';
+export type { AbilityProviderProps } from './providers/AbilityContext';
 
 // Components
 export { WorkspaceShell } from './components/WorkspaceShell';
@@ -43,6 +45,7 @@ export { usePanelPersistence, PANEL_LAYOUT_STORAGE_KEY } from './hooks/usePanelP
 export type {
   Panel,
   PanelId,
+  PanelMode,
   PanelTypeId,
   PanelDefinition,
   PanelParams,
