@@ -196,5 +196,39 @@
   "template.skeleton.detailHeader": "Detail header skeleton",
   "template.skeleton.detailTabs": "Detail tabs skeleton",
   "template.skeleton.formFields": "Form fields skeleton",
-  "template.skeleton.timelineItems": "Timeline items skeleton"
+  "template.skeleton.timelineItems": "Timeline items skeleton",
+
+  "chart.ariaLabel": "Chart",
+  "chart.loading.ariaLabel": "Loading chart data",
+  "chart.error.retry": "Retry",
+  "chart.empty.message": "No data matches current filters",
+
+  "chart.legend.ariaLabel": "Chart legend",
+  "chart.legend.seriesAriaLabel": "Toggle series: {name}",
+  "chart.legend.showSeries": "Show series",
+  "chart.legend.hideSeries": "Hide series",
+  "chart.legend.position.top": "Top",
+  "chart.legend.position.bottom": "Bottom",
+  "chart.legend.position.left": "Left",
+  "chart.legend.position.right": "Right",
+
+  "chart.type.line": "Line",
+  "chart.type.bar": "Bar",
+  "chart.type.area": "Area",
+  "chart.type.donut": "Donut",
+  "chart.type.sparkline": "Sparkline",
+  "chart.type.scatter": "Scatter",
+
+  "chart.config.panelAriaLabel": "Chart configuration",
+  "chart.config.openAriaLabel": "Open chart configuration",
+  "chart.config.basic": "Basic",
+  "chart.config.advanced": "Advanced options",
+  "chart.config.chartType": "Chart type",
+  "chart.config.showAxisLabels": "Show axis labels",
+  "chart.config.showLegend": "Show legend",
+  "chart.config.legendPosition": "Legend position",
+  "chart.config.stacked": "Stack series",
+  "chart.config.scaleType": "Y-axis scale",
+  "chart.config.scale.linear": "Linear",
+  "chart.config.scale.log": "Log"
 }

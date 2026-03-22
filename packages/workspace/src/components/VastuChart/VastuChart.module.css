@@ -1,0 +1,130 @@
+/**
+ * VastuChart styles.
+ *
+ * All colors via --v-* CSS custom properties.
+ * No hardcoded hex values — see Style Guide §1 for token reference.
+ */
+
+/* ─── Root container ─────────────────────────────────────────────────────── */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  font-family: var(--v-font-sans);
+  font-size: var(--v-text-sm);
+  color: var(--v-text-primary);
+  position: relative;
+}
+
+/* ─── Chart area ─────────────────────────────────────────────────────────── */
+
+.chartArea {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ─── Config button ──────────────────────────────────────────────────────── */
+
+.configButton {
+  position: absolute;
+  top: var(--v-space-2);
+  right: var(--v-space-2);
+  z-index: var(--v-z-dropdown);
+  color: var(--v-text-tertiary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: var(--v-radius-md);
+  padding: var(--v-space-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--v-duration-fast) var(--v-ease-default),
+    background-color var(--v-duration-fast) var(--v-ease-default);
+}
+
+.configButton:hover {
+  color: var(--v-text-primary);
+  background-color: var(--v-bg-tertiary);
+}
+
+.configButton:focus-visible {
+  outline: none;
+  box-shadow: var(--v-shadow-focus);
+}
+
+/* ─── Loading skeleton ───────────────────────────────────────────────────── */
+
+.loadingContainer {
+  width: 100%;
+  border-radius: var(--v-radius-md);
+  overflow: hidden;
+}
+
+/* ─── Error state ────────────────────────────────────────────────────────── */
+
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--v-space-3);
+  padding: var(--v-space-6);
+  color: var(--v-text-secondary);
+  width: 100%;
+}
+
+.errorIcon {
+  color: var(--v-status-error);
+}
+
+.errorMessage {
+  font-size: var(--v-text-sm);
+  color: var(--v-text-secondary);
+  text-align: center;
+  margin: 0;
+}
+
+/* ─── Empty state ────────────────────────────────────────────────────────── */
+
+.emptyContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--v-space-3);
+  padding: var(--v-space-6);
+  width: 100%;
+}
+
+/* ─── Recharts customizations ────────────────────────────────────────────── */
+
+/* Axis labels */
+.root .recharts-cartesian-axis-tick-value {
+  font-family: var(--v-font-sans);
+  font-size: 11px; /* --v-text-xs */
+  fill: var(--v-text-tertiary);
+  font-weight: 400;
+}
+
+/* Axis lines */
+.root .recharts-cartesian-axis-line {
+  stroke: var(--v-border-default);
+}
+
+/* Grid lines */
+.root .recharts-cartesian-grid-horizontal line,
+.root .recharts-cartesian-grid-vertical line {
+  stroke: var(--v-border-subtle);
+}
+
+/* Reduced motion: disable all Recharts animations */
+@media (prefers-reduced-motion: reduce) {
+  .root .recharts-layer {
+    animation: none !important;
+    transition: none !important;
+  }
+}

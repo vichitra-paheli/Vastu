@@ -1,0 +1,74 @@
+/**
+ * ChartConfigPanel styles.
+ *
+ * Collapsible gear-triggered config panel.
+ * All colors via --v-* tokens.
+ */
+
+.panel {
+  position: absolute;
+  top: calc(var(--v-space-2) + 28px); /* below gear button */
+  right: var(--v-space-2);
+  z-index: var(--v-z-dropdown);
+  background-color: var(--v-bg-elevated);
+  border: 1px solid var(--v-border-default);
+  border-radius: var(--v-radius-lg);
+  box-shadow: var(--v-shadow-md);
+  padding: var(--v-space-4);
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-space-4);
+  font-family: var(--v-font-sans);
+  font-size: 14px; /* --v-text-md */
+}
+
+.sectionTitle {
+  font-size: 11px; /* --v-text-xs */
+  font-weight: 500; /* --v-font-medium */
+  color: var(--v-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 var(--v-space-2) 0;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-space-3);
+}
+
+.divider {
+  height: 1px;
+  background-color: var(--v-border-subtle);
+  margin: 0;
+}
+
+.advancedToggle {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-2);
+  font-size: 12px; /* --v-text-sm */
+  color: var(--v-text-secondary);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+}
+
+.advancedToggle:hover {
+  color: var(--v-text-primary);
+}
+
+.advancedToggle:focus-visible {
+  outline: none;
+  box-shadow: var(--v-shadow-focus);
+  border-radius: var(--v-radius-md);
+}
+
+.advancedSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-space-3);
+}
