@@ -191,3 +191,16 @@ export type {
   ActionGroup,
   RecentRecord,
 } from './hooks/useCommandPaletteActions';
+
+// TableListingTemplate (US-129)
+export { TableListingTemplate } from './templates/TableListing/TableListingTemplate';
+export type {
+  TableListingMetadata,
+  SummaryStripConfig,
+} from './templates/TableListing/TableListingTemplate';
+export { KPISummaryStrip } from './templates/TableListing/KPISummaryStrip';
+export type { KPIMetric, KPISummaryStripProps } from './templates/TableListing/KPISummaryStrip';
+
+// KPICard (US-129b)
+export { KPICard } from './components/KPICard/KPICard';
+export type { KPICardProps, KPICardSparklineData } from './components/KPICard/KPICard';
