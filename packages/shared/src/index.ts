@@ -26,6 +26,7 @@ export type {
   DbConnection,
   CreateDbConnectionInput,
   UpdateDbConnectionInput,
+  PageConfiguration,
 } from './types';
 
 export { prisma } from './prisma';

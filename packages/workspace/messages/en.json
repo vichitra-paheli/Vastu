@@ -163,5 +163,17 @@
   "panel.modeSwitch.ariaLabel": "Panel mode",
   "panel.modeSwitch.editor.tooltip": "View and interact with page data",
   "panel.modeSwitch.builder.tooltip": "Configure page data source, fields, and layout",
-  "panel.modeSwitch.workflow.tooltip": "Build and run workflows for this page"
+  "panel.modeSwitch.workflow.tooltip": "Build and run workflows for this page",
+
+  "template.skeleton.loading": "Loading template",
+  "template.config.loading": "Loading page configuration",
+  "template.config.error": "Failed to load page configuration",
+  "template.config.saveError": "Failed to save page configuration",
+  "template.skeleton.tableHeader": "Table header skeleton",
+  "template.skeleton.tableRows": "Table rows skeleton",
+  "template.skeleton.dashboardCards": "Dashboard cards skeleton",
+  "template.skeleton.detailHeader": "Detail header skeleton",
+  "template.skeleton.detailTabs": "Detail tabs skeleton",
+  "template.skeleton.formFields": "Form fields skeleton",
+  "template.skeleton.timelineItems": "Timeline items skeleton"
 }
