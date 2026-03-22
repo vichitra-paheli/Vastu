@@ -160,3 +160,19 @@ export type {
   VastuChartProps,
   ReferenceLineConfig,
 } from './components/VastuChart';
+
+// CommandPalette
+export { CommandPalette, openCommandPalette } from './components/CommandPalette';
+
+// CommandPalette hooks
+export {
+  useCommandPaletteActions,
+  addRecentRecord,
+  RECENT_RECORDS_STORAGE_KEY,
+} from './hooks/useCommandPaletteActions';
+export type {
+  CommandPaletteAction,
+  GroupedActions,
+  ActionGroup,
+  RecentRecord,
+} from './hooks/useCommandPaletteActions';

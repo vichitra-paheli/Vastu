@@ -20,6 +20,7 @@ export default defineConfig({
         '**/*.d.ts',
         '**/*.config.*',
         '**/index.ts',
+        '**/__tests__/**',
       ],
     },
   },
@@ -42,6 +43,12 @@ export default defineConfig({
       {
         find: '@vastu/workspace',
         replacement: path.resolve(__dirname, './src/index.ts'),
+      },
+      {
+        // Recharts + d3 exhaust jsdom worker memory.  Alias to a
+        // lightweight stub so the real module is never loaded.
+        find: 'recharts',
+        replacement: path.resolve(__dirname, './src/__mocks__/recharts.tsx'),
       },
     ],
   },

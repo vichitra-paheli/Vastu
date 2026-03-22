@@ -11,6 +11,7 @@
  *
  * Built-in panels are registered at import time via panels/index.ts.
  * Updated in US-109: renders SidebarNav with user + ability props.
+ * Updated in US-125: mounts CommandPalette at workspace root.
  * Updated in US-126: registers global keyboard shortcuts via useKeyboardShortcuts.
  * All colors via --v-* CSS custom properties. No hardcoded values.
  * Updated in US-138: ConfirmDialogProvider wired in for imperative confirm() API.
@@ -34,6 +35,7 @@ import { TrayBar } from './TrayBar';
 import { ViewToolbar } from './ViewToolbar';
 import { ConfirmDialogProvider } from './ConfirmDialog/ConfirmDialogProvider';
 import { t } from '../lib/i18n';
+import { CommandPalette } from './CommandPalette';
 import classes from './WorkspaceShell.module.css';
 
 const SIDEBAR_COLLAPSED_WIDTH = 48;
@@ -162,13 +164,16 @@ function WorkspaceShellInner({
   const { shortcuts } = useKeyboardShortcuts(globalShortcuts);
 
   return (
-    <div
-      className={classes.workspace}
-      style={{ '--sidebar-width': `${sidebarWidth}px` } as React.CSSProperties}
-    >
-      <aside
-        className={classes.sidebar}
-        aria-label="Workspace sidebar"
+    <>
+      {/* CommandPalette is always mounted and portal-based (US-125) */}
+      <CommandPalette />
+      <div
+        className={classes.workspace}
+        style={{ '--sidebar-width': `${sidebarWidth}px` } as React.CSSProperties}
+      >
+        <aside
+          className={classes.sidebar}
+          aria-label="Workspace sidebar"
         style={{ width: sidebarWidth }}
         data-collapsed={collapsed}
       >
@@ -201,7 +206,8 @@ function WorkspaceShellInner({
         onClose={() => setShortcutsOpen(false)}
         shortcuts={shortcuts}
       />
-    </div>
+      </div>
+    </>
   );
 }
 

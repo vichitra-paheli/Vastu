@@ -59,3 +59,31 @@
   background-color: var(--v-text-tertiary);
   opacity: 0.4;
 }
+
+/* Search / command palette trigger button (US-125) */
+.searchButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: var(--v-radius-md);
+  color: var(--v-text-tertiary);
+  font-size: var(--v-text-md);
+  cursor: pointer;
+  transition: background-color 80ms ease, color 80ms ease;
+  line-height: 1;
+}
+
+.searchButton:hover {
+  background-color: var(--v-interactive-hover);
+  color: var(--v-text-secondary);
+}
+
+.searchButton:focus-visible {
+  outline: 2px solid var(--v-border-focus);
+  outline-offset: 1px;
+}
