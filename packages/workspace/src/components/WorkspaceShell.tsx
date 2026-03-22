@@ -22,6 +22,7 @@ import React from 'react';
 import type { AppAbility } from '@vastu/shared/permissions';
 import { AbilityProvider, createNoOpAbility } from '../providers/AbilityContext';
 import { useSidebarStore } from '../stores/sidebarStore';
+import { usePanelStore } from '../stores/panelStore';
 import { DockviewHost } from './DockviewHost/DockviewHost';
 import { SidebarNav } from './SidebarNav';
 import { TrayBar } from './TrayBar';
@@ -82,6 +83,10 @@ export function WorkspaceShell({
   currentUserId,
 }: WorkspaceShellProps) {
   const collapsed = useSidebarStore((state) => state.collapsed);
+  // Derive the active page ID from the Dockview active panel.
+  // Falls back to the explicitly-provided prop for SSR / static usage.
+  const activePanelId = usePanelStore((state) => state.activePanelId);
+  const resolvedActivePageId = activePanelId ?? activePageId ?? '';
 
   const sidebarWidth = collapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_EXPANDED_WIDTH;
 
@@ -114,9 +119,11 @@ export function WorkspaceShell({
         <main className={classes.main} id="workspace-main">
           {/* ViewToolbar sits between the sidebar and the Dockview panel area.
               Always rendered; shows "Default view" when no page is active.
-              Falls back to an empty string pageId (no save call will be made
-              while the view is unmodified). */}
-          <ViewToolbar pageId={activePageId ?? ''} currentUserId={currentUserId} />
+              WorkspaceShell is the single source of truth for activePanelId:
+              it resolves panelStore.activePanelId with the prop fallback here,
+              then passes the resolved value down. ViewToolbar does not do its
+              own panelStore lookup. */}
+          <ViewToolbar pageId={resolvedActivePageId} currentUserId={currentUserId} />
           <DockviewHost />
           {children}
         </main>

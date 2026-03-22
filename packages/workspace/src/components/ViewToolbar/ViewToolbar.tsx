@@ -81,7 +81,10 @@ export function ViewToolbar({
   onRenameView,
   onDeleteView,
 }: ViewToolbarProps) {
-  const { currentViewId, isModified, saveView, loadView, resetView, setViewState } = useViewStore();
+  const { currentViewId, isModified, saveView, loadView, resetView, newView } = useViewStore();
+  // pageId is fully resolved by WorkspaceShell (activePanelId ?? prop fallback).
+  // ViewToolbar uses it directly — no secondary panelStore lookup here.
+  const resolvedPageId = pageId;
 
   // Ref to the inline name input — used to allow Cmd+S from within it.
   const nameInputRef = React.useRef<HTMLInputElement>(null);
@@ -109,7 +112,7 @@ export function ViewToolbar({
   async function handleSave() {
     if (!modified) return;
     try {
-      await saveView(localName, pageId);
+      await saveView(localName, resolvedPageId);
     } catch {
       // Error handling is intentionally minimal at toolbar level.
       // Consumers can wrap in an error boundary or show a global toast.
@@ -159,17 +162,10 @@ export function ViewToolbar({
   }
 
   function handleCreateView() {
-    // Start from a fresh default state — clears currentViewId and savedState
-    // so the toolbar shows "Default view" and the save button treats it as new.
-    setViewState(
-      {
-        filters: null,
-        sort: [],
-        columns: [],
-        pagination: { page: 1, pageSize: 25 },
-        scrollPosition: { x: 0, y: 0 },
-      },
-    );
+    // Reset to blank defaults — clears currentViewId and savedState so
+    // the toolbar shows "Default view" and the save button treats it as new.
+    // No confirmation prompt: "New View when current view has unsaved changes: clear without prompting" (AC-5).
+    newView();
     onCreateView?.();
   }
 
@@ -204,7 +200,7 @@ export function ViewToolbar({
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [modified, localName, pageId]);
+  }, [modified, localName, resolvedPageId]);
 
   return (
     <div
@@ -242,21 +238,31 @@ export function ViewToolbar({
           />
         </div>
 
-        {/* Modified indicator */}
-        {modified && (
-          <div className={classes.modifiedIndicator} data-testid="modified-indicator">
-            <span className={classes.modifiedDot} aria-hidden="true" />
-            <span className={classes.modifiedLabel}>{t('view.toolbar.modified')}</span>
-            <button
-              type="button"
-              className={classes.resetLink}
-              onClick={handleReset}
-              aria-label={t('view.toolbar.resetAriaLabel')}
-            >
-              {t('view.toolbar.reset')}
-            </button>
-          </div>
-        )}
+        {/* Modified indicator — always present; dot and label hidden when clean.
+            Reset button is disabled (not hidden) when view is clean (AC-6). */}
+        <div
+          className={classes.modifiedIndicator}
+          data-testid={modified ? 'modified-indicator' : undefined}
+          aria-hidden={!modified}
+        >
+          {modified && (
+            <>
+              <span className={classes.modifiedDot} aria-hidden="true" />
+              <span className={classes.modifiedLabel}>{t('view.toolbar.modified')}</span>
+            </>
+          )}
+          <button
+            type="button"
+            className={modified ? classes.resetLink : classes.resetLinkDisabled}
+            onClick={modified ? handleReset : undefined}
+            disabled={!modified}
+            aria-label={t('view.toolbar.resetAriaLabel')}
+            aria-disabled={!modified}
+            data-testid="reset-button"
+          >
+            {t('view.toolbar.reset')}
+          </button>
+        </div>
       </div>
 
       {/* Separator */}
