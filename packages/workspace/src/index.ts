@@ -191,3 +191,14 @@ export type {
   ActionGroup,
   RecentRecord,
 } from './hooks/useCommandPaletteActions';
+
+// SummaryDashboard Template (US-130)
+export { SummaryDashboardTemplate, SUMMARY_DASHBOARD_PANEL_TYPE } from './templates/SummaryDashboard/SummaryDashboardTemplate';
+export { KPICardRow } from './templates/SummaryDashboard/KPICardRow';
+export type { KPICardConfig, KPICardRowProps } from './templates/SummaryDashboard/KPICardRow';
+export { ChartRow } from './templates/SummaryDashboard/ChartRow';
+export type { ChartDefinition, ChartRowProps } from './templates/SummaryDashboard/ChartRow';
+export { MiniSummaryTable } from './templates/SummaryDashboard/MiniSummaryTable';
+export type { MiniTableColumn, MiniSummaryTableProps } from './templates/SummaryDashboard/MiniSummaryTable';
+export { TimeRangeControl } from './templates/SummaryDashboard/TimeRangeControl';
+export type { TimeRange, TimeRangePreset, TimeRangeControlProps } from './templates/SummaryDashboard/TimeRangeControl';
