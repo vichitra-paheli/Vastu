@@ -82,6 +82,15 @@ function fieldsToColumns(fields: FieldConfig[]): VastuColumn<Record<string, unkn
     }));
 }
 
+/** Maps FieldConfig type strings to FilterDimension dataType values. */
+const FIELD_TYPE_TO_DIMENSION_DATA_TYPE: Record<string, FilterDimension['dataType']> = {
+  relation: 'enum',
+  enum: 'enum',
+  boolean: 'boolean',
+  number: 'number',
+  date: 'date',
+};
+
 /**
  * Derive filter dimensions from a FieldConfig array.
  * Only filterable fields become filter dimensions.
@@ -92,7 +101,7 @@ function fieldsToDimensions(fields: FieldConfig[]): FilterDimension[] {
     .map((field) => ({
       column: field.key,
       label: field.label,
-      dataType: field.type === 'relation' || field.type === 'enum' ? ('enum' as const) : field.type === 'boolean' ? ('boolean' as const) : field.type === 'number' ? ('number' as const) : field.type === 'date' ? ('date' as const) : ('text' as const),
+      dataType: FIELD_TYPE_TO_DIMENSION_DATA_TYPE[field.type] ?? 'text',
     }));
 }
 
@@ -142,7 +151,8 @@ interface TableListingTemplateProps extends TemplateProps {
  * - KPISummaryStrip (optional, controlled by config.metadata.summaryStrip.enabled)
  * - FilterBar for column-level filtering
  * - VastuTable with virtual scrolling, sorting, and row selection
- * - Row click opens RecordDrawer via drawerStore.openDrawer
+ * - Plain row click (no modifier key) opens RecordDrawer via drawerStore.openDrawer
+ * - onRowSelectionChange is reserved for multi-select tracking only
  */
 function TableListingTemplateInner({
   pageId,
@@ -218,16 +228,11 @@ function TableListingTemplateInner({
   const showSummaryStrip = summaryStrip?.enabled === true;
   const kpiMetrics: KPIMetric[] = summaryStrip?.metrics ?? [];
 
-  // ─── Row selection handler → open drawer ─────────────────────────
-  // When exactly one row is selected via a single (non-shift, non-ctrl) click,
-  // open the RecordDrawer for that record.
-  function handleRowSelectionChange(selectedIds: Set<string>) {
-    if (selectedIds.size === 1) {
-      const recordId = Array.from(selectedIds)[0];
-      if (recordId) {
-        openDrawer(recordId);
-      }
-    }
+  // ─── Row click handler → open drawer ─────────────────────────────
+  // Plain single click (no shift/ctrl) on a row opens the RecordDrawer.
+  // onRowSelectionChange is used separately for multi-select tracking only.
+  function handleRowClick(recordId: string) {
+    openDrawer(recordId);
   }
 
   return (
@@ -267,7 +272,7 @@ function TableListingTemplateInner({
           loading={dataLoading}
           error={dataError ? new Error(dataError) : null}
           getRowId={(row) => String(row['id'] ?? '')}
-          onRowSelectionChange={handleRowSelectionChange}
+          onRowClick={handleRowClick}
           ariaLabel={t('tableListing.table.ariaLabel')}
         />
       </div>

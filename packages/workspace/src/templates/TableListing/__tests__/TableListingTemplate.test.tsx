@@ -7,7 +7,7 @@
  * 3. KPI strip shown when config.summaryStrip.enabled is true
  * 4. KPI strip hidden when config.summaryStrip.enabled is false
  * 5. KPI strip hidden when summaryStrip is absent from metadata
- * 6. Row selection opens drawer (onRowSelectionChange triggers openDrawer)
+ * 6. Row click (plain, no modifier) opens the drawer via onRowClick
  * 7. Loading state renders TemplateSkeleton
  * 8. Error state renders EmptyState with error message
  * 9. ViewToolbar is always present
@@ -18,7 +18,7 @@
 
 import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { TestProviders } from '../../../test-utils/providers';
 import { TableListingTemplate } from '../TableListingTemplate';
 import type { TemplateConfig } from '../../types';
@@ -67,6 +67,25 @@ vi.mock('../../../components/FilterSystem/FilterBar', () => ({
 // ─── Mock VastuChart for KPICard sparklines ───────────────────────────────────
 vi.mock('../../../components/VastuChart/VastuChart', () => ({
   VastuChart: () => <div data-testid="vastu-chart-sparkline" />,
+}));
+
+// ─── Mock VastuTable — expose onRowClick via a test button ───────────────────
+// This lets test #6 simulate a plain row click and verify the drawer opens.
+vi.mock('../../../components/VastuTable/VastuTable', () => ({
+  VastuTable: ({
+    onRowClick,
+  }: {
+    onRowClick?: (rowId: string) => void;
+  }) => (
+    <div data-testid="vastu-table">
+      <button
+        data-testid="row-click-trigger"
+        onClick={() => onRowClick?.('row-1')}
+      >
+        Click row
+      </button>
+    </div>
+  ),
 }));
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -208,17 +227,17 @@ describe('TableListingTemplate', () => {
     expect(screen.queryByRole('region', { name: /kpi summary/i })).toBeNull();
   });
 
-  // 6. Row selection opens drawer
-  it('opens the drawer when a single row is selected', async () => {
+  // 6. Plain row click opens the drawer — onRowClick triggers openDrawer
+  it('opens the drawer when a row is clicked (plain click without modifier)', () => {
     const config = buildConfig(WITH_DATASOURCE);
     renderTemplate({ config, data: SAMPLE_ROWS });
 
-    // The VastuTable renders rows. We can't simulate row selection directly through
-    // the virtualized table in jsdom, but we can verify the handler is wired up
-    // by checking the template renders without errors and the openDrawer mock exists.
-    expect(mockOpenDrawer).not.toHaveBeenCalled();
-    // The template itself is rendered, which means onRowSelectionChange is wired
-    expect(screen.getByTestId('table-listing-template')).toBeDefined();
+    // Simulate a plain row click via the trigger exposed by the VastuTable mock
+    fireEvent.click(screen.getByTestId('row-click-trigger'));
+
+    // openDrawer must have been called with the row's id
+    expect(mockOpenDrawer).toHaveBeenCalledTimes(1);
+    expect(mockOpenDrawer).toHaveBeenCalledWith('row-1');
   });
 
   // 7. Loading state renders TemplateSkeleton
