@@ -34,7 +34,6 @@ import { SidebarNav } from './SidebarNav';
 import { TrayBar } from './TrayBar';
 import { ViewToolbar } from './ViewToolbar';
 import { ConfirmDialogProvider } from './ConfirmDialog/ConfirmDialogProvider';
-<<<<<<< HEAD
 import { t } from '../lib/i18n';
 import { CommandPalette } from './CommandPalette';
 import classes from './WorkspaceShell.module.css';
