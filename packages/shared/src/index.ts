@@ -27,6 +27,9 @@ export type {
   CreateDbConnectionInput,
   UpdateDbConnectionInput,
   PageConfiguration,
+  VastuRecord,
+  RecordHistoryEntry,
+  RecordNote,
 } from './types';
 
 export { prisma } from './prisma';
