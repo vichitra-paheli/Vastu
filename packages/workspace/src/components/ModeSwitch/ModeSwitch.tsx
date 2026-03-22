@@ -28,7 +28,7 @@
  * Implements US-120 (AC-2 through AC-8).
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { AppAbility } from '@vastu/shared/permissions';
 import { t } from '../../lib/i18n';
 import { useAbility } from '../../providers/AbilityContext';
@@ -94,6 +94,22 @@ export function ModeSwitch({ panelId, ability: abilityProp, ephemeralEnabled = f
     if (mode === 'workflow') return canUseWorkflow;
     return true; // editor is always visible
   });
+
+  const visibleModes = new Set<PanelMode>(visibleSegments.map(({ mode }) => mode));
+
+  // Reset stale mode: if the stored mode is no longer in the visible set
+  // (e.g., user's permissions changed to viewer-only or ephemeralEnabled flipped
+  // to false after Workflow was selected), fall back to 'editor' so the panel
+  // is never stuck in an inaccessible mode.
+  useEffect(() => {
+    if (!visibleModes.has(currentMode)) {
+      setPanelMode(panelId, 'editor');
+    }
+    // visibleModes is derived from ability and ephemeralEnabled — including it
+    // directly would cause referential instability on every render, so we depend
+    // on the stable primitives that drive it instead.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canUseBuilder, canUseWorkflow, currentMode, panelId, setPanelMode]);
 
   // If only Editor is available there is nothing to switch between — render nothing.
   if (visibleSegments.length <= 1) {
