@@ -1,0 +1,235 @@
+/**
+ * SummaryDashboard layout styles.
+ *
+ * All colors via --v-* CSS custom properties.
+ * Implements US-130.
+ */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--v-bg-base);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-sm);
+  padding: var(--v-space-xs) var(--v-space-md);
+  border-bottom: 1px solid var(--v-border-default);
+  background: var(--v-bg-surface);
+  flex-shrink: 0;
+}
+
+.toolbarLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-sm);
+  flex: 1;
+}
+
+.toolbarRight {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-sm);
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--v-space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-space-md);
+}
+
+/* KPI Card Row */
+.kpiRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--v-space-md);
+}
+
+/* KPI Card */
+.kpiCard {
+  background: var(--v-bg-surface);
+  border: 1px solid var(--v-border-default);
+  border-radius: var(--v-radius-md);
+  padding: var(--v-space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-space-xs);
+  position: relative;
+}
+
+.kpiCardSkeleton {
+  background: var(--v-bg-surface);
+  border: 1px solid var(--v-border-default);
+  border-radius: var(--v-radius-md);
+  padding: var(--v-space-md);
+}
+
+.kpiLabel {
+  font-size: var(--v-text-xs);
+  font-weight: 500;
+  color: var(--v-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kpiValue {
+  font-size: var(--v-text-2xl);
+  font-weight: 500;
+  color: var(--v-text-primary);
+  line-height: 1.2;
+}
+
+.kpiDelta {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-xxs);
+  font-size: var(--v-text-xs);
+  font-weight: 400;
+}
+
+.kpiDeltaPositive {
+  color: var(--v-color-success);
+}
+
+.kpiDeltaNegative {
+  color: var(--v-color-danger);
+}
+
+.kpiDeltaNeutral {
+  color: var(--v-text-secondary);
+}
+
+.kpiSparkline {
+  margin-top: var(--v-space-xs);
+}
+
+/* Chart Row */
+.chartRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--v-space-md);
+}
+
+.chartRowDual {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--v-space-md);
+}
+
+.chartCard {
+  background: var(--v-bg-surface);
+  border: 1px solid var(--v-border-default);
+  border-radius: var(--v-radius-md);
+  padding: var(--v-space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-space-sm);
+}
+
+.chartTitle {
+  font-size: var(--v-text-sm);
+  font-weight: 500;
+  color: var(--v-text-primary);
+}
+
+/* Mini Summary Table */
+.miniTableCard {
+  background: var(--v-bg-surface);
+  border: 1px solid var(--v-border-default);
+  border-radius: var(--v-radius-md);
+  padding: var(--v-space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-space-sm);
+}
+
+.miniTableHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.miniTableTitle {
+  font-size: var(--v-text-sm);
+  font-weight: 500;
+  color: var(--v-text-primary);
+}
+
+.miniTableViewAll {
+  font-size: var(--v-text-xs);
+  color: var(--v-accent-primary);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  font-weight: 400;
+}
+
+.miniTableViewAll:hover {
+  text-decoration: underline;
+}
+
+.miniTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.miniTableHead {
+  text-align: left;
+  font-size: var(--v-text-xs);
+  font-weight: 500;
+  color: var(--v-text-secondary);
+  padding: var(--v-space-xs) var(--v-space-sm);
+  border-bottom: 1px solid var(--v-border-default);
+}
+
+.miniTableCell {
+  font-size: var(--v-text-sm);
+  font-weight: 400;
+  color: var(--v-text-primary);
+  padding: var(--v-space-xs) var(--v-space-sm);
+  border-bottom: 1px solid var(--v-border-subtle);
+}
+
+.miniTableRow:last-child .miniTableCell {
+  border-bottom: none;
+}
+
+/* Empty state */
+.emptyConfig {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--v-space-xl);
+  color: var(--v-text-secondary);
+  gap: var(--v-space-sm);
+  text-align: center;
+}
+
+.emptyConfigText {
+  font-size: var(--v-text-sm);
+  font-weight: 400;
+  color: var(--v-text-secondary);
+}
+
+/* Auto-refresh badge */
+.refreshBadge {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-xxs);
+  font-size: var(--v-text-xs);
+  font-weight: 400;
+  color: var(--v-text-secondary);
+}
+
+.refreshBadgeActive {
+  color: var(--v-color-success);
+}

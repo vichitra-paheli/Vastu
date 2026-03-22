@@ -16,83 +16,46 @@ import { TableListingTemplate } from '../templates/TableListing/TableListingTemp
 import { MultiTabDetailTemplate, MULTI_TAB_DETAIL_PANEL_TYPE_ID } from '../templates/MultiTabDetail/MultiTabDetailTemplate';
 import { FormPageTemplate } from '../templates/FormPage/FormPageTemplate';
 import { TimelineActivityPanelWrapper } from './TimelineActivityPanelWrapper';
+import {
+  SummaryDashboardTemplate,
+  SUMMARY_DASHBOARD_PANEL_TYPE,
+} from '../templates/SummaryDashboard/SummaryDashboardTemplate';
 import type { PanelProps } from '../types/panel';
 
-/** Panel type ID for the data explorer template. */
 export const DATA_EXPLORER_PANEL_TYPE_ID = 'data-explorer';
-
-/** Panel type ID for the table listing template. */
 export const TABLE_LISTING_PANEL_TYPE_ID = 'table-listing';
-
-/** Panel type ID for the form page template. */
 export const FORM_PAGE_PANEL_TYPE_ID = 'form-page';
-
-/** Panel type ID for the timeline activity template. */
 export const TIMELINE_ACTIVITY_PANEL_TYPE_ID = 'timeline-activity';
 
-// Register the built-in WelcomePanel
-registerPanel({
-  id: WELCOME_PANEL_TYPE_ID,
-  title: 'Welcome',
-  component: WelcomePanel,
-});
-
-// Register the DataExplorer panel
-registerPanel({
-  id: DATA_EXPLORER_PANEL_TYPE_ID,
-  title: 'Data Explorer',
-  iconName: 'IconChartBar',
-  component: DataExplorerPanelWrapper,
-});
+registerPanel({ id: WELCOME_PANEL_TYPE_ID, title: 'Welcome', component: WelcomePanel });
+registerPanel({ id: DATA_EXPLORER_PANEL_TYPE_ID, title: 'Data Explorer', iconName: 'IconChartBar', component: DataExplorerPanelWrapper });
 
 function TableListingPanelWrapper({ params }: PanelProps) {
   const pageId = typeof params.pageId === 'string' ? params.pageId : 'unknown';
-  const config = {
-    templateType: 'table-listing' as const,
-    fields: [],
-    sections: [],
-    metadata: { summaryStrip: { enabled: false, metrics: [] } },
-  };
+  const config = { templateType: 'table-listing' as const, fields: [], sections: [], metadata: { summaryStrip: { enabled: false, metrics: [] } } };
   return React.createElement(TableListingTemplate, { pageId, config });
 }
-
-registerPanel({
-  id: TABLE_LISTING_PANEL_TYPE_ID,
-  title: 'Table',
-  iconName: 'IconTable',
-  component: TableListingPanelWrapper,
-});
+registerPanel({ id: TABLE_LISTING_PANEL_TYPE_ID, title: 'Table', iconName: 'IconTable', component: TableListingPanelWrapper });
 
 function MultiTabDetailPanelWrapper({ params }: PanelProps) {
   const pageId = typeof params.pageId === 'string' ? params.pageId : 'unknown';
   return React.createElement(MultiTabDetailTemplate, { pageId });
 }
-
-registerPanel({
-  id: MULTI_TAB_DETAIL_PANEL_TYPE_ID,
-  title: 'Detail',
-  iconName: 'IconLayout2',
-  component: MultiTabDetailPanelWrapper,
-});
+registerPanel({ id: MULTI_TAB_DETAIL_PANEL_TYPE_ID, title: 'Detail', iconName: 'IconLayout2', component: MultiTabDetailPanelWrapper });
 
 function FormPagePanelWrapper({ params }: PanelProps) {
   const pageId = typeof params.pageId === 'string' ? params.pageId : 'unknown';
   return React.createElement(FormPageTemplate, { pageId });
 }
+registerPanel({ id: FORM_PAGE_PANEL_TYPE_ID, title: 'Form', iconName: 'IconForms', component: FormPagePanelWrapper });
 
-registerPanel({
-  id: FORM_PAGE_PANEL_TYPE_ID,
-  title: 'Form',
-  iconName: 'IconForms',
-  component: FormPagePanelWrapper,
-});
+registerPanel({ id: TIMELINE_ACTIVITY_PANEL_TYPE_ID, title: 'Timeline Activity', iconName: 'IconHistory', component: TimelineActivityPanelWrapper });
 
-registerPanel({
-  id: TIMELINE_ACTIVITY_PANEL_TYPE_ID,
-  title: 'Timeline Activity',
-  iconName: 'IconHistory',
-  component: TimelineActivityPanelWrapper,
-});
+function SummaryDashboardPanelWrapper({ params }: PanelProps) {
+  const pageId = typeof params.pageId === 'string' ? params.pageId : 'unknown';
+  return React.createElement(SummaryDashboardTemplate, { pageId, config: { templateType: 'summary-dashboard' } });
+}
+registerPanel({ id: SUMMARY_DASHBOARD_PANEL_TYPE, title: 'Dashboard', iconName: 'IconLayoutDashboard', component: SummaryDashboardPanelWrapper });
 
 // Re-export for convenience
 export { registerPanel, getPanel, getAllPanels, unregisterPanel, clearRegistry } from './registry';
@@ -102,3 +65,4 @@ export { TableListingTemplate } from '../templates/TableListing/TableListingTemp
 export { MultiTabDetailTemplate, MULTI_TAB_DETAIL_PANEL_TYPE_ID } from '../templates/MultiTabDetail/MultiTabDetailTemplate';
 export { FormPageTemplate, FORM_PAGE_DEFAULT_CONFIG } from '../templates/FormPage/FormPageTemplate';
 export { TimelineActivityPanelWrapper } from './TimelineActivityPanelWrapper';
+export { SummaryDashboardTemplate, SUMMARY_DASHBOARD_PANEL_TYPE } from '../templates/SummaryDashboard/SummaryDashboardTemplate';
