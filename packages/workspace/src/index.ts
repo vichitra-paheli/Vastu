@@ -192,7 +192,6 @@ export type {
   RecentRecord,
 } from './hooks/useCommandPaletteActions';
 
-<<<<<<< HEAD
 // DataExplorer template
 export {
   DataExplorerTemplate,
