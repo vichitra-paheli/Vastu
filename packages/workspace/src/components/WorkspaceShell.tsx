@@ -12,6 +12,7 @@
  * Built-in panels are registered at import time via panels/index.ts.
  * Updated in US-109: renders SidebarNav with user + ability props.
  * All colors via --v-* CSS custom properties. No hardcoded values.
+ * Updated in US-138: ConfirmDialogProvider wired in for imperative confirm() API.
  */
 
 // Register all built-in panel types before DockviewHost mounts.
@@ -27,6 +28,7 @@ import { DockviewHost } from './DockviewHost/DockviewHost';
 import { SidebarNav } from './SidebarNav';
 import { TrayBar } from './TrayBar';
 import { ViewToolbar } from './ViewToolbar';
+import { ConfirmDialogProvider } from './ConfirmDialog/ConfirmDialogProvider';
 import classes from './WorkspaceShell.module.css';
 
 const SIDEBAR_COLLAPSED_WIDTH = 48;
@@ -99,39 +101,41 @@ export function WorkspaceShell({
 
   return (
     <AbilityProvider ability={resolvedAbility}>
-      <div
-        className={classes.workspace}
-        style={{ '--sidebar-width': `${sidebarWidth}px` } as React.CSSProperties}
-      >
-        <aside
-          className={classes.sidebar}
-          aria-label="Workspace sidebar"
-          style={{ width: sidebarWidth }}
-          data-collapsed={collapsed}
+      <ConfirmDialogProvider>
+        <div
+          className={classes.workspace}
+          style={{ '--sidebar-width': `${sidebarWidth}px` } as React.CSSProperties}
         >
-          <SidebarNav
-            ability={resolvedAbility}
-            user={resolvedUser}
-            t={DEFAULT_TRANSLATIONS}
-          />
-        </aside>
+          <aside
+            className={classes.sidebar}
+            aria-label="Workspace sidebar"
+            style={{ width: sidebarWidth }}
+            data-collapsed={collapsed}
+          >
+            <SidebarNav
+              ability={resolvedAbility}
+              user={resolvedUser}
+              t={DEFAULT_TRANSLATIONS}
+            />
+          </aside>
 
-        <main className={classes.main} id="workspace-main">
-          {/* ViewToolbar sits between the sidebar and the Dockview panel area.
-              Always rendered; shows "Default view" when no page is active.
-              WorkspaceShell is the single source of truth for activePanelId:
-              it resolves panelStore.activePanelId with the prop fallback here,
-              then passes the resolved value down. ViewToolbar does not do its
-              own panelStore lookup. */}
-          <ViewToolbar pageId={resolvedActivePageId} currentUserId={currentUserId} />
-          <DockviewHost />
-          {children}
-        </main>
+          <main className={classes.main} id="workspace-main">
+            {/* ViewToolbar sits between the sidebar and the Dockview panel area.
+                Always rendered; shows "Default view" when no page is active.
+                WorkspaceShell is the single source of truth for activePanelId:
+                it resolves panelStore.activePanelId with the prop fallback here,
+                then passes the resolved value down. ViewToolbar does not do its
+                own panelStore lookup. */}
+            <ViewToolbar pageId={resolvedActivePageId} currentUserId={currentUserId} />
+            <DockviewHost />
+            {children}
+          </main>
 
-        <div className={classes.tray} role="region" aria-label="Workspace tray">
-          <TrayBar />
+          <div className={classes.tray} role="region" aria-label="Workspace tray">
+            <TrayBar />
+          </div>
         </div>
-      </div>
+      </ConfirmDialogProvider>
     </AbilityProvider>
   );
 }

@@ -68,6 +68,29 @@ export {
 } from './components/ContextMenu';
 export type { ContextMenuContextData } from './components/ContextMenu/ContextMenu';
 
+// VastuChart
+export {
+  VastuChart,
+  ChartLegend,
+  ChartTooltip,
+  ChartConfigPanel,
+  CHART_SERIES_COLORS,
+  CHART_OTHER_COLOR,
+  getSeriesColor,
+} from './components/VastuChart';
+export type {
+  ChartType,
+  ScaleType,
+  BarOrientation,
+  LegendPosition,
+  SeriesConfig as ChartSeriesConfig,
+  ChartConfig,
+  ChartDataPoint,
+  VastuChartProps,
+  ReferenceLineConfig,
+  ChartTooltipProps,
+} from './components/VastuChart';
+
 // VastuTable
 export { VastuTable, VastuTableHeader, VastuTableRow, VastuTableCell, useVastuTable } from './components/VastuTable';
 export type {
