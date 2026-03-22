@@ -38,6 +38,8 @@ import type {
   ExplorerDataRow,
 } from './types';
 
+import { downloadCsv } from './csvUtils';
+
 import classes from './DataExplorerTemplate.module.css';
 
 // ─── Stub data for development ────────────────────────────────────────────────
@@ -133,36 +135,6 @@ function filterDataForSelection(
   });
 }
 
-/** Download the visible table data as a CSV file. */
-function downloadCsv(data: ExplorerDataRow[], columns: VastuColumn<ExplorerDataRow>[]): void {
-  if (columns.length === 0 || data.length === 0) return;
-
-  const header = columns.map((c) => c.label).join(',');
-  const rows = data.map((row) =>
-    columns
-      .map((c) => {
-        const val = row[c.id];
-        if (val === null || val === undefined) return '';
-        const str = String(val);
-        // Escape double quotes and wrap in quotes if needed
-        if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-          return `"${str.replace(/"/g, '""')}"`;
-        }
-        return str;
-      })
-      .join(','),
-  );
-
-  const csv = [header, ...rows].join('\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = 'data-export.csv';
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
 // ─── Inner component (receives resolved config) ───────────────────────────────
 
 interface DataExplorerInnerProps {
@@ -223,6 +195,8 @@ function DataExplorerInner({ pageId: _pageId, metadata, onMetadataChange }: Data
     (key: string | null) => {
       setGroupByKey(key);
       persistMetadata({ groupByKey: key ?? undefined });
+      // TODO: groupByKey filtering is not yet implemented — it persists the selection
+      // but filterDataForSelection does not group rows. Implement in a follow-up task.
     },
     [persistMetadata],
   );
@@ -239,7 +213,8 @@ function DataExplorerInner({ pageId: _pageId, metadata, onMetadataChange }: Data
 
   const xAxisKey = dimensionKey ?? (dimensions[0]?.key ?? 'x');
 
-  const chartData: ChartDataPoint[] = useMemo(
+  // Single memo for the filtered data — shared by both chart and companion table.
+  const filteredData: ChartDataPoint[] = useMemo(
     () => filterDataForSelection(rawData, dimensionKey, measureKeys),
     [rawData, dimensionKey, measureKeys],
   );
@@ -254,11 +229,6 @@ function DataExplorerInner({ pageId: _pageId, metadata, onMetadataChange }: Data
     [dimensionKey, measureKeys, dimensions, measures],
   );
 
-  const tableData: ExplorerDataRow[] = useMemo(
-    () => filterDataForSelection(rawData, dimensionKey, measureKeys),
-    [rawData, dimensionKey, measureKeys],
-  );
-
   // ─── Derived state ────────────────────────────────────────────────────────
 
   const showChart = chartMode !== 'table';
@@ -268,8 +238,8 @@ function DataExplorerInner({ pageId: _pageId, metadata, onMetadataChange }: Data
   // ─── Export handler ───────────────────────────────────────────────────────
 
   const handleExportCsv = useCallback(() => {
-    downloadCsv(tableData, tableColumns);
-  }, [tableData, tableColumns]);
+    downloadCsv(filteredData, tableColumns);
+  }, [filteredData, tableColumns]);
 
   // ─── Render ───────────────────────────────────────────────────────────────
 
@@ -307,9 +277,10 @@ function DataExplorerInner({ pageId: _pageId, metadata, onMetadataChange }: Data
           {/* ── Chart ─────────────────────────────────────────────────── */}
           {showChart && (
             <div className={classes.chartArea}>
+              {/* TODO (stretch): add brush/zoom controls and PNG export (US-132 non-core ACs) */}
               <VastuChart
                 type={chartType}
-                data={chartData}
+                data={filteredData}
                 series={series}
                 config={{ xAxisKey, height: 280, showLegend: series.length > 1 }}
                 ariaLabel={t('explorer.chart.ariaLabel')}
@@ -329,14 +300,14 @@ function DataExplorerInner({ pageId: _pageId, metadata, onMetadataChange }: Data
                 leftSection={<IconDownload size={12} aria-hidden="true" />}
                 onClick={handleExportCsv}
                 aria-label={t('explorer.export.csv.ariaLabel')}
-                disabled={tableData.length === 0}
+                disabled={filteredData.length === 0}
               >
                 {t('explorer.export.csv.label')}
               </Button>
             </div>
             <div className={classes.tableContainer}>
               <VastuTable
-                data={tableData}
+                data={filteredData}
                 columns={tableColumns}
                 ariaLabel={t('explorer.table.ariaLabel')}
                 height="100%"
