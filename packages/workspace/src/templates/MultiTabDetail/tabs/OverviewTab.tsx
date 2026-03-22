@@ -82,7 +82,14 @@ function formatValue(value: unknown): string {
   return String(value);
 }
 
-/** Format an ISO timestamp to a short relative or absolute string. */
+/**
+ * Format an ISO timestamp to a short relative or absolute string.
+ *
+ * TODO(VASTU-1B-131): Timestamps go stale once rendered. Add a periodic
+ * refresh mechanism (e.g. setInterval every 60s or a shared useRelativeTime
+ * hook) so relative labels like "5m ago" stay accurate without a full
+ * page reload.
+ */
 function formatTimestamp(iso: string): string {
   try {
     const date = new Date(iso);

@@ -192,12 +192,25 @@ export type {
   RecentRecord,
 } from './hooks/useCommandPaletteActions';
 
-// FormPage Template (US-133)
-export { FormPageTemplate, FieldRenderer, FORM_PAGE_DEFAULT_CONFIG } from './templates/FormPage/FormPageTemplate';
-export type { FormPageTemplateProps, FormFieldConfig } from './templates/FormPage/FormPageTemplate';
-export { FormWizard } from './templates/FormPage/FormWizard';
-export type { FormWizardProps, WizardStep } from './templates/FormPage/FormWizard';
-export { SearchOrCreate } from './templates/FormPage/SearchOrCreate';
-export type { SearchOrCreateProps, SearchOrCreateOption } from './templates/FormPage/SearchOrCreate';
-export { useFormDraft } from './templates/FormPage/useFormDraft';
-export type { UseFormDraftResult } from './templates/FormPage/useFormDraft';
+// MultiTabDetail Template (US-131)
+export {
+  MultiTabDetailTemplate,
+  MULTI_TAB_DETAIL_PANEL_TYPE_ID,
+} from './templates/MultiTabDetail/MultiTabDetailTemplate';
+export type {
+  MultiTabDetailTemplateProps,
+  MultiTabDetailTab,
+  EntityData,
+} from './templates/MultiTabDetail/MultiTabDetailTemplate';
+export { EntityHeader } from './templates/MultiTabDetail/EntityHeader';
+export type {
+  EntityHeaderProps,
+  EntityAction,
+} from './templates/MultiTabDetail/EntityHeader';
+export { OverviewTab } from './templates/MultiTabDetail/tabs/OverviewTab';
+export type {
+  OverviewTabProps,
+  OverviewField,
+  SubTableConfig,
+  ActivityEntry,
+} from './templates/MultiTabDetail/tabs/OverviewTab';

@@ -201,3 +201,17 @@
   background-color: var(--v-accent-hover);
   border-color: var(--v-accent-hover);
 }
+
+/* ── Placeholder tab ───────────────────────────────────────────────────────── */
+
+.placeholderTab {
+  padding: var(--v-space-6);
+}
+
+.placeholderText {
+  font-family: var(--v-font-sans);
+  font-size: var(--v-text-sm);
+  color: var(--v-text-secondary);
+  font-weight: var(--v-font-regular);
+  margin: 0;
+}
