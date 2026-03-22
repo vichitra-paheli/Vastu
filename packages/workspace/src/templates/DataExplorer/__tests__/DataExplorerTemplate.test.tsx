@@ -23,6 +23,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { DataExplorerTemplate } from '../DataExplorerTemplate';
 import { ChartTypeToggle } from '../ChartTypeToggle';
 import { ExplorerControls } from '../ExplorerControls';
+import {
+  sanitizeCsvCell,
+  escapeCsvCell,
+  escapeCsvHeader,
+  buildCsvString,
+} from '../csvUtils';
 import type { TemplateConfig } from '../../types';
 import type { ExplorerChartMode } from '../types';
 
@@ -239,5 +245,107 @@ describe('ExplorerControls', () => {
     expect(screen.getByText('Dimension')).toBeInTheDocument();
     expect(screen.getByText('Measures')).toBeInTheDocument();
     expect(screen.getByText('Group by')).toBeInTheDocument();
+  });
+});
+
+// ─── CSV utility unit tests ────────────────────────────────────────────────────
+
+describe('sanitizeCsvCell', () => {
+  it('prefixes values starting with = to prevent formula injection', () => {
+    expect(sanitizeCsvCell('=SUM(A1:A10)')).toBe("'=SUM(A1:A10)");
+  });
+
+  it('prefixes values starting with + to prevent injection', () => {
+    expect(sanitizeCsvCell('+cmd|\'dir\'')).toBe("'+cmd|'dir'");
+  });
+
+  it('prefixes values starting with - to prevent injection', () => {
+    expect(sanitizeCsvCell('-2+3')).toBe("'-2+3");
+  });
+
+  it('prefixes values starting with @ to prevent injection', () => {
+    expect(sanitizeCsvCell('@SUM(1)')).toBe("'@SUM(1)");
+  });
+
+  it('does not modify safe values', () => {
+    expect(sanitizeCsvCell('hello world')).toBe('hello world');
+    expect(sanitizeCsvCell('100')).toBe('100');
+    expect(sanitizeCsvCell('')).toBe('');
+  });
+});
+
+describe('escapeCsvCell', () => {
+  it('returns empty quoted string for null', () => {
+    expect(escapeCsvCell(null)).toBe('""');
+  });
+
+  it('returns empty quoted string for undefined', () => {
+    expect(escapeCsvCell(undefined)).toBe('""');
+  });
+
+  it('wraps numeric values in quotes', () => {
+    expect(escapeCsvCell(42000)).toBe('"42000"');
+  });
+
+  it('wraps string values in quotes', () => {
+    expect(escapeCsvCell('hello')).toBe('"hello"');
+  });
+
+  it('escapes internal double-quotes by doubling', () => {
+    expect(escapeCsvCell('say "hello"')).toBe('"say ""hello"""');
+  });
+
+  it('sanitizes injection characters before quoting', () => {
+    expect(escapeCsvCell('=HYPERLINK("evil.com")')).toBe(`"'=HYPERLINK(""evil.com"")"`);
+  });
+});
+
+describe('escapeCsvHeader', () => {
+  it('wraps header labels in double-quotes', () => {
+    expect(escapeCsvHeader('Revenue')).toBe('"Revenue"');
+  });
+
+  it('escapes internal double-quotes in headers', () => {
+    expect(escapeCsvHeader('Say "Hi"')).toBe('"Say ""Hi"""');
+  });
+});
+
+describe('buildCsvString', () => {
+  it('returns empty string when data is empty', () => {
+    const cols = [{ id: 'name', label: 'Name', accessorKey: 'name', dataType: 'text' as const, sortable: true }];
+    expect(buildCsvString([], cols)).toBe('');
+  });
+
+  it('returns empty string when columns are empty', () => {
+    expect(buildCsvString([{ name: 'Alice' }], [])).toBe('');
+  });
+
+  it('generates quoted headers and data rows', () => {
+    const cols = [
+      { id: 'month', label: 'Month', accessorKey: 'month', dataType: 'text' as const, sortable: true },
+      { id: 'revenue', label: 'Revenue', accessorKey: 'revenue', dataType: 'number' as const, sortable: true },
+    ];
+    const data = [{ month: 'Jan', revenue: 42000 }];
+    const result = buildCsvString(data, cols);
+    expect(result).toBe('"Month","Revenue"\n"Jan","42000"');
+  });
+
+  it('sanitizes injection characters in cell values', () => {
+    const cols = [
+      { id: 'formula', label: 'Formula', accessorKey: 'formula', dataType: 'text' as const, sortable: true },
+    ];
+    const data = [{ formula: '=SUM(A1)' }];
+    const result = buildCsvString(data, cols);
+    // Cell should be prefixed with single-quote then wrapped in double-quotes
+    expect(result).toContain("\"'=SUM(A1)\"");
+  });
+
+  it('handles null/undefined cell values as empty quoted strings', () => {
+    const cols = [
+      { id: 'val', label: 'Value', accessorKey: 'val', dataType: 'text' as const, sortable: true },
+    ];
+    const data = [{ val: null }, { val: undefined }];
+    const result = buildCsvString(data, cols);
+    expect(result).toBe('"Value"\n""\n""');
   });
 });
