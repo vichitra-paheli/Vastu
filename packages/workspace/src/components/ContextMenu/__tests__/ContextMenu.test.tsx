@@ -68,6 +68,22 @@ describe('ContextMenu', () => {
     expect(screen.getByRole('menu')).toBeTruthy();
   });
 
+  it('menu container has role="menu" and tabIndex={-1} for ARIA compliance (#139)', () => {
+    renderContextMenu();
+    rightClick(screen.getByText('cell content'));
+    const menu = screen.getByRole('menu');
+    expect(menu.getAttribute('tabindex')).toBe('-1');
+  });
+
+  it('menu item label is wrapped in TruncatedText (#140)', () => {
+    renderContextMenu();
+    rightClick(screen.getByText('cell content'));
+    const label = screen.getByText('Copy');
+    // TruncatedText renders a <span> with a title attribute matching the text
+    expect(label.tagName).toBe('SPAN');
+    expect(label.getAttribute('title')).toBe('Copy');
+  });
+
   it('does NOT open the menu when right-clicking outside [data-context]', () => {
     renderContextMenu();
     const noCtx = screen.getByText('no context');
