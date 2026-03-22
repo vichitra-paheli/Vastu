@@ -24,6 +24,7 @@ import {
   DashboardTemplate,
   DASHBOARD_PANEL_TYPE,
 } from '../templates/Dashboard/DashboardTemplate';
+import { BuilderPanel } from '../components/BuilderPanel';
 import type { PanelProps } from '../types/panel';
 
 export const DATA_EXPLORER_PANEL_TYPE_ID = 'data-explorer';
@@ -67,6 +68,14 @@ function DashboardPanelWrapper({ params }: PanelProps) {
 }
 registerPanel({ id: DASHBOARD_PANEL_TYPE, title: 'Home Dashboard', iconName: 'IconHome', component: DashboardPanelWrapper });
 
+export const BUILDER_PANEL_TYPE_ID = 'builder';
+
+function BuilderPanelWrapper({ params }: PanelProps) {
+  const pageId = typeof params.pageId === 'string' ? params.pageId : 'unknown';
+  return React.createElement(BuilderPanel, { pageId });
+}
+registerPanel({ id: BUILDER_PANEL_TYPE_ID, title: 'Builder', iconName: 'IconSettings', component: BuilderPanelWrapper });
+
 // Re-export for convenience
 export { registerPanel, getPanel, getAllPanels, unregisterPanel, clearRegistry } from './registry';
 export { WelcomePanel, WELCOME_PANEL_TYPE_ID } from './WelcomePanel';
@@ -77,3 +86,4 @@ export { FormPageTemplate, FORM_PAGE_DEFAULT_CONFIG } from '../templates/FormPag
 export { TimelineActivityPanelWrapper } from './TimelineActivityPanelWrapper';
 export { SummaryDashboardTemplate, SUMMARY_DASHBOARD_PANEL_TYPE } from '../templates/SummaryDashboard/SummaryDashboardTemplate';
 export { DashboardTemplate, DASHBOARD_PANEL_TYPE } from '../templates/Dashboard/DashboardTemplate';
+export { BuilderPanel } from '../components/BuilderPanel';
