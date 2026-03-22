@@ -59,7 +59,11 @@ export function PanelTab({ api }: IDockviewPanelHeaderProps) {
       <TruncatedText className={classes.title} maxWidth={160}>
         {title}
       </TruncatedText>
-      {/* ModeSwitch renders null when user only has Editor access (no builder/admin) */}
+      {/* ModeSwitch renders null when user only has Editor access (no builder/admin).
+          TODO(VASTU-1B-INFRA): wire ephemeralEnabled from panel config/page metadata
+          once the template infrastructure provides page config. Until then,
+          ephemeralEnabled defaults to false, so the Workflow segment is hidden for
+          all panels regardless of user role. */}
       <ModeSwitch panelId={api.id} />
       <button
         type="button"

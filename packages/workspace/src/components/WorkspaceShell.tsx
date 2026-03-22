@@ -19,8 +19,8 @@
 import '../panels/index';
 
 import React from 'react';
-import { defineAbilitiesFor, type AppAbility } from '@vastu/shared/permissions';
-import { AbilityProvider } from '../providers/AbilityContext';
+import type { AppAbility } from '@vastu/shared/permissions';
+import { AbilityProvider, createNoOpAbility } from '../providers/AbilityContext';
 import { useSidebarStore } from '../stores/sidebarStore';
 import { DockviewHost } from './DockviewHost/DockviewHost';
 import { SidebarNav } from './SidebarNav';
@@ -58,11 +58,6 @@ export interface WorkspaceShellProps {
    * splitting MY VIEWS vs SHARED WITH ME.
    */
   currentUserId?: string;
-}
-
-/** Fallback no-permissions ability when none is provided. */
-function createNoOpAbility(): AppAbility {
-  return defineAbilitiesFor({ roles: [] });
 }
 
 /** Default translations for the sidebar nav. */

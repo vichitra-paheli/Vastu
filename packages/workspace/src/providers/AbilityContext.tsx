@@ -19,8 +19,13 @@
 import React, { createContext, useContext } from 'react';
 import { defineAbilitiesFor, type AppAbility } from '@vastu/shared/permissions';
 
-/** No-permissions ability used as the default when no provider is present. */
-function createNoOpAbility(): AppAbility {
+/**
+ * No-permissions ability used as the context default when no AbilityProvider
+ * is present, and as a fallback in WorkspaceShell when no ability prop is passed.
+ * Exported so that WorkspaceShell (and any other consumer) can import the single
+ * canonical version rather than defining their own duplicate.
+ */
+export function createNoOpAbility(): AppAbility {
   return defineAbilitiesFor({ roles: [] });
 }
 

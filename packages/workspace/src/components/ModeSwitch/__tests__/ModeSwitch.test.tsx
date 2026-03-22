@@ -22,7 +22,7 @@
 
 import React from 'react';
 import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { defineAbilitiesFor, type AppAbility } from '@vastu/shared/permissions';
 import { TestProviders } from '../../../test-utils/providers';
 import { ModeSwitch } from '../ModeSwitch';
@@ -164,6 +164,58 @@ describe('ModeSwitch — serialization round-trip', () => {
 
     expect(screen.getByRole('radio', { name: /builder/i }).getAttribute('aria-checked')).toBe('true');
     expect(screen.getByRole('radio', { name: /editor/i }).getAttribute('aria-checked')).toBe('false');
+  });
+});
+
+// ---- Stale mode reset -------------------------------------------------------
+
+describe('ModeSwitch — stale mode reset', () => {
+  it('resets builder mode to editor when user ability changes to viewer-only', () => {
+    // Simulate a panel that previously stored 'builder' mode (e.g. from localStorage).
+    usePanelStore.setState({ panelModes: { 'panel-1': 'builder' } });
+
+    // Re-render with viewer ability (builder segment is hidden).
+    // The useEffect should fire and reset the stored mode back to 'editor'.
+    const { rerender } = render(
+      <ModeSwitch panelId="panel-1" ability={builderAbility} />,
+      { wrapper: TestProviders },
+    );
+
+    // Verify builder mode is currently active before the ability change.
+    expect(usePanelStore.getState().panelModes['panel-1']).toBe('builder');
+
+    // Switch to viewer-only ability — builder segment disappears.
+    act(() => {
+      rerender(
+        <ModeSwitch panelId="panel-1" ability={viewerAbility} />,
+      );
+    });
+
+    // The stale 'builder' mode should have been reset to 'editor'.
+    expect(usePanelStore.getState().panelModes['panel-1']).toBe('editor');
+  });
+
+  it('resets workflow mode to editor when ephemeralEnabled flips to false', () => {
+    // Simulate a panel that had workflow mode stored while ephemeral was enabled.
+    usePanelStore.setState({ panelModes: { 'panel-1': 'workflow' } });
+
+    // Start with admin + ephemeral enabled so workflow is a valid segment.
+    const { rerender } = render(
+      <ModeSwitch panelId="panel-1" ability={adminAbility} ephemeralEnabled={true} />,
+      { wrapper: TestProviders },
+    );
+
+    expect(usePanelStore.getState().panelModes['panel-1']).toBe('workflow');
+
+    // Disable ephemeral — workflow segment disappears.
+    act(() => {
+      rerender(
+        <ModeSwitch panelId="panel-1" ability={adminAbility} ephemeralEnabled={false} />,
+      );
+    });
+
+    // The stale 'workflow' mode should have been reset to 'editor'.
+    expect(usePanelStore.getState().panelModes['panel-1']).toBe('editor');
   });
 });
 
