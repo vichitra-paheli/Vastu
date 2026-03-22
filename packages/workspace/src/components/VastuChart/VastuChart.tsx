@@ -97,11 +97,14 @@ function usePrefersReducedMotion(): boolean {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
+/** Stable empty object so the default prop doesn't create a new reference each render. */
+const EMPTY_CONFIG: ChartConfig = {};
+
 export function VastuChart({
   type,
   data,
   series,
-  config = {},
+  config = EMPTY_CONFIG,
   onConfigChange,
   loading = false,
   error = null,
