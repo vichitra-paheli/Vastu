@@ -3,8 +3,10 @@
  * All colors via --v-* CSS custom properties.
  */
 
-.modal {
-  /* Ensure the modal uses the elevated surface token. */
+.modal :global(.mantine-Modal-content) {
+  /* Ensure the modal uses the correct z-index and border radius (AC-3). */
+  z-index: var(--v-z-modal);
+  border-radius: var(--v-radius-lg);
 }
 
 .description {

@@ -69,6 +69,16 @@ export {
 } from './components/ContextMenu';
 export type { ContextMenuContextData } from './components/ContextMenu/ContextMenu';
 
+// ConfirmDialog
+export { ConfirmDialog, ConfirmDialogProvider } from './components/ConfirmDialog';
+export type {
+  ConfirmDialogProps,
+  ConfirmDialogVariant,
+  ConfirmDialogProviderProps,
+} from './components/ConfirmDialog';
+export { useConfirmDialog } from './components/ConfirmDialog';
+export type { ConfirmOptions } from './components/ConfirmDialog';
+
 // VastuTable
 export { VastuTable, VastuTableHeader, VastuTableRow, VastuTableCell, useVastuTable } from './components/VastuTable';
 export type {
