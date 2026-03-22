@@ -158,3 +158,19 @@ export type {
   DimensionPickerProps,
   CompositeFilterBuilderProps,
 } from './components/FilterSystem';
+
+// VastuChart
+export { VastuChart, ChartLegend, ChartTooltip, ChartConfigPanel } from './components/VastuChart';
+export type { ChartTooltipProps } from './components/VastuChart';
+export { CHART_SERIES_COLORS, CHART_OTHER_COLOR, getSeriesColor } from './components/VastuChart';
+export type {
+  ChartType,
+  ScaleType,
+  BarOrientation,
+  LegendPosition,
+  SeriesConfig,
+  ChartConfig,
+  ChartDataPoint,
+  VastuChartProps,
+  ReferenceLineConfig,
+} from './components/VastuChart';
