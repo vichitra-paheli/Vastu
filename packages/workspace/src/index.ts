@@ -191,3 +191,20 @@ export type {
   ActionGroup,
   RecentRecord,
 } from './hooks/useCommandPaletteActions';
+
+// DataExplorer template
+export {
+  DataExplorerTemplate,
+  DataExplorerPanel,
+  ExplorerControls,
+  ChartTypeToggle,
+} from './templates/DataExplorer';
+export type {
+  ChartTypeToggleProps,
+  ExplorerControlsProps,
+  ExplorerChartMode,
+  DimensionOption,
+  MeasureOption,
+  DataExplorerMetadata,
+  ExplorerDataRow,
+} from './templates/DataExplorer';

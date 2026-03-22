@@ -339,5 +339,39 @@
   "drawer.footer.cancel": "Cancel",
   "drawer.footer.cancelAriaLabel": "Discard changes",
   "drawer.field.boolean.true": "Yes",
-  "drawer.field.boolean.false": "No"
+  "drawer.field.boolean.false": "No",
+
+  "explorer.controls.ariaLabel": "Explorer controls",
+  "explorer.controls.label": "Show:",
+  "explorer.controls.dimension.label": "Dimension",
+  "explorer.controls.dimension.placeholder": "X axis field",
+  "explorer.controls.dimension.ariaLabel": "Dimension (X axis) field",
+  "explorer.controls.measure.label": "Measures",
+  "explorer.controls.measure.placeholder": "Select measures",
+  "explorer.controls.measure.ariaLabel": "Measure (Y axis) fields",
+  "explorer.controls.groupBy.label": "Group by",
+  "explorer.controls.groupBy.placeholder": "No grouping",
+  "explorer.controls.groupBy.ariaLabel": "Group by field",
+  "explorer.controls.groupBy.none": "None",
+
+  "explorer.chartType.ariaLabel": "Chart type",
+  "explorer.chartType.line": "Line chart",
+  "explorer.chartType.bar": "Bar chart",
+  "explorer.chartType.area": "Area chart",
+  "explorer.chartType.scatter": "Scatter chart",
+  "explorer.chartType.donut": "Donut chart",
+  "explorer.chartType.table": "Table only",
+
+  "explorer.chart.ariaLabel": "Data explorer chart",
+
+  "explorer.table.title": "Underlying data",
+  "explorer.table.ariaLabel": "Underlying data table",
+
+  "explorer.export.csv.label": "Export CSV",
+  "explorer.export.csv.ariaLabel": "Export table data as CSV",
+
+  "explorer.empty.noMeasures": "Select at least one measure to visualize data.",
+
+  "explorer.error.title": "Failed to load explorer",
+  "explorer.error.ariaLabel": "Explorer error"
 }
