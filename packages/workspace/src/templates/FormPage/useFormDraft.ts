@@ -106,8 +106,17 @@ export function useFormDraft<T extends Record<string, unknown>>(
   // This is necessary for isDirty to update correctly after markClean() is called.
   const [cleanSnapshot, setCleanSnapshot] = useState<T>(initial);
 
-  // Ref kept in sync for use in unmount effect (state is not accessible in cleanup).
+  // Ref kept in sync with cleanSnapshot for use in unmount/beforeunload effects.
+  // State is not reliably readable inside cleanup functions — the ref is always current.
   const cleanRef = useRef<T>(initial);
+
+  // Ref always holding the latest values — used in cleanup effects to avoid stale closures.
+  // Without this, the unmount effect captures the values from the first render only,
+  // which means any changes made after mount would not be flushed on unmount.
+  const valuesRef = useRef<T>(values);
+
+  // Keep valuesRef current on every render.
+  valuesRef.current = values;
 
   const isDirty = !isEqual(values, cleanSnapshot);
 
@@ -164,9 +173,11 @@ export function useFormDraft<T extends Record<string, unknown>>(
   }, [values, clearDraft]);
 
   // Warn before unload when dirty.
+  // Reading from refs (not state) means this effect is registered once and stays correct
+  // for the lifetime of the component — no need to re-register on every values change.
   useEffect(() => {
     function handleBeforeUnload(e: BeforeUnloadEvent) {
-      if (!isEqual(values, cleanRef.current)) {
+      if (!isEqual(valuesRef.current, cleanRef.current)) {
         e.preventDefault();
         // returnValue is required for older browsers.
         e.returnValue = '';
@@ -176,21 +187,24 @@ export function useFormDraft<T extends Record<string, unknown>>(
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [values]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- refs are stable; no re-registration needed
+  }, []);
 
   // Flush any pending auto-save on unmount.
+  // We use valuesRef (not state) so the cleanup always sees the latest values,
+  // not a stale closure captured when the effect last ran.
   useEffect(() => {
     return () => {
       if (timerRef.current !== null) {
         clearTimeout(timerRef.current);
         // Immediately persist if there are unsaved changes.
-        const currentValues = values;
+        const currentValues = valuesRef.current;
         if (!isEqual(currentValues, cleanRef.current)) {
           writeDraft(formId, currentValues);
         }
       }
     };
-    // We intentionally capture `values` at unmount time — dependency warning suppressed.
+    // formId is stable for the lifetime of the hook instance.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formId]);
 

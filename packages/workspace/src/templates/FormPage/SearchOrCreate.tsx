@@ -10,6 +10,7 @@
  * - role="combobox" on the input
  * - role="listbox" on the dropdown
  * - role="option" on each item
+ * - aria-activedescendant on the input pointing to the currently highlighted option
  * - Keyboard: ArrowDown/Up to navigate, Enter to select, Escape to close
  *
  * Implements US-133b SearchOrCreate pattern.
@@ -62,6 +63,8 @@ export function SearchOrCreate({
   disabled,
 }: SearchOrCreateProps) {
   const listboxId = useId();
+  /** Stable prefix used to generate unique IDs for each option element. */
+  const optionIdPrefix = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -74,6 +77,23 @@ export function SearchOrCreate({
   const filteredOptions = options.filter((o) =>
     o.label.toLowerCase().includes(searchText.toLowerCase()),
   );
+
+  /**
+   * Returns the element ID for the currently highlighted option.
+   * Returns undefined when nothing is highlighted (highlightIndex === -1).
+   * Used for aria-activedescendant on the combobox input.
+   */
+  function getHighlightedOptionId(): string | undefined {
+    if (!isOpen || highlightIndex < 0) return undefined;
+    if (highlightIndex < filteredOptions.length) {
+      return `${optionIdPrefix}-option-${highlightIndex}`;
+    }
+    // highlightIndex === filteredOptions.length → "Create new" button
+    if (highlightIndex === filteredOptions.length) {
+      return `${optionIdPrefix}-create-new`;
+    }
+    return undefined;
+  }
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -117,11 +137,15 @@ export function SearchOrCreate({
       switch (e.key) {
         case 'ArrowDown':
           e.preventDefault();
-          setHighlightIndex((i) => (i + 1) % totalItems);
+          setIsOpen(true);
+          // From -1 (nothing selected), move to first item (0).
+          setHighlightIndex((i) => (i < 0 ? 0 : (i + 1) % totalItems));
           break;
         case 'ArrowUp':
           e.preventDefault();
-          setHighlightIndex((i) => (i - 1 + totalItems) % totalItems);
+          setIsOpen(true);
+          // From -1 (nothing selected), wrap to the last item.
+          setHighlightIndex((i) => (i <= 0 ? totalItems - 1 : i - 1));
           break;
         case 'Enter':
           e.preventDefault();
@@ -142,6 +166,8 @@ export function SearchOrCreate({
     },
     [filteredOptions, highlightIndex, handleSelect, handleCreateNew],
   );
+
+  const activeDescendantId = getHighlightedOptionId();
 
   return (
     <div className={classes.searchOrCreate}>
@@ -171,6 +197,7 @@ export function SearchOrCreate({
         aria-expanded={isOpen}
         aria-controls={isOpen ? listboxId : undefined}
         aria-autocomplete="list"
+        aria-activedescendant={activeDescendantId}
         role="combobox"
         styles={{
           label: { marginBottom: 'var(--v-space-1)' },
@@ -194,6 +221,7 @@ export function SearchOrCreate({
           {filteredOptions.map((option, index) => (
             <button
               key={option.value}
+              id={`${optionIdPrefix}-option-${index}`}
               type="button"
               role="option"
               aria-selected={option.value === value}
@@ -214,6 +242,7 @@ export function SearchOrCreate({
           ))}
 
           <button
+            id={`${optionIdPrefix}-create-new`}
             type="button"
             role="option"
             aria-selected={false}

@@ -45,8 +45,8 @@ export interface FormWizardProps {
   onValidate: (fieldKeys: string[]) => Record<string, string>;
   /** Called when the user submits the final step. */
   onSubmit: () => Promise<void>;
-  /** Called when the user cancels. */
-  onCancel: () => void;
+  /** Called when the user cancels. May be async (e.g. shows a confirm dialog). */
+  onCancel: () => void | Promise<void>;
   /** Called when the active step changes (for URL sync). */
   onStepChange?: (step: number) => void;
   /** Whether the submission is in progress. */
@@ -71,7 +71,8 @@ export function FormWizard({
 }: FormWizardProps) {
   const [activeStep, setActiveStep] = useState(initialStep);
   const [stepErrors, setStepErrors] = useState<Record<string, string>>(errors);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // Note: submission-in-progress state is owned by the parent (via the `submitting` prop).
+  // We do not duplicate it locally — the parent's setSubmitting drives the loading UI.
 
   const totalSteps = steps.length;
   const currentStep = steps[activeStep];
@@ -93,13 +94,9 @@ export function FormWizard({
     setStepErrors({});
 
     if (isLastStep) {
-      // Final step — submit.
-      setIsSubmitting(true);
-      try {
-        await onSubmit();
-      } finally {
-        setIsSubmitting(false);
-      }
+      // Final step — delegate submission entirely to the parent.
+      // The parent sets `submitting` which drives the button loading state.
+      await onSubmit();
     } else {
       const next = activeStep + 1;
       setActiveStep(next);
@@ -109,7 +106,7 @@ export function FormWizard({
 
   const handleBack = useCallback(() => {
     if (isFirstStep) {
-      onCancel();
+      void onCancel();
       return;
     }
     const prev = activeStep - 1;
@@ -198,7 +195,7 @@ export function FormWizard({
           <Button
             variant="subtle"
             onClick={handleBack}
-            disabled={isSubmitting || submitting}
+            disabled={submitting}
             leftSection={isFirstStep ? undefined : <IconArrowLeft size={14} aria-hidden="true" />}
             aria-label={isFirstStep ? t('form.wizard.cancel') : t('form.wizard.back')}
           >
@@ -207,7 +204,7 @@ export function FormWizard({
 
           <Button
             onClick={() => void handleNext()}
-            loading={isSubmitting || submitting}
+            loading={submitting}
             rightSection={
               isLastStep ? (
                 <IconCheck size={14} aria-hidden="true" />

@@ -21,6 +21,10 @@
  * 17. SearchOrCreate calls onSelect on option click
  * 18. SearchOrCreate calls onCreateNew on create button click
  * 19. SearchOrCreate filters options by search text
+ * 20. SearchOrCreate ArrowDown highlights first option
+ * 21. SearchOrCreate ArrowUp wraps to last option from initial state
+ * 22. SearchOrCreate Enter selects the highlighted option
+ * 23. SearchOrCreate Escape closes the dropdown
  *
  * Implements US-133d.
  */
@@ -30,6 +34,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, renderHook, act } from '@testing-library/react';
 import { MantineProvider } from '@mantine/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ConfirmDialogProvider } from '../../../components/ConfirmDialog/ConfirmDialogProvider';
 import { FormPageTemplate } from '../FormPageTemplate';
 import { FormWizard } from '../FormWizard';
 import { SearchOrCreate } from '../SearchOrCreate';
@@ -77,7 +82,10 @@ function TestProviders({ children }: { children: React.ReactNode }) {
   const [queryClient] = React.useState(() => makeQueryClient());
   return (
     <QueryClientProvider client={queryClient}>
-      <MantineProvider>{children}</MantineProvider>
+      <MantineProvider>
+        {/* ConfirmDialogProvider is required for FormPageTemplate's handleCancel */}
+        <ConfirmDialogProvider>{children}</ConfirmDialogProvider>
+      </MantineProvider>
     </QueryClientProvider>
   );
 }
@@ -633,5 +641,123 @@ describe('SearchOrCreate', () => {
     });
     // Beta Ltd should be filtered out
     expect(screen.queryByText('Beta Ltd')).toBeNull();
+  });
+
+  // ── Keyboard navigation ────────────────────────────────────────────────────
+
+  it('ArrowDown highlights the first option and sets aria-activedescendant', async () => {
+    renderMantine(
+      <SearchOrCreate
+        label="Customer"
+        options={OPTIONS}
+        onSelect={vi.fn()}
+        onCreateNew={vi.fn()}
+      />,
+    );
+
+    const input = screen.getByRole('combobox');
+    fireEvent.focus(input);
+
+    await waitFor(() => {
+      expect(screen.getByRole('listbox')).toBeTruthy();
+    });
+
+    // No highlight initially
+    expect(input.getAttribute('aria-activedescendant')).toBeFalsy();
+
+    // Press ArrowDown — first option should be highlighted
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+
+    await waitFor(() => {
+      const activeDId = input.getAttribute('aria-activedescendant');
+      expect(activeDId).toBeTruthy();
+      // The referenced element should exist in the DOM
+      const el = document.getElementById(activeDId!);
+      expect(el).not.toBeNull();
+    });
+  });
+
+  it('ArrowUp from no selection wraps to the "Create new" button', async () => {
+    renderMantine(
+      <SearchOrCreate
+        label="Customer"
+        options={OPTIONS}
+        onSelect={vi.fn()}
+        onCreateNew={vi.fn()}
+      />,
+    );
+
+    const input = screen.getByRole('combobox');
+    fireEvent.focus(input);
+
+    await waitFor(() => {
+      expect(screen.getByRole('listbox')).toBeTruthy();
+    });
+
+    // ArrowUp from -1 wraps to the last item (Create new)
+    fireEvent.keyDown(input, { key: 'ArrowUp' });
+
+    await waitFor(() => {
+      const activeDId = input.getAttribute('aria-activedescendant');
+      expect(activeDId).toBeTruthy();
+      // The Create-new button ID contains "create-new"
+      expect(activeDId).toContain('create-new');
+    });
+  });
+
+  it('Enter selects the highlighted option', async () => {
+    const onSelect = vi.fn();
+    renderMantine(
+      <SearchOrCreate
+        label="Customer"
+        options={OPTIONS}
+        onSelect={onSelect}
+        onCreateNew={vi.fn()}
+      />,
+    );
+
+    const input = screen.getByRole('combobox');
+    fireEvent.focus(input);
+
+    await waitFor(() => {
+      expect(screen.getByRole('listbox')).toBeTruthy();
+    });
+
+    // Highlight first option with ArrowDown
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    // Press Enter to select it
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    expect(onSelect).toHaveBeenCalledWith('c-1');
+    // Dropdown should be closed
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).toBeNull();
+    });
+  });
+
+  it('Escape closes the dropdown without selecting', async () => {
+    const onSelect = vi.fn();
+    renderMantine(
+      <SearchOrCreate
+        label="Customer"
+        options={OPTIONS}
+        onSelect={onSelect}
+        onCreateNew={vi.fn()}
+      />,
+    );
+
+    const input = screen.getByRole('combobox');
+    fireEvent.focus(input);
+
+    await waitFor(() => {
+      expect(screen.getByRole('listbox')).toBeTruthy();
+    });
+
+    fireEvent.keyDown(input, { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).toBeNull();
+    });
+    expect(onSelect).not.toHaveBeenCalled();
   });
 });

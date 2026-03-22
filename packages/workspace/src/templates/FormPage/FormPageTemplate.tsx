@@ -39,6 +39,7 @@ import type { FieldConfig, TemplateConfig } from '../types';
 import { useFormDraft } from './useFormDraft';
 import { FormWizard } from './FormWizard';
 import type { WizardStep } from './FormWizard';
+import { useConfirmDialog } from '../../components/ConfirmDialog/useConfirmDialog';
 import classes from './FormPageTemplate.module.css';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -57,6 +58,12 @@ export interface FormFieldConfig extends FieldConfig {
   options?: Array<{ value: string; label: string }>;
   /** For relation fields — entity type label (e.g. "Customer"). */
   relationLabel?: string;
+  /**
+   * Whether this field's input is disabled (not editable).
+   * Distinct from `visible` — a disabled field is rendered but cannot be changed.
+   * `visible === false` means the field is omitted from the rendered form entirely.
+   */
+  disabled?: boolean;
 }
 
 /** Form-page specific metadata stored in config.metadata. */
@@ -119,7 +126,10 @@ export function FieldRenderer({
     id: fieldId,
     label: labelNode,
     error: error,
-    disabled: !field.visible && field.visible !== undefined,
+    // `disabled` comes from the explicit FormFieldConfig.disabled property.
+    // `visible === false` means the field is not rendered at all (filtered before reaching
+    // FieldRenderer), so we must NOT conflate visibility with the disabled state here.
+    disabled: formField.disabled === true,
     onBlur,
     styles: {
       label: { marginBottom: 'var(--v-space-1)' },
@@ -310,7 +320,7 @@ interface SinglePageFormProps {
   fields: FieldConfig[];
   draft: ReturnType<typeof useFormDraft<Record<string, unknown>>>;
   onSubmit: () => Promise<void>;
-  onCancel: () => void;
+  onCancel: () => void | Promise<void>;
   submitting: boolean;
   submitError: string | null;
 }
@@ -383,16 +393,21 @@ function SinglePageForm({
             </Alert>
           )}
 
-          {fields.map((field) => (
-            <FieldRenderer
-              key={field.key}
-              field={field}
-              value={draft.values[field.key]}
-              error={touched[field.key] ? errors[field.key] : undefined}
-              onChange={(val) => draft.setFieldValue(field.key, val)}
-              onBlur={() => handleBlur(field.key)}
-            />
-          ))}
+          {fields
+            // Fields with visible === false are omitted from the rendered form.
+            // This is the correct semantic: visibility controls rendering; the
+            // separate FormFieldConfig.disabled property controls interactivity.
+            .filter((f) => f.visible !== false)
+            .map((field) => (
+              <FieldRenderer
+                key={field.key}
+                field={field}
+                value={draft.values[field.key]}
+                error={touched[field.key] ? errors[field.key] : undefined}
+                onChange={(val) => draft.setFieldValue(field.key, val)}
+                onBlur={() => handleBlur(field.key)}
+              />
+            ))}
         </Stack>
 
         {/* Hidden submit for Enter key support */}
@@ -422,7 +437,7 @@ function SinglePageForm({
         <Group gap="sm">
           <Button
             variant="subtle"
-            onClick={onCancel}
+            onClick={() => void onCancel()}
             disabled={submitting}
             aria-label={t('form.cancel')}
           >
@@ -465,7 +480,10 @@ export function FormPageTemplate({ pageId }: FormPageTemplateProps) {
   const wizardSteps = useMemo(() => meta.steps ?? [], [meta.steps]);
 
   // Build initial values from field definitions.
-  const initialValues = buildInitialValues(fields);
+  // Memoized so the reference is stable across renders — prevents useFormDraft from
+  // receiving a new `initial` object identity on every render, which would interfere
+  // with draft restoration logic.
+  const initialValues = useMemo(() => buildInitialValues(fields), [fields]);
 
   const draft = useFormDraft<Record<string, unknown>>(
     `form-page:${pageId}`,
@@ -496,6 +514,8 @@ export function FormPageTemplate({ pageId }: FormPageTemplateProps) {
         throw new Error(body.error ?? t('form.submit.error'));
       }
       draft.markClean();
+      // TODO(VASTU-audit): emit audit event on successful form submission.
+      // e.g. auditLog({ action: 'form.submit', pageId, recordId: result.id })
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : t('form.submit.error'));
     } finally {
@@ -503,15 +523,20 @@ export function FormPageTemplate({ pageId }: FormPageTemplateProps) {
     }
   }, [meta.submitEndpoint, pageId, draft]);
 
-  const handleCancel = useCallback(() => {
+  const confirm = useConfirmDialog();
+
+  const handleCancel = useCallback(async () => {
     if (draft.isDirty) {
-      // In production, this would use ConfirmDialog. For now, use native confirm.
-      // eslint-disable-next-line no-alert
-      const confirmed = window.confirm(t('form.dirty.discardConfirm'));
+      const confirmed = await confirm({
+        title: t('form.dirty.discardTitle'),
+        description: t('form.dirty.discardConfirm'),
+        variant: 'warning',
+        confirmLabel: t('form.dirty.discardConfirmLabel'),
+      });
       if (!confirmed) return;
     }
     draft.clearDraft();
-  }, [draft]);
+  }, [draft, confirm]);
 
   // ── Loading state ────────────────────────────────────────────────────────
   if (loading) {
