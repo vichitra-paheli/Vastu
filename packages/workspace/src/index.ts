@@ -273,3 +273,14 @@ export type { DateGroupHeaderProps } from './templates/TimelineActivity/DateGrou
 
 // TimelineActivity panel
 export { TimelineActivityPanelWrapper, TIMELINE_ACTIVITY_PANEL_TYPE_ID } from './panels/index';
+
+// SummaryDashboard Template (US-130)
+export { SummaryDashboardTemplate, SUMMARY_DASHBOARD_PANEL_TYPE } from './templates/SummaryDashboard/SummaryDashboardTemplate';
+export { KPICardRow } from './templates/SummaryDashboard/KPICardRow';
+export type { KPICardConfig, KPICardRowProps } from './templates/SummaryDashboard/KPICardRow';
+export { ChartRow } from './templates/SummaryDashboard/ChartRow';
+export type { ChartDefinition, ChartRowProps } from './templates/SummaryDashboard/ChartRow';
+export { MiniSummaryTable } from './templates/SummaryDashboard/MiniSummaryTable';
+export type { MiniTableColumn, MiniSummaryTableProps } from './templates/SummaryDashboard/MiniSummaryTable';
+export { TimeRangeControl } from './templates/SummaryDashboard/TimeRangeControl';
+export type { TimeRange, TimeRangePreset, TimeRangeControlProps } from './templates/SummaryDashboard/TimeRangeControl';
