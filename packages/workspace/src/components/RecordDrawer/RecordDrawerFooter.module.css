@@ -1,0 +1,48 @@
+/**
+ * RecordDrawerFooter styles — sticky footer with save/cancel buttons.
+ * All colors via --v-* CSS custom properties.
+ */
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--v-space-3) var(--v-space-4);
+  gap: var(--v-space-2);
+  min-height: 52px;
+}
+
+.meta {
+  font-size: var(--v-text-xs);
+  color: var(--v-text-secondary);
+  font-family: var(--v-font-sans);
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.metaLabel {
+  color: var(--v-text-tertiary);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-2);
+  flex-shrink: 0;
+}
+
+/* Edit actions only shown when dirty */
+.editActions {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-2);
+  animation: fadeIn var(--v-duration-fast) var(--v-ease-out);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

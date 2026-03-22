@@ -1,0 +1,183 @@
+/**
+ * HistoryTab styles — audit trail timeline.
+ * All colors via --v-* CSS custom properties.
+ */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-space-3);
+}
+
+/* ── Timeline ─────────────────────────────────────────────────────────────── */
+
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.event {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: var(--v-space-2);
+  padding: var(--v-space-2) 0;
+  border-bottom: 1px solid var(--v-border-subtle);
+  position: relative;
+}
+
+.event:last-child {
+  border-bottom: none;
+}
+
+/* Vertical connector line between dots */
+.event:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 9px;
+  top: 24px;
+  bottom: -8px;
+  width: 2px;
+  background-color: var(--v-border-subtle);
+  z-index: 0;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--v-radius-full);
+  background-color: var(--v-accent-primary);
+  margin-top: 6px;
+  flex-shrink: 0;
+  z-index: 1;
+  position: relative;
+}
+
+.eventBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-space-1);
+  min-width: 0;
+}
+
+.eventHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-2);
+  flex-wrap: wrap;
+}
+
+.actor {
+  font-size: var(--v-text-sm);
+  font-weight: var(--v-font-medium);
+  color: var(--v-text-primary);
+  font-family: var(--v-font-sans);
+}
+
+.timestamp {
+  font-size: var(--v-text-xs);
+  color: var(--v-text-secondary);
+  font-family: var(--v-font-sans);
+  white-space: nowrap;
+}
+
+.action {
+  font-size: var(--v-text-sm);
+  color: var(--v-text-secondary);
+  font-family: var(--v-font-sans);
+  line-height: var(--v-leading-normal);
+  margin: 0;
+}
+
+/* ── Expand / diff ─────────────────────────────────────────────────────────── */
+
+.expandButton {
+  font-size: var(--v-text-xs);
+  color: var(--v-accent-primary);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--v-font-sans);
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.expandButton:hover {
+  color: var(--v-accent-primary-hover);
+}
+
+.expandButton:focus-visible {
+  outline: 2px solid var(--v-border-focus);
+  outline-offset: 1px;
+  border-radius: 2px;
+}
+
+.diff {
+  margin: 0;
+  padding: var(--v-space-2);
+  background-color: var(--v-bg-secondary);
+  border-radius: var(--v-radius-md);
+  border: 1px solid var(--v-border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-space-1);
+}
+
+.diffRow {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: var(--v-space-2);
+  align-items: start;
+}
+
+.diffLabel {
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-medium);
+  color: var(--v-text-tertiary);
+  font-family: var(--v-font-sans);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.diffOld {
+  font-size: var(--v-text-xs);
+  color: var(--v-status-error);
+  font-family: var(--v-font-mono);
+  word-break: break-word;
+  margin: 0;
+}
+
+.diffNew {
+  font-size: var(--v-text-xs);
+  color: var(--v-status-success);
+  font-family: var(--v-font-mono);
+  word-break: break-word;
+  margin: 0;
+}
+
+/* ── Load more ────────────────────────────────────────────────────────────── */
+
+.loadMore {
+  display: flex;
+  justify-content: center;
+  padding-top: var(--v-space-2);
+}
+
+/* ── Skeleton ─────────────────────────────────────────────────────────────── */
+
+.skeletonList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-space-3);
+}
+
+.skeletonItem {
+  display: flex;
+  gap: var(--v-space-2);
+  align-items: flex-start;
+}

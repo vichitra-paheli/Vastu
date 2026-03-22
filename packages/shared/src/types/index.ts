@@ -48,6 +48,8 @@ export type {
 
 export type { Page, PageConfiguration } from './page';
 
+export type { VastuRecord, RecordHistoryEntry, RecordNote } from './record';
+
 export type {
   View,
   ViewState,

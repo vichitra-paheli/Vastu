@@ -1,0 +1,104 @@
+/**
+ * NotesTab styles.
+ * All colors via --v-* CSS custom properties.
+ */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-space-5);
+}
+
+/* ── Input row ────────────────────────────────────────────────────────────── */
+
+.inputRow {
+  display: flex;
+  gap: var(--v-space-2);
+  align-items: flex-start;
+}
+
+.inputWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-space-1);
+}
+
+.submitRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--v-space-2);
+}
+
+.hint {
+  font-size: var(--v-text-xs);
+  color: var(--v-text-tertiary);
+  font-family: var(--v-font-sans);
+}
+
+/* ── Notes list ─────────────────────────────────────────────────────────── */
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-space-4);
+}
+
+.noteItem {
+  display: flex;
+  gap: var(--v-space-2);
+  align-items: flex-start;
+}
+
+.avatar {
+  flex-shrink: 0;
+}
+
+/* Override Mantine Avatar internals without !important by targeting the inner element. */
+.avatar :global(.mantine-Avatar-placeholder) {
+  background-color: var(--v-accent-primary-light);
+  color: var(--v-accent-primary);
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-medium);
+}
+
+.noteBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.noteMeta {
+  display: flex;
+  align-items: baseline;
+  gap: var(--v-space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--v-space-1);
+}
+
+.noteAuthor {
+  font-size: var(--v-text-sm);
+  font-weight: var(--v-font-medium);
+  color: var(--v-text-primary);
+  font-family: var(--v-font-sans);
+}
+
+.noteTime {
+  font-size: var(--v-text-xs);
+  color: var(--v-text-secondary);
+  font-family: var(--v-font-sans);
+  white-space: nowrap;
+}
+
+.noteContent {
+  font-size: var(--v-text-sm);
+  color: var(--v-text-primary);
+  font-family: var(--v-font-sans);
+  line-height: var(--v-leading-normal);
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}
