@@ -28,7 +28,7 @@ const READ_ONLY_FIELDS = new Set(['id', 'createdAt', 'updatedAt', 'updatedBy']);
 function formatValue(value: unknown): string {
   if (value === null || value === undefined || value === '') return '—';
   if (value instanceof Date) return value.toLocaleDateString();
-  if (typeof value === 'boolean') return value ? t('table.cell.boolean.true') : t('table.cell.boolean.false');
+  if (typeof value === 'boolean') return value ? t('drawer.field.boolean.true') : t('drawer.field.boolean.false');
   return String(value);
 }
 

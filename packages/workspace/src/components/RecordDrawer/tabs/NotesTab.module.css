@@ -56,10 +56,14 @@
 
 .avatar {
   flex-shrink: 0;
-  background-color: var(--v-accent-primary-light) !important;
-  color: var(--v-accent-primary) !important;
-  font-size: var(--v-text-xs) !important;
-  font-weight: var(--v-font-medium) !important;
+}
+
+/* Override Mantine Avatar internals without !important by targeting the inner element. */
+.avatar :global(.mantine-Avatar-placeholder) {
+  background-color: var(--v-accent-primary-light);
+  color: var(--v-accent-primary);
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-medium);
 }
 
 .noteBody {

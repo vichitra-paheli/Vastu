@@ -337,5 +337,7 @@
   "drawer.footer.save": "Save",
   "drawer.footer.saveAriaLabel": "Save changes",
   "drawer.footer.cancel": "Cancel",
-  "drawer.footer.cancelAriaLabel": "Discard changes"
+  "drawer.footer.cancelAriaLabel": "Discard changes",
+  "drawer.field.boolean.true": "Yes",
+  "drawer.field.boolean.false": "No"
 }

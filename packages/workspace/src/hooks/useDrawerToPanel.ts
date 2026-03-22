@@ -35,14 +35,15 @@ export const RECORD_PANEL_TYPE_ID = 'record-detail';
 export function useDrawerToPanel(): (recordId?: string) => void {
   const closeDrawer = useDrawerStore((s) => s.closeDrawer);
   const currentRecordId = useDrawerStore((s) => s.recordId);
-  const activeTab = useDrawerStore((s) => s.activeTab);
   const openPanel = usePanelStore((s) => s.openPanel);
 
   return useCallback(
     (recordId?: string) => {
       const targetId = recordId ?? currentRecordId;
       if (!targetId) {
-        console.warn('[useDrawerToPanel] No record ID to promote.');
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn('[useDrawerToPanel] No record ID to promote.');
+        }
         return;
       }
 
@@ -52,10 +53,12 @@ export function useDrawerToPanel(): (recordId?: string) => void {
       // Look up the record-detail panel definition in the registry
       const definition = getPanel(RECORD_PANEL_TYPE_ID);
       if (!definition) {
-        console.warn(
-          `[useDrawerToPanel] Panel type "${RECORD_PANEL_TYPE_ID}" is not registered. ` +
-            'Register a panel with this type ID to support drawer-to-panel promotion.',
-        );
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn(
+            `[useDrawerToPanel] Panel type "${RECORD_PANEL_TYPE_ID}" is not registered. ` +
+              'Register a panel with this type ID to support drawer-to-panel promotion.',
+          );
+        }
         return;
       }
 
@@ -71,13 +74,10 @@ export function useDrawerToPanel(): (recordId?: string) => void {
         panelId,
       );
 
-      // Pass record-specific params via the store after adding the panel
-      // (The panel component reads these from its own params via usePanel or similar)
-      // NOTE: Dockview panel params are set at addPanel time via the registry.
-      // The panel definition can access recordId + activeTab via the panelId convention.
-      // Phase 2 will wire a proper params API once MCP surfaces this.
-      void { recordId: targetId, activeTab };
+      // TODO (Phase 2): pass recordId + activeTab as panel params once Dockview
+      // exposes a typed params API via MCP. Currently the panel resolves the record
+      // by parsing its own panelId via the `${RECORD_PANEL_TYPE_ID}-${recordId}` convention.
     },
-    [closeDrawer, currentRecordId, activeTab, openPanel],
+    [closeDrawer, currentRecordId, openPanel],
   );
 }

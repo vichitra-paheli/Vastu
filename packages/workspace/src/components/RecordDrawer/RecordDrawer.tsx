@@ -78,28 +78,60 @@ export function RecordDrawer({ fetchRecord }: RecordDrawerProps) {
   const [error, setError] = useState<string | null>(null);
   const [closing, setClosing] = useState(false);
   const [dirty, setDirty] = useState(false);
+  // Incrementing this triggers the fetch useEffect to re-run (retry logic).
+  // Using a counter rather than calling fetchRecord directly ensures the
+  // cancellation guard in the effect is always active.
+  const [retryCount, setRetryCount] = useState(0);
 
   // Focus management — remember what had focus before drawer opened
   const previousFocusRef = useRef<Element | null>(null);
   const drawerRef = useRef<HTMLDivElement | null>(null);
 
-  // Track "closing" state to play exit animation before unmounting
+  // Track "closing" state to play exit animation before unmounting.
+  // We listen for the animationend event on the drawer element so that the
+  // teardown timing is always driven by the actual CSS animation, not a
+  // hardcoded timeout that would drift if the CSS duration changes.
+  // If no animation is running (JSDOM, prefers-reduced-motion, etc.) we
+  // close synchronously so tests and reduced-motion users are not blocked.
   const handleClose = useCallback(() => {
-    setClosing(true);
-    // Wait for slide-out animation then close the store
-    setTimeout(() => {
+    const finish = () => {
       setClosing(false);
       closeDrawer();
       setRecord(null);
       setError(null);
       setDirty(false);
-    }, 200);
+    };
+
+    const el = drawerRef.current;
+    if (!el) {
+      finish();
+      return;
+    }
+
+    // Check whether a CSS animation is actually running on the closing element.
+    // getAnimations() is available in modern browsers and JSDOM 16+.
+    setClosing(true);
+
+    // Re-read the element after state update (next microtask)
+    queueMicrotask(() => {
+      const runningAnimations =
+        typeof el.getAnimations === 'function' ? el.getAnimations() : [];
+
+      if (runningAnimations.length === 0) {
+        // No animation running (test env / reduced-motion / animation: none).
+        finish();
+      } else {
+        el.addEventListener('animationend', finish, { once: true });
+      }
+    });
   }, [closeDrawer]);
 
   // Fetch record data whenever recordId changes
   useEffect(() => {
     if (!recordId || !isOpen) return;
 
+    // Capture the narrowed non-null value so the async closure is properly typed.
+    const id = recordId;
     let cancelled = false;
 
     async function load() {
@@ -111,10 +143,10 @@ export function RecordDrawer({ fetchRecord }: RecordDrawerProps) {
       try {
         // When no fetchRecord is provided, resolve with a placeholder (dev/test)
         const data: RecordDetail = fetchRecord
-          ? await fetchRecord(recordId as string)
+          ? await fetchRecord(id)
           : {
-              id: recordId as string,
-              title: `Record ${recordId}`,
+              id,
+              title: `Record ${id}`,
               type: 'record',
               fields: {},
               createdAt: new Date().toISOString(),
@@ -133,7 +165,7 @@ export function RecordDrawer({ fetchRecord }: RecordDrawerProps) {
     return () => {
       cancelled = true;
     };
-  }, [recordId, isOpen, fetchRecord]);
+  }, [recordId, isOpen, fetchRecord, retryCount]);
 
   // Save previous focus and move focus into drawer when it opens
   useEffect(() => {
@@ -234,16 +266,10 @@ export function RecordDrawer({ fetchRecord }: RecordDrawerProps) {
         {loading ? (
           <DrawerSkeleton />
         ) : error ? (
-          <DrawerError message={error} onRetry={() => {
-            if (recordId && fetchRecord) {
-              setLoading(true);
-              setError(null);
-              fetchRecord(recordId)
-                .then(setRecord)
-                .catch(() => setError(t('drawer.error.loadFailed')))
-                .finally(() => setLoading(false));
-            }
-          }} />
+          <DrawerError
+            message={error}
+            onRetry={() => setRetryCount((n) => n + 1)}
+          />
         ) : (
           <div className={classes.content}>
             {activeTab === 'details' && (
