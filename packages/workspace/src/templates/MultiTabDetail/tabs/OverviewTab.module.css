@@ -1,0 +1,179 @@
+/**
+ * OverviewTab layout styles.
+ * All colors via --v-* CSS custom properties.
+ */
+
+.root {
+  padding: var(--v-space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-space-8);
+}
+
+/* ── Section headings ──────────────────────────────────────────────────────── */
+
+.sectionTitle {
+  font-size: var(--v-text-sm);
+  font-weight: var(--v-font-medium);
+  font-family: var(--v-font-sans);
+  color: var(--v-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 var(--v-space-3) 0;
+}
+
+/* ── Fields section ────────────────────────────────────────────────────────── */
+
+.fieldsSection {
+  /* no extra styles needed */
+}
+
+.fieldsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--v-space-1) 0;
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .fieldsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fieldRow {
+  display: contents;
+}
+
+.fieldLabel {
+  font-size: var(--v-text-sm);
+  font-weight: var(--v-font-regular);
+  font-family: var(--v-font-sans);
+  color: var(--v-text-secondary);
+  padding: var(--v-space-2) var(--v-space-4) var(--v-space-2) 0;
+  border-bottom: 1px solid var(--v-border-subtle);
+  overflow: hidden;
+}
+
+.fieldValue {
+  font-size: var(--v-text-sm);
+  font-weight: var(--v-font-regular);
+  font-family: var(--v-font-sans);
+  color: var(--v-text-primary);
+  padding: var(--v-space-2) 0;
+  border-bottom: 1px solid var(--v-border-subtle);
+  overflow: hidden;
+  margin: 0;
+}
+
+.fieldsEmpty {
+  font-size: var(--v-text-sm);
+  font-weight: var(--v-font-regular);
+  font-family: var(--v-font-sans);
+  color: var(--v-text-secondary);
+  margin: 0;
+}
+
+/* ── Fields skeleton ───────────────────────────────────────────────────────── */
+
+.fieldsSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-space-3);
+}
+
+.fieldSkeletonRow {
+  display: flex;
+  gap: var(--v-space-4);
+  align-items: center;
+}
+
+/* ── Sub-tables section ────────────────────────────────────────────────────── */
+
+.subTablesSection {
+  /* no extra styles needed */
+}
+
+.subTableSection {
+  /* no extra styles needed */
+}
+
+.subTableTitle {
+  font-size: var(--v-text-sm);
+  font-weight: var(--v-font-medium);
+  font-family: var(--v-font-sans);
+  color: var(--v-text-primary);
+  margin: 0 0 var(--v-space-2) 0;
+}
+
+/* ── Activity section ──────────────────────────────────────────────────────── */
+
+.activitySection {
+  /* no extra styles needed */
+}
+
+.activityList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.activityItem {
+  display: flex;
+  gap: var(--v-space-3);
+  padding: var(--v-space-3) 0;
+  border-bottom: 1px solid var(--v-border-subtle);
+  position: relative;
+}
+
+.activityItem:last-child {
+  border-bottom: none;
+}
+
+.activityDot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--v-accent-primary);
+  margin-top: 6px;
+}
+
+.activityBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.activityHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--v-space-2);
+  margin-bottom: var(--v-space-1);
+}
+
+.activityActor {
+  font-size: var(--v-text-sm);
+  font-weight: var(--v-font-medium);
+  font-family: var(--v-font-sans);
+  color: var(--v-text-primary);
+}
+
+.activityTime {
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-regular);
+  font-family: var(--v-font-sans);
+  color: var(--v-text-secondary);
+  white-space: nowrap;
+}
+
+.activityAction {
+  font-size: var(--v-text-sm);
+  font-weight: var(--v-font-regular);
+  font-family: var(--v-font-sans);
+  color: var(--v-text-secondary);
+  margin: 0;
+}
