@@ -252,7 +252,7 @@ export function ViewSelector({
       title={t('view.selector.deleteTitle')}
       description={
         deletingView
-          ? t('view.selector.deleteDescription').replace('{name}', deletingView.name)
+          ? t('view.selector.deleteDescription', { name: deletingView.name })
           : t('view.selector.deleteDescriptionGeneric')
       }
       confirmLabel={t('view.selector.deleteConfirmButton')}

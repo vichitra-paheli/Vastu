@@ -27,7 +27,6 @@ import { Button, ActionIcon, Tooltip } from '@mantine/core';
 import { IconShare, IconDots } from '@tabler/icons-react';
 import { t } from '../../lib/i18n';
 import { useViewStore } from '../../stores/viewStore';
-import { usePanelStore } from '../../stores/panelStore';
 import { ViewSelector } from './ViewSelector';
 import type { View } from '@vastu/shared/types';
 import classes from './ViewToolbar.module.css';
@@ -83,10 +82,9 @@ export function ViewToolbar({
   onDeleteView,
 }: ViewToolbarProps) {
   const { currentViewId, isModified, saveView, loadView, resetView, newView } = useViewStore();
-  // Wire activePageId from Dockview active panel via panelStore.
-  // Falls back to the explicitly-provided pageId prop for testing / static usage.
-  const activePanelId = usePanelStore((state) => state.activePanelId);
-  const resolvedPageId = activePanelId ?? pageId;
+  // pageId is fully resolved by WorkspaceShell (activePanelId ?? prop fallback).
+  // ViewToolbar uses it directly — no secondary panelStore lookup here.
+  const resolvedPageId = pageId;
 
   // Ref to the inline name input — used to allow Cmd+S from within it.
   const nameInputRef = React.useRef<HTMLInputElement>(null);

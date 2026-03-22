@@ -21,7 +21,6 @@ import { TestProviders } from '../../../test-utils/providers';
 import { ViewToolbar } from '../ViewToolbar';
 import { ViewSelector } from '../ViewSelector';
 import { useViewStore } from '../../../stores/viewStore';
-import { usePanelStore } from '../../../stores/panelStore';
 import type { View } from '@vastu/shared/types';
 
 // Minimal View fixture
@@ -302,11 +301,14 @@ describe('ViewToolbar', () => {
   });
 
   // ----------------------------------------------------------------
-  // activePageId wired from panelStore (AC-4)
+  // pageId prop used as the page ID for saves (AC-4)
+  //
+  // WorkspaceShell owns the activePanelId resolution (panelStore ?? prop).
+  // ViewToolbar receives the already-resolved pageId via prop and uses it
+  // directly — no secondary panelStore lookup.
   // ----------------------------------------------------------------
 
-  it('uses activePanelId from panelStore as the page ID for saves', async () => {
-    usePanelStore.setState({ activePanelId: 'active-panel-id' });
+  it('uses the pageId prop as the page ID for saves', async () => {
     const savedState = {
       filters: null,
       sort: [],
@@ -326,17 +328,17 @@ describe('ViewToolbar', () => {
     });
     vi.stubGlobal('fetch', mockFetch);
 
-    renderToolbar({ views: [mockView] });
+    // Pass 'resolved-page-id' as the already-resolved page ID (simulating
+    // what WorkspaceShell does after reading panelStore.activePanelId).
+    renderToolbar({ views: [mockView], pageId: 'resolved-page-id' });
     const saveBtn = screen.getByTestId('save-button');
     fireEvent.click(saveBtn);
 
     await waitFor(() => {
       expect(mockFetch).toHaveBeenCalled();
       const body = JSON.parse((mockFetch.mock.calls[0][1] as RequestInit).body as string) as Record<string, unknown>;
-      expect(body.pageId).toBe('active-panel-id');
+      expect(body.pageId).toBe('resolved-page-id');
     });
-
-    usePanelStore.setState({ activePanelId: null });
   });
 });
 

@@ -122,8 +122,10 @@ export function WorkspaceShell({
       <main className={classes.main} id="workspace-main">
         {/* ViewToolbar sits between the sidebar and the Dockview panel area.
             Always rendered; shows "Default view" when no page is active.
-            activePageId is derived from panelStore.activePanelId (wired in
-            the toolbar itself); the prop here is a fallback for SSR contexts. */}
+            WorkspaceShell is the single source of truth for activePanelId:
+            it resolves panelStore.activePanelId with the prop fallback here,
+            then passes the resolved value down. ViewToolbar does not do its
+            own panelStore lookup. */}
         <ViewToolbar pageId={resolvedActivePageId} currentUserId={currentUserId} />
         <DockviewHost />
         {children}

@@ -16,6 +16,7 @@
 
 import React from 'react';
 import { Modal, Button, Group, Text } from '@mantine/core';
+import { t } from '../../lib/i18n';
 import classes from './ConfirmDialog.module.css';
 
 export type ConfirmDialogVariant = 'delete' | 'warning' | 'info';
@@ -30,9 +31,9 @@ export interface ConfirmDialogProps {
    * Displayed as body text below the title.
    */
   description: string;
-  /** Label for the confirm action button. Defaults to the variant name. */
+  /** Label for the confirm action button. Defaults to a variant-specific i18n string. */
   confirmLabel?: string;
-  /** Label for the cancel button. */
+  /** Label for the cancel button. Defaults to the i18n cancel string. */
   cancelLabel?: string;
   /** Visual variant that controls the confirm button color. */
   variant?: ConfirmDialogVariant;
@@ -49,11 +50,11 @@ const VARIANT_COLOR: Record<ConfirmDialogVariant, string> = {
   info: 'blue',
 };
 
-/** Default confirm labels per variant. */
-const VARIANT_DEFAULT_LABEL: Record<ConfirmDialogVariant, string> = {
-  delete: 'Delete',
-  warning: 'Confirm',
-  info: 'OK',
+/** Map variant to the i18n key for the default confirm label. */
+const VARIANT_LABEL_KEY: Record<ConfirmDialogVariant, string> = {
+  delete: 'confirm.delete.label',
+  warning: 'confirm.warning.label',
+  info: 'confirm.info.label',
 };
 
 export function ConfirmDialog({
@@ -61,12 +62,13 @@ export function ConfirmDialog({
   title,
   description,
   confirmLabel,
-  cancelLabel = 'Cancel',
+  cancelLabel,
   variant = 'delete',
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
-  const actionLabel = confirmLabel ?? VARIANT_DEFAULT_LABEL[variant];
+  const actionLabel = confirmLabel ?? t(VARIANT_LABEL_KEY[variant]);
+  const resolvedCancelLabel = cancelLabel ?? t('confirm.cancel.label');
   const actionColor = VARIANT_COLOR[variant];
 
   return (
@@ -95,7 +97,7 @@ export function ConfirmDialog({
           // Cancel gets focus first — safer default for keyboard users.
           data-autofocus
         >
-          {cancelLabel}
+          {resolvedCancelLabel}
         </Button>
         <Button
           color={actionColor}
