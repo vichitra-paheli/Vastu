@@ -16,7 +16,7 @@
  * Implements US-126 AC-1 (useKeyboardShortcuts hook).
  */
 
-import { useEffect, useLayoutEffect, useCallback, useRef } from 'react';
+import { useEffect, useLayoutEffect, useCallback, useRef, useMemo } from 'react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -50,15 +50,35 @@ export interface ShortcutDefinition {
   handler: () => void;
 }
 
-/** The full registry entry shape (definition + stable id). */
-export interface RegisteredShortcut extends Omit<ShortcutDefinition, 'handler'> {
+/**
+ * Display-only shortcut info surfaced to ShortcutsModal.
+ * Strips `handler` (executable) and `contextRef` (DOM ref) which have no
+ * relevance for rendering a shortcut reference list.
+ */
+export interface ShortcutDisplayInfo {
+  /** Stable identity key for list rendering. */
   id: string;
+  /** The primary key (case-insensitive). */
+  key: string;
+  /** Optional modifier keys that must be held. */
+  modifiers?: ShortcutModifier[];
+  /** Display group for the ShortcutsModal. */
+  group: ShortcutGroup;
+  /** Human-readable description shown in the ShortcutsModal. */
+  description: string;
 }
+
+/**
+ * The full registry entry shape (definition + stable id).
+ * @deprecated Prefer ShortcutDisplayInfo for display consumers (e.g. ShortcutsModal).
+ *   RegisteredShortcut remains exported for backwards compatibility.
+ */
+export type RegisteredShortcut = ShortcutDisplayInfo;
 
 /** Return value of useKeyboardShortcuts. */
 export interface UseKeyboardShortcutsReturn {
   /** Read-only list of all registered shortcuts — used by ShortcutsModal. */
-  shortcuts: RegisteredShortcut[];
+  shortcuts: ShortcutDisplayInfo[];
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -105,12 +125,14 @@ function eventMatchesShortcut(e: KeyboardEvent, def: ShortcutDefinition): boolea
   const wantsAlt = modifiers.includes('Alt');
   const wantsShift = modifiers.includes('Shift');
 
-  // For cross-platform Meta/Ctrl shortcuts we treat either key as matching
-  // when the definition specifies 'Meta'.
+  // For cross-platform Meta/Ctrl shortcuts we treat either modifier key as
+  // matching when the definition specifies 'Meta' (Cmd on macOS, Ctrl on Win/Linux).
+  // A 'Ctrl'-only definition matches only ctrlKey — it is not aliased to metaKey.
   const metaOrCtrl = e.metaKey || e.ctrlKey;
 
   if (wantsMeta && !metaOrCtrl) return false;
-  if (!wantsMeta && metaOrCtrl) return false;
+  // Guard: only block metaKey/ctrlKey when neither 'Meta' nor 'Ctrl' is declared.
+  if (!wantsMeta && !wantsCtrl && metaOrCtrl) return false;
   if (wantsCtrl && !e.ctrlKey) return false;
   if (wantsAlt !== e.altKey) return false;
   if (wantsShift !== e.shiftKey) return false;
@@ -184,15 +206,21 @@ export function useKeyboardShortcuts(
     };
   }, [handleKeyDown]);
 
-  // Build the public registry (strip handler, add stable id).
-  const shortcuts: RegisteredShortcut[] = definitions.map((def, i) => ({
-    id: buildShortcutId(def, i),
-    key: def.key,
-    modifiers: def.modifiers,
-    contextRef: def.contextRef,
-    group: def.group,
-    description: def.description,
-  }));
+  // Build the public display registry (strip handler and contextRef, add stable id).
+  // Wrapped in useMemo so the array reference is stable across re-renders, preventing
+  // unnecessary downstream re-renders in ShortcutsModal.
+  const shortcuts = useMemo<ShortcutDisplayInfo[]>(
+    () =>
+      definitions.map((def, i) => ({
+        id: buildShortcutId(def, i),
+        key: def.key,
+        modifiers: def.modifiers,
+        group: def.group,
+        description: def.description,
+      })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [definitions],
+  );
 
   return { shortcuts };
 }

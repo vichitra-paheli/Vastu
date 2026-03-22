@@ -101,6 +101,23 @@ function VastuTableInner<TData extends Record<string, unknown>>({
 
   // ─── Table keyboard shortcuts ─────────────────────────────────────────
   // Scoped to tableContainerRef — only fire when the table has focus.
+
+  /**
+   * Opens the currently focused row by simulating a click on it.
+   * Shared between the 'o' and 'Enter' shortcut handlers.
+   */
+  const openFocusedRow = React.useCallback(() => {
+    if (focusedRowIndex >= 0 && focusedRowIndex < allRows.length) {
+      const row = allRows[focusedRowIndex];
+      if (row) {
+        const rowEl = scrollContainerRef.current?.querySelector<HTMLElement>(
+          `[data-row-id="${row.id}"]`,
+        );
+        rowEl?.click();
+      }
+    }
+  }, [focusedRowIndex, allRows]);
+
   const tableShortcuts = React.useMemo<ShortcutDefinition[]>(
     () => [
       {
@@ -129,34 +146,14 @@ function VastuTableInner<TData extends Record<string, unknown>>({
         group: 'Table',
         description: t('shortcuts.table.openRow'),
         contextRef: tableContainerRef,
-        handler: () => {
-          if (focusedRowIndex >= 0 && focusedRowIndex < allRows.length) {
-            const row = allRows[focusedRowIndex];
-            if (row) {
-              const rowEl = scrollContainerRef.current?.querySelector<HTMLElement>(
-                `[data-row-id="${row.id}"]`,
-              );
-              rowEl?.click();
-            }
-          }
-        },
+        handler: openFocusedRow,
       },
       {
         key: 'Enter',
         group: 'Table',
         description: t('shortcuts.table.openRow'),
         contextRef: tableContainerRef,
-        handler: () => {
-          if (focusedRowIndex >= 0 && focusedRowIndex < allRows.length) {
-            const row = allRows[focusedRowIndex];
-            if (row) {
-              const rowEl = scrollContainerRef.current?.querySelector<HTMLElement>(
-                `[data-row-id="${row.id}"]`,
-              );
-              rowEl?.click();
-            }
-          }
-        },
+        handler: openFocusedRow,
       },
       {
         key: 'x',
@@ -189,7 +186,7 @@ function VastuTableInner<TData extends Record<string, unknown>>({
       },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [allRows, focusedRowIndex, table],
+    [allRows, focusedRowIndex, openFocusedRow, table],
   );
 
   useKeyboardShortcuts(tableShortcuts);

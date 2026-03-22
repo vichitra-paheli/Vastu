@@ -358,4 +358,57 @@ describe('useKeyboardShortcuts', () => {
       group: 'Sidebar',
     });
   });
+
+  it('returns a shortcuts registry without contextRef (display-safe for ShortcutsModal)', () => {
+    const handler = vi.fn();
+    const contextEl = document.createElement('div');
+    document.body.appendChild(contextEl);
+    const contextRef = { current: contextEl } as React.RefObject<HTMLElement>;
+
+    const defs: ShortcutDefinition[] = [
+      {
+        key: 'j',
+        group: 'Table',
+        description: 'Next row',
+        contextRef,
+        handler,
+      },
+    ];
+
+    const { result } = renderHook(() => useKeyboardShortcuts(defs));
+
+    expect(result.current.shortcuts[0]).not.toHaveProperty('contextRef');
+    expect(result.current.shortcuts[0]).not.toHaveProperty('handler');
+    document.body.removeChild(contextEl);
+  });
+
+  it('Ctrl-only shortcut fires when ctrlKey is pressed (without metaKey)', () => {
+    const handler = vi.fn();
+    const defs: ShortcutDefinition[] = [
+      { key: 'z', modifiers: ['Ctrl'], group: 'General', description: 'Ctrl-Z', handler },
+    ];
+
+    renderHook(() => useKeyboardShortcuts(defs));
+
+    act(() => {
+      fireKey('z', { ctrlKey: true });
+    });
+
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  it('Ctrl-only shortcut does not fire when metaKey is pressed without ctrlKey', () => {
+    const handler = vi.fn();
+    const defs: ShortcutDefinition[] = [
+      { key: 'z', modifiers: ['Ctrl'], group: 'General', description: 'Ctrl-Z', handler },
+    ];
+
+    renderHook(() => useKeyboardShortcuts(defs));
+
+    act(() => {
+      fireKey('z', { metaKey: true });
+    });
+
+    expect(handler).not.toHaveBeenCalled();
+  });
 });

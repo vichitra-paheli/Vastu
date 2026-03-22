@@ -17,7 +17,7 @@
 import React from 'react';
 import { Modal, Kbd } from '@mantine/core';
 import { t } from '../../lib/i18n';
-import type { RegisteredShortcut, ShortcutGroup } from '../../hooks/useKeyboardShortcuts';
+import type { ShortcutDisplayInfo, ShortcutGroup } from '../../hooks/useKeyboardShortcuts';
 import classes from './ShortcutsModal.module.css';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -43,7 +43,7 @@ const GROUP_LABELS: Record<ShortcutGroup, string> = {
  *
  * We keep it simple and platform-neutral here for SSR safety.
  */
-function shortcutToTokens(shortcut: RegisteredShortcut): string[] {
+function shortcutToTokens(shortcut: ShortcutDisplayInfo): string[] {
   const tokens: string[] = [];
   const modifiers = shortcut.modifiers ?? [];
 
@@ -66,7 +66,7 @@ function shortcutToTokens(shortcut: RegisteredShortcut): string[] {
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
 interface ShortcutRowProps {
-  shortcut: RegisteredShortcut;
+  shortcut: ShortcutDisplayInfo;
 }
 
 function ShortcutRow({ shortcut }: ShortcutRowProps) {
@@ -89,7 +89,7 @@ function ShortcutRow({ shortcut }: ShortcutRowProps) {
 
 interface ShortcutGroupSectionProps {
   group: ShortcutGroup;
-  shortcuts: RegisteredShortcut[];
+  shortcuts: ShortcutDisplayInfo[];
 }
 
 function ShortcutGroupSection({ group, shortcuts }: ShortcutGroupSectionProps) {
@@ -113,7 +113,7 @@ export interface ShortcutsModalProps {
   /** Called when the modal should close. */
   onClose: () => void;
   /** Full shortcut registry — provided by useKeyboardShortcuts(). */
-  shortcuts: RegisteredShortcut[];
+  shortcuts: ShortcutDisplayInfo[];
 }
 
 /**
@@ -125,8 +125,8 @@ export interface ShortcutsModalProps {
  */
 export function ShortcutsModal({ opened, onClose, shortcuts }: ShortcutsModalProps) {
   // Group shortcuts by their group property.
-  const grouped = React.useMemo<Record<ShortcutGroup, RegisteredShortcut[]>>(() => {
-    const result: Record<ShortcutGroup, RegisteredShortcut[]> = {
+  const grouped = React.useMemo<Record<ShortcutGroup, ShortcutDisplayInfo[]>>(() => {
+    const result: Record<ShortcutGroup, ShortcutDisplayInfo[]> = {
       General: [],
       Sidebar: [],
       Table: [],
