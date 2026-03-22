@@ -1,0 +1,85 @@
+/**
+ * DetailsTab styles — field-value grid layout.
+ * All colors via --v-* CSS custom properties.
+ */
+
+.grid {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: var(--v-space-2);
+  padding: var(--v-space-2) 0;
+  border-bottom: 1px solid var(--v-border-subtle);
+  align-items: start;
+  min-height: 36px;
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.label {
+  font-size: var(--v-text-sm);
+  font-weight: var(--v-font-medium);
+  color: var(--v-text-secondary);
+  line-height: var(--v-leading-normal);
+  padding-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--v-font-sans);
+}
+
+.value {
+  margin: 0;
+  font-family: var(--v-font-sans);
+}
+
+.readOnly .valueText {
+  color: var(--v-text-tertiary);
+  cursor: default;
+}
+
+.valueText {
+  display: block;
+  font-size: var(--v-text-sm);
+  color: var(--v-text-primary);
+  line-height: var(--v-leading-normal);
+  word-break: break-word;
+  padding: 2px 4px;
+  border-radius: var(--v-radius-sm);
+  border: 1px solid transparent;
+  cursor: default;
+  font-family: var(--v-font-sans);
+  font-weight: var(--v-font-regular);
+}
+
+.editable {
+  cursor: pointer;
+  transition: border-color var(--v-duration-fast) var(--v-ease-default);
+}
+
+.editable:hover {
+  border-color: var(--v-border-default);
+  background-color: var(--v-interactive-hover);
+}
+
+.editable:focus-visible {
+  outline: 2px solid var(--v-border-focus);
+  outline-offset: 1px;
+}
+
+.empty {
+  font-size: var(--v-text-sm);
+  color: var(--v-text-tertiary);
+  font-family: var(--v-font-sans);
+  margin: 0;
+  padding: var(--v-space-4) 0;
+}
