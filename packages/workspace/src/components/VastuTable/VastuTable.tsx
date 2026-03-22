@@ -24,6 +24,7 @@ import { t } from '../../lib/i18n';
 import { ContextMenuCloseContext } from '../ContextMenu/ContextMenu';
 import { ContextMenuItem } from '../ContextMenu/ContextMenuItem';
 import { ContextMenuDivider } from '../ContextMenu/ContextMenuDivider';
+import { EmptyState } from '../EmptyState/EmptyState';
 import { VastuTableHeader } from './VastuTableHeader';
 import { VastuTableRow } from './VastuTableRow';
 import { useVastuTable } from './useVastuTable';
@@ -285,13 +286,11 @@ function VastuTableInner<TData extends Record<string, unknown>>({
         role="rowgroup"
       >
         {isEmpty ? (
-          <div className={classes.emptyState}>
-            <span className={classes.emptyStateIcon} aria-hidden="true">
-              <IconTableOff size={32} />
-            </span>
-            <span className={classes.emptyStateTitle}>{t('table.empty.title')}</span>
-            <span>{t('table.empty.description')}</span>
-          </div>
+          <EmptyState
+            icon={<IconTableOff />}
+            message={t('table.empty.message')}
+            className={classes.emptyState}
+          />
         ) : (
           <div
             role="table"

@@ -16,6 +16,7 @@
 import React, { useRef } from 'react';
 import { Tooltip } from '@mantine/core';
 import { IconPin, IconPinFilled } from '@tabler/icons-react';
+import { TruncatedText } from '../TruncatedText';
 import classes from './SidebarNav.module.css';
 
 interface SidebarItemProps {
@@ -83,11 +84,11 @@ export function SidebarItem({
         {icon}
       </span>
 
-      {/* Label — hidden in collapsed mode, truncated with ellipsis */}
+      {/* Label — hidden in collapsed mode, truncated with TruncatedText */}
       {!collapsed && (
-        <span className={classes.navItemLabel} title={label}>
+        <TruncatedText maxWidth={120} className={classes.navItemLabel}>
           {label}
-        </span>
+        </TruncatedText>
       )}
 
       {/* Pin toggle — only in expanded mode, PAGES section.

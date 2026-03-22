@@ -338,16 +338,6 @@
   font-size: var(--v-text-sm);
 }
 
-.emptyStateIcon {
-  color: var(--v-text-tertiary);
-  opacity: 0.5;
-}
-
-.emptyStateTitle {
-  font-weight: var(--v-font-medium);
-  color: var(--v-text-secondary);
-}
-
 /* ─── Error state ─── */
 .errorState {
   display: flex;

@@ -19,6 +19,7 @@ import { countConditions, isFilterFlat, createCondition } from './types';
 import { FilterPill } from './FilterPill';
 import { DimensionPicker } from './DimensionPicker';
 import { CompositeFilterBuilder } from './CompositeFilterBuilder';
+import { useViewFilterStore } from '../../stores/viewFilterStore';
 import classes from './FilterBar.module.css';
 
 /** Internal type for pill rendering — condition + its index in root.children. */
@@ -34,11 +35,23 @@ export interface FilterBarProps {
   dimensions: FilterDimension[];
   /** Called when filter state changes. */
   onChange: (state: FilterState) => void;
+  /**
+   * View ID used to read the active IER mode from viewFilterStore.
+   * When provided, new conditions are created with the active Include/Exclude/Regex mode.
+   * Defaults to 'include' when omitted (AC-2 from US-122).
+   */
+  viewId?: string;
 }
 
-export function FilterBar({ filterState, dimensions, onChange }: FilterBarProps) {
+export function FilterBar({ filterState, dimensions, onChange, viewId }: FilterBarProps) {
   const { root, advanced } = filterState;
   const conditionCount = countConditions(root);
+
+  // Read the active IER mode from the store for this view (AC-2 from US-122).
+  // When no viewId is provided (standalone usage), always defaults to 'include'.
+  const activeMode = useViewFilterStore((s) =>
+    viewId ? (s.modeByView[viewId] ?? 'include') : 'include',
+  );
 
   // Collect top-level conditions (with their original index in root.children)
   const topLevelConditions: ConditionEntry[] = React.useMemo((): ConditionEntry[] => {
@@ -58,7 +71,13 @@ export function FilterBar({ filterState, dimensions, onChange }: FilterBarProps)
     const dim = dimensions.find((d) => d.column === column);
     if (!dim) return;
 
-    const condition = createCondition(column, dim.dataType);
+    // Regex mode is only valid for text columns. Fall back to 'include' for
+    // number, date, and boolean types to prevent invalid filter state (edge case
+    // from US-122 spec: regex mode disabled for non-text types).
+    const modeForType =
+      activeMode === 'regex' && dim.dataType !== 'text' ? 'include' : activeMode;
+
+    const condition = createCondition(column, dim.dataType, modeForType);
     const newRoot: FilterGroup = root
       ? { ...root, children: [...root.children, condition] }
       : { type: 'group', connector: 'AND', children: [condition] };
