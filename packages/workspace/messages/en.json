@@ -1,14 +1,11 @@
 {
   "workspace.welcome.ariaLabel": "Workspace welcome screen",
-  "workspace.welcome.title": "Open a page from the sidebar or press \u2318K",
+  "workspace.welcome.title": "Open a page from the sidebar or press ⌘K",
   "workspace.welcome.hint": "Split, float, and arrange panels to fit your workflow.",
-
   "workspace.panel.closeAriaLabel": "Close panel",
   "workspace.panel.tab.activeAriaLabel": "Active panel",
-
   "workspace.dockview.loadError": "Failed to restore workspace layout. Starting fresh.",
   "workspace.dockview.empty": "No panels open",
-
   "filter.mode.include": "Include",
   "filter.mode.exclude": "Exclude",
   "filter.mode.regex": "Regex",
@@ -16,12 +13,10 @@
   "filter.mode.exclude.short": "E",
   "filter.mode.regex.short": "R",
   "filter.mode.ariaLabel": "Filter mode",
-
   "filter.modeSwitch.ariaLabel": "Filter mode switch",
   "filter.modeSwitch.include.tooltip": "Include rows matching this value",
   "filter.modeSwitch.exclude.tooltip": "Exclude rows matching this value",
   "filter.modeSwitch.regex.tooltip": "Match rows against a regular expression",
-
   "filter.bar.addFilter": "+ Add filter",
   "filter.bar.advanced": "Advanced",
   "filter.bar.simple": "Simple",
@@ -29,10 +24,8 @@
   "filter.bar.active": "Filters active ({count})",
   "filter.bar.clearAll": "Clear all filters",
   "filter.bar.ariaLabel": "Active filters",
-
   "filter.pill.removeAriaLabel": "Remove filter",
   "filter.pill.editAriaLabel": "Edit filter",
-
   "filter.dimension.searchPlaceholder": "Search columns...",
   "filter.dimension.title": "Add filter",
   "filter.dimension.group.text": "Text",
@@ -40,7 +33,6 @@
   "filter.dimension.group.date": "Date",
   "filter.dimension.group.enum": "Enum",
   "filter.dimension.group.boolean": "Boolean",
-
   "filter.input.text.placeholder": "Type to add values...",
   "filter.input.number.min": "Min",
   "filter.input.number.max": "Max",
@@ -58,7 +50,6 @@
   "filter.input.boolean.any": "Any",
   "filter.input.regex.error": "Invalid regular expression",
   "filter.input.regex.placeholder": "Regular expression pattern...",
-
   "filter.builder.title": "Advanced filters",
   "filter.builder.addCondition": "+ Add condition",
   "filter.builder.addGroup": "+ Add group",
@@ -74,7 +65,6 @@
   "filter.dimension.noMatch": "No columns match",
   "filter.input.enum.noMatch": "No values found",
   "filter.input.enum.noOptions": "No options",
-
   "view.toolbar.ariaLabel": "View toolbar",
   "view.toolbar.viewNameAriaLabel": "View name",
   "view.toolbar.modified": "Modified",
@@ -86,7 +76,6 @@
   "view.toolbar.shareAriaLabel": "Share view",
   "view.toolbar.more": "More options",
   "view.toolbar.moreAriaLabel": "More view options",
-
   "view.selector.ariaLabel": "Switch view",
   "view.selector.searchPlaceholder": "Search views...",
   "view.selector.searchAriaLabel": "Search views",
@@ -102,12 +91,10 @@
   "view.selector.deleteConfirmButton": "Delete view",
   "view.selector.entryMenuAriaLabel": "View options",
   "view.selector.renameAriaLabel": "Rename view",
-
   "confirm.delete.label": "Delete",
   "confirm.warning.label": "Confirm",
   "confirm.info.label": "OK",
   "confirm.cancel.label": "Cancel",
-
   "contextMenu.ariaLabel": "Context menu",
   "contextMenu.cell.copyValue": "Copy value",
   "contextMenu.cell.includeFilter": "Include filter",
@@ -131,7 +118,6 @@
   "contextMenu.badge.includeFilter": "Include filter",
   "contextMenu.badge.excludeFilter": "Exclude filter",
   "contextMenu.badge.copyValue": "Copy value",
-
   "table.ariaLabel": "Data table",
   "table.loading.ariaLabel": "Loading table data",
   "table.error.ariaLabel": "Table error",
@@ -146,50 +132,41 @@
   "table.header.resizeColumn": "Resize column",
   "table.cell.boolean.true": "True",
   "table.cell.boolean.false": "False",
-
   "tray.bar.panelListAriaLabel": "Minimized panels",
   "tray.bar.statusAreaAriaLabel": "Status indicators",
   "tray.bar.empty": "No minimized panels",
   "tray.item.ariaLabel": "Restore panel: {title}",
   "tray.item.close": "Close",
   "tray.item.contextMenuAriaLabel": "Panel tray options",
-
   "emptyState.ariaLabel": "Empty state",
-
   "panel.mode.editor": "Editor",
   "panel.mode.builder": "Builder",
   "panel.mode.workflow": "Workflow",
-
   "panel.modeSwitch.ariaLabel": "Panel mode",
   "panel.modeSwitch.editor.tooltip": "View and interact with page data",
   "panel.modeSwitch.builder.tooltip": "Configure page data source, fields, and layout",
   "panel.modeSwitch.workflow.tooltip": "Build and run workflows for this page",
-
   "shortcuts.modal.title": "Keyboard Shortcuts",
   "shortcuts.modal.ariaLabel": "Keyboard shortcuts reference",
-
   "shortcuts.group.general": "GENERAL",
   "shortcuts.group.sidebar": "SIDEBAR",
   "shortcuts.group.table": "TABLE",
   "shortcuts.group.drawer": "DRAWER",
-
   "shortcuts.general.commandPalette": "Open command palette",
   "shortcuts.general.toggleSidebar": "Toggle sidebar",
   "shortcuts.general.saveView": "Save current view",
   "shortcuts.general.showShortcuts": "Show keyboard shortcuts",
   "shortcuts.general.closeModal": "Close modal / drawer / menu",
-
   "shortcuts.table.nextRow": "Move focus to next row",
   "shortcuts.table.prevRow": "Move focus to previous row",
   "shortcuts.table.openRow": "Open focused row",
   "shortcuts.table.toggleSelection": "Toggle row selection",
   "shortcuts.table.prevPage": "Previous page",
   "shortcuts.table.nextPage": "Next page",
-
-  "commandPalette.placeholder": "Search pages, records, and commands\u2026",
+  "commandPalette.placeholder": "Search pages, records, and commands…",
   "commandPalette.searchAriaLabel": "Search command palette",
   "commandPalette.noResults": "No results for '{query}'",
-  "commandPalette.commandsModeHint": "Commands mode \u2014 type to filter commands",
+  "commandPalette.commandsModeHint": "Commands mode — type to filter commands",
   "commandPalette.group.pages": "PAGES",
   "commandPalette.group.recent": "RECENT RECORDS",
   "commandPalette.group.commands": "COMMANDS",
@@ -199,7 +176,6 @@
   "commandPalette.footer.commandsHint": "for commands",
   "commandPalette.searchButton.ariaLabel": "Open command palette",
   "commandPalette.searchButton.tooltip": "Search (Ctrl+K)",
-
   "commandPalette.commands.toggleSidebar.label": "Toggle sidebar",
   "commandPalette.commands.toggleSidebar.description": "Show or hide the left sidebar",
   "commandPalette.commands.newPanel.label": "New panel",
@@ -210,7 +186,6 @@
   "commandPalette.commands.openSettings.description": "Navigate to the settings page",
   "commandPalette.commands.keyboardShortcuts.label": "Keyboard shortcuts",
   "commandPalette.commands.keyboardShortcuts.description": "View all keyboard shortcuts",
-
   "template.skeleton.loading": "Loading template",
   "template.config.loading": "Loading page configuration",
   "template.config.error": "Failed to load page configuration",
@@ -222,12 +197,10 @@
   "template.skeleton.detailTabs": "Detail tabs skeleton",
   "template.skeleton.formFields": "Form fields skeleton",
   "template.skeleton.timelineItems": "Timeline items skeleton",
-
   "chart.ariaLabel": "Chart",
   "chart.loading.ariaLabel": "Loading chart data",
   "chart.error.retry": "Retry",
   "chart.empty.message": "No data matches current filters",
-
   "chart.legend.ariaLabel": "Chart legend",
   "chart.legend.seriesAriaLabel": "Toggle series: {name}",
   "chart.legend.showSeries": "Show series",
@@ -236,14 +209,12 @@
   "chart.legend.position.bottom": "Bottom",
   "chart.legend.position.left": "Left",
   "chart.legend.position.right": "Right",
-
   "chart.type.line": "Line",
   "chart.type.bar": "Bar",
   "chart.type.area": "Area",
   "chart.type.donut": "Donut",
   "chart.type.sparkline": "Sparkline",
   "chart.type.scatter": "Scatter",
-
   "chart.config.panelAriaLabel": "Chart configuration",
   "chart.config.openAriaLabel": "Open chart configuration",
   "chart.config.basic": "Basic",
@@ -256,37 +227,28 @@
   "chart.config.scaleType": "Y-axis scale",
   "chart.config.scale.linear": "Linear",
   "chart.config.scale.log": "Log",
-
   "drawer.ariaLabel": "Record detail",
   "drawer.close": "Close",
   "drawer.loading.ariaLabel": "Loading record",
-
   "drawer.error.title": "Failed to load record",
   "drawer.error.loadFailed": "Could not load the record. Please try again.",
   "drawer.error.retry": "Retry",
-
   "drawer.tab.details": "Details",
   "drawer.tab.items": "Items",
   "drawer.tab.history": "History",
   "drawer.tab.notes": "Notes",
   "drawer.tab.permissions": "Permissions",
-
   "drawer.nav.prev": "Previous record",
   "drawer.nav.next": "Next record",
-
   "drawer.title.editAriaLabel": "Edit record title",
-
   "drawer.actions.menuAriaLabel": "More actions",
   "drawer.actions.openInPanel": "Open in panel",
   "drawer.actions.copyLink": "Copy link",
   "drawer.actions.delete": "Delete",
-
   "drawer.delete.title": "Delete record",
   "drawer.delete.description": "This record will be permanently deleted. This cannot be undone.",
-
   "drawer.details.ariaLabel": "Record fields",
   "drawer.details.empty": "No fields to display.",
-
   "drawer.items.columnTitle": "Title",
   "drawer.items.columnStatus": "Status",
   "drawer.items.columnUpdated": "Updated",
@@ -294,7 +256,6 @@
   "drawer.items.add": "Add item",
   "drawer.items.addAriaLabel": "Add a new item",
   "drawer.items.empty": "No line items for this record.",
-
   "drawer.history.ariaLabel": "Record history",
   "drawer.history.timelineAriaLabel": "Change timeline",
   "drawer.history.empty": "No events recorded yet.",
@@ -309,8 +270,7 @@
   "drawer.history.hideDetail": "Hide detail",
   "drawer.history.from": "From",
   "drawer.history.to": "To",
-
-  "drawer.notes.placeholder": "Add a note\u2026",
+  "drawer.notes.placeholder": "Add a note…",
   "drawer.notes.inputAriaLabel": "Note text",
   "drawer.notes.submitAriaLabel": "Submit note",
   "drawer.notes.submit": "Add note",
@@ -318,7 +278,6 @@
   "drawer.notes.empty": "No notes yet.",
   "drawer.notes.listAriaLabel": "Notes",
   "drawer.notes.unknownAuthor": "Unknown",
-
   "drawer.permissions.tableAriaLabel": "Record permissions",
   "drawer.permissions.subject": "Subject",
   "drawer.permissions.read": "Read",
@@ -330,7 +289,6 @@
   "drawer.permissions.empty": "No permissions configured for this record.",
   "drawer.permissions.loading": "Loading permissions",
   "drawer.permissions.readOnlyNotice": "You can view but not change permissions for this record.",
-
   "drawer.footer.modifiedLabel": "Last modified",
   "drawer.footer.modifiedBy": "by {user} on {date}",
   "drawer.footer.unknownUser": "Unknown",
@@ -339,5 +297,106 @@
   "drawer.footer.cancel": "Cancel",
   "drawer.footer.cancelAriaLabel": "Discard changes",
   "drawer.field.boolean.true": "Yes",
-  "drawer.field.boolean.false": "No"
+  "drawer.field.boolean.false": "No",
+  "explorer.controls.ariaLabel": "Explorer controls",
+  "explorer.controls.label": "Show:",
+  "explorer.controls.dimension.label": "Dimension",
+  "explorer.controls.dimension.placeholder": "X axis field",
+  "explorer.controls.dimension.ariaLabel": "Dimension (X axis) field",
+  "explorer.controls.measure.label": "Measures",
+  "explorer.controls.measure.placeholder": "Select measures",
+  "explorer.controls.measure.ariaLabel": "Measure (Y axis) fields",
+  "explorer.controls.groupBy.label": "Group by",
+  "explorer.controls.groupBy.placeholder": "No grouping",
+  "explorer.controls.groupBy.ariaLabel": "Group by field",
+  "explorer.controls.groupBy.none": "None",
+  "explorer.chartType.ariaLabel": "Chart type",
+  "explorer.chartType.line": "Line chart",
+  "explorer.chartType.bar": "Bar chart",
+  "explorer.chartType.area": "Area chart",
+  "explorer.chartType.scatter": "Scatter chart",
+  "explorer.chartType.donut": "Donut chart",
+  "explorer.chartType.table": "Table only",
+  "explorer.chart.ariaLabel": "Data explorer chart",
+  "explorer.table.title": "Underlying data",
+  "explorer.table.ariaLabel": "Underlying data table",
+  "explorer.export.csv.label": "Export CSV",
+  "explorer.export.csv.ariaLabel": "Export table data as CSV",
+  "explorer.empty.noMeasures": "Select at least one measure to visualize data.",
+  "explorer.error.title": "Failed to load explorer",
+  "explorer.error.ariaLabel": "Explorer error",
+  "tableListing.ariaLabel": "Table listing page",
+  "tableListing.table.ariaLabel": "Data table",
+  "tableListing.noDataSource.message": "No data source configured. Open builder mode to connect a data source.",
+  "tableListing.noDataSource.action": "Open builder",
+  "tableListing.meta.label": "Table listing",
+  "tableListing.meta.description": "Full data table with filters, sorting, and record drawer.",
+  "tableListing.kpiStrip.ariaLabel": "KPI summary",
+  "tableListing.kpiStrip.cardsAriaLabel": "Metric cards",
+  "kpiCard.loading": "Loading metric",
+  "kpiCard.delta.ariaLabel": "Change: {delta}",
+
+  "form.singlePage.ariaLabel": "Form page",
+  "form.singlePage.formAriaLabel": "Data entry form",
+  "form.footer.ariaLabel": "Form actions",
+  "form.submit": "Submit",
+  "form.submit.error": "Failed to submit form. Please try again.",
+  "form.cancel": "Cancel",
+
+  "form.validation.required": "{field} is required",
+
+  "form.dirty.modified": "Modified",
+  "form.dirty.ariaLabel": "Form has unsaved changes",
+  "form.dirty.discardConfirm": "You have unsaved changes. Discard and continue?",
+
+  "form.draft.restored": "Draft restored",
+
+  "form.empty.ariaLabel": "No form fields configured",
+  "form.empty.message": "This form has no fields configured. Open Builder mode to add fields.",
+
+  "form.field.select.placeholder": "Select an option...",
+  "form.field.relation.placeholder": "Search {label}...",
+
+  "form.wizard.ariaLabel": "Multi-step form",
+  "form.wizard.footerAriaLabel": "Wizard navigation",
+  "form.wizard.stepCount": "Step {current} of {total}",
+  "form.wizard.back": "Back",
+  "form.wizard.next": "Next",
+  "form.wizard.cancel": "Cancel",
+
+  "form.searchOrCreate.placeholder": "Search...",
+  "form.searchOrCreate.listboxAriaLabel": "{label} options",
+  "form.searchOrCreate.noResults": "No results found",
+  "form.searchOrCreate.createNew": "Create new {label}",
+
+  "entityHeader.ariaLabel": "Entity header",
+  "entityHeader.skeleton.ariaLabel": "Loading entity",
+  "entityHeader.actions.ariaLabel": "Entity actions",
+
+  "multiTabDetail.ariaLabel": "Entity detail page",
+  "multiTabDetail.tabs.ariaLabel": "Detail tabs",
+  "multiTabDetail.tab.overview": "Overview",
+  "multiTabDetail.tab.activity": "Activity",
+  "multiTabDetail.tab.notes": "Notes",
+  "multiTabDetail.tab.files": "Files",
+  "multiTabDetail.tab.permissions": "Permissions",
+  "multiTabDetail.tab.placeholder": "{tab} tab content",
+  "multiTabDetail.entity.unnamed": "Untitled",
+  "multiTabDetail.error.title": "Failed to load entity",
+  "multiTabDetail.error.retry": "Retry",
+
+  "overviewTab.fields.title": "Details",
+  "overviewTab.fields.ariaLabel": "Entity fields",
+  "overviewTab.fields.empty": "No fields to display.",
+  "overviewTab.fields.loading": "Loading fields",
+  "overviewTab.field.boolean.true": "Yes",
+  "overviewTab.field.boolean.false": "No",
+  "overviewTab.subTables.ariaLabel": "Related records",
+  "overviewTab.activity.title": "Recent activity",
+  "overviewTab.activity.ariaLabel": "Activity feed",
+  "overviewTab.activity.empty": "No activity recorded yet.",
+  "overviewTab.activity.justNow": "Just now",
+  "overviewTab.activity.minutesAgo": "{count}m ago",
+  "overviewTab.activity.hoursAgo": "{count}h ago",
+  "overviewTab.activity.daysAgo": "{count}d ago"
 }
