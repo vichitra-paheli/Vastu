@@ -1,0 +1,47 @@
+/**
+ * EmptyState styles.
+ * All colors and spacing via --v-* CSS custom properties. No hardcoded hex values.
+ * Per Patterns Library §8 and Style Guide §9.3.
+ */
+
+/* ─── Root container — centers in its parent ─── */
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--v-space-3);
+  padding: var(--v-space-8) var(--v-space-4);
+  text-align: center;
+  width: 100%;
+  min-height: 160px;
+}
+
+/* ─── Icon wrapper ─── */
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--v-text-tertiary);
+  flex-shrink: 0;
+}
+
+/* ─── Icon — applied via cloneElement ─── */
+.icon {
+  color: var(--v-text-tertiary);
+}
+
+/* ─── Message ─── */
+.message {
+  margin: 0;
+  font-size: var(--v-text-sm);
+  font-weight: 400;
+  color: var(--v-text-secondary);
+  max-width: 320px;
+  line-height: var(--v-line-height-base);
+}
+
+/* ─── Action button ─── */
+.action {
+  margin-top: var(--v-space-1);
+}

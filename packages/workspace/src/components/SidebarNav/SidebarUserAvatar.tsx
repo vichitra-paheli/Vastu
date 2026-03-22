@@ -44,7 +44,7 @@ export function SidebarUserAvatar({
       size={28}
       radius="xl"
       aria-label={name}
-      style={{ flexShrink: 0, backgroundColor: 'var(--v-accent-primary)', color: 'var(--v-text-on-accent)' }}
+      style={{ flexShrink: 0, backgroundColor: 'var(--v-accent-primary)', color: 'var(--v-text-inverted)' }}
     >
       {initials}
     </Avatar>
