@@ -27,18 +27,40 @@ export interface MiniTableColumn {
   width?: string;
 }
 
+/**
+ * A single data row. Include an `id` field whenever the source data has a
+ * stable record identifier — MiniSummaryTable uses it as the React key to
+ * avoid index-based reconciliation issues.
+ */
+export type MiniTableRow = Record<string, string>;
+
 export interface MiniSummaryTableProps {
   /** Card / section title. */
   title: string;
   /** Column definitions. */
   columns: MiniTableColumn[];
   /** Data rows — each object keyed by column.key. */
-  rows: Array<Record<string, string>>;
+  rows: MiniTableRow[];
   /** When provided, the "View all" button opens this page in a new panel. */
   viewAllPageId?: string;
   /** Label for the "View all" link (overrides the default). */
   viewAllLabel?: string;
   loading?: boolean;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+/**
+ * Return a stable React key for a row.
+ * Prefers the row's own `id` field; falls back to a hash of all cell values
+ * concatenated with the fallback index so duplicate-value rows don't collide.
+ */
+function rowKey(row: MiniTableRow, fallbackIndex: number): string {
+  if (typeof row['id'] === 'string' && row['id'].length > 0) {
+    return row['id'];
+  }
+  // Stable enough for dashboard Top-N lists where rows rarely reorder.
+  return `row-${fallbackIndex}-${Object.values(row).join('|')}`;
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -103,7 +125,7 @@ export function MiniSummaryTable({
           </thead>
           <tbody>
             {rows.map((row, rowIndex) => (
-              <tr key={rowIndex} className={classes.miniTableRow}>
+              <tr key={rowKey(row, rowIndex)} className={classes.miniTableRow}>
                 {columns.map((col) => (
                   <td key={col.key} className={classes.miniTableCell}>
                     <TruncatedText>{row[col.key] ?? ''}</TruncatedText>

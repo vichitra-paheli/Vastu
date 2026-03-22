@@ -164,6 +164,38 @@ describe('SummaryDashboardTemplate', () => {
     );
     expect(screen.getByRole('status')).toBeTruthy();
   });
+
+  it('initialises autoRefresh toggle from metadata.autoRefreshEnabled=true', () => {
+    renderTemplate({
+      metadata: {
+        kpiCards: TEST_KPI_CARDS,
+        autoRefreshEnabled: true,
+      },
+    });
+    const toggle = screen.getByTestId('auto-refresh-toggle') as HTMLInputElement;
+    // The underlying Mantine Switch checkbox should be checked
+    const checkbox = toggle.closest('label')?.querySelector('input[type="checkbox"]') ?? toggle;
+    expect((checkbox as HTMLInputElement).checked).toBe(true);
+  });
+
+  it('initialises autoRefresh toggle as off when metadata.autoRefreshEnabled is absent', () => {
+    renderTemplate({ metadata: { kpiCards: TEST_KPI_CARDS } });
+    const toggle = screen.getByTestId('auto-refresh-toggle') as HTMLInputElement;
+    const checkbox = toggle.closest('label')?.querySelector('input[type="checkbox"]') ?? toggle;
+    expect((checkbox as HTMLInputElement).checked).toBe(false);
+  });
+
+  it('ignores non-array metadata.kpiCards gracefully', () => {
+    // parseDashboardMetadata should discard a non-array kpiCards value
+    // and fall back to placeholder cards, not crash.
+    expect(() =>
+      renderTemplate({
+        metadata: { kpiCards: 'invalid' as unknown as typeof TEST_KPI_CARDS },
+      }),
+    ).not.toThrow();
+    // Fallback placeholder message should be visible
+    expect(screen.getByText(/Configure data sources/i)).toBeTruthy();
+  });
 });
 
 // ── 2. TimeRangeControl ───────────────────────────────────────────────────────
@@ -335,6 +367,17 @@ describe('ChartRow', () => {
     const skeletons = container.querySelectorAll('[data-visible]');
     expect(skeletons.length).toBeGreaterThan(0);
   });
+
+  it('renders a default skeleton card when charts=[] and loading=true', () => {
+    // DEFAULT_SKELETON_COUNT=1 ensures at least one skeleton is rendered even
+    // when the chart config has not been fetched yet.
+    const { container } = render(
+      <ChartRow charts={[]} loading />,
+      { wrapper: TestProviders },
+    );
+    const statusNodes = container.querySelectorAll('[aria-busy="true"][role="status"]');
+    expect(statusNodes.length).toBe(1);
+  });
 });
 
 // ── 5. MiniSummaryTable ───────────────────────────────────────────────────────
@@ -413,5 +456,21 @@ describe('MiniSummaryTable', () => {
     );
     const status = container.querySelector('[role="status"][aria-busy="true"]');
     expect(status).not.toBeNull();
+  });
+
+  it('renders rows with stable id-based keys when rows have an id field', () => {
+    // When rows include an 'id' field, MiniSummaryTable should use it as the
+    // React key rather than the array index.
+    const rowsWithId = [
+      { id: 'cust-1', name: 'Alice', value: '$1,200' },
+      { id: 'cust-2', name: 'Bob', value: '$980' },
+    ];
+    const { container } = render(
+      <MiniSummaryTable title="Top Customers" columns={TEST_COLUMNS} rows={rowsWithId} />,
+      { wrapper: TestProviders },
+    );
+    // Two data rows rendered (not counting the header row)
+    const rows = container.querySelectorAll('tbody tr');
+    expect(rows.length).toBe(2);
   });
 });

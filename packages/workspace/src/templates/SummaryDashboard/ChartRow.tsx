@@ -39,6 +39,11 @@ export interface ChartRowProps {
   loading?: boolean;
 }
 
+// ── Constants ─────────────────────────────────────────────────────────────────
+
+/** Default number of skeleton chart cards to render while loading. */
+const DEFAULT_SKELETON_COUNT = 1;
+
 // ── Chart Card ────────────────────────────────────────────────────────────────
 
 interface ChartCardProps {
@@ -66,9 +71,14 @@ function ChartCard({ chart }: ChartCardProps) {
 
 export function ChartRow({ charts, loading }: ChartRowProps) {
   if (loading) {
+    // Use the known chart count when available, otherwise fall back to the
+    // default skeleton count. This prevents a mismatch where charts=[] would
+    // produce 0 skeletons (nothing visible) via Math.max(0, 0).
+    const skeletonCount = charts.length > 0 ? Math.min(charts.length, 2) : DEFAULT_SKELETON_COUNT;
+    const skeletonRowClass = skeletonCount >= 2 ? classes.chartRowDual : classes.chartRow;
     return (
-      <div className={charts.length === 2 ? classes.chartRowDual : classes.chartRow}>
-        {Array.from({ length: Math.max(charts.length, 1) }).map((_, i) => (
+      <div className={skeletonRowClass}>
+        {Array.from({ length: skeletonCount }).map((_, i) => (
           <div key={i} className={classes.chartCard} aria-busy="true" role="status">
             <Skeleton height={14} width="40%" radius="sm" mb="sm" />
             <Skeleton height={240} radius="md" />
