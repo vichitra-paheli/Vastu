@@ -1,0 +1,25 @@
+/**
+ * ConfirmDialog styles.
+ * All colors via --v-* CSS custom properties.
+ */
+
+.modal {
+  /* Ensure the modal uses the elevated surface token. */
+}
+
+.description {
+  line-height: 1.5;
+}
+
+.cancelButton {
+  color: var(--v-text-secondary) !important;
+}
+
+.cancelButton:hover {
+  background-color: var(--v-bg-tertiary) !important;
+  color: var(--v-text-primary) !important;
+}
+
+.actionButton {
+  font-weight: var(--v-font-medium);
+}

@@ -30,6 +30,7 @@ import {
 import { IconChevronDown, IconDots, IconPlus } from '@tabler/icons-react';
 import { t } from '../../lib/i18n';
 import { TruncatedText } from '../TruncatedText';
+import { ConfirmDialog } from '../ConfirmDialog';
 import type { View } from '@vastu/shared/types';
 import classes from './ViewSelector.module.css';
 
@@ -63,6 +64,10 @@ export function ViewSelector({
   const [search, setSearch] = React.useState('');
   const [renamingId, setRenamingId] = React.useState<string | null>(null);
   const [renameValue, setRenameValue] = React.useState('');
+  /** ID of the view pending deletion — drives the confirmation dialog. */
+  const [deletingId, setDeletingId] = React.useState<string | null>(null);
+
+  const deletingView = views.find((v) => v.id === deletingId) ?? null;
 
   const filtered = React.useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -100,7 +105,23 @@ export function ViewSelector({
 
   const activeView = views.find((v) => v.id === currentViewId);
 
+  function handleDeleteRequest(id: string) {
+    setDeletingId(id);
+  }
+
+  function handleDeleteConfirm() {
+    if (deletingId) {
+      onDelete(deletingId);
+    }
+    setDeletingId(null);
+  }
+
+  function handleDeleteCancel() {
+    setDeletingId(null);
+  }
+
   return (
+    <>
     <Popover
       opened={open}
       onChange={setOpen}
@@ -163,7 +184,7 @@ export function ViewSelector({
                   onRenameValueChange={setRenameValue}
                   onRenameCommit={handleRenameCommit}
                   onRenameCancel={handleRenameCancel}
-                  onDelete={onDelete}
+                  onDelete={handleDeleteRequest}
                 />
               ))}
             </>
@@ -193,7 +214,7 @@ export function ViewSelector({
                   onRenameValueChange={setRenameValue}
                   onRenameCommit={handleRenameCommit}
                   onRenameCancel={handleRenameCancel}
-                  onDelete={onDelete}
+                  onDelete={handleDeleteRequest}
                 />
               ))}
             </>
@@ -224,6 +245,22 @@ export function ViewSelector({
         </Stack>
       </Popover.Dropdown>
     </Popover>
+
+    {/* Delete confirmation dialog — shown when user clicks Delete in the ⋯ menu (AC-7). */}
+    <ConfirmDialog
+      opened={deletingId !== null}
+      title={t('view.selector.deleteTitle')}
+      description={
+        deletingView
+          ? t('view.selector.deleteDescription', { name: deletingView.name })
+          : t('view.selector.deleteDescriptionGeneric')
+      }
+      confirmLabel={t('view.selector.deleteConfirmButton')}
+      variant="delete"
+      onConfirm={handleDeleteConfirm}
+      onCancel={handleDeleteCancel}
+    />
+    </>
   );
 }
 
@@ -311,9 +348,7 @@ function ViewEntry({
             <Menu.Item
               color="red"
               onClick={() => {
-                if (window.confirm(t('view.selector.deleteConfirm'))) {
-                  onDelete(view.id);
-                }
+                onDelete(view.id);
               }}
             >
               {t('view.selector.delete')}

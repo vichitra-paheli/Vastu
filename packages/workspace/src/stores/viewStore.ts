@@ -106,8 +106,13 @@ interface ViewStoreState {
   saveView: (name: string, pageId: string) => Promise<void>;
   /** Load a view from the API by ID. */
   loadView: (id: string) => Promise<void>;
-  /** Reset current state to the last saved state. */
+  /** Reset current state to the last saved state (reverts unsaved changes). */
   resetView: () => void;
+  /**
+   * Start a new unsaved view — resets all state to blank defaults.
+   * Sets currentViewId to null and savedState to null so isModified() returns false.
+   */
+  newView: () => void;
   /** Update filter state. */
   updateFilters: (filters: FilterNode | null) => void;
   /** Update sort state. */
@@ -214,6 +219,14 @@ export const useViewStore = create<ViewStoreState>()((set, get) => ({
     if (savedState) {
       set({ currentState: { ...savedState } });
     }
+  },
+
+  newView: () => {
+    set({
+      currentViewId: null,
+      savedState: null,
+      currentState: { ...DEFAULT_VIEW_STATE },
+    });
   },
 
   updateFilters: (filters) =>
