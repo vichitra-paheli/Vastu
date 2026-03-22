@@ -165,6 +165,27 @@
   "panel.modeSwitch.builder.tooltip": "Configure page data source, fields, and layout",
   "panel.modeSwitch.workflow.tooltip": "Build and run workflows for this page",
 
+  "shortcuts.modal.title": "Keyboard Shortcuts",
+  "shortcuts.modal.ariaLabel": "Keyboard shortcuts reference",
+
+  "shortcuts.group.general": "GENERAL",
+  "shortcuts.group.sidebar": "SIDEBAR",
+  "shortcuts.group.table": "TABLE",
+  "shortcuts.group.drawer": "DRAWER",
+
+  "shortcuts.general.commandPalette": "Open command palette",
+  "shortcuts.general.toggleSidebar": "Toggle sidebar",
+  "shortcuts.general.saveView": "Save current view",
+  "shortcuts.general.showShortcuts": "Show keyboard shortcuts",
+  "shortcuts.general.closeModal": "Close modal / drawer / menu",
+
+  "shortcuts.table.nextRow": "Move focus to next row",
+  "shortcuts.table.prevRow": "Move focus to previous row",
+  "shortcuts.table.openRow": "Open focused row",
+  "shortcuts.table.toggleSelection": "Toggle row selection",
+  "shortcuts.table.prevPage": "Previous page",
+  "shortcuts.table.nextPage": "Next page",
+
   "template.skeleton.loading": "Loading template",
   "template.config.loading": "Loading page configuration",
   "template.config.error": "Failed to load page configuration",

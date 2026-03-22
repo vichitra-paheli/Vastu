@@ -14,6 +14,7 @@
  * Loading state sequence: skeleton → content → error (per patterns library).
  *
  * Implements US-112 (AC-1 through AC-12).
+ * Updated in US-126: table-specific keyboard shortcuts (j/k/o/x/[/]).
  */
 
 import React from 'react';
@@ -21,6 +22,8 @@ import ReactDOM from 'react-dom';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { IconTableOff } from '@tabler/icons-react';
 import { t } from '../../lib/i18n';
+import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
+import type { ShortcutDefinition } from '../../hooks/useKeyboardShortcuts';
 import { ContextMenuCloseContext } from '../ContextMenu/ContextMenu';
 import { ContextMenuItem } from '../ContextMenu/ContextMenuItem';
 import { ContextMenuDivider } from '../ContextMenu/ContextMenuDivider';
@@ -64,6 +67,11 @@ function VastuTableInner<TData extends Record<string, unknown>>({
   ariaLabel,
 }: VastuTableProps<TData>) {
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+  /** Ref on the root table container — used as context for table-scoped shortcuts. */
+  const tableContainerRef = React.useRef<HTMLDivElement>(null);
+
+  // ─── Focused row index for keyboard navigation ────────────────────────
+  const [focusedRowIndex, setFocusedRowIndex] = React.useState<number>(-1);
 
   // ─── Cell context menu state ─────────────────────────────────────────
   const [cellMenu, setCellMenu] = React.useState<{
@@ -90,6 +98,98 @@ function VastuTableInner<TData extends Record<string, unknown>>({
     columnOrder,
     columnVisibility,
   });
+
+  // ─── Table keyboard shortcuts ─────────────────────────────────────────
+  // Scoped to tableContainerRef — only fire when the table has focus.
+
+  /**
+   * Opens the currently focused row by simulating a click on it.
+   * Shared between the 'o' and 'Enter' shortcut handlers.
+   */
+  const openFocusedRow = React.useCallback(() => {
+    if (focusedRowIndex >= 0 && focusedRowIndex < allRows.length) {
+      const row = allRows[focusedRowIndex];
+      if (row) {
+        const rowEl = scrollContainerRef.current?.querySelector<HTMLElement>(
+          `[data-row-id="${row.id}"]`,
+        );
+        rowEl?.click();
+      }
+    }
+  }, [focusedRowIndex, allRows]);
+
+  const tableShortcuts = React.useMemo<ShortcutDefinition[]>(
+    () => [
+      {
+        key: 'j',
+        group: 'Table',
+        description: t('shortcuts.table.nextRow'),
+        contextRef: tableContainerRef,
+        handler: () => {
+          setFocusedRowIndex((prev) => {
+            const next = prev + 1;
+            return next < allRows.length ? next : prev;
+          });
+        },
+      },
+      {
+        key: 'k',
+        group: 'Table',
+        description: t('shortcuts.table.prevRow'),
+        contextRef: tableContainerRef,
+        handler: () => {
+          setFocusedRowIndex((prev) => (prev > 0 ? prev - 1 : 0));
+        },
+      },
+      {
+        key: 'o',
+        group: 'Table',
+        description: t('shortcuts.table.openRow'),
+        contextRef: tableContainerRef,
+        handler: openFocusedRow,
+      },
+      {
+        key: 'Enter',
+        group: 'Table',
+        description: t('shortcuts.table.openRow'),
+        contextRef: tableContainerRef,
+        handler: openFocusedRow,
+      },
+      {
+        key: 'x',
+        group: 'Table',
+        description: t('shortcuts.table.toggleSelection'),
+        contextRef: tableContainerRef,
+        handler: () => {
+          if (focusedRowIndex >= 0 && focusedRowIndex < allRows.length) {
+            allRows[focusedRowIndex]?.toggleSelected();
+          }
+        },
+      },
+      {
+        key: '[',
+        group: 'Table',
+        description: t('shortcuts.table.prevPage'),
+        contextRef: tableContainerRef,
+        handler: () => {
+          if (table.getCanPreviousPage()) table.previousPage();
+        },
+      },
+      {
+        key: ']',
+        group: 'Table',
+        description: t('shortcuts.table.nextPage'),
+        contextRef: tableContainerRef,
+        handler: () => {
+          if (table.getCanNextPage()) table.nextPage();
+        },
+      },
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [allRows, focusedRowIndex, openFocusedRow, table],
+  );
+
+  useKeyboardShortcuts(tableShortcuts);
 
   // ─── Column reorder handler ──────────────────────────────────────────
   function handleColumnReorder(dragColumnId: string, overColumnId: string) {
@@ -262,8 +362,12 @@ function VastuTableInner<TData extends Record<string, unknown>>({
   // ─── Render ──────────────────────────────────────────────────────────
   return (
     <div
+      ref={tableContainerRef}
       className={`${classes.root}${className ? ` ${className}` : ''}`}
       style={height !== undefined ? { height } : undefined}
+      // tabIndex allows the container to receive focus for context-scoped shortcuts.
+      tabIndex={-1}
+      data-testid="vastu-table-container"
     >
       {/* Table header (sticky) */}
       <VastuTableHeader

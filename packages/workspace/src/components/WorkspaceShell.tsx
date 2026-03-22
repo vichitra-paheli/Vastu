@@ -11,6 +11,7 @@
  *
  * Built-in panels are registered at import time via panels/index.ts.
  * Updated in US-109: renders SidebarNav with user + ability props.
+ * Updated in US-126: registers global keyboard shortcuts via useKeyboardShortcuts.
  * All colors via --v-* CSS custom properties. No hardcoded values.
  * Updated in US-138: ConfirmDialogProvider wired in for imperative confirm() API.
  */
@@ -24,11 +25,15 @@ import type { AppAbility } from '@vastu/shared/permissions';
 import { AbilityProvider, createNoOpAbility } from '../providers/AbilityContext';
 import { useSidebarStore } from '../stores/sidebarStore';
 import { usePanelStore } from '../stores/panelStore';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
+import type { ShortcutDefinition } from '../hooks/useKeyboardShortcuts';
+import { ShortcutsModal } from './ShortcutsModal/ShortcutsModal';
 import { DockviewHost } from './DockviewHost/DockviewHost';
 import { SidebarNav } from './SidebarNav';
 import { TrayBar } from './TrayBar';
 import { ViewToolbar } from './ViewToolbar';
 import { ConfirmDialogProvider } from './ConfirmDialog/ConfirmDialogProvider';
+import { t } from '../lib/i18n';
 import classes from './WorkspaceShell.module.css';
 
 const SIDEBAR_COLLAPSED_WIDTH = 48;
@@ -77,7 +82,14 @@ const DEFAULT_TRANSLATIONS = {
   noResults: 'No pages found',
 };
 
-export function WorkspaceShell({
+/**
+ * Inner shell component with keyboard shortcut registration.
+ *
+ * This inner component is extracted so that store hooks (useSidebarStore,
+ * usePanelStore) always run inside the AbilityProvider tree that wraps the
+ * outer WorkspaceShell.
+ */
+function WorkspaceShellInner({
   children,
   user,
   ability,
@@ -85,6 +97,7 @@ export function WorkspaceShell({
   currentUserId,
 }: WorkspaceShellProps) {
   const collapsed = useSidebarStore((state) => state.collapsed);
+  const toggleSidebar = useSidebarStore((state) => state.toggle);
   // Derive the active page ID from the Dockview active panel.
   // Falls back to the explicitly-provided prop for SSR / static usage.
   const activePanelId = usePanelStore((state) => state.activePanelId);
@@ -99,42 +112,106 @@ export function WorkspaceShell({
 
   const resolvedAbility: AppAbility = ability ?? createNoOpAbility();
 
+  // ─── Shortcuts modal state ─────────────────────────────────────────────
+  const [shortcutsOpen, setShortcutsOpen] = React.useState(false);
+
+  // ─── Global shortcut definitions ──────────────────────────────────────
+  // Wrapped in useMemo so the array reference is stable across re-renders,
+  // preventing the window listener from being torn down and recreated.
+  const globalShortcuts = React.useMemo<ShortcutDefinition[]>(
+    () => [
+      {
+        key: 'k',
+        modifiers: ['Meta'],
+        group: 'General',
+        description: t('shortcuts.general.commandPalette'),
+        // US-125 (command palette) is not yet wired — no-op placeholder.
+        handler: () => {},
+      },
+      {
+        key: 'b',
+        modifiers: ['Meta'],
+        group: 'Sidebar',
+        description: t('shortcuts.general.toggleSidebar'),
+        handler: toggleSidebar,
+      },
+      {
+        key: 's',
+        modifiers: ['Meta'],
+        group: 'General',
+        description: t('shortcuts.general.saveView'),
+        // View save shortcut — no-op until view-save API is wired.
+        handler: () => {},
+      },
+      {
+        key: '?',
+        group: 'General',
+        description: t('shortcuts.general.showShortcuts'),
+        handler: () => setShortcutsOpen(true),
+      },
+      {
+        key: 'Escape',
+        group: 'General',
+        description: t('shortcuts.general.closeModal'),
+        handler: () => setShortcutsOpen(false),
+      },
+    ],
+    [toggleSidebar],
+  );
+
+  const { shortcuts } = useKeyboardShortcuts(globalShortcuts);
+
+  return (
+    <div
+      className={classes.workspace}
+      style={{ '--sidebar-width': `${sidebarWidth}px` } as React.CSSProperties}
+    >
+      <aside
+        className={classes.sidebar}
+        aria-label="Workspace sidebar"
+        style={{ width: sidebarWidth }}
+        data-collapsed={collapsed}
+      >
+        <SidebarNav
+          ability={resolvedAbility}
+          user={resolvedUser}
+          t={DEFAULT_TRANSLATIONS}
+        />
+      </aside>
+
+      <main className={classes.main} id="workspace-main">
+        {/* ViewToolbar sits between the sidebar and the Dockview panel area.
+            Always rendered; shows "Default view" when no page is active.
+            WorkspaceShell is the single source of truth for activePanelId:
+            it resolves panelStore.activePanelId with the prop fallback here,
+            then passes the resolved value down. ViewToolbar does not do its
+            own panelStore lookup. */}
+        <ViewToolbar pageId={resolvedActivePageId} currentUserId={currentUserId} />
+        <DockviewHost />
+        {children}
+      </main>
+
+      <div className={classes.tray} role="region" aria-label="Workspace tray">
+        <TrayBar />
+      </div>
+
+      {/* Keyboard shortcut reference overlay — triggered by "?" shortcut. */}
+      <ShortcutsModal
+        opened={shortcutsOpen}
+        onClose={() => setShortcutsOpen(false)}
+        shortcuts={shortcuts}
+      />
+    </div>
+  );
+}
+
+export function WorkspaceShell(props: WorkspaceShellProps) {
+  const resolvedAbility: AppAbility = props.ability ?? createNoOpAbility();
+
   return (
     <AbilityProvider ability={resolvedAbility}>
       <ConfirmDialogProvider>
-        <div
-          className={classes.workspace}
-          style={{ '--sidebar-width': `${sidebarWidth}px` } as React.CSSProperties}
-        >
-          <aside
-            className={classes.sidebar}
-            aria-label="Workspace sidebar"
-            style={{ width: sidebarWidth }}
-            data-collapsed={collapsed}
-          >
-            <SidebarNav
-              ability={resolvedAbility}
-              user={resolvedUser}
-              t={DEFAULT_TRANSLATIONS}
-            />
-          </aside>
-
-          <main className={classes.main} id="workspace-main">
-            {/* ViewToolbar sits between the sidebar and the Dockview panel area.
-                Always rendered; shows "Default view" when no page is active.
-                WorkspaceShell is the single source of truth for activePanelId:
-                it resolves panelStore.activePanelId with the prop fallback here,
-                then passes the resolved value down. ViewToolbar does not do its
-                own panelStore lookup. */}
-            <ViewToolbar pageId={resolvedActivePageId} currentUserId={currentUserId} />
-            <DockviewHost />
-            {children}
-          </main>
-
-          <div className={classes.tray} role="region" aria-label="Workspace tray">
-            <TrayBar />
-          </div>
-        </div>
+        <WorkspaceShellInner {...props} />
       </ConfirmDialogProvider>
     </AbilityProvider>
   );

@@ -1,7 +1,6 @@
 // Workspace package — Phase 1A / Phase 1B
 // Activated in US-106: Workspace package activation and layout
 // Extended in US-107: Dockview panel host
-// Template infrastructure added in VASTU-1B-INFRA
 
 // Providers
 export { WorkspaceProviders } from './providers/WorkspaceProviders';
@@ -42,6 +41,19 @@ export { useViewFilterStore, useViewFilters, useViewMode } from './stores/viewFi
 
 // Hooks
 export { usePanelPersistence, PANEL_LAYOUT_STORAGE_KEY } from './hooks/usePanelPersistence';
+export { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+export type {
+  ShortcutDefinition,
+  ShortcutDisplayInfo,
+  ShortcutModifier,
+  ShortcutGroup,
+  RegisteredShortcut,
+  UseKeyboardShortcutsReturn,
+} from './hooks/useKeyboardShortcuts';
+
+// ShortcutsModal
+export { ShortcutsModal } from './components/ShortcutsModal/ShortcutsModal';
+export type { ShortcutsModalProps } from './components/ShortcutsModal/ShortcutsModal';
 
 // Types
 export type {
@@ -89,32 +101,6 @@ export type {
   CellContextData,
   DragColumnState,
 } from './components/VastuTable';
-
-// Template infrastructure (VASTU-1B-INFRA)
-export type {
-  TemplateConfig,
-  TemplateType,
-  TemplateProps,
-  DataSourceConfig,
-  FieldConfig,
-  SectionConfig,
-  PermissionConfig,
-} from './templates/types';
-
-export {
-  registerTemplate,
-  getTemplate,
-  getRegisteredTemplates,
-  unregisterTemplate,
-  clearTemplateRegistry,
-} from './templates/registry';
-export type { TemplateMeta, TemplateRegistryEntry } from './templates/registry';
-
-export { useTemplateConfig } from './templates/useTemplateConfig';
-export type { UseTemplateConfigResult } from './templates/useTemplateConfig';
-
-export { TemplateSkeleton } from './templates/TemplateSkeleton';
-export type { TemplateSkeletonProps } from './templates/TemplateSkeleton';
 
 // FilterSystem
 export {
