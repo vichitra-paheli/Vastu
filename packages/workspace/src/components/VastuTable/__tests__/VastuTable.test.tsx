@@ -132,12 +132,17 @@ describe('VastuTable — AC-1: renders rows and columns', () => {
 describe('VastuTable — AC-10: empty state', () => {
   it('shows empty state when data is empty', () => {
     renderTable({ data: [] });
-    expect(screen.getByText('No rows to display')).toBeTruthy();
+    // EmptyState renders a single combined message
+    expect(
+      screen.getByText('No rows to display. Try adjusting your filters or check back later.'),
+    ).toBeTruthy();
   });
 
-  it('shows empty state description', () => {
+  it('shows empty state with role="status"', () => {
     renderTable({ data: [] });
-    expect(screen.getByText('Try adjusting your filters or check back later.')).toBeTruthy();
+    // EmptyState renders with role="status" per accessibility requirements
+    const statuses = screen.getAllByRole('status');
+    expect(statuses.length).toBeGreaterThanOrEqual(1);
   });
 
   it('shows footer with 0 of 0 rows when data is empty', () => {
@@ -425,7 +430,10 @@ describe('VastuTable — AC-12: filter integration', () => {
     };
 
     renderTable({ filterRoot });
-    expect(screen.getByText('No rows to display')).toBeTruthy();
+    // EmptyState renders a single combined message
+    expect(
+      screen.getByText('No rows to display. Try adjusting your filters or check back later.'),
+    ).toBeTruthy();
   });
 
   it('updates footer count when filter reduces rows', () => {

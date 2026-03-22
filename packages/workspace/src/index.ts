@@ -11,6 +11,7 @@ export { DockviewHost } from './components/DockviewHost/DockviewHost';
 export { PanelTab } from './components/DockviewHost/PanelTab';
 export { DropIndicator } from './components/DockviewHost/DropIndicator';
 export { TruncatedText } from './components/TruncatedText';
+export { EmptyState } from './components/EmptyState';
 export { SidebarNav } from './components/SidebarNav';
 export { TrayBar, TrayItem as TrayItemChip } from './components/TrayBar';
 export type { TrayItemProps } from './components/TrayBar';

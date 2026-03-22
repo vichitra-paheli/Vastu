@@ -130,6 +130,7 @@
   "table.error.title": "Failed to load data",
   "table.empty.title": "No rows to display",
   "table.empty.description": "Try adjusting your filters or check back later.",
+  "table.empty.message": "No rows to display. Try adjusting your filters or check back later.",
   "table.footer.rowCount": "{visible} of {total} rows",
   "table.footer.selectedCount": "{count} selected",
   "table.header.selectAll": "Select all rows",
@@ -143,5 +144,7 @@
   "tray.bar.empty": "No minimized panels",
   "tray.item.ariaLabel": "Restore panel: {title}",
   "tray.item.close": "Close",
-  "tray.item.contextMenuAriaLabel": "Panel tray options"
+  "tray.item.contextMenuAriaLabel": "Panel tray options",
+
+  "emptyState.ariaLabel": "Empty state"
 }
