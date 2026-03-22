@@ -342,5 +342,36 @@
   "tableListing.kpiStrip.ariaLabel": "KPI summary",
   "tableListing.kpiStrip.cardsAriaLabel": "Metric cards",
   "kpiCard.loading": "Loading metric",
-  "kpiCard.delta.ariaLabel": "Change: {delta}"
+  "kpiCard.delta.ariaLabel": "Change: {delta}",
+
+  "multiTabDetail.ariaLabel": "Entity detail",
+  "multiTabDetail.tabs.ariaLabel": "Entity detail tabs",
+  "multiTabDetail.tab.overview": "Overview",
+  "multiTabDetail.tab.activity": "Activity",
+  "multiTabDetail.tab.notes": "Notes",
+  "multiTabDetail.tab.files": "Files",
+  "multiTabDetail.tab.permissions": "Permissions",
+  "multiTabDetail.tab.placeholder": "{tab} tab content coming soon",
+  "multiTabDetail.entity.unnamed": "Unnamed entity",
+  "multiTabDetail.error.title": "Failed to load entity",
+  "multiTabDetail.error.retry": "Retry",
+
+  "entityHeader.ariaLabel": "Entity header",
+  "entityHeader.skeleton.ariaLabel": "Loading entity",
+  "entityHeader.actions.ariaLabel": "Entity actions",
+
+  "overviewTab.fields.title": "Details",
+  "overviewTab.fields.ariaLabel": "Entity fields",
+  "overviewTab.fields.loading": "Loading fields",
+  "overviewTab.fields.empty": "No fields to display",
+  "overviewTab.subTables.ariaLabel": "Related records",
+  "overviewTab.activity.title": "Recent Activity",
+  "overviewTab.activity.ariaLabel": "Activity feed",
+  "overviewTab.activity.empty": "No activity recorded yet.",
+  "overviewTab.activity.justNow": "Just now",
+  "overviewTab.activity.minutesAgo": "{count}m ago",
+  "overviewTab.activity.hoursAgo": "{count}h ago",
+  "overviewTab.activity.daysAgo": "{count}d ago",
+  "overviewTab.field.boolean.true": "Yes",
+  "overviewTab.field.boolean.false": "No"
 }
