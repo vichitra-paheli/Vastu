@@ -111,6 +111,46 @@ describe('viewStore', () => {
       useViewStore.getState().resetView();
       expect(useViewStore.getState().currentState).toEqual(before);
     });
+
+    it('makes isModified return false after resetting a modified view', () => {
+      useViewStore.setState({
+        currentViewId: 'view-1',
+        savedState: { ...mockViewState },
+        currentState: { ...mockViewState, sort: [] },
+      });
+      expect(useViewStore.getState().isModified()).toBe(true);
+      useViewStore.getState().resetView();
+      expect(useViewStore.getState().isModified()).toBe(false);
+    });
+  });
+
+  describe('newView', () => {
+    it('resets to blank defaults', () => {
+      useViewStore.setState({
+        currentViewId: 'view-1',
+        savedState: { ...mockViewState },
+        currentState: { ...mockViewState },
+      });
+      useViewStore.getState().newView();
+      const state = useViewStore.getState();
+      expect(state.currentViewId).toBeNull();
+      expect(state.savedState).toBeNull();
+      expect(state.currentState.filters).toBeNull();
+      expect(state.currentState.sort).toEqual([]);
+      expect(state.currentState.columns).toEqual([]);
+      expect(state.currentState.pagination).toEqual({ page: 1, pageSize: 25 });
+    });
+
+    it('makes isModified return false after calling newView', () => {
+      useViewStore.setState({
+        currentViewId: 'view-1',
+        savedState: { ...mockViewState },
+        currentState: { ...mockViewState, filters: null },
+      });
+      expect(useViewStore.getState().isModified()).toBe(true);
+      useViewStore.getState().newView();
+      expect(useViewStore.getState().isModified()).toBe(false);
+    });
   });
 
   describe('setViewState', () => {
@@ -143,6 +183,22 @@ describe('viewStore', () => {
       expect(mockFetch).toHaveBeenCalledWith('/api/workspace/views', expect.objectContaining({ method: 'POST' }));
       expect(useViewStore.getState().currentViewId).toBe('new-view-id');
       expect(useViewStore.getState().savedState).toEqual(mockViewState);
+    });
+
+    it('sends pageId in the request body (AC-3)', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ id: 'new-view-id' }),
+      });
+      global.fetch = mockFetch;
+
+      useViewStore.setState({ currentState: mockViewState, currentViewId: null });
+      await useViewStore.getState().saveView('My View', 'page-1');
+
+      const callBody = JSON.parse((mockFetch.mock.calls[0][1] as RequestInit).body as string) as Record<string, unknown>;
+      expect(callBody.pageId).toBe('page-1');
+      expect(callBody.name).toBe('My View');
+      expect(callBody.stateJson).toEqual(mockViewState);
     });
 
     it('updates existing view when currentViewId is set', async () => {
