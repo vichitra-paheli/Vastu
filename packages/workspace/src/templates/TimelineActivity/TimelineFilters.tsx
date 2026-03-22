@@ -60,7 +60,7 @@ export function TimelineFilters({ filters, onFiltersChange }: TimelineFiltersPro
   function handleTypeToggle(type: TimelineEventType) {
     const isActive = filters.activeTypes.includes(type);
     const updated = isActive
-      ? filters.activeTypes.filter((t) => t !== type)
+      ? filters.activeTypes.filter((activeType) => activeType !== type)
       : [...filters.activeTypes, type];
     onFiltersChange({ ...filters, activeTypes: updated });
   }
@@ -124,20 +124,20 @@ export function TimelineFilters({ filters, onFiltersChange }: TimelineFiltersPro
       <div className={classes.filterDateRange} aria-label={t('timeline.filters.dateRangeAriaLabel')}>
         <input
           type="date"
+          className={classes.filterDateInput}
           value={filters.dateFrom}
           onChange={handleDateFromChange}
           aria-label={t('timeline.filters.dateFrom')}
           title={t('timeline.filters.dateFrom')}
-          style={{ fontSize: 'var(--v-text-xs)', color: 'var(--v-text-primary)', background: 'transparent', border: '1px solid var(--v-border-subtle)', borderRadius: 'var(--v-radius-sm)', padding: '2px 6px' }}
         />
-        <span aria-hidden="true" style={{ color: 'var(--v-text-tertiary)', fontSize: 'var(--v-text-xs)' }}>–</span>
+        <span aria-hidden="true" className={classes.filterDateSeparator}>–</span>
         <input
           type="date"
+          className={classes.filterDateInput}
           value={filters.dateTo}
           onChange={handleDateToChange}
           aria-label={t('timeline.filters.dateTo')}
           title={t('timeline.filters.dateTo')}
-          style={{ fontSize: 'var(--v-text-xs)', color: 'var(--v-text-primary)', background: 'transparent', border: '1px solid var(--v-border-subtle)', borderRadius: 'var(--v-radius-sm)', padding: '2px 6px' }}
         />
       </div>
 

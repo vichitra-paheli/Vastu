@@ -110,9 +110,9 @@ function formatTimestamp(isoTimestamp: string): string {
     date.getDate() === now.getDate();
 
   if (isToday) {
-    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
   }
-  return date.toLocaleString('en-US', {
+  return date.toLocaleString(undefined, {
     month: 'short',
     day: 'numeric',
     hour: '2-digit',

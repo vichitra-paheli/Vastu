@@ -192,19 +192,21 @@ export type {
   RecentRecord,
 } from './hooks/useCommandPaletteActions';
 
-// DataExplorer template
-export {
-  DataExplorerTemplate,
-  DataExplorerPanel,
-  ExplorerControls,
-  ChartTypeToggle,
-} from './templates/DataExplorer';
+// TimelineActivity template
+export { TimelineActivityTemplate } from './templates/TimelineActivity/TimelineActivityTemplate';
+export { TimelineEvent } from './templates/TimelineActivity/TimelineEvent';
 export type {
-  ChartTypeToggleProps,
-  ExplorerControlsProps,
-  ExplorerChartMode,
-  DimensionOption,
-  MeasureOption,
-  DataExplorerMetadata,
-  ExplorerDataRow,
-} from './templates/DataExplorer';
+  TimelineEventData,
+  TimelineEventType,
+  TimelineEventProps,
+} from './templates/TimelineActivity/TimelineEvent';
+export { TimelineFilters, createDefaultFilterState } from './templates/TimelineActivity/TimelineFilters';
+export type {
+  TimelineFilterState,
+  TimelineFiltersProps,
+} from './templates/TimelineActivity/TimelineFilters';
+export { DateGroupHeader, formatDateGroupLabel, toIsoDateString } from './templates/TimelineActivity/DateGroupHeader';
+export type { DateGroupHeaderProps } from './templates/TimelineActivity/DateGroupHeader';
+
+// TimelineActivity panel
+export { TimelineActivityPanelWrapper, TIMELINE_ACTIVITY_PANEL_TYPE_ID } from './panels/index';

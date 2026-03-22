@@ -10,10 +10,10 @@
 
 import { registerPanel } from './registry';
 import { WelcomePanel, WELCOME_PANEL_TYPE_ID } from './WelcomePanel';
-import { DataExplorerPanelWrapper } from './DataExplorerPanelWrapper';
+import { TimelineActivityPanelWrapper } from './TimelineActivityPanelWrapper';
 
-/** Panel type ID for the data explorer template. */
-export const DATA_EXPLORER_PANEL_TYPE_ID = 'data-explorer';
+/** Panel type ID for the timeline activity template. */
+export const TIMELINE_ACTIVITY_PANEL_TYPE_ID = 'timeline-activity';
 
 // Register the built-in WelcomePanel
 registerPanel({
@@ -22,15 +22,15 @@ registerPanel({
   component: WelcomePanel,
 });
 
-// Register the DataExplorer panel
+// Register the TimelineActivity panel
 registerPanel({
-  id: DATA_EXPLORER_PANEL_TYPE_ID,
-  title: 'Data Explorer',
-  iconName: 'IconChartBar',
-  component: DataExplorerPanelWrapper,
+  id: TIMELINE_ACTIVITY_PANEL_TYPE_ID,
+  title: 'Timeline Activity',
+  iconName: 'IconHistory',
+  component: TimelineActivityPanelWrapper,
 });
 
 // Re-export for convenience
 export { registerPanel, getPanel, getAllPanels, unregisterPanel, clearRegistry } from './registry';
 export { WelcomePanel, WELCOME_PANEL_TYPE_ID } from './WelcomePanel';
-export { DataExplorerPanelWrapper } from './DataExplorerPanelWrapper';
+export { TimelineActivityPanelWrapper } from './TimelineActivityPanelWrapper';

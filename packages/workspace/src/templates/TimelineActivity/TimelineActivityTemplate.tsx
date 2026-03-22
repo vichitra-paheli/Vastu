@@ -12,6 +12,7 @@
  * - Infinite scroll / "Load more" pagination (50 events per page)
  * - Filter bar: text search, type pills, date range
  * - Loading → skeleton, empty → EmptyState, error → error message
+ * - Clicking a related record opens the RecordDrawer via drawerStore
  *
  * All colors via --v-* CSS custom properties.
  * All strings via t('key').
@@ -24,7 +25,9 @@ import { IconHistory } from '@tabler/icons-react';
 import { t } from '../../lib/i18n';
 import { TemplateSkeleton } from '../TemplateSkeleton';
 import { EmptyState } from '../../components/EmptyState';
+import { useDrawerStore } from '../../stores/drawerStore';
 import type { TemplateProps } from '../types';
+import { registerTemplate } from '../registry';
 import { DateGroupHeader, formatDateGroupLabel, toIsoDateString } from './DateGroupHeader';
 import { TimelineEvent, type TimelineEventData } from './TimelineEvent';
 import {
@@ -53,7 +56,6 @@ interface TimelineState {
 }
 
 type TimelineAction =
-  | { type: 'RESET_FILTERS'; payload: TimelineFilterState }
   | { type: 'SET_FILTERS'; payload: TimelineFilterState }
   | { type: 'LOAD_MORE_START' }
   | { type: 'LOAD_MORE_SUCCESS'; payload: { events: TimelineEventData[]; hasMore: boolean } }
@@ -61,16 +63,9 @@ type TimelineAction =
 
 function timelineReducer(state: TimelineState, action: TimelineAction): TimelineState {
   switch (action.type) {
-    case 'RESET_FILTERS':
-      return {
-        ...state,
-        filters: action.payload,
-        events: [],
-        page: 1,
-        hasMore: true,
-        loadingMore: false,
-      };
     case 'SET_FILTERS':
+      // Resetting events + page when filters change so the next loadMore
+      // fetches fresh data from page 1.
       return {
         ...state,
         filters: action.payload,
@@ -166,27 +161,25 @@ function groupEventsByDate(events: TimelineEventData[]): DateGroup[] {
   }));
 }
 
-// ── Fetch stub ────────────────────────────────────────────────────────────────
+// ── Fetch ─────────────────────────────────────────────────────────────────────
 
 /**
  * Fetch a page of events from the audit_events API.
  *
- * In production this would hit GET /api/workspace/audit-events?page=N&pageSize=50.
- * For now it returns empty to keep the component fully functional without a backend.
+ * Throws on network or HTTP errors so the caller can dispatch LOAD_MORE_ERROR.
  */
 async function fetchEvents(
-  _pageId: string,
-  _page: number,
+  pageId: string,
+  page: number,
   _filters: TimelineFilterState,
 ): Promise<{ events: TimelineEventData[]; hasMore: boolean }> {
-  // Real implementation: fetch from /api/workspace/audit-events
   const response = await fetch(
-    `/api/workspace/audit-events?page=${_page}&pageSize=${PAGE_SIZE}`,
+    `/api/workspace/audit-events?pageId=${encodeURIComponent(pageId)}&page=${page}&pageSize=${PAGE_SIZE}`,
     { method: 'GET', headers: { 'Content-Type': 'application/json' } },
-  ).catch(() => null);
+  );
 
-  if (!response || !response.ok) {
-    return { events: [], hasMore: false };
+  if (!response.ok) {
+    throw new Error(`Failed to fetch timeline events: ${response.status}`);
   }
 
   const data = (await response.json()) as {
@@ -204,19 +197,36 @@ export function TimelineActivityTemplate({ pageId, loading, error }: TemplatePro
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
+  /**
+   * Keep a ref to the current state so the stable loadMore callback can read
+   * up-to-date values without being recreated on every render.
+   * This prevents the IntersectionObserver from reconnecting on every state change.
+   */
+  const stateRef = useRef(state);
+  stateRef.current = state;
+
+  // drawerStore — used to open the record drawer when a related record is clicked.
+  const openDrawer = useDrawerStore((s) => s.openDrawer);
+
   // ── Load more events ────────────────────────────────────────────────────────
 
+  /**
+   * Stable callback — intentionally excludes state values from the dependency
+   * array; it reads them via stateRef instead so the IntersectionObserver does
+   * not reconnect on every state update.
+   */
   const loadMore = useCallback(async () => {
-    if (state.loadingMore || !state.hasMore) return;
+    const { loadingMore, hasMore, page, filters } = stateRef.current;
+    if (loadingMore || !hasMore) return;
 
     dispatch({ type: 'LOAD_MORE_START' });
     try {
-      const result = await fetchEvents(pageId, state.page, state.filters);
+      const result = await fetchEvents(pageId, page, filters);
       dispatch({ type: 'LOAD_MORE_SUCCESS', payload: result });
     } catch {
       dispatch({ type: 'LOAD_MORE_ERROR' });
     }
-  }, [pageId, state.loadingMore, state.hasMore, state.page, state.filters]);
+  }, [pageId]);
 
   // ── Intersection Observer for infinite scroll ────────────────────────────────
 
@@ -243,12 +253,11 @@ export function TimelineActivityTemplate({ pageId, loading, error }: TemplatePro
     };
   }, [loadMore]);
 
-  // ── Trigger initial load ─────────────────────────────────────────────────────
+  // ── Trigger initial load / reload when filters change ────────────────────────
 
   useEffect(() => {
-    if (state.events.length === 0 && state.hasMore && !state.loadingMore) {
-      void loadMore();
-    }
+    // After SET_FILTERS resets events to [], kick off a fresh load.
+    void loadMore();
     // Only run when filters change (which resets events to [])
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.filters]);
@@ -257,6 +266,12 @@ export function TimelineActivityTemplate({ pageId, loading, error }: TemplatePro
 
   function handleFiltersChange(filters: TimelineFilterState) {
     dispatch({ type: 'SET_FILTERS', payload: filters });
+  }
+
+  // ── Record open handler — wires into drawerStore ─────────────────────────────
+
+  function handleOpenRecord(recordId: string) {
+    openDrawer(recordId);
   }
 
   // ── Derived data ─────────────────────────────────────────────────────────────
@@ -318,7 +333,11 @@ export function TimelineActivityTemplate({ pageId, loading, error }: TemplatePro
             <div key={group.date} className={classes.dateGroup}>
               <DateGroupHeader date={group.date} label={group.label} />
               {group.events.map((event) => (
-                <TimelineEvent key={event.id} event={event} />
+                <TimelineEvent
+                  key={event.id}
+                  event={event}
+                  onOpenRecord={handleOpenRecord}
+                />
               ))}
             </div>
           ))}
@@ -352,3 +371,14 @@ export function TimelineActivityTemplate({ pageId, loading, error }: TemplatePro
     </div>
   );
 }
+
+// ── Template registration ────────────────────────────────────────────────────
+
+registerTemplate('timeline-activity', TimelineActivityTemplate, {
+  label: 'Timeline Activity',
+  icon: 'IconHistory',
+  description: 'Vertical activity stream with filtering, grouping by date, and infinite scroll.',
+  defaultConfig: {
+    templateType: 'timeline-activity',
+  },
+});

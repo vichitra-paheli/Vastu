@@ -47,7 +47,7 @@ export function formatDateGroupLabel(isoDate: string, now: Date = new Date()): s
   if (diffDays === 0) return 'Today';
   if (diffDays === 1) return 'Yesterday';
 
-  return target.toLocaleDateString('en-US', {
+  return target.toLocaleDateString(undefined, {
     month: 'long',
     day: 'numeric',
     year: 'numeric',
@@ -56,8 +56,15 @@ export function formatDateGroupLabel(isoDate: string, now: Date = new Date()): s
 
 /**
  * Extract the ISO date string (YYYY-MM-DD) from a Date or ISO timestamp.
+ *
+ * Uses local date parts (year/month/day) to avoid a UTC date shift — e.g. an
+ * event at 23:30 in UTC-5 would appear on the wrong calendar day if we used
+ * toISOString() which always outputs in UTC.
  */
 export function toIsoDateString(date: Date | string): string {
   const d = typeof date === 'string' ? new Date(date) : date;
-  return d.toISOString().slice(0, 10);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
