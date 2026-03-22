@@ -97,6 +97,10 @@
   "view.selector.rename": "Rename",
   "view.selector.delete": "Delete",
   "view.selector.deleteConfirm": "Delete this view? This action cannot be undone.",
+  "view.selector.deleteTitle": "Delete view",
+  "view.selector.deleteDescription": "Delete view '{name}'. This cannot be undone.",
+  "view.selector.deleteDescriptionGeneric": "Delete this view. This cannot be undone.",
+  "view.selector.deleteConfirmButton": "Delete view",
   "view.selector.entryMenuAriaLabel": "View options",
   "view.selector.renameAriaLabel": "Rename view",
 
