@@ -19,6 +19,65 @@ import type {
   ColumnState,
 } from '@vastu/shared/types';
 
+/**
+ * Runtime normalization: maps persisted views that used the old schema
+ * (operator: 'and'|'or', field: string) to the current schema
+ * (connector: 'AND'|'OR', column: string).
+ *
+ * This is Option B from the plan — belt-and-suspenders resilience so that
+ * existing saved views do not crash when loaded. A DB migration (Option A)
+ * can be applied separately for data hygiene.
+ */
+
+/**
+ * Raw shape of a potentially-old-schema filter node from persisted JSON.
+ * We use a plain record to safely access keys that may or may not exist
+ * without TypeScript complaining about properties not on the current type.
+ */
+type RawFilterNode = Record<string, unknown>;
+
+function normalizeFilterNode(node: FilterNode | null): FilterNode | null {
+  if (!node) return null;
+
+  // Cast to raw record for safe old-schema key inspection
+  const raw = node as unknown as RawFilterNode;
+
+  if (raw['type'] === 'condition') {
+    // Old schema used `field` instead of `column`. Normalize on read.
+    if (typeof raw['column'] !== 'string' && typeof raw['field'] === 'string') {
+      // Destructure `field` out so it does not appear on the normalized node.
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { field: _field, ...rest } = raw;
+      return { ...rest, column: raw['field'] as string } as unknown as FilterNode;
+    }
+    return node;
+  }
+
+  if (raw['type'] === 'group') {
+    // Old schema used `operator: 'and'|'or'` instead of `connector: 'AND'|'OR'`.
+    let connector: 'AND' | 'OR';
+    if (typeof raw['connector'] === 'string') {
+      connector = (raw['connector'] as string).toUpperCase() === 'OR' ? 'OR' : 'AND';
+    } else if (raw['operator'] === 'or') {
+      connector = 'OR';
+    } else {
+      connector = 'AND';
+    }
+
+    const children = Array.isArray(raw['children']) ? raw['children'] : [];
+
+    return {
+      type: 'group',
+      connector,
+      children: children
+        .map((child) => normalizeFilterNode(child as FilterNode))
+        .filter((child): child is FilterNode => child !== null),
+    };
+  }
+
+  return node;
+}
+
 /** Default empty view state. */
 const DEFAULT_VIEW_STATE: ViewState = {
   filters: null,
@@ -139,6 +198,8 @@ export const useViewStore = create<ViewStoreState>()((set, get) => ({
     const viewState: ViewState = {
       ...DEFAULT_VIEW_STATE,
       ...data.stateJson,
+      // Normalize filters from any persisted old-schema views (operator→connector, field→column).
+      filters: normalizeFilterNode(data.stateJson?.filters ?? null),
     };
 
     set({

@@ -3,7 +3,7 @@ import { useViewStore } from '../viewStore';
 import type { ViewState } from '@vastu/shared/types';
 
 const mockViewState: ViewState = {
-  filters: { type: 'condition', field: 'name', mode: 'include', dataType: 'text', value: 'test' },
+  filters: { type: 'condition', column: 'name', mode: 'include', dataType: 'text', value: 'test' },
   sort: [{ field: 'name', direction: 'asc' }],
   columns: [{ id: 'name', visible: true, order: 0 }],
   pagination: { page: 1, pageSize: 25 },
@@ -66,7 +66,7 @@ describe('viewStore', () => {
 
   describe('updateFilters', () => {
     it('updates the filter state', () => {
-      const filter = { type: 'condition' as const, field: 'status', mode: 'include' as const, dataType: 'enum' as const, value: 'active' };
+      const filter = { type: 'condition' as const, column: 'status', mode: 'include' as const, dataType: 'enum' as const, value: 'active' };
       useViewStore.getState().updateFilters(filter);
       expect(useViewStore.getState().currentState.filters).toEqual(filter);
     });
@@ -181,6 +181,60 @@ describe('viewStore', () => {
       global.fetch = vi.fn().mockResolvedValue({ ok: false });
 
       await expect(useViewStore.getState().loadView('bad-id')).rejects.toThrow('Failed to load view');
+    });
+
+    it('normalizes old-schema filter with `field` to `column` on load', async () => {
+      // Simulate a persisted view that was saved with the old FilterCondition schema.
+      const oldSchemaState = {
+        ...mockViewState,
+        filters: { type: 'condition', field: 'status', mode: 'include', dataType: 'enum', value: ['active'] },
+      };
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ stateJson: oldSchemaState }),
+      });
+
+      await useViewStore.getState().loadView('view-old');
+
+      const loaded = useViewStore.getState().currentState.filters;
+      expect(loaded).not.toBeNull();
+      if (loaded && loaded.type === 'condition') {
+        expect(loaded.column).toBe('status');
+        // Old `field` key should not appear on the normalized node
+        expect(Object.prototype.hasOwnProperty.call(loaded, 'field')).toBe(false);
+      }
+    });
+
+    it('normalizes old-schema group with `operator` to `connector` on load', async () => {
+      // Simulate a persisted view saved with the old FilterGroup schema.
+      const oldSchemaState = {
+        ...mockViewState,
+        filters: {
+          type: 'group',
+          operator: 'or',
+          children: [
+            { type: 'condition', field: 'status', mode: 'include', dataType: 'enum', value: ['active'] },
+          ],
+        },
+      };
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ stateJson: oldSchemaState }),
+      });
+
+      await useViewStore.getState().loadView('view-old-group');
+
+      const loaded = useViewStore.getState().currentState.filters;
+      expect(loaded).not.toBeNull();
+      if (loaded && loaded.type === 'group') {
+        expect(loaded.connector).toBe('OR');
+        // Children should also be normalized
+        const child = loaded.children[0];
+        if (child && child.type === 'condition') {
+          expect(child.column).toBe('status');
+          expect(Object.prototype.hasOwnProperty.call(child, 'field')).toBe(false);
+        }
+      }
     });
   });
 });
