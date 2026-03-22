@@ -46,7 +46,7 @@ export type {
   UpdateDbConnectionInput,
 } from './db-connection';
 
-export type { Page } from './page';
+export type { Page, PageConfiguration } from './page';
 
 export type {
   View,
