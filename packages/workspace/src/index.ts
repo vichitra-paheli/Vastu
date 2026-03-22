@@ -254,3 +254,22 @@ export { SearchOrCreate } from './templates/FormPage/SearchOrCreate';
 export type { SearchOrCreateProps, SearchOrCreateOption } from './templates/FormPage/SearchOrCreate';
 export { useFormDraft } from './templates/FormPage/useFormDraft';
 export type { UseFormDraftResult } from './templates/FormPage/useFormDraft';
+
+// TimelineActivity template
+export { TimelineActivityTemplate } from './templates/TimelineActivity/TimelineActivityTemplate';
+export { TimelineEvent } from './templates/TimelineActivity/TimelineEvent';
+export type {
+  TimelineEventData,
+  TimelineEventType,
+  TimelineEventProps,
+} from './templates/TimelineActivity/TimelineEvent';
+export { TimelineFilters, createDefaultFilterState } from './templates/TimelineActivity/TimelineFilters';
+export type {
+  TimelineFilterState,
+  TimelineFiltersProps,
+} from './templates/TimelineActivity/TimelineFilters';
+export { DateGroupHeader, formatDateGroupLabel, toIsoDateString } from './templates/TimelineActivity/DateGroupHeader';
+export type { DateGroupHeaderProps } from './templates/TimelineActivity/DateGroupHeader';
+
+// TimelineActivity panel
+export { TimelineActivityPanelWrapper, TIMELINE_ACTIVITY_PANEL_TYPE_ID } from './panels/index';
