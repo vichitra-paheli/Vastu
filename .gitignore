@@ -4,6 +4,7 @@ node_modules/
 
 # Claude Code worktrees
 .claude/worktrees/
+.claude/settings.local.json
 .claire/
 
 # Build outputs
