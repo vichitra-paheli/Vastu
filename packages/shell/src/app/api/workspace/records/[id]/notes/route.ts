@@ -132,8 +132,4 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-/**
- * Expose the store for test seeding only.
- * This export is consumed by unit tests and must not be used in production code.
- */
-export { notesStore };
+

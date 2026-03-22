@@ -31,8 +31,8 @@ vi.mock('@/lib/session', () => ({
 // Imports (after mocks)
 // ---------------------------------------------------------------------------
 
-import { GET, historyStore } from '../route';
-import { recordStore, storeKey } from '../../_stores';
+import { GET } from '../route';
+import { recordStore, historyStore, storeKey } from '../../_stores';
 import { requireSessionWithAbility } from '@/lib/session';
 
 const sessionMock = vi.mocked(requireSessionWithAbility);
