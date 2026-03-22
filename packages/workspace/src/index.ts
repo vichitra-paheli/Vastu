@@ -42,6 +42,7 @@ export { useViewFilterStore, useViewFilters, useViewMode } from './stores/viewFi
 // Hooks
 export { usePanelPersistence, PANEL_LAYOUT_STORAGE_KEY } from './hooks/usePanelPersistence';
 export { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+export { useDrawerToPanel, RECORD_PANEL_TYPE_ID } from './hooks/useDrawerToPanel';
 export type {
   ShortcutDefinition,
   ShortcutDisplayInfo,
@@ -160,6 +161,20 @@ export type {
   VastuChartProps,
   ReferenceLineConfig,
 } from './components/VastuChart';
+
+// RecordDrawer
+export { RecordDrawer } from './components/RecordDrawer';
+export type { RecordDetail, RecordDrawerProps } from './components/RecordDrawer';
+export { DetailsTab, ItemsTab, HistoryTab, NotesTab, PermissionsTab } from './components/RecordDrawer';
+export type { HistoryEvent, NoteEntry, PermissionEntry } from './components/RecordDrawer';
+
+// VastuTabs
+export { VastuTabs } from './components/VastuTabs';
+export type { VastuTabsProps, TabDefinition } from './components/VastuTabs';
+
+// drawerStore
+export { useDrawerStore } from './stores/drawerStore';
+export type { DrawerTab, DrawerNavigationEntry } from './stores/drawerStore';
 
 // CommandPalette
 export { CommandPalette, openCommandPalette } from './components/CommandPalette';

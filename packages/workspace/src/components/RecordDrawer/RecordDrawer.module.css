@@ -1,0 +1,130 @@
+/**
+ * RecordDrawer styles.
+ * Slide-in panel from the right edge of the workspace.
+ * All colors via --v-* CSS custom properties. No hardcoded hex values.
+ */
+
+/* ── Overlay ──────────────────────────────────────────────────────────────── */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--v-z-drawer);
+  background-color: var(--v-bg-overlay);
+  animation: overlayFadeIn var(--v-duration-normal) var(--v-ease-out);
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.overlayClosing {
+  animation: overlayFadeOut var(--v-duration-fast) var(--v-ease-in) forwards;
+}
+
+@keyframes overlayFadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* ── Drawer panel ─────────────────────────────────────────────────────────── */
+
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 480px;
+  z-index: calc(var(--v-z-drawer) + 1);
+  display: flex;
+  flex-direction: column;
+  background-color: var(--v-bg-primary);
+  border-left: 1px solid var(--v-border-default);
+  box-shadow: var(--v-shadow-xl);
+  overflow: hidden;
+
+  /* Slide in from right */
+  animation: drawerSlideIn var(--v-duration-slow) var(--v-ease-out);
+  will-change: transform;
+}
+
+@keyframes drawerSlideIn {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+.drawerClosing {
+  animation: drawerSlideOut var(--v-duration-normal) var(--v-ease-in) forwards;
+}
+
+@keyframes drawerSlideOut {
+  from { transform: translateX(0); }
+  to   { transform: translateX(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .overlayClosing,
+  .drawer,
+  .drawerClosing {
+    animation: none;
+  }
+}
+
+/* ── Inner layout ─────────────────────────────────────────────────────────── */
+
+.header {
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--v-border-default);
+}
+
+.tabsContainer {
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--v-border-default);
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--v-space-6);
+}
+
+.footer {
+  flex-shrink: 0;
+  border-top: 1px solid var(--v-border-default);
+}
+
+/* ── Loading skeleton ─────────────────────────────────────────────────────── */
+
+.skeletonContent {
+  padding: var(--v-space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-space-4);
+}
+
+/* ── Error state ──────────────────────────────────────────────────────────── */
+
+.errorContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--v-space-10) var(--v-space-6);
+  gap: var(--v-space-4);
+  text-align: center;
+}
+
+.errorTitle {
+  font-size: var(--v-text-md);
+  font-weight: var(--v-font-medium);
+  color: var(--v-text-primary);
+}
+
+.errorMessage {
+  font-size: var(--v-text-sm);
+  color: var(--v-text-secondary);
+  line-height: var(--v-leading-normal);
+}

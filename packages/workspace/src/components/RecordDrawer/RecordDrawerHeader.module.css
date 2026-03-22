@@ -1,0 +1,144 @@
+/**
+ * RecordDrawerHeader styles.
+ * All colors via --v-* CSS custom properties.
+ */
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-space-2);
+  padding: var(--v-space-4) var(--v-space-4) var(--v-space-3);
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-2);
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-2);
+  flex: 1;
+  min-width: 0;
+}
+
+.navGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-1);
+  flex-shrink: 0;
+}
+
+.actionsGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-1);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: var(--v-text-md);
+  font-weight: var(--v-font-medium);
+  color: var(--v-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: var(--v-radius-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  font-family: var(--v-font-sans);
+  line-height: var(--v-leading-normal);
+  transition: border-color var(--v-duration-fast) var(--v-ease-default);
+}
+
+.title:hover {
+  border-color: var(--v-border-default);
+}
+
+.titleInput {
+  font-size: var(--v-text-md);
+  font-weight: var(--v-font-medium);
+  color: var(--v-text-primary);
+  flex: 1;
+  min-width: 0;
+  padding: 2px 4px;
+  border-radius: var(--v-radius-sm);
+  border: 1px solid var(--v-border-focus);
+  background: transparent;
+  font-family: var(--v-font-sans);
+  line-height: var(--v-leading-normal);
+  outline: none;
+  box-shadow: var(--v-shadow-focus);
+}
+
+.typeBadge {
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-medium);
+  color: var(--v-text-secondary);
+  background-color: var(--v-bg-tertiary);
+  border-radius: var(--v-radius-full);
+  padding: 2px 8px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  text-transform: capitalize;
+}
+
+.iconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--v-radius-md);
+  border: none;
+  background: none;
+  color: var(--v-text-secondary);
+  cursor: pointer;
+  padding: 0;
+  transition: background-color var(--v-duration-fast) var(--v-ease-default),
+              color var(--v-duration-fast) var(--v-ease-default);
+  font-family: inherit;
+  flex-shrink: 0;
+}
+
+.iconButton:hover {
+  background-color: var(--v-interactive-hover);
+  color: var(--v-text-primary);
+}
+
+.iconButton:focus-visible {
+  outline: 2px solid var(--v-border-focus);
+  outline-offset: 1px;
+}
+
+.iconButton:disabled {
+  color: var(--v-interactive-disabled);
+  cursor: not-allowed;
+}
+
+.iconButton:disabled:hover {
+  background-color: transparent;
+}
+
+.navCounter {
+  font-size: var(--v-text-xs);
+  color: var(--v-text-tertiary);
+  white-space: nowrap;
+  padding: 0 var(--v-space-1);
+  font-family: var(--v-font-sans);
+}
+
+/* Loading skeleton */
+.headerSkeleton {
+  padding: var(--v-space-4) var(--v-space-4) var(--v-space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-space-2);
+}

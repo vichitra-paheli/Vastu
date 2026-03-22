@@ -1,0 +1,106 @@
+/**
+ * PermissionsTab styles.
+ * All colors via --v-* CSS custom properties.
+ */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-space-4);
+}
+
+/* ── Read-only notice ─────────────────────────────────────────────────────── */
+
+.readOnlyBanner {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-2);
+  padding: var(--v-space-2) var(--v-space-3);
+  background-color: var(--v-status-info-light);
+  border: 1px solid var(--v-status-info);
+  border-radius: var(--v-radius-md);
+  font-size: var(--v-text-sm);
+  color: var(--v-status-info);
+  font-family: var(--v-font-sans);
+}
+
+/* ── Table ─────────────────────────────────────────────────────────────────── */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--v-font-sans);
+}
+
+.table th {
+  text-align: left;
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-medium);
+  color: var(--v-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: var(--v-space-1) var(--v-space-2);
+  border-bottom: 1px solid var(--v-border-default);
+}
+
+.subjectCol {
+  width: auto;
+}
+
+.flagCol {
+  width: 64px;
+  text-align: center !important;
+}
+
+.row {
+  border-bottom: 1px solid var(--v-border-subtle);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.subjectCell {
+  padding: var(--v-space-2) var(--v-space-2);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.subjectName {
+  font-size: var(--v-text-sm);
+  font-weight: var(--v-font-medium);
+  color: var(--v-text-primary);
+  display: block;
+}
+
+.subjectType {
+  font-size: var(--v-text-xs);
+  color: var(--v-text-tertiary);
+  display: block;
+}
+
+.flagCell {
+  text-align: center;
+  padding: var(--v-space-2);
+}
+
+/* ── Skeleton ─────────────────────────────────────────────────────────────── */
+
+.loadingWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-space-2);
+}
+
+.skeletonRow {
+  height: 40px;
+  background-color: var(--v-bg-secondary);
+  border-radius: var(--v-radius-md);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}

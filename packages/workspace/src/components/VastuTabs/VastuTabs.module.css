@@ -1,0 +1,76 @@
+/**
+ * VastuTabs styles — underline variant per Style Guide §5.2.
+ * All colors via --v-* CSS custom properties.
+ */
+
+.root {
+  /* No extra wrapper styling needed; Mantine Tabs handles the root. */
+}
+
+.list {
+  border-bottom: 1px solid var(--v-border-default);
+  padding: 0 var(--v-space-4);
+  gap: 0;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+}
+
+.list::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+/* Override Mantine's default active border */
+.list::before {
+  display: none;
+}
+
+.tab {
+  font-size: var(--v-text-sm);
+  font-weight: var(--v-font-regular);
+  font-family: var(--v-font-sans);
+  color: var(--v-text-secondary);
+  padding: var(--v-space-2) var(--v-space-3);
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  margin-bottom: -1px;
+  gap: var(--v-space-1);
+  transition:
+    color var(--v-duration-fast) var(--v-ease-default),
+    border-color var(--v-duration-fast) var(--v-ease-default);
+  white-space: nowrap;
+}
+
+.tab:hover {
+  color: var(--v-text-primary);
+  background-color: var(--v-interactive-hover);
+}
+
+/* Mantine adds data-active on the selected tab */
+.tab[data-active] {
+  color: var(--v-accent-primary);
+  font-weight: var(--v-font-medium);
+  border-bottom-color: var(--v-accent-primary);
+  background-color: transparent;
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--v-border-focus);
+  outline-offset: -2px;
+}
+
+.tabLabel {
+  /* Ensure the label text inherits the tab color transition */
+  color: inherit;
+}
+
+.badge {
+  /* Small badge pill: uses accent color to match active tab palette */
+  background-color: var(--v-accent-primary) !important;
+  font-size: var(--v-text-xs) !important;
+  font-family: var(--v-font-sans) !important;
+  font-weight: var(--v-font-medium) !important;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+}
