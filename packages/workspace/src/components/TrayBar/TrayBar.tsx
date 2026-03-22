@@ -26,6 +26,7 @@ import React from 'react';
 import { t } from '../../lib/i18n';
 import { useTrayStore } from '../../stores/trayStore';
 import { usePanelStore } from '../../stores/panelStore';
+import { openCommandPalette } from '../CommandPalette';
 import { TrayItem } from './TrayItem';
 import classes from './TrayBar.module.css';
 
@@ -59,12 +60,23 @@ export function TrayBar() {
         )}
       </div>
 
-      {/* Right: status indicators (placeholder for future phases) */}
+      {/* Right: search button + status indicators */}
       <div
         className={classes.statusArea}
         aria-label={t('tray.bar.statusAreaAriaLabel')}
         role="status"
       >
+        {/* Search button triggers the command palette (US-125) */}
+        <button
+          type="button"
+          className={classes.searchButton}
+          onClick={openCommandPalette}
+          aria-label={t('commandPalette.searchButton.ariaLabel')}
+          title={t('commandPalette.searchButton.tooltip')}
+          data-testid="tray-search-button"
+        >
+          &#128269;
+        </button>
         <span className={classes.statusDot} aria-hidden="true" />
       </div>
     </div>

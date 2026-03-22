@@ -1,0 +1,236 @@
+/**
+ * CommandPalette — Spotlight overlay styles.
+ *
+ * All colors via --v-* CSS custom properties.
+ * No hardcoded hex values.
+ * Font weights: 400 and 500 only.
+ *
+ * Implements US-125a.
+ */
+
+/* ============================================================
+ * SPOTLIGHT ROOT OVERRIDE
+ * Uses --v-z-spotlight (70) and --v-shadow-md
+ * ============================================================ */
+
+.spotlight {
+  border-radius: var(--v-radius-lg);
+  background-color: var(--v-bg-elevated);
+  border: 1px solid var(--v-border-default);
+  box-shadow: var(--v-shadow-md, 0 4px 24px rgba(0, 0, 0, 0.12));
+  overflow: hidden;
+}
+
+/* ============================================================
+ * SEARCH INPUT AREA
+ * ============================================================ */
+
+.searchInput {
+  font-family: var(--v-font-sans);
+  font-size: var(--v-text-md);
+  font-weight: var(--v-font-regular);
+  color: var(--v-text-primary);
+  background-color: var(--v-bg-elevated);
+  border-bottom: 1px solid var(--v-border-default);
+  padding: var(--v-space-3) var(--v-space-4);
+}
+
+.searchInput::placeholder {
+  color: var(--v-text-tertiary);
+}
+
+/* ============================================================
+ * RESULTS LIST
+ * ============================================================ */
+
+.resultsList {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: var(--v-space-2) 0;
+}
+
+/* ============================================================
+ * GROUP HEADERS
+ * ============================================================ */
+
+.groupLabel {
+  font-family: var(--v-font-sans);
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-medium);
+  color: var(--v-text-tertiary);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: var(--v-space-2) var(--v-space-4);
+  margin-top: var(--v-space-1);
+}
+
+/* ============================================================
+ * RESULT ITEMS
+ * ============================================================ */
+
+.result {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--v-space-2) var(--v-space-4);
+  border-radius: 0;
+  text-align: left;
+  transition: background-color 80ms ease;
+}
+
+.result:hover,
+.result[data-hovered] {
+  background-color: var(--v-interactive-hover);
+}
+
+.result[data-selected],
+.result:focus-visible {
+  background-color: var(--v-accent-primary-light);
+  outline: none;
+}
+
+.resultInner {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-2);
+  min-width: 0;
+}
+
+/* Icon placeholder area */
+.resultIcon {
+  flex-shrink: 0;
+  width: var(--v-icon-sm);
+  height: var(--v-icon-sm);
+  color: var(--v-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--v-icon-sm);
+  line-height: 1;
+}
+
+/* ">" command prefix */
+.resultCommandPrefix {
+  flex-shrink: 0;
+  font-family: var(--v-font-mono);
+  font-size: var(--v-text-sm);
+  font-weight: var(--v-font-medium);
+  color: var(--v-accent-secondary);
+  width: 14px;
+  text-align: center;
+}
+
+/* Main label */
+.resultLabel {
+  font-family: var(--v-font-sans);
+  font-size: var(--v-text-sm);
+  font-weight: var(--v-font-regular);
+  color: var(--v-text-primary);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Command description (secondary line) */
+.resultTextBlock {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.resultDescription {
+  font-family: var(--v-font-sans);
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-regular);
+  color: var(--v-text-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Type badge chip */
+.typeBadge {
+  flex-shrink: 0;
+  font-family: var(--v-font-sans);
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-regular);
+  color: var(--v-text-secondary);
+  background-color: var(--v-bg-tertiary);
+  border-radius: var(--v-radius-sm);
+  padding: 1px var(--v-space-1);
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+/* ============================================================
+ * EMPTY STATE
+ * ============================================================ */
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--v-space-8) var(--v-space-4);
+  font-family: var(--v-font-sans);
+  font-size: var(--v-text-sm);
+  font-weight: var(--v-font-regular);
+  color: var(--v-text-tertiary);
+  text-align: center;
+}
+
+/* ============================================================
+ * FOOTER HINTS
+ * ============================================================ */
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-4);
+  padding: var(--v-space-2) var(--v-space-4);
+  border-top: 1px solid var(--v-border-subtle);
+  background-color: var(--v-bg-secondary);
+}
+
+.footerHint {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-1);
+  font-family: var(--v-font-sans);
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-regular);
+  color: var(--v-text-tertiary);
+}
+
+.footerKey {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--v-font-mono);
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-regular);
+  color: var(--v-text-secondary);
+  background-color: var(--v-bg-tertiary);
+  border: 1px solid var(--v-border-default);
+  border-radius: var(--v-radius-sm);
+  padding: 0 var(--v-space-1);
+  min-width: 20px;
+  height: 18px;
+  line-height: 1;
+}
+
+/* ============================================================
+ * COMMANDS-ONLY MODE HINT
+ * ============================================================ */
+
+.commandsModeHint {
+  font-family: var(--v-font-sans);
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-regular);
+  color: var(--v-accent-secondary);
+  padding: var(--v-space-1) var(--v-space-4);
+  border-bottom: 1px solid var(--v-border-subtle);
+}
