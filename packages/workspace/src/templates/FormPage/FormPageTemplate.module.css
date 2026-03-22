@@ -1,0 +1,184 @@
+/**
+ * FormPageTemplate styles.
+ *
+ * Layout for single-page and multi-step wizard form templates.
+ * All colors via --v-* CSS custom properties.
+ * All spacing via --v-space-* tokens.
+ */
+
+/* ── Outer container ──────────────────────────────────────────────────────── */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--v-bg-primary);
+  overflow: hidden;
+}
+
+/* ── Scrollable content area ─────────────────────────────────────────────── */
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--v-space-6);
+}
+
+/* ── Form max-width constraint ───────────────────────────────────────────── */
+
+.formWrap {
+  max-width: 640px;
+  width: 100%;
+}
+
+/* ── Section heading ─────────────────────────────────────────────────────── */
+
+.sectionLabel {
+  font-size: var(--v-text-lg);
+  font-weight: var(--v-font-medium);
+  color: var(--v-text-primary);
+  line-height: var(--v-leading-tight);
+  margin: 0 0 var(--v-space-4) 0;
+  padding-bottom: var(--v-space-2);
+  border-bottom: 1px solid var(--v-border-subtle);
+}
+
+/* ── Field label with required marker ───────────────────────────────────── */
+
+.fieldLabel {
+  font-size: var(--v-text-sm);
+  font-weight: var(--v-font-medium);
+  color: var(--v-text-primary);
+  margin-bottom: var(--v-space-1);
+}
+
+.required {
+  color: var(--v-status-error);
+  margin-left: 2px;
+}
+
+/* ── Inline field error ──────────────────────────────────────────────────── */
+
+.fieldError {
+  font-size: var(--v-text-xs);
+  color: var(--v-status-error);
+  margin-top: var(--v-space-1);
+}
+
+/* ── Dirty state indicator ───────────────────────────────────────────────── */
+
+.dirtyBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--v-space-1);
+  font-size: var(--v-text-xs);
+  font-weight: var(--v-font-medium);
+  color: var(--v-accent-tertiary);
+}
+
+.dirtyDot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--v-radius-full);
+  background-color: var(--v-accent-tertiary);
+  flex-shrink: 0;
+}
+
+/* ── Sticky footer ───────────────────────────────────────────────────────── */
+
+.footer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--v-space-3);
+  padding: var(--v-space-4) var(--v-space-6);
+  border-top: 1px solid var(--v-border-default);
+  background-color: var(--v-bg-primary);
+}
+
+.footerLeft {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-3);
+}
+
+/* ── Stepper container ───────────────────────────────────────────────────── */
+
+.stepperWrap {
+  margin-bottom: var(--v-space-6);
+}
+
+/* ── Step count label ────────────────────────────────────────────────────── */
+
+.stepCount {
+  font-size: var(--v-text-sm);
+  color: var(--v-text-secondary);
+  font-weight: var(--v-font-regular);
+}
+
+/* ── Error alert ─────────────────────────────────────────────────────────── */
+
+.errorAlert {
+  border: 1px solid var(--v-status-error);
+  background-color: var(--v-status-error-light);
+  border-radius: var(--v-radius-md);
+  padding: var(--v-space-3) var(--v-space-4);
+  font-size: var(--v-text-sm);
+  color: var(--v-status-error);
+}
+
+/* ── SearchOrCreate dropdown ─────────────────────────────────────────────── */
+
+.searchOrCreate {
+  position: relative;
+}
+
+.searchOrCreateDropdown {
+  position: absolute;
+  top: calc(100% + var(--v-space-1));
+  left: 0;
+  right: 0;
+  background-color: var(--v-bg-elevated);
+  border: 1px solid var(--v-border-default);
+  border-radius: var(--v-radius-md);
+  box-shadow: var(--v-shadow-md);
+  z-index: var(--v-z-dropdown);
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.searchOrCreateOption {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-2);
+  padding: var(--v-space-2) var(--v-space-3);
+  font-size: var(--v-text-sm);
+  color: var(--v-text-primary);
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  transition: var(--v-transition-bg);
+}
+
+.searchOrCreateOption:hover,
+.searchOrCreateOption:focus {
+  background-color: var(--v-interactive-hover);
+  outline: none;
+}
+
+.searchOrCreateOption.createNew {
+  color: var(--v-accent-primary);
+  font-weight: var(--v-font-medium);
+  border-top: 1px solid var(--v-border-subtle);
+}
+
+.searchOrCreateEmpty {
+  padding: var(--v-space-3) var(--v-space-4);
+  font-size: var(--v-text-sm);
+  color: var(--v-text-tertiary);
+  text-align: center;
+}
