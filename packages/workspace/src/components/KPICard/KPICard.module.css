@@ -1,0 +1,65 @@
+/**
+ * KPICard styles.
+ * All colors via --v-* CSS custom properties per design system.
+ * Font weights: 400 (regular) and 500 (medium) only.
+ */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  padding: var(--v-space-4);
+  background: var(--v-bg-surface);
+  border: 1px solid var(--v-border-default);
+  border-radius: var(--v-radius-md);
+  min-width: 140px;
+  flex: 1;
+}
+
+.label {
+  font-size: var(--v-text-sm);
+  font-weight: 400;
+  color: var(--v-text-secondary);
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.value {
+  font-size: var(--v-text-2xl);
+  font-weight: 500;
+  color: var(--v-text-primary);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: var(--v-text-xs);
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.deltaPositive {
+  color: var(--v-status-success);
+}
+
+.deltaNegative {
+  color: var(--v-status-error);
+}
+
+.deltaNeutral {
+  color: var(--v-text-tertiary);
+}
+
+.deltaIcon {
+  flex-shrink: 0;
+}
+
+.sparkline {
+  margin-top: var(--v-space-2);
+}

@@ -1,0 +1,68 @@
+/**
+ * TableListingTemplate styles.
+ * All colors via --v-* CSS custom properties.
+ * Font weights 400/500 only.
+ * Implements US-129a.
+ */
+
+/* ─── Root layout ─────────────────────────────────────────────────────────── */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--v-bg-default);
+  overflow: hidden;
+}
+
+/* ─── KPI summary strip ───────────────────────────────────────────────────── */
+
+.kpiStrip {
+  padding: var(--v-space-3) var(--v-space-4);
+  border-bottom: 1px solid var(--v-border-subtle);
+  background: var(--v-bg-default);
+  flex-shrink: 0;
+}
+
+.kpiCard {
+  min-width: 140px;
+  flex: 1 0 140px;
+}
+
+.kpiCardSkeleton {
+  display: flex;
+  flex-direction: column;
+  padding: var(--v-space-4);
+  background: var(--v-bg-surface);
+  border: 1px solid var(--v-border-default);
+  border-radius: var(--v-radius-md);
+  min-width: 140px;
+  flex: 1 0 140px;
+}
+
+/* ─── Filter bar ──────────────────────────────────────────────────────────── */
+
+.filterBar {
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--v-border-subtle);
+}
+
+/* ─── Table wrapper ───────────────────────────────────────────────────────── */
+
+.tableWrapper {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Centered state (empty/error) ───────────────────────────────────────── */
+
+.centeredState {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+}
