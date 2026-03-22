@@ -14,6 +14,7 @@ import { WelcomePanel, WELCOME_PANEL_TYPE_ID } from './WelcomePanel';
 import { DataExplorerPanelWrapper } from './DataExplorerPanelWrapper';
 import { TableListingTemplate } from '../templates/TableListing/TableListingTemplate';
 import { MultiTabDetailTemplate, MULTI_TAB_DETAIL_PANEL_TYPE_ID } from '../templates/MultiTabDetail/MultiTabDetailTemplate';
+import { FormPageTemplate } from '../templates/FormPage/FormPageTemplate';
 import type { PanelProps } from '../types/panel';
 
 /** Panel type ID for the data explorer template. */
@@ -21,6 +22,9 @@ export const DATA_EXPLORER_PANEL_TYPE_ID = 'data-explorer';
 
 /** Panel type ID for the table listing template. */
 export const TABLE_LISTING_PANEL_TYPE_ID = 'table-listing';
+
+/** Panel type ID for the form page template. */
+export const FORM_PAGE_PANEL_TYPE_ID = 'form-page';
 
 // Register the built-in WelcomePanel
 registerPanel({
@@ -39,7 +43,6 @@ registerPanel({
 
 /**
  * Adapter that bridges PanelProps (from Dockview) to TableListingTemplate.
- * Reads pageId from panel params; data and actions are supplied by the template internally.
  */
 function TableListingPanelWrapper({ params }: PanelProps) {
   const pageId = typeof params.pageId === 'string' ? params.pageId : 'unknown';
@@ -62,7 +65,6 @@ registerPanel({
 
 /**
  * Adapter that bridges PanelProps (from Dockview) to MultiTabDetailTemplate.
- * Reads pageId and optional entityId from panel params.
  */
 function MultiTabDetailPanelWrapper({ params }: PanelProps) {
   const pageId = typeof params.pageId === 'string' ? params.pageId : 'unknown';
@@ -77,6 +79,22 @@ registerPanel({
   component: MultiTabDetailPanelWrapper,
 });
 
+/**
+ * Adapter that bridges PanelProps (from Dockview) to FormPageTemplate.
+ */
+function FormPagePanelWrapper({ params }: PanelProps) {
+  const pageId = typeof params.pageId === 'string' ? params.pageId : 'unknown';
+  return React.createElement(FormPageTemplate, { pageId });
+}
+
+// Register the FormPage panel (US-133)
+registerPanel({
+  id: FORM_PAGE_PANEL_TYPE_ID,
+  title: 'Form',
+  iconName: 'IconForms',
+  component: FormPagePanelWrapper,
+});
+
 // Re-export for convenience
 export { registerPanel, getPanel, getAllPanels, unregisterPanel, clearRegistry } from './registry';
 export { WelcomePanel, WELCOME_PANEL_TYPE_ID } from './WelcomePanel';
@@ -86,3 +104,4 @@ export {
   MultiTabDetailTemplate,
   MULTI_TAB_DETAIL_PANEL_TYPE_ID,
 } from '../templates/MultiTabDetail/MultiTabDetailTemplate';
+export { FormPageTemplate, FORM_PAGE_DEFAULT_CONFIG } from '../templates/FormPage/FormPageTemplate';
