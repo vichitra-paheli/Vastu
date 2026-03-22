@@ -42,6 +42,18 @@ export { useViewFilterStore, useViewFilters, useViewMode } from './stores/viewFi
 
 // Hooks
 export { usePanelPersistence, PANEL_LAYOUT_STORAGE_KEY } from './hooks/usePanelPersistence';
+export { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+export type {
+  ShortcutDefinition,
+  ShortcutModifier,
+  ShortcutGroup,
+  RegisteredShortcut,
+  UseKeyboardShortcutsReturn,
+} from './hooks/useKeyboardShortcuts';
+
+// ShortcutsModal
+export { ShortcutsModal } from './components/ShortcutsModal/ShortcutsModal';
+export type { ShortcutsModalProps } from './components/ShortcutsModal/ShortcutsModal';
 
 // Types
 export type {
