@@ -20,19 +20,29 @@ export type FilterValue =
   | boolean
   | null;
 
-/** A single filter condition on one field. */
+/**
+ * A single filter condition on one column.
+ * Aligned to Patterns Library §2.4 spec.
+ * Uses `column` (not `field`) to match FilterSystem component types.
+ */
 export interface FilterCondition {
   type: 'condition';
-  field: string;
+  /** Column identifier — matches FilterDimension.column. */
+  column: string;
   mode: FilterMode;
   dataType: DataType;
   value: FilterValue;
 }
 
-/** A group of filter conditions combined with AND or OR. */
+/**
+ * A group of filter conditions combined with AND or OR.
+ * Aligned to Patterns Library §2.4 spec.
+ * Uses `connector: 'AND' | 'OR'` (not `operator: 'and' | 'or'`).
+ */
 export interface FilterGroup {
   type: 'group';
-  operator: 'and' | 'or';
+  /** Logical connector applied between all direct children. */
+  connector: 'AND' | 'OR';
   children: FilterNode[];
 }
 

@@ -9,11 +9,13 @@
  */
 
 import React from 'react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { TestProviders } from '../../../test-utils/providers';
 import { FilterBar } from '../FilterBar';
 import type { FilterState, FilterDimension } from '../types';
+import { createCondition, createRootGroup } from '../types';
+import { useViewFilterStore } from '../../../stores/viewFilterStore';
 
 const dimensions: FilterDimension[] = [
   { column: 'name', label: 'Name', dataType: 'text' },
@@ -35,9 +37,9 @@ const stateWithFilters: FilterState = {
   advanced: false,
 };
 
-function renderBar(state: FilterState, onChange = vi.fn()) {
+function renderBar(state: FilterState, onChange = vi.fn(), viewId?: string) {
   return render(
-    <FilterBar filterState={state} dimensions={dimensions} onChange={onChange} />,
+    <FilterBar filterState={state} dimensions={dimensions} onChange={onChange} viewId={viewId} />,
     { wrapper: TestProviders },
   );
 }
@@ -94,5 +96,77 @@ describe('FilterBar', () => {
     renderBar(advancedState);
     expect(screen.getByText('Simple')).toBeTruthy();
     expect(screen.getByText('Advanced filters')).toBeTruthy();
+  });
+});
+
+describe('FilterBar — mode propagation (AC-2 from US-122)', () => {
+  const VIEW_ID = 'test-view-mode';
+
+  beforeEach(() => {
+    // Reset viewFilterStore before each test
+    useViewFilterStore.setState({ filtersByView: {}, modeByView: {} });
+  });
+
+  it('createCondition defaults to include mode', () => {
+    const condition = createCondition('name', 'text');
+    expect(condition.mode).toBe('include');
+    expect(condition.column).toBe('name');
+    expect(condition.type).toBe('condition');
+  });
+
+  it('createCondition respects explicit exclude mode', () => {
+    const condition = createCondition('status', 'enum', 'exclude');
+    expect(condition.mode).toBe('exclude');
+    expect(condition.column).toBe('status');
+    expect(condition.type).toBe('condition');
+  });
+
+  it('createCondition respects regex mode for text columns', () => {
+    const condition = createCondition('name', 'text', 'regex');
+    expect(condition.mode).toBe('regex');
+    // Regex value should be empty string (not array)
+    expect(condition.value).toBe('');
+  });
+
+  it('FilterBar renders with viewId prop without crashing', () => {
+    // Set the active mode for this view to 'exclude'
+    useViewFilterStore.getState().setMode(VIEW_ID, 'exclude');
+    const onChange = vi.fn();
+    // Should render without error when viewId is provided
+    renderBar(emptyState, onChange, VIEW_ID);
+    expect(screen.getByText('No filters applied')).toBeTruthy();
+  });
+
+  it('viewFilterStore getMode returns exclude after setMode', () => {
+    useViewFilterStore.getState().setMode(VIEW_ID, 'exclude');
+    expect(useViewFilterStore.getState().getMode(VIEW_ID)).toBe('exclude');
+  });
+
+  it('viewFilterStore getMode defaults to include for unknown view', () => {
+    expect(useViewFilterStore.getState().getMode('nonexistent-view')).toBe('include');
+  });
+
+  it('FilterNode round-trip: condition serializes with column (not field)', () => {
+    const condition = createCondition('status', 'enum', 'include');
+    const json = JSON.stringify(condition);
+    const parsed = JSON.parse(json) as ReturnType<typeof createCondition>;
+
+    expect(parsed.type).toBe('condition');
+    expect(parsed.column).toBe('status');
+    expect(Object.prototype.hasOwnProperty.call(parsed, 'field')).toBe(false);
+    expect(parsed.mode).toBe('include');
+  });
+
+  it('FilterNode round-trip: group serializes with connector (not operator)', () => {
+    const group = {
+      ...createRootGroup(),
+      children: [createCondition('name', 'text', 'include')],
+    };
+    const json = JSON.stringify(group);
+    const parsed = JSON.parse(json) as typeof group;
+
+    expect(parsed.type).toBe('group');
+    expect(parsed.connector).toBe('AND');
+    expect(Object.prototype.hasOwnProperty.call(parsed, 'operator')).toBe(false);
   });
 });
