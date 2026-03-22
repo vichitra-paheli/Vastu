@@ -11,6 +11,7 @@
  *
  * Built-in panels are registered at import time via panels/index.ts.
  * Updated in US-109: renders SidebarNav with user + ability props.
+ * Updated in US-125: mounts CommandPalette at workspace root.
  * All colors via --v-* CSS custom properties. No hardcoded values.
  */
 
@@ -27,6 +28,7 @@ import { DockviewHost } from './DockviewHost/DockviewHost';
 import { SidebarNav } from './SidebarNav';
 import { TrayBar } from './TrayBar';
 import { ViewToolbar } from './ViewToolbar';
+import { CommandPalette } from './CommandPalette';
 import classes from './WorkspaceShell.module.css';
 
 const SIDEBAR_COLLAPSED_WIDTH = 48;
@@ -99,6 +101,8 @@ export function WorkspaceShell({
 
   return (
     <AbilityProvider ability={resolvedAbility}>
+      {/* CommandPalette is always mounted and portal-based (US-125) */}
+      <CommandPalette />
       <div
         className={classes.workspace}
         style={{ '--sidebar-width': `${sidebarWidth}px` } as React.CSSProperties}

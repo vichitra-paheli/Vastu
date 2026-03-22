@@ -163,5 +163,19 @@
   "panel.modeSwitch.ariaLabel": "Panel mode",
   "panel.modeSwitch.editor.tooltip": "View and interact with page data",
   "panel.modeSwitch.builder.tooltip": "Configure page data source, fields, and layout",
-  "panel.modeSwitch.workflow.tooltip": "Build and run workflows for this page"
+  "panel.modeSwitch.workflow.tooltip": "Build and run workflows for this page",
+
+  "commandPalette.placeholder": "Search pages, records, and commands\u2026",
+  "commandPalette.searchAriaLabel": "Search command palette",
+  "commandPalette.noResults": "No results for '{query}'",
+  "commandPalette.commandsModeHint": "Commands mode \u2014 type to filter commands",
+  "commandPalette.group.pages": "PAGES",
+  "commandPalette.group.recent": "RECENT RECORDS",
+  "commandPalette.group.commands": "COMMANDS",
+  "commandPalette.footer.navigate": "to navigate",
+  "commandPalette.footer.open": "to open",
+  "commandPalette.footer.close": "to close",
+  "commandPalette.footer.commandsHint": "for commands",
+  "commandPalette.searchButton.ariaLabel": "Open command palette",
+  "commandPalette.searchButton.tooltip": "Search (Ctrl+K)"
 }
