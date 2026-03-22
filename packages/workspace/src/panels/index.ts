@@ -15,6 +15,7 @@ import { DataExplorerPanelWrapper } from './DataExplorerPanelWrapper';
 import { TableListingTemplate } from '../templates/TableListing/TableListingTemplate';
 import { MultiTabDetailTemplate, MULTI_TAB_DETAIL_PANEL_TYPE_ID } from '../templates/MultiTabDetail/MultiTabDetailTemplate';
 import { FormPageTemplate } from '../templates/FormPage/FormPageTemplate';
+import { TimelineActivityPanelWrapper } from './TimelineActivityPanelWrapper';
 import type { PanelProps } from '../types/panel';
 
 /** Panel type ID for the data explorer template. */
@@ -25,6 +26,9 @@ export const TABLE_LISTING_PANEL_TYPE_ID = 'table-listing';
 
 /** Panel type ID for the form page template. */
 export const FORM_PAGE_PANEL_TYPE_ID = 'form-page';
+
+/** Panel type ID for the timeline activity template. */
+export const TIMELINE_ACTIVITY_PANEL_TYPE_ID = 'timeline-activity';
 
 // Register the built-in WelcomePanel
 registerPanel({
@@ -41,9 +45,6 @@ registerPanel({
   component: DataExplorerPanelWrapper,
 });
 
-/**
- * Adapter that bridges PanelProps (from Dockview) to TableListingTemplate.
- */
 function TableListingPanelWrapper({ params }: PanelProps) {
   const pageId = typeof params.pageId === 'string' ? params.pageId : 'unknown';
   const config = {
@@ -55,7 +56,6 @@ function TableListingPanelWrapper({ params }: PanelProps) {
   return React.createElement(TableListingTemplate, { pageId, config });
 }
 
-// Register the TableListing panel
 registerPanel({
   id: TABLE_LISTING_PANEL_TYPE_ID,
   title: 'Table',
@@ -63,15 +63,11 @@ registerPanel({
   component: TableListingPanelWrapper,
 });
 
-/**
- * Adapter that bridges PanelProps (from Dockview) to MultiTabDetailTemplate.
- */
 function MultiTabDetailPanelWrapper({ params }: PanelProps) {
   const pageId = typeof params.pageId === 'string' ? params.pageId : 'unknown';
   return React.createElement(MultiTabDetailTemplate, { pageId });
 }
 
-// Register the MultiTabDetail panel (US-131)
 registerPanel({
   id: MULTI_TAB_DETAIL_PANEL_TYPE_ID,
   title: 'Detail',
@@ -79,15 +75,11 @@ registerPanel({
   component: MultiTabDetailPanelWrapper,
 });
 
-/**
- * Adapter that bridges PanelProps (from Dockview) to FormPageTemplate.
- */
 function FormPagePanelWrapper({ params }: PanelProps) {
   const pageId = typeof params.pageId === 'string' ? params.pageId : 'unknown';
   return React.createElement(FormPageTemplate, { pageId });
 }
 
-// Register the FormPage panel (US-133)
 registerPanel({
   id: FORM_PAGE_PANEL_TYPE_ID,
   title: 'Form',
@@ -95,13 +87,18 @@ registerPanel({
   component: FormPagePanelWrapper,
 });
 
+registerPanel({
+  id: TIMELINE_ACTIVITY_PANEL_TYPE_ID,
+  title: 'Timeline Activity',
+  iconName: 'IconHistory',
+  component: TimelineActivityPanelWrapper,
+});
+
 // Re-export for convenience
 export { registerPanel, getPanel, getAllPanels, unregisterPanel, clearRegistry } from './registry';
 export { WelcomePanel, WELCOME_PANEL_TYPE_ID } from './WelcomePanel';
 export { DataExplorerPanelWrapper } from './DataExplorerPanelWrapper';
 export { TableListingTemplate } from '../templates/TableListing/TableListingTemplate';
-export {
-  MultiTabDetailTemplate,
-  MULTI_TAB_DETAIL_PANEL_TYPE_ID,
-} from '../templates/MultiTabDetail/MultiTabDetailTemplate';
+export { MultiTabDetailTemplate, MULTI_TAB_DETAIL_PANEL_TYPE_ID } from '../templates/MultiTabDetail/MultiTabDetailTemplate';
 export { FormPageTemplate, FORM_PAGE_DEFAULT_CONFIG } from '../templates/FormPage/FormPageTemplate';
+export { TimelineActivityPanelWrapper } from './TimelineActivityPanelWrapper';

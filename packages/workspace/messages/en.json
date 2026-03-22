@@ -402,5 +402,26 @@
   "form.searchOrCreate.placeholder": "Search...",
   "form.searchOrCreate.listboxAriaLabel": "{label} options",
   "form.searchOrCreate.noResults": "No results found",
-  "form.searchOrCreate.createNew": "Create new {label}"
+  "form.searchOrCreate.createNew": "Create new {label}",
+
+  "timeline.template.ariaLabel": "Activity timeline",
+  "timeline.template.empty": "No events to display",
+  "timeline.template.feedAriaLabel": "Activity events",
+  "timeline.template.loadMore": "Load more events",
+  "timeline.filter.type.order": "Order",
+  "timeline.filter.type.payment": "Payment",
+  "timeline.filter.type.system": "System",
+  "timeline.filter.type.agent": "Agent",
+  "timeline.filters.ariaLabel": "Timeline filters",
+  "timeline.filters.searchPlaceholder": "Search events\u2026",
+  "timeline.filters.searchAriaLabel": "Search timeline events",
+  "timeline.filters.typePillsAriaLabel": "Filter by event type",
+  "timeline.filters.type.toggle": "Toggle filter:",
+  "timeline.filters.dateRangeAriaLabel": "Date range filter",
+  "timeline.filters.dateFrom": "From date",
+  "timeline.filters.dateTo": "To date",
+  "timeline.filters.clearAll": "Clear all filters",
+  "timeline.event.showDetail": "Show detail",
+  "timeline.event.hideDetail": "Hide detail",
+  "timeline.event.detailRegion": "Event detail payload"
 }

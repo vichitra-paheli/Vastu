@@ -1,0 +1,316 @@
+/**
+ * TimelineActivityTemplate styles.
+ * All colors and spacing via --v-* CSS custom properties. No hardcoded hex values.
+ * Per Patterns Library and Style Guide design principles.
+ */
+
+/* ─── Template root ─── */
+.root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--v-surface-1);
+}
+
+/* ─── Filters area ─── */
+.filters {
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--v-border-subtle);
+  background: var(--v-surface-1);
+}
+
+/* ─── Scrollable event list ─── */
+.eventList {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--v-space-4) var(--v-space-6);
+}
+
+/* ─── Date group ─── */
+.dateGroup {
+  margin-bottom: var(--v-space-6);
+}
+
+/* ─── Load more area ─── */
+.loadMore {
+  display: flex;
+  justify-content: center;
+  padding: var(--v-space-4) 0 var(--v-space-2);
+}
+
+/* ─── Sentinel for IntersectionObserver ─── */
+.sentinel {
+  height: 1px;
+  width: 100%;
+}
+
+/* ─── Empty state wrapper ─── */
+.emptyWrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─── Error state ─── */
+.errorWrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--v-space-8) var(--v-space-4);
+  text-align: center;
+  color: var(--v-text-danger);
+  font-size: var(--v-text-sm);
+  font-weight: 400;
+}
+
+/* ─── Date group header ─── */
+.dateGroupHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-3);
+  margin-bottom: var(--v-space-4);
+}
+
+.dateGroupLabel {
+  font-size: var(--v-text-xs);
+  font-weight: 500;
+  color: var(--v-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.dateGroupLine {
+  flex: 1;
+  height: 1px;
+  background: var(--v-border-subtle);
+}
+
+/* ─── Single timeline event ─── */
+.event {
+  display: flex;
+  gap: var(--v-space-3);
+  align-items: flex-start;
+  padding: var(--v-space-2) 0;
+  cursor: default;
+}
+
+.event:hover .eventContent {
+  background: var(--v-surface-2);
+}
+
+/* ─── Event dot / icon ─── */
+.eventDot {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: var(--v-space-1);
+}
+
+/* Event type color variants */
+.dotOrder {
+  background: color-mix(in srgb, var(--v-color-green) 15%, transparent);
+  color: var(--v-color-green);
+}
+
+.dotPayment {
+  background: color-mix(in srgb, var(--v-color-blue) 15%, transparent);
+  color: var(--v-color-blue);
+}
+
+.dotSystem {
+  background: color-mix(in srgb, var(--v-text-tertiary) 15%, transparent);
+  color: var(--v-text-tertiary);
+}
+
+.dotAgent {
+  background: color-mix(in srgb, var(--v-color-purple) 15%, transparent);
+  color: var(--v-color-purple);
+}
+
+.dotDefault {
+  background: var(--v-surface-3);
+  color: var(--v-text-secondary);
+}
+
+/* ─── Event content ─── */
+.eventContent {
+  flex: 1;
+  min-width: 0;
+  padding: var(--v-space-2) var(--v-space-3);
+  border-radius: var(--v-radius-md);
+  border: 1px solid transparent;
+  transition: background 100ms ease;
+}
+
+/* ─── Event header row ─── */
+.eventHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-2);
+  flex-wrap: wrap;
+}
+
+.eventTitle {
+  font-size: var(--v-text-sm);
+  font-weight: 500;
+  color: var(--v-text-primary);
+  flex: 1;
+  min-width: 0;
+}
+
+.eventBadge {
+  flex-shrink: 0;
+}
+
+.eventTimestamp {
+  font-size: var(--v-text-xs);
+  font-weight: 400;
+  color: var(--v-text-tertiary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ─── Actor avatar + name row ─── */
+.eventActor {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-2);
+  margin-top: var(--v-space-1);
+}
+
+.eventActorName {
+  font-size: var(--v-text-xs);
+  font-weight: 400;
+  color: var(--v-text-secondary);
+}
+
+/* ─── Description ─── */
+.eventDescription {
+  margin-top: var(--v-space-1);
+  font-size: var(--v-text-sm);
+  font-weight: 400;
+  color: var(--v-text-secondary);
+}
+
+/* ─── Expand toggle ─── */
+.expandToggle {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-1);
+  margin-top: var(--v-space-2);
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: var(--v-text-xs);
+  font-weight: 400;
+  color: var(--v-text-link);
+  text-decoration: none;
+}
+
+.expandToggle:hover {
+  text-decoration: underline;
+}
+
+/* ─── Expanded detail panel ─── */
+.eventDetail {
+  margin-top: var(--v-space-3);
+  padding: var(--v-space-3);
+  background: var(--v-surface-2);
+  border-radius: var(--v-radius-sm);
+  border: 1px solid var(--v-border-subtle);
+}
+
+.eventDetailPre {
+  margin: 0;
+  font-family: var(--v-font-mono, monospace);
+  font-size: var(--v-text-xs);
+  font-weight: 400;
+  color: var(--v-text-primary);
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow: hidden;
+}
+
+/* ─── Timeline filter bar ─── */
+.filterBar {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-3);
+  padding: var(--v-space-3) var(--v-space-6);
+  flex-wrap: wrap;
+}
+
+.filterSearch {
+  flex: 1;
+  min-width: 180px;
+  max-width: 280px;
+}
+
+.filterPills {
+  display: flex;
+  gap: var(--v-space-2);
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.filterDateRange {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-2);
+}
+
+.filterTypePill {
+  cursor: pointer;
+  user-select: none;
+  border-radius: var(--v-radius-full);
+  border: 1px solid var(--v-border-subtle);
+  padding: 0 var(--v-space-3);
+  height: 28px;
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-1);
+  font-size: var(--v-text-xs);
+  font-weight: 400;
+  color: var(--v-text-secondary);
+  background: transparent;
+  transition: background 100ms ease, color 100ms ease, border-color 100ms ease;
+}
+
+.filterTypePill:hover {
+  background: var(--v-surface-2);
+}
+
+.filterTypePillActive {
+  background: var(--v-surface-accent);
+  border-color: var(--v-color-blue);
+  color: var(--v-color-blue);
+  font-weight: 500;
+}
+
+.filterClear {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.filterDateInput {
+  font-size: var(--v-text-xs);
+  color: var(--v-text-primary);
+  background: transparent;
+  border: 1px solid var(--v-border-subtle);
+  border-radius: var(--v-radius-sm);
+  padding: 2px 6px;
+}
+
+.filterDateSeparator {
+  color: var(--v-text-tertiary);
+  font-size: var(--v-text-xs);
+}
