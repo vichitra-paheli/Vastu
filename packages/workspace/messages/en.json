@@ -146,5 +146,14 @@
   "tray.item.close": "Close",
   "tray.item.contextMenuAriaLabel": "Panel tray options",
 
-  "emptyState.ariaLabel": "Empty state"
+  "emptyState.ariaLabel": "Empty state",
+
+  "panel.mode.editor": "Editor",
+  "panel.mode.builder": "Builder",
+  "panel.mode.workflow": "Workflow",
+
+  "panel.modeSwitch.ariaLabel": "Panel mode",
+  "panel.modeSwitch.editor.tooltip": "View and interact with page data",
+  "panel.modeSwitch.builder.tooltip": "Configure page data source, fields, and layout",
+  "panel.modeSwitch.workflow.tooltip": "Build and run workflows for this page"
 }

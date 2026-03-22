@@ -242,4 +242,35 @@ describe('panelStore', () => {
       expect(usePanelStore.getState().layout).toBe(layout);
     });
   });
+
+  describe('panelModes — setPanelMode / getPanelMode', () => {
+    it('has empty panelModes in initial state', () => {
+      expect(usePanelStore.getState().panelModes).toEqual({});
+    });
+
+    it('getPanelMode returns "editor" for a panel with no explicit mode set', () => {
+      expect(usePanelStore.getState().getPanelMode('unknown-panel')).toBe('editor');
+    });
+
+    it('setPanelMode stores the mode keyed by panelId', () => {
+      usePanelStore.getState().setPanelMode('panel-1', 'builder');
+      expect(usePanelStore.getState().panelModes['panel-1']).toBe('builder');
+    });
+
+    it('getPanelMode returns the stored mode after setPanelMode', () => {
+      usePanelStore.getState().setPanelMode('panel-1', 'workflow');
+      expect(usePanelStore.getState().getPanelMode('panel-1')).toBe('workflow');
+    });
+
+    it('setPanelMode does not affect other panels', () => {
+      usePanelStore.getState().setPanelMode('panel-A', 'builder');
+      expect(usePanelStore.getState().getPanelMode('panel-B')).toBe('editor');
+    });
+
+    it('setPanelMode can be called multiple times to change mode', () => {
+      usePanelStore.getState().setPanelMode('panel-1', 'builder');
+      usePanelStore.getState().setPanelMode('panel-1', 'editor');
+      expect(usePanelStore.getState().getPanelMode('panel-1')).toBe('editor');
+    });
+  });
 });

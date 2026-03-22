@@ -1,102 +1,144 @@
 'use client';
 
 /**
- * ModeSwitch — IER (Include/Exclude/Regex) segmented control.
+ * ModeSwitch — panel mode segmented control (Editor / Builder / Workflow).
  *
- * A standalone, visually prominent mode switcher that allows toggling
- * between Include, Exclude, and Regex filter modes. Complements the
- * FilterModeSelector dropdown with a segmented control form factor.
+ * Renders in the Dockview tab bar. Allows switching between panel modes
+ * depending on the user's CASL abilities and page configuration:
  *
- * Colors per Patterns Library §2.3:
- *   I = --v-accent-primary        (blue)
- *   E = --v-status-error          (red)
- *   R = --v-accent-quaternary     (muted violet)
+ *   Editor   — always available, default mode
+ *   Builder  — requires 'configure' on 'Page' OR 'manage' on 'all'
+ *   Workflow — requires 'manage' on 'all' AND page has ephemeral mode enabled
  *
- * Mode state is stored in viewFilterStore keyed by viewId.
+ * Segments that the user is not permitted to see are hidden entirely (not disabled).
+ * If only Editor is available (viewer/editor role), no control is rendered at all
+ * since there is nothing to switch between.
  *
- * Implements US-108 (AC-1 through AC-7).
+ * Colors per plan:
+ *   Editor   = --v-accent-primary       (blue)
+ *   Builder  = --v-accent-secondary     (slate)
+ *   Workflow = --v-accent-quaternary    (muted violet)
+ *
+ * Reads mode from panelStore.panelModes[panelId].
+ * Writes mode via panelStore.setPanelMode on change.
+ *
+ * CASL ability is consumed from AbilityContext (set in WorkspaceShell).
+ * The `ability` prop is also accepted directly for testing purposes.
+ *
+ * Implements US-120 (AC-2 through AC-8).
  */
 
 import React, { useEffect } from 'react';
+import type { AppAbility } from '@vastu/shared/permissions';
 import { t } from '../../lib/i18n';
-import type { FilterMode } from '../FilterSystem/types';
+import { useAbility } from '../../providers/AbilityContext';
+import { usePanelStore } from '../../stores/panelStore';
+import type { PanelId, PanelMode } from '../../types/panel';
 import classes from './ModeSwitch.module.css';
 
 export interface ModeSwitchProps {
-  /** The currently selected mode. */
-  value: FilterMode;
-  /** Called when the user selects a different mode. */
-  onChange: (mode: FilterMode) => void;
-  /** When true, the Regex option is hidden (N/A for number/date/boolean columns). */
-  disableRegex?: boolean;
-  /** When true, the control is non-interactive. */
-  disabled?: boolean;
-  /** Accessible label for the segmented control group. */
-  'aria-label'?: string;
+  /** The ID of the panel this switch controls. */
+  panelId: PanelId;
+  /**
+   * CASL ability instance for the current user.
+   * When provided, overrides the ability from AbilityContext.
+   * Useful for testing or when rendering outside the workspace shell.
+   */
+  ability?: AppAbility;
+  /**
+   * Whether the page has ephemeral mode enabled.
+   * Required for the Workflow segment to appear (even for admins).
+   * Defaults to false.
+   */
+  ephemeralEnabled?: boolean;
 }
 
-interface ModeOption {
-  mode: FilterMode;
+interface ModeSegment {
+  mode: PanelMode;
   labelKey: string;
-  shortKey: string;
+  activeClass: string;
 }
 
-const ALL_OPTIONS: ModeOption[] = [
-  { mode: 'include', labelKey: 'filter.mode.include', shortKey: 'filter.mode.include.short' },
-  { mode: 'exclude', labelKey: 'filter.mode.exclude', shortKey: 'filter.mode.exclude.short' },
-  { mode: 'regex',   labelKey: 'filter.mode.regex',   shortKey: 'filter.mode.regex.short' },
+const SEGMENTS: ModeSegment[] = [
+  {
+    mode: 'editor',
+    labelKey: 'panel.mode.editor',
+    activeClass: classes.activeEditor,
+  },
+  {
+    mode: 'builder',
+    labelKey: 'panel.mode.builder',
+    activeClass: classes.activeBuilder,
+  },
+  {
+    mode: 'workflow',
+    labelKey: 'panel.mode.workflow',
+    activeClass: classes.activeWorkflow,
+  },
 ];
 
-const MODE_ACTIVE_CLASS: Record<FilterMode, string> = {
-  include: classes.activeInclude,
-  exclude: classes.activeExclude,
-  regex:   classes.activeRegex,
-};
+export function ModeSwitch({ panelId, ability: abilityProp, ephemeralEnabled = false }: ModeSwitchProps) {
+  const contextAbility = useAbility();
+  const ability = abilityProp ?? contextAbility;
 
-export function ModeSwitch({
-  value,
-  onChange,
-  disableRegex = false,
-  disabled = false,
-  'aria-label': ariaLabel,
-}: ModeSwitchProps) {
-  const options = disableRegex
-    ? ALL_OPTIONS.filter((o) => o.mode !== 'regex')
-    : ALL_OPTIONS;
+  const currentMode = usePanelStore((s) => s.panelModes[panelId] ?? 'editor');
+  const setPanelMode = usePanelStore((s) => s.setPanelMode);
 
-  // Fallback: if regex is disabled but currently selected (e.g. from persisted state),
-  // reset to 'include' to avoid rendering with no active segment.
+  // Determine which segments to show based on CASL abilities.
+  const canUseBuilder =
+    ability.can('configure', 'Page') || ability.can('manage', 'all');
+  const canUseWorkflow = ability.can('manage', 'all') && ephemeralEnabled;
+
+  const visibleSegments = SEGMENTS.filter(({ mode }) => {
+    if (mode === 'builder') return canUseBuilder;
+    if (mode === 'workflow') return canUseWorkflow;
+    return true; // editor is always visible
+  });
+
+  const visibleModes = new Set<PanelMode>(visibleSegments.map(({ mode }) => mode));
+
+  // Reset stale mode: if the stored mode is no longer in the visible set
+  // (e.g., user's permissions changed to viewer-only or ephemeralEnabled flipped
+  // to false after Workflow was selected), fall back to 'editor' so the panel
+  // is never stuck in an inaccessible mode.
   useEffect(() => {
-    if (disableRegex && value === 'regex') {
-      onChange('include');
+    if (!visibleModes.has(currentMode)) {
+      setPanelMode(panelId, 'editor');
     }
-  }, [disableRegex, value, onChange]);
+    // visibleModes is derived from ability and ephemeralEnabled — including it
+    // directly would cause referential instability on every render, so we depend
+    // on the stable primitives that drive it instead.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canUseBuilder, canUseWorkflow, currentMode, panelId, setPanelMode]);
+
+  // If only Editor is available there is nothing to switch between — render nothing.
+  if (visibleSegments.length <= 1) {
+    return null;
+  }
+
+  function handleSegmentClick(mode: PanelMode) {
+    setPanelMode(panelId, mode);
+  }
 
   return (
     <div
       role="radiogroup"
-      aria-label={ariaLabel ?? t('filter.modeSwitch.ariaLabel')}
-      className={`${classes.root} ${disabled ? classes.disabled : ''}`}
+      aria-label={t('panel.modeSwitch.ariaLabel')}
+      className={classes.root}
     >
-      {options.map(({ mode, labelKey, shortKey }) => {
-        const isActive = value === mode;
+      {visibleSegments.map(({ mode, labelKey, activeClass }) => {
+        const isActive = currentMode === mode;
         return (
           <button
             key={mode}
             type="button"
             role="radio"
             aria-checked={isActive}
-            disabled={disabled}
-            className={`${classes.segment} ${isActive ? `${classes.active} ${MODE_ACTIVE_CLASS[mode]}` : classes.inactive}`}
-            onClick={() => {
-              if (!disabled) onChange(mode);
-            }}
-            title={t(`filter.modeSwitch.${mode}.tooltip`)}
+            className={`${classes.segment} ${isActive ? `${classes.active} ${activeClass}` : classes.inactive}`}
+            onClick={() => handleSegmentClick(mode)}
+            title={t(`panel.modeSwitch.${mode}.tooltip`)}
           >
-            <span className={classes.short} aria-hidden="true">
-              {t(shortKey)}
-            </span>
-            <span className={classes.label}>{t(labelKey)}</span>
+            {t(labelKey)}
           </button>
         );
       })}

@@ -19,7 +19,8 @@
 import '../panels/index';
 
 import React from 'react';
-import { defineAbilitiesFor, type AppAbility } from '@vastu/shared/permissions';
+import type { AppAbility } from '@vastu/shared/permissions';
+import { AbilityProvider, createNoOpAbility } from '../providers/AbilityContext';
 import { useSidebarStore } from '../stores/sidebarStore';
 import { DockviewHost } from './DockviewHost/DockviewHost';
 import { SidebarNav } from './SidebarNav';
@@ -59,11 +60,6 @@ export interface WorkspaceShellProps {
   currentUserId?: string;
 }
 
-/** Fallback no-permissions ability when none is provided. */
-function createNoOpAbility(): AppAbility {
-  return defineAbilitiesFor({ roles: [] });
-}
-
 /** Default translations for the sidebar nav. */
 const DEFAULT_TRANSLATIONS = {
   logoLabel: 'Vastu',
@@ -97,36 +93,38 @@ export function WorkspaceShell({
   const resolvedAbility: AppAbility = ability ?? createNoOpAbility();
 
   return (
-    <div
-      className={classes.workspace}
-      style={{ '--sidebar-width': `${sidebarWidth}px` } as React.CSSProperties}
-    >
-      <aside
-        className={classes.sidebar}
-        aria-label="Workspace sidebar"
-        style={{ width: sidebarWidth }}
-        data-collapsed={collapsed}
+    <AbilityProvider ability={resolvedAbility}>
+      <div
+        className={classes.workspace}
+        style={{ '--sidebar-width': `${sidebarWidth}px` } as React.CSSProperties}
       >
-        <SidebarNav
-          ability={resolvedAbility}
-          user={resolvedUser}
-          t={DEFAULT_TRANSLATIONS}
-        />
-      </aside>
+        <aside
+          className={classes.sidebar}
+          aria-label="Workspace sidebar"
+          style={{ width: sidebarWidth }}
+          data-collapsed={collapsed}
+        >
+          <SidebarNav
+            ability={resolvedAbility}
+            user={resolvedUser}
+            t={DEFAULT_TRANSLATIONS}
+          />
+        </aside>
 
-      <main className={classes.main} id="workspace-main">
-        {/* ViewToolbar sits between the sidebar and the Dockview panel area.
-            Always rendered; shows "Default view" when no page is active.
-            Falls back to an empty string pageId (no save call will be made
-            while the view is unmodified). */}
-        <ViewToolbar pageId={activePageId ?? ''} currentUserId={currentUserId} />
-        <DockviewHost />
-        {children}
-      </main>
+        <main className={classes.main} id="workspace-main">
+          {/* ViewToolbar sits between the sidebar and the Dockview panel area.
+              Always rendered; shows "Default view" when no page is active.
+              Falls back to an empty string pageId (no save call will be made
+              while the view is unmodified). */}
+          <ViewToolbar pageId={activePageId ?? ''} currentUserId={currentUserId} />
+          <DockviewHost />
+          {children}
+        </main>
 
-      <div className={classes.tray} role="region" aria-label="Workspace tray">
-        <TrayBar />
+        <div className={classes.tray} role="region" aria-label="Workspace tray">
+          <TrayBar />
+        </div>
       </div>
-    </div>
+    </AbilityProvider>
   );
 }
