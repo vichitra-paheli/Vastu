@@ -99,8 +99,15 @@ export interface VastuTableProps<TData extends Record<string, unknown>> {
   /**
    * Called when row selection changes.
    * Provides the set of selected row IDs.
+   * Use this for multi-select tracking only — do NOT use it to trigger navigation.
    */
   onRowSelectionChange?: (selectedIds: Set<string>) => void;
+  /**
+   * Called when a row is clicked without a modifier key (plain single click).
+   * Use this for row-level navigation (e.g. opening the record drawer).
+   * Shift+click and Ctrl+click for multi-select do NOT trigger this callback.
+   */
+  onRowClick?: (rowId: string) => void;
   /**
    * Called when the user right-clicks a cell and selects "Copy value".
    */

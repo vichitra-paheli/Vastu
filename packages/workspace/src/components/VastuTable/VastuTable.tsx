@@ -53,6 +53,7 @@ function VastuTableInner<TData extends Record<string, unknown>>({
   onColumnOrderChange,
   onColumnVisibilityChange,
   onRowSelectionChange,
+  onRowClick,
   onCopyCellValue,
   onFilterToValue,
   getRowId,
@@ -236,13 +237,11 @@ function VastuTableInner<TData extends Record<string, unknown>>({
       row.toggleSelected();
       lastClickedRowIndex.current = rowIndex;
     } else {
-      // Single row selection (deselect others)
-      const wasSelected = row.getIsSelected();
+      // Plain single click — select this row and notify parent for navigation
       table.resetRowSelection();
-      if (!wasSelected) {
-        row.toggleSelected(true);
-      }
+      row.toggleSelected(true);
       lastClickedRowIndex.current = rowIndex;
+      onRowClick?.(rowId);
     }
   }
 

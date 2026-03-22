@@ -38,7 +38,7 @@
 .delta {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--v-space-xxs);
   font-size: var(--v-text-xs);
   font-weight: 400;
   line-height: 1.4;
