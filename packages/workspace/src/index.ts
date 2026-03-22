@@ -244,3 +244,13 @@ export type {
   SubTableConfig,
   ActivityEntry,
 } from './templates/MultiTabDetail/tabs/OverviewTab';
+
+// FormPage Template (US-133)
+export { FormPageTemplate, FieldRenderer, FORM_PAGE_DEFAULT_CONFIG } from './templates/FormPage/FormPageTemplate';
+export type { FormPageTemplateProps, FormFieldConfig } from './templates/FormPage/FormPageTemplate';
+export { FormWizard } from './templates/FormPage/FormWizard';
+export type { FormWizardProps, WizardStep } from './templates/FormPage/FormWizard';
+export { SearchOrCreate } from './templates/FormPage/SearchOrCreate';
+export type { SearchOrCreateProps, SearchOrCreateOption } from './templates/FormPage/SearchOrCreate';
+export { useFormDraft } from './templates/FormPage/useFormDraft';
+export type { UseFormDraftResult } from './templates/FormPage/useFormDraft';
