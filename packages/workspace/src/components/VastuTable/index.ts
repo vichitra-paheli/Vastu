@@ -13,6 +13,7 @@ export type {
   VastuColumn,
   VastuTableProps,
   CellDataType,
+  NavigateTo,
   HeaderContextData,
   CellContextData,
   DragColumnState,

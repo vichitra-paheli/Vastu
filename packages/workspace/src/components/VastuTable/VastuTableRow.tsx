@@ -20,6 +20,16 @@ export interface VastuTableRowProps<TData extends Record<string, unknown>> {
   top: number;
   /** Row height in pixels. */
   height: number;
+  /**
+   * Source page ID for cross-page navigation breadcrumb.
+   * Passed through from VastuTableProps.sourcePageId.
+   */
+  sourcePageId?: string;
+  /**
+   * Source page display name for cross-page navigation breadcrumb.
+   * Passed through from VastuTableProps.sourcePageName.
+   */
+  sourcePageName?: string;
   /** Called when user right-clicks a cell. */
   onCellContextMenu?: (params: {
     x: number;
@@ -36,6 +46,8 @@ function VastuTableRowInner<TData extends Record<string, unknown>>({
   row,
   top,
   height,
+  sourcePageId,
+  sourcePageName,
   onCellContextMenu,
   onRowClick,
 }: VastuTableRowProps<TData>) {
@@ -86,6 +98,8 @@ function VastuTableRowInner<TData extends Record<string, unknown>>({
             cell={cell}
             width={cell.column.getSize()}
             height={height}
+            sourcePageId={sourcePageId}
+            sourcePageName={sourcePageName}
             onContextMenuOpen={onCellContextMenu}
           />
         );

@@ -676,5 +676,14 @@
   "builder.ephemeral.workflowNote.body": "Workflow mode allows admins to build and run LangGraph workflows against this page's data. Full workflow execution is coming in Phase 2 (agent runtime). Enabling this toggle now reserves the tab and makes it visible to admins.",
   "sse.status.connected": "Live updates: connected",
   "sse.status.connecting": "Live updates: reconnecting",
-  "sse.status.disconnected": "Live updates: disconnected"
+  "sse.status.disconnected": "Live updates: disconnected",
+
+  "navigation.link.pageNotConfigured": "Page not configured",
+  "navigation.link.ariaLabel": "Navigate to {page} for {value}",
+  "navigation.breadcrumb.ariaLabel": "Panel breadcrumb navigation",
+  "navigation.breadcrumb.back": "Back to {page}",
+  "navigation.breadcrumb.backAriaLabel": "Navigate back to {page}",
+  "contextMenu.link.open": "Open",
+  "contextMenu.link.openInNewPanel": "Open in new panel",
+  "contextMenu.link.copyLink": "Copy link"
 }

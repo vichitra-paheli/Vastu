@@ -21,12 +21,23 @@ import { IconCheck, IconX } from '@tabler/icons-react';
 import { TruncatedText } from '../TruncatedText';
 import { t } from '../../lib/i18n';
 import type { VastuColumn, CellDataType } from './types';
+import { LinkCell } from './LinkCell';
 import classes from './VastuTable.module.css';
 
 export interface VastuTableCellProps<TData extends Record<string, unknown>> {
   cell: Cell<TData, unknown>;
   width: number;
   height: number;
+  /**
+   * Source page ID for cross-page navigation breadcrumb.
+   * Passed from VastuTableProps.sourcePageId at the table level.
+   */
+  sourcePageId?: string;
+  /**
+   * Source page display name for cross-page navigation breadcrumb.
+   * Passed from VastuTableProps.sourcePageName at the table level.
+   */
+  sourcePageName?: string;
   onContextMenuOpen?: (params: {
     x: number;
     y: number;
@@ -65,12 +76,30 @@ function formatNumber(value: unknown): string {
 /**
  * Render the cell content based on dataType.
  * When renderCell is provided on the column def, it takes precedence.
+ *
+ * @param sourcePageId   - Page-level source ID for cross-page navigation breadcrumbs.
+ * @param sourcePageName - Page-level source display name for breadcrumbs.
  */
 function renderCellContent<TData extends Record<string, unknown>>(
   value: unknown,
   row: TData,
   col: VastuColumn<TData>,
+  sourcePageId?: string,
+  sourcePageName?: string,
 ): React.ReactNode {
+  // navigateTo takes priority — renders a clickable link for cross-page navigation.
+  // AC-1, AC-2, AC-3: US-209
+  if (col.navigateTo) {
+    return (
+      <LinkCell
+        value={value}
+        navigateTo={col.navigateTo}
+        sourcePageId={sourcePageId}
+        sourcePageName={sourcePageName}
+      />
+    );
+  }
+
   if (col.renderCell) {
     return col.renderCell(value, row);
   }
@@ -135,6 +164,8 @@ function VastuTableCellInner<TData extends Record<string, unknown>>({
   cell,
   width,
   height,
+  sourcePageId,
+  sourcePageName,
   onContextMenuOpen,
 }: VastuTableCellProps<TData>) {
   const col = cell.column.columnDef.meta as VastuColumn<TData> | undefined;
@@ -174,7 +205,7 @@ function VastuTableCellInner<TData extends Record<string, unknown>>({
       data-column-id={cell.column.id}
       data-row-id={cell.row.id}
     >
-      {col ? renderCellContent(value, row, col) : null}
+      {col ? renderCellContent(value, row, col, sourcePageId, sourcePageName) : null}
     </div>
   );
 }

@@ -1,0 +1,46 @@
+/**
+ * LinkCell styles.
+ * All colors via --v-* CSS custom properties. No hardcoded hex values.
+ */
+
+/* Active link button — looks like a link, behaves like a button. */
+.link {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--v-font-sans);
+  font-size: var(--v-text-sm);
+  font-weight: 400;
+  color: var(--v-accent-primary);
+  text-decoration: none;
+  transition: text-decoration 100ms ease;
+}
+
+.link:hover {
+  text-decoration: underline;
+  color: var(--v-accent-primary);
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--v-accent-primary);
+  outline-offset: 1px;
+  border-radius: var(--v-radius-sm);
+}
+
+/* Disabled link — page not configured or null value. */
+.linkDisabled {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  cursor: default;
+  color: var(--v-text-tertiary);
+  font-family: var(--v-font-sans);
+  font-size: var(--v-text-sm);
+  font-weight: 400;
+}
