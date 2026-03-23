@@ -1,0 +1,52 @@
+/**
+ * {{APP_NAME}} seed script
+ *
+ * Runs the Vastu base seed first (users, roles, permissions, org, tenant),
+ * then seeds application-specific domain data below.
+ *
+ * Usage:
+ *   pnpm prisma:seed                  — runs base seed + domain seed
+ *   DATABASE_URL=... pnpm prisma:seed — explicit connection
+ */
+
+import { runBaseSeed } from '@vastu/shared/prisma';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+// ---------------------------------------------------------------------------
+// Domain seed — add your application-specific data here
+// ---------------------------------------------------------------------------
+
+async function runDomainSeed(): Promise<void> {
+  console.log('Seeding domain data for {{APP_NAME}}...');
+
+  // TODO: Add your domain models here.
+  // Example:
+  //   await prisma.product.upsert({
+  //     where: { id: 'some-deterministic-uuid' },
+  //     update: {},
+  //     create: { id: 'some-deterministic-uuid', name: 'Example Product' },
+  //   });
+
+  console.log('  done');
+}
+
+// ---------------------------------------------------------------------------
+// Main — base seed runs first, domain seed second
+// ---------------------------------------------------------------------------
+
+async function main(): Promise<void> {
+  // Run the Vastu framework base seed: org, tenant, users, roles, permissions
+  await runBaseSeed(prisma);
+
+  // Then run app-specific domain seed
+  await runDomainSeed();
+}
+
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(() => prisma.$disconnect());

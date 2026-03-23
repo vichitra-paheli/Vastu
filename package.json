@@ -20,7 +20,8 @@
     "prisma:studio": "pnpm --filter @vastu/shared prisma:studio",
     "prisma:reset": "pnpm --filter @vastu/shared prisma:reset",
     "docs:dev": "pnpm --filter @vastu/docs dev",
-    "docs:build": "pnpm --filter @vastu/docs build"
+    "docs:build": "pnpm --filter @vastu/docs build",
+    "vastu:init": "pnpm --filter @vastu/shared exec tsx scripts/vastu-init.ts"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.57.1",
