@@ -10,7 +10,8 @@
     "./utils": "./src/utils/index.ts",
     "./utils/validation.server": "./src/utils/validation.server.ts",
     "./permissions": "./src/permissions/index.ts",
-    "./prisma": "./src/prisma/index.ts"
+    "./prisma": "./src/prisma/index.ts",
+    "./data-engine": "./src/data-engine/index.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",
@@ -18,11 +19,13 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prisma:migrate": "prisma migrate dev --schema=./src/prisma/schema.prisma",
-    "prisma:generate": "prisma generate --schema=./src/prisma/schema.prisma",
+    "prisma:migrate": "prisma migrate dev --schema=${PRISMA_SCHEMA:-./src/prisma/schema.prisma}",
+    "prisma:migrate:deploy": "prisma migrate deploy --schema=${PRISMA_SCHEMA:-./src/prisma/schema.prisma}",
+    "prisma:generate": "prisma generate --schema=${PRISMA_SCHEMA:-./src/prisma/schema.prisma}",
     "prisma:seed": "tsx src/prisma/seed.ts",
-    "prisma:studio": "prisma studio --schema=./src/prisma/schema.prisma",
-    "prisma:reset": "prisma migrate reset --schema=./src/prisma/schema.prisma --force"
+    "prisma:studio": "prisma studio --schema=${PRISMA_SCHEMA:-./src/prisma/schema.prisma}",
+    "prisma:reset": "prisma migrate reset --schema=${PRISMA_SCHEMA:-./src/prisma/schema.prisma} --force",
+    "prisma:validate": "prisma validate --schema=${PRISMA_SCHEMA:-./src/prisma/schema.prisma}"
   },
   "dependencies": {
     "@casl/ability": "^6.7.2",
