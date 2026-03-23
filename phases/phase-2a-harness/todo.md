@@ -1,8 +1,8 @@
 # Phase 2A: Extension Points + F1 Demo -- Todo
 
 > Created: 2026-03-23
-> Status: IN PROGRESS
-> Total: 18 features, 47 subtasks
+> Status: COMPLETE
+> Total: 18 features + 1 bonus (US-213), 48 subtasks
 > User stories: US-200 through US-212 (framework), US-220 through US-224 (F1 demo)
 > Prerequisite: Phase 1B complete, old Phase 2A code reverted (branch `revert/phase-2a-old-plan`)
 
@@ -74,10 +74,10 @@ Dependency flow (critical path marked with *):
 Branch: `feature/VASTU-2A-200-app-scaffold`
 Package: root (scripts) | Agent: dev-engineer | Est: ~280 lines
 
-- [ ] VASTU-2A-200a: Scaffold CLI script and templates (root, M) [no deps] -- dev-engineer
+- [x] VASTU-2A-200a: Scaffold CLI script and templates (root, M) [no deps] -- dev-engineer
   - Files: `scripts/vastu-init.ts`, `scripts/templates/app/*.tmpl` (package.json, next.config.mjs, tsconfig.json, prisma/schema.prisma, prisma/seed.ts, src/pages.ts, src/formatters.ts, README.md, src/app/layout.tsx, src/app/page.tsx, src/app/workspace/page.tsx)
   - AC: 1, 2, 4, 5
-- [ ] VASTU-2A-200b: Monorepo workspace integration (root, S) [deps: 200a] -- dev-engineer
+- [x] VASTU-2A-200b: Monorepo workspace integration (root, S) [deps: 200a] -- dev-engineer
   - Files: `pnpm-workspace.yaml`, root `package.json`
   - AC: 3, 4
 
@@ -87,13 +87,13 @@ Package: root (scripts) | Agent: dev-engineer | Est: ~280 lines
 Branch: `feature/VASTU-2A-201-prisma-composition`
 Package: shared | Agent: dev-engineer | Est: ~250 lines
 
-- [ ] VASTU-2A-201a: Extract base schema template (shared, S) [no deps] -- dev-engineer
+- [x] VASTU-2A-201a: Extract base schema template (shared, S) [no deps] -- dev-engineer
   - Files: `packages/shared/prisma/base-schema.prisma`
   - AC: 1, 2
-- [ ] VASTU-2A-201b: Base seed extraction and per-app seed composition (shared, M) [deps: 201a] -- dev-engineer
+- [x] VASTU-2A-201b: Base seed extraction and per-app seed composition (shared, M) [deps: 201a] -- dev-engineer
   - Files: `packages/shared/src/prisma/baseSeed.ts`, `packages/shared/src/prisma/seed.ts`, `packages/shared/src/prisma/index.ts`, root `package.json`
   - AC: 3, 4, 5
-- [ ] VASTU-2A-201c: Documentation -- "Extending the schema" guide (docs, S) [deps: 201a, 201b] -- docs-engineer
+- [x] VASTU-2A-201c: Documentation -- "Extending the schema" guide (docs, S) [deps: 201a, 201b] -- docs-engineer
   - Files: `packages/docs/content/docs/extensions/extending-schema.mdx`, `packages/docs/content/docs/extensions/meta.json`
   - AC: 6
 
@@ -103,19 +103,19 @@ Package: shared | Agent: dev-engineer | Est: ~250 lines
 Branch: `feature/VASTU-2A-202-data-query-api`
 Package: shared, shell | Agent: dev-engineer | Est: ~750 lines
 
-- [ ] VASTU-2A-202a: Move FilterNode types to shared (shared + workspace, S) [no deps] -- dev-engineer
+- [x] VASTU-2A-202a: Move FilterNode types to shared (shared + workspace, S) [no deps] -- dev-engineer
   - Files: `packages/shared/src/data-engine/filterTypes.ts`, `packages/workspace/src/components/FilterSystem/types.ts` (re-export shim), `packages/shared/src/data-engine/index.ts`
   - PREREQUISITE for all data-engine work
-- [ ] VASTU-2A-202b: FilterNode-to-Prisma where translator (shared, M) [deps: 202a] -- dev-engineer
+- [x] VASTU-2A-202b: FilterNode-to-Prisma where translator (shared, M) [deps: 202a] -- dev-engineer
   - Files: `packages/shared/src/data-engine/filterTranslator.ts`, `packages/shared/src/data-engine/__tests__/filterTranslator.test.ts`
   - AC: 2 (15+ test cases for all modes)
-- [ ] VASTU-2A-202c: Sort translator and global search translator (shared, S) [deps: 202a] -- dev-engineer
+- [x] VASTU-2A-202c: Sort translator and global search translator (shared, S) [deps: 202a] -- dev-engineer
   - Files: `packages/shared/src/data-engine/sortTranslator.ts`, `packages/shared/src/data-engine/searchTranslator.ts`, `packages/shared/src/data-engine/__tests__/sortTranslator.test.ts`
   - AC: 3, 5
-- [ ] VASTU-2A-202d: Data engine types and response shape (shared, S) [no deps, parallel with 202a] -- dev-engineer
+- [x] VASTU-2A-202d: Data engine types and response shape (shared, S) [no deps, parallel with 202a] -- dev-engineer
   - Files: `packages/shared/src/data-engine/types.ts`
   - AC: 6, 7
-- [ ] VASTU-2A-202e: Data query API route (shell, L) [deps: 202b, 202c, 202d] -- dev-engineer
+- [x] VASTU-2A-202e: Data query API route (shell, L) [deps: 202b, 202c, 202d] -- dev-engineer
   - Files: `packages/shell/src/app/api/workspace/data/query/route.ts`, `packages/shared/src/index.ts`
   - AC: 1, 4, 6, 7, 8, 9, 10
 
@@ -125,10 +125,10 @@ Package: shared, shell | Agent: dev-engineer | Est: ~750 lines
 Branch: `feature/VASTU-2A-203-data-aggregate-api`
 Package: shared, shell | Agent: dev-engineer | Est: ~550 lines
 
-- [ ] VASTU-2A-203a: Aggregate builder utility and time bucket helper (shared, L) [no deps] -- dev-engineer
+- [x] VASTU-2A-203a: Aggregate builder utility and time bucket helper (shared, L) [no deps] -- dev-engineer
   - Files: `packages/shared/src/data-engine/aggregateBuilder.ts`, `packages/shared/src/data-engine/timeBucket.ts`, `packages/shared/src/data-engine/__tests__/aggregateBuilder.test.ts`
   - AC: 2, 3, 4, 5
-- [ ] VASTU-2A-203b: Aggregate API route (shell, M) [deps: 203a] -- dev-engineer
+- [x] VASTU-2A-203b: Aggregate API route (shell, M) [deps: 203a] -- dev-engineer
   - Files: `packages/shell/src/app/api/workspace/data/aggregate/route.ts`
   - AC: 1, 6
 
@@ -138,10 +138,10 @@ Package: shared, shell | Agent: dev-engineer | Est: ~550 lines
 Branch: `feature/VASTU-2A-204-schema-introspection`
 Package: shared, shell | Agent: dev-engineer | Est: ~230 lines
 
-- [ ] VASTU-2A-204a: Schema introspector utility (shared, M) [no deps] -- dev-engineer
+- [x] VASTU-2A-204a: Schema introspector utility (shared, M) [no deps] -- dev-engineer
   - Files: `packages/shared/src/data-engine/schemaIntrospector.ts`
   - AC: 1, 2, 3
-- [ ] VASTU-2A-204b: Schema introspection API route (shell, S) [deps: 204a] -- dev-engineer
+- [x] VASTU-2A-204b: Schema introspection API route (shell, S) [deps: 204a] -- dev-engineer
   - Files: `packages/shell/src/app/api/workspace/data/schema/route.ts`
   - AC: 1, 4
 
@@ -151,16 +151,16 @@ Package: shared, shell | Agent: dev-engineer | Est: ~230 lines
 Branch: `feature/VASTU-2A-205-formatter-registry`
 Package: workspace | Agent: dev-engineer + design-engineer | Est: ~490 lines
 
-- [ ] VASTU-2A-205a: FormatterRegistry class and types (workspace, S) [no deps] -- dev-engineer
+- [x] VASTU-2A-205a: FormatterRegistry class and types (workspace, S) [no deps] -- dev-engineer
   - Files: `packages/workspace/src/formatters/types.ts`, `packages/workspace/src/formatters/registry.ts`, `packages/workspace/src/formatters/index.ts`
   - AC: 1
-- [ ] VASTU-2A-205b: Built-in formatter pre-registration (workspace, M) [deps: 205a] -- dev-engineer
+- [x] VASTU-2A-205b: Built-in formatter pre-registration (workspace, M) [deps: 205a] -- dev-engineer
   - Files: `packages/workspace/src/formatters/builtins.ts`
   - AC: 4
-- [ ] VASTU-2A-205c: VastuTable and VastuChart integration (workspace, M) [deps: 205a, 205b] -- design-engineer
+- [x] VASTU-2A-205c: VastuTable and VastuChart integration (workspace, M) [deps: 205a, 205b] -- design-engineer
   - Files: `packages/workspace/src/components/VastuTable/types.ts`, `packages/workspace/src/components/VastuTable/VastuTableCell.tsx`, `packages/workspace/src/components/VastuChart/ChartTooltip.tsx`, `packages/workspace/src/components/BuilderPanel/sections/FieldConfigSection.tsx`, `packages/workspace/src/index.ts`
   - AC: 2, 3, 6
-- [ ] VASTU-2A-205d: Documentation -- "Custom formatters" guide (docs, S) [deps: 205a, 205b] -- docs-engineer
+- [x] VASTU-2A-205d: Documentation -- "Custom formatters" guide (docs, S) [deps: 205a, 205b] -- docs-engineer
   - Files: `packages/docs/content/docs/extensions/custom-formatters.mdx`
   - AC: 7
 
@@ -170,13 +170,13 @@ Package: workspace | Agent: dev-engineer + design-engineer | Est: ~490 lines
 Branch: `feature/VASTU-2A-206-page-registration`
 Package: workspace | Agent: dev-engineer + design-engineer | Est: ~380 lines
 
-- [ ] VASTU-2A-206a: PageRegistry class (workspace, M) [no deps] -- dev-engineer
+- [x] VASTU-2A-206a: PageRegistry class (workspace, M) [no deps] -- dev-engineer
   - Files: `packages/workspace/src/pages/types.ts`, `packages/workspace/src/pages/registry.ts`, `packages/workspace/src/pages/index.ts`, `packages/workspace/src/index.ts`
   - AC: 1, 2
-- [ ] VASTU-2A-206b: Sidebar integration -- merge static and dynamic pages (workspace, M) [deps: 206a] -- design-engineer
+- [x] VASTU-2A-206b: Sidebar integration -- merge static and dynamic pages (workspace, M) [deps: 206a] -- design-engineer
   - Files: `packages/workspace/src/components/SidebarNav/SidebarNav.tsx`, DELETE `packages/workspace/src/components/SidebarNav/mockPages.ts`, `packages/workspace/src/hooks/useCommandPaletteActions.ts`
   - AC: 3, 4, 5, 6
-- [ ] VASTU-2A-206c: Documentation -- "Registering pages" guide (docs, S) [deps: 206a] -- docs-engineer
+- [x] VASTU-2A-206c: Documentation -- "Registering pages" guide (docs, S) [deps: 206a] -- docs-engineer
   - Files: `packages/docs/content/docs/extensions/registering-pages.mdx`
   - AC: 7
 
@@ -186,19 +186,19 @@ Package: workspace | Agent: dev-engineer + design-engineer | Est: ~380 lines
 Branch: `feature/VASTU-2A-207-sse-infrastructure`
 Package: shared, shell, workspace | Agent: dev-engineer + design-engineer | Est: ~590 lines
 
-- [ ] VASTU-2A-207a: Event types and in-process event bus (shared, S) [no deps] -- dev-engineer
+- [x] VASTU-2A-207a: Event types and in-process event bus (shared, S) [no deps] -- dev-engineer
   - Files: `packages/shared/src/data-engine/eventTypes.ts`, `packages/shared/src/data-engine/events.ts`
   - AC: 2, 3
-- [ ] VASTU-2A-207b: SSE endpoint (shell, M) [deps: 207a] -- dev-engineer
+- [x] VASTU-2A-207b: SSE endpoint (shell, M) [deps: 207a] -- dev-engineer
   - Files: `packages/shell/src/app/api/workspace/events/route.ts`
   - AC: 1, 4, 11
-- [ ] VASTU-2A-207c: Client-side SSE hook with auto-reconnect (workspace, M) [deps: 207a] -- dev-engineer
+- [x] VASTU-2A-207c: Client-side SSE hook with auto-reconnect (workspace, M) [deps: 207a] -- dev-engineer
   - Files: `packages/workspace/src/hooks/useWorkspaceEvents.ts`, `packages/workspace/src/index.ts`
   - AC: 5, 9
-- [ ] VASTU-2A-207d: SSE status indicator in tray bar (workspace, S) [deps: 207c] -- design-engineer
+- [x] VASTU-2A-207d: SSE status indicator in tray bar (workspace, S) [deps: 207c] -- design-engineer
   - Files: `packages/workspace/src/components/SSEStatusIndicator/SSEStatusIndicator.tsx`, `packages/workspace/src/components/SSEStatusIndicator/SSEStatusIndicator.module.css`, `packages/workspace/src/components/SSEStatusIndicator/index.ts`, `packages/workspace/src/components/TrayBar/index.ts`
   - AC: 10
-- [ ] VASTU-2A-207e: TanStack Query cache invalidation on SSE events (workspace, S) [deps: 207c] -- dev-engineer
+- [x] VASTU-2A-207e: TanStack Query cache invalidation on SSE events (workspace, S) [deps: 207c] -- dev-engineer
   - Files: `packages/workspace/src/hooks/useEventInvalidation.ts`, `packages/workspace/src/providers/WorkspaceProviders.tsx`
   - AC: 6, 7, 8
 
@@ -208,11 +208,11 @@ Package: shared, shell, workspace | Agent: dev-engineer + design-engineer | Est:
 Branch: `feature/VASTU-2A-208-casl-scoping`
 Package: shared, shell | Agent: dev-engineer | Est: ~470 lines
 
-- [ ] VASTU-2A-208a: scopeQuery function with exhaustive tests (shared, M) [no deps] -- dev-engineer
+- [x] VASTU-2A-208a: scopeQuery function with exhaustive tests (shared, M) [no deps] -- dev-engineer
   - Files: `packages/shared/src/data-engine/caslScope.ts`, `packages/shared/src/data-engine/__tests__/caslScope.test.ts`
   - AC: 1, 4, 5, 7, 8
   - Integrates into: `packages/shell/src/app/api/workspace/data/query/route.ts` (AC-2), `packages/shell/src/app/api/workspace/data/aggregate/route.ts` (AC-3)
-- [ ] VASTU-2A-208b: Documentation -- "Permissions and scoping" guide (docs, S) [deps: 208a] -- docs-engineer
+- [x] VASTU-2A-208b: Documentation -- "Permissions and scoping" guide (docs, S) [deps: 208a] -- docs-engineer
   - Files: `packages/docs/content/docs/extensions/permissions-scoping.mdx`
   - AC: 6, 9
 
@@ -222,10 +222,10 @@ Package: shared, shell | Agent: dev-engineer | Est: ~470 lines
 Branch: `feature/VASTU-2A-209-cross-page-nav`
 Package: workspace | Agent: dev-engineer + design-engineer | Est: ~300 lines
 
-- [ ] VASTU-2A-209a: NavigateTo column config and LinkCell renderer (workspace, M) [no deps] -- design-engineer
+- [x] VASTU-2A-209a: NavigateTo column config and LinkCell renderer (workspace, M) [no deps] -- design-engineer
   - Files: `packages/workspace/src/components/VastuTable/types.ts`, `packages/workspace/src/components/VastuTable/LinkCell.tsx`, `packages/workspace/src/components/VastuTable/VastuTableCell.tsx`, `packages/workspace/src/stores/panelStore.ts`
   - AC: 1, 2, 3, 5, 6, 7
-- [ ] VASTU-2A-209b: Breadcrumb back-link in target panel (workspace, S) [deps: 209a] -- design-engineer
+- [x] VASTU-2A-209b: Breadcrumb back-link in target panel (workspace, S) [deps: 209a] -- design-engineer
   - Files: `packages/workspace/src/components/DockviewHost/PanelBreadcrumb.tsx`, `packages/workspace/src/stores/panelStore.ts`, `packages/workspace/src/components/DockviewHost/PanelTab.tsx`
   - AC: 4
 
@@ -236,10 +236,10 @@ Branch: `feature/VASTU-2A-210-chart-keyboard`
 Package: workspace | Agent: design-engineer | Est: ~400 lines
 Note: Previously implemented and merged, then reverted. Redo from scratch.
 
-- [ ] VASTU-2A-210a: Chart keyboard navigation hook (workspace, M) [no deps] -- design-engineer
+- [x] VASTU-2A-210a: Chart keyboard navigation hook (workspace, M) [no deps] -- design-engineer
   - Files: `packages/workspace/src/components/VastuChart/useChartKeyboard.ts`
   - AC: 1, 2, 3, 4
-- [ ] VASTU-2A-210b: VastuChart integration and "View as table" toggle (workspace, M) [deps: 210a] -- design-engineer
+- [x] VASTU-2A-210b: VastuChart integration and "View as table" toggle (workspace, M) [deps: 210a] -- design-engineer
   - Files: `packages/workspace/src/components/VastuChart/VastuChart.tsx`, `packages/workspace/src/components/VastuChart/ChartRenderer.tsx`, `packages/workspace/src/components/VastuChart/ChartDataTable.tsx`
   - AC: 5, 6, 7
 
@@ -250,7 +250,7 @@ Branch: `feature/VASTU-2A-211-workspace-e2e-ci`
 Package: root (.github) | Agent: devops-engineer | Est: ~150 lines
 Note: Previously implemented and merged, then reverted. Redo from scratch.
 
-- [ ] VASTU-2A-211a: CI workflow file (.github, M) [no deps] -- devops-engineer
+- [x] VASTU-2A-211a: CI workflow file (.github, M) [no deps] -- devops-engineer
   - Files: `.github/workflows/ci-workspace-e2e.yml`
   - AC: 1, 2, 3, 4, 5, 6
 
@@ -261,16 +261,16 @@ Branch: `feature/VASTU-2A-212-framework-docs`
 Package: docs | Agent: docs-engineer | Est: ~830 lines
 Note: Individual guides created as subtasks of their parent features (201c, 205d, 206c, 208b). This feature covers the remaining guides, API reference, architecture, and ADRs.
 
-- [ ] VASTU-2A-212a: Extension guides -- getting-started, data-engine, live-updates (docs, L) [deps: all framework features substantially complete] -- docs-engineer
+- [x] VASTU-2A-212a: Extension guides -- getting-started, data-engine, live-updates (docs, L) [deps: all framework features substantially complete] -- docs-engineer
   - Files: `packages/docs/content/docs/extensions/getting-started.mdx`, `packages/docs/content/docs/extensions/data-engine.mdx`, `packages/docs/content/docs/extensions/live-updates.mdx`, `packages/docs/content/docs/extensions/meta.json`
   - AC: 1, 5, 7
-- [ ] VASTU-2A-212b: API reference page (docs, M) [deps: 212a] -- docs-engineer
+- [x] VASTU-2A-212b: API reference page (docs, M) [deps: 212a] -- docs-engineer
   - Files: `packages/docs/content/docs/extensions/api-reference.mdx`
   - AC: 8
-- [ ] VASTU-2A-212c: Architecture diagram (docs, S) [no deps] -- docs-engineer
+- [x] VASTU-2A-212c: Architecture diagram (docs, S) [no deps] -- docs-engineer
   - Files: `packages/docs/content/docs/extensions/architecture.mdx`
   - AC: 9
-- [ ] VASTU-2A-212d: Architecture Decision Records (docs, M) [no deps, parallel with 212a] -- docs-engineer
+- [x] VASTU-2A-212d: Architecture Decision Records (docs, M) [no deps, parallel with 212a] -- docs-engineer
   - Files: `packages/docs/content/docs/decisions/adr-013-framework-app-separation.mdx`, `packages/docs/content/docs/decisions/adr-014-prisma-composition.mdx`, `packages/docs/content/docs/decisions/adr-015-formatter-registry.mdx`, `packages/docs/content/docs/decisions/meta.json`
   - AC: 10
 
@@ -280,10 +280,10 @@ Note: Individual guides created as subtasks of their parent features (201c, 205d
 Branch: `feature/VASTU-2A-220-f1-schema`
 Package: demo-f1 | Agent: dev-engineer | Est: ~480 lines
 
-- [ ] VASTU-2A-220a: F1 app scaffold via vastu:init (demo-f1, S) [no deps] -- dev-engineer
+- [x] VASTU-2A-220a: F1 app scaffold via vastu:init (demo-f1, S) [no deps] -- dev-engineer
   - Files: `apps/demo-f1/package.json`, `apps/demo-f1/next.config.mjs`, `apps/demo-f1/tsconfig.json`, `apps/demo-f1/src/app/layout.tsx`, `apps/demo-f1/src/app/page.tsx`, `apps/demo-f1/src/app/workspace/page.tsx`, `apps/demo-f1/src/pages.ts`, `apps/demo-f1/src/formatters.ts`
   - AC: (scaffold generated by US-200)
-- [ ] VASTU-2A-220b: F1 Prisma schema -- 9 enums, 14 domain models (demo-f1, L) [deps: 220a] -- dev-engineer
+- [x] VASTU-2A-220b: F1 Prisma schema -- 9 enums, 14 domain models (demo-f1, L) [deps: 220a] -- dev-engineer
   - Files: `apps/demo-f1/prisma/schema.prisma`
   - AC: 1, 2, 3, 4, 5
 
@@ -293,16 +293,16 @@ Package: demo-f1 | Agent: dev-engineer | Est: ~480 lines
 Branch: `feature/VASTU-2A-221-f1-seed-data`
 Package: demo-f1 | Agent: dev-engineer | Est: ~1200 lines
 
-- [ ] VASTU-2A-221a: PRNG and reference data (demo-f1, M) [no deps] -- dev-engineer
+- [x] VASTU-2A-221a: PRNG and reference data (demo-f1, M) [no deps] -- dev-engineer
   - Files: `apps/demo-f1/prisma/seed/prng.ts`, `apps/demo-f1/prisma/seed/names.ts`, `apps/demo-f1/prisma/seed/circuits.ts`, `apps/demo-f1/prisma/seed/distributions.ts`
   - AC: 1, 6
-- [ ] VASTU-2A-221b: Season and race generation (demo-f1, L) [deps: 221a] -- dev-engineer
+- [x] VASTU-2A-221b: Season and race generation (demo-f1, L) [deps: 221a] -- dev-engineer
   - Files: `apps/demo-f1/prisma/seed/generateSeasons.ts`, `apps/demo-f1/prisma/seed/generateRaces.ts`, `apps/demo-f1/prisma/seed/generateResults.ts`
   - AC: 2, 3
-- [ ] VASTU-2A-221c: Lap times, pit stops, and events generation (demo-f1, L) [deps: 221a] -- dev-engineer
+- [x] VASTU-2A-221c: Lap times, pit stops, and events generation (demo-f1, L) [deps: 221a] -- dev-engineer
   - Files: `apps/demo-f1/prisma/seed/generateLapTimes.ts`, `apps/demo-f1/prisma/seed/generatePitStops.ts`, `apps/demo-f1/prisma/seed/generateEvents.ts`
   - AC: 2, 3
-- [ ] VASTU-2A-221d: Seed entry point and orchestration (demo-f1, M) [deps: 221b, 221c] -- dev-engineer
+- [x] VASTU-2A-221d: Seed entry point and orchestration (demo-f1, M) [deps: 221b, 221c] -- dev-engineer
   - Files: `apps/demo-f1/prisma/seed.ts`, root `package.json`
   - AC: 4, 5
 
@@ -312,7 +312,7 @@ Package: demo-f1 | Agent: dev-engineer | Est: ~1200 lines
 Branch: `feature/VASTU-2A-222-f1-formatters`
 Package: demo-f1 | Agent: dev-engineer | Est: ~300 lines
 
-- [ ] VASTU-2A-222a: F1 formatter implementations -- 8 custom formatters with tests (demo-f1, M) [no deps] -- dev-engineer
+- [x] VASTU-2A-222a: F1 formatter implementations -- 8 custom formatters with tests (demo-f1, M) [no deps] -- dev-engineer
   - Files: `apps/demo-f1/src/formatters.ts`, `apps/demo-f1/src/__tests__/formatters.test.ts`
   - AC: 1, 2, 3, 4
 
@@ -322,13 +322,13 @@ Package: demo-f1 | Agent: dev-engineer | Est: ~300 lines
 Branch: `feature/VASTU-2A-223-f1-demo-pages`
 Package: demo-f1 | Agent: dev-engineer | Est: ~580 lines
 
-- [ ] VASTU-2A-223a: Page registration configuration -- 9 pages via PageRegistry (demo-f1, L) [no deps] -- dev-engineer
+- [x] VASTU-2A-223a: Page registration configuration -- 9 pages via PageRegistry (demo-f1, L) [no deps] -- dev-engineer
   - Files: `apps/demo-f1/src/pages.ts`
   - AC: 1, 2, 3, 4
-- [ ] VASTU-2A-223b: App startup wiring (demo-f1, S) [deps: 223a] -- dev-engineer
+- [x] VASTU-2A-223b: App startup wiring (demo-f1, S) [deps: 223a] -- dev-engineer
   - Files: `apps/demo-f1/src/app/workspace/page.tsx`
   - AC: 4
-- [ ] VASTU-2A-223c: F1 demo E2E smoke tests (demo-f1, M) [deps: 223a, 223b] -- dev-engineer
+- [x] VASTU-2A-223c: F1 demo E2E smoke tests (demo-f1, M) [deps: 223a, 223b] -- dev-engineer
   - Files: `apps/demo-f1/e2e/smoke.spec.ts`
   - Tests: sidebar shows 9 pages, Races table loads, pagination, cross-page navigation, Championship dashboard renders
 
@@ -338,10 +338,10 @@ Package: demo-f1 | Agent: dev-engineer | Est: ~580 lines
 Branch: `feature/VASTU-2A-224-f1-demo-docs`
 Package: demo-f1, docs | Agent: docs-engineer | Est: ~350 lines
 
-- [ ] VASTU-2A-224a: README and inline comments (demo-f1, M) [no deps] -- docs-engineer
+- [x] VASTU-2A-224a: README and inline comments (demo-f1, M) [no deps] -- docs-engineer
   - Files: `apps/demo-f1/README.md`, inline comments in `apps/demo-f1/src/pages.ts`, `apps/demo-f1/src/formatters.ts`, `apps/demo-f1/prisma/seed.ts`
   - AC: 1, 2
-- [ ] VASTU-2A-224b: Fumadocs demo pages -- walkthrough and building-your-own (docs, M) [deps: 224a] -- docs-engineer
+- [x] VASTU-2A-224b: Fumadocs demo pages -- walkthrough and building-your-own (docs, M) [deps: 224a] -- docs-engineer
   - Files: `packages/docs/content/docs/demo/demo-walkthrough.mdx`, `packages/docs/content/docs/demo/building-your-own.mdx`, `packages/docs/content/docs/demo/meta.json`, `packages/docs/content/docs/meta.json`
   - AC: 3, 4
 
