@@ -31,18 +31,6 @@ export {
 } from './panels/registry';
 export { WelcomePanel, WELCOME_PANEL_TYPE_ID } from './panels/WelcomePanel';
 
-// Page registry (VASTU-2A-206)
-export {
-  registerPage,
-  getAllPages,
-  getPageById,
-  mergeWithDynamic,
-  unregisterPage,
-  clearPageRegistry,
-} from './pages/registry';
-export { registerPagePanels } from './panels/index';
-export type { PageDefinition, MergedPage, PageSection } from './pages/types';
-
 // Stores
 export { useSidebarStore } from './stores/sidebarStore';
 export { usePanelStore, openPanelByTypeId } from './stores/panelStore';

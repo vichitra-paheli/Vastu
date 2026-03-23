@@ -1,0 +1,34 @@
+/**
+ * {{APP_NAME}} custom formatter registrations
+ *
+ * Register domain-specific cell formatters here. Formatters control how
+ * data values are displayed in VastuTable cells and VastuChart tooltips.
+ *
+ * This file is loaded at app startup before the workspace renders.
+ *
+ * Usage:
+ *   import { FormatterRegistry } from '@vastu/workspace';
+ *
+ *   FormatterRegistry.register('my-status', {
+ *     // Required: renders the cell value as a React node
+ *     render: (value: string) => <Badge color="green">{value}</Badge>,
+ *
+ *     // Optional: custom sort comparator
+ *     sort: (a: string, b: string) => a.localeCompare(b),
+ *
+ *     // Optional: plain-text value for CSV/Excel export
+ *     export: (value: string) => value.toUpperCase(),
+ *   });
+ *
+ * Then use it in your page config:
+ *   { field: 'status', header: 'Status', displayType: 'my-status' }
+ */
+
+// import { FormatterRegistry } from '@vastu/workspace';
+
+// ---------------------------------------------------------------------------
+// Register your formatters below
+// ---------------------------------------------------------------------------
+
+// TODO: Register your custom formatters here.
+// See the example comment above and the Vastu docs for full FormatterRegistry API.

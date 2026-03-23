@@ -1,0 +1,97 @@
+# {{APP_NAME}}
+
+A Vastu application. Built on the Vastu framework — enterprise workspace, auth, and data engine included.
+
+## Quick start
+
+```bash
+# From the monorepo root
+pnpm install
+
+# Set up environment
+cp .env.example .env
+# Edit .env with your DATABASE_URL and other secrets
+
+# Run database migrations
+pnpm --filter @app/{{APP_NAME}} prisma:migrate
+
+# Seed the database (base data + domain data)
+pnpm --filter @app/{{APP_NAME}} prisma:seed
+
+# Start the dev server
+pnpm --filter @app/{{APP_NAME}} dev
+```
+
+Then open [http://localhost:3001](http://localhost:3001).
+
+Default credentials (from base seed):
+- Admin: `admin@vastu.dev` / any password
+- Editor: `editor@vastu.dev` / any password
+- Viewer: `viewer@vastu.dev` / any password
+
+## Project structure
+
+```
+apps/{{APP_NAME}}/
+├── prisma/
+│   ├── schema.prisma     # Database schema (base + domain models)
+│   └── seed.ts           # Seed script (calls base seed, then domain seed)
+├── src/
+│   ├── app/              # Next.js App Router pages
+│   │   ├── layout.tsx    # Root layout
+│   │   ├── page.tsx      # Redirects to /workspace
+│   │   └── workspace/
+│   │       └── page.tsx  # Workspace shell mount point
+│   ├── pages.ts          # Page registrations (sidebar pages)
+│   └── formatters.ts     # Custom cell formatters
+├── next.config.mjs       # Next.js config
+├── tsconfig.json         # TypeScript config (extends root)
+└── README.md             # This file
+```
+
+## Extending the schema
+
+Add your domain tables to `prisma/schema.prisma` below the domain section marker.
+Then run:
+
+```bash
+pnpm --filter @app/{{APP_NAME}} prisma:migrate
+```
+
+## Registering pages
+
+Edit `src/pages.ts` to add pages to the sidebar:
+
+```typescript
+import { PageRegistry } from '@vastu/workspace';
+
+PageRegistry.register({
+  id: 'my-page',
+  name: 'My Page',
+  icon: 'IconTable',
+  template: 'table-listing',
+  section: 'PAGES',
+  order: 1,
+  config: { table: 'MyModel', columns: [...] },
+});
+```
+
+## Adding custom formatters
+
+Edit `src/formatters.ts` to register custom cell display formatters:
+
+```typescript
+import { FormatterRegistry } from '@vastu/workspace';
+
+FormatterRegistry.register('my-formatter', {
+  render: (value) => <span>{value}</span>,
+  export: (value) => String(value),
+});
+```
+
+## Framework documentation
+
+- [Getting started](../../packages/docs/content/docs/extensions/getting-started.mdx)
+- [Extending the schema](../../packages/docs/content/docs/extensions/extending-schema.mdx)
+- [Registering pages](../../packages/docs/content/docs/extensions/registering-pages.mdx)
+- [Custom formatters](../../packages/docs/content/docs/extensions/custom-formatters.mdx)
