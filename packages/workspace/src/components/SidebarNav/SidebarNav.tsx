@@ -13,16 +13,12 @@
  *
  * ADMIN section is hidden for non-admin users (CASL: ability.can('manage', 'all')).
  *
- * Pages come from the PageRegistry (code-registered). Static pages appear first,
- * with a subtle "System" badge in builder mode. Dynamic pages (from the database)
- * are appended after static pages, separated by a subtle divider.
- *
  * All colors via --v-* CSS custom properties.
  * All user-facing strings through the `t` prop from next-intl.
  */
 
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { Badge, Tooltip } from '@mantine/core';
+import { Tooltip } from '@mantine/core';
 import {
   IconLayoutSidebarLeftCollapse,
   IconLayoutSidebarLeftExpand,
@@ -35,33 +31,19 @@ import {
   IconChartBar,
   IconFileText,
   IconReceipt,
-  IconFlag,
-  IconClock,
-  IconStar,
-  IconTable,
-  IconForms,
-  IconHistory,
-  IconHome,
 } from '@tabler/icons-react';
 import type { AppAbility } from '@vastu/shared/permissions';
 import { useSidebarStore } from '../../stores/sidebarStore';
 import { usePanelStore, openPanelByTypeId } from '../../stores/panelStore';
-import { getAllPages } from '../../pages/registry';
-import type { PageDefinition } from '../../pages/types';
 import { SidebarSection } from './SidebarSection';
 import { SidebarItem } from './SidebarItem';
 import { SidebarSearch } from './SidebarSearch';
 import { SidebarUserAvatar } from './SidebarUserAvatar';
+import { MOCK_PAGES } from './mockPages';
 import classes from './SidebarNav.module.css';
 
-/**
- * Map of Tabler icon name strings to icon components.
- *
- * Extend this map when new page icons are needed.
- * Convention: key is the icon name without "Icon" prefix.
- */
+/** Map of icon names used in the mock page registry to Tabler icon components. */
 const PAGE_ICONS: Record<string, React.ReactNode> = {
-  // Legacy names kept for backward compatibility
   LayoutDashboard: <IconLayoutDashboard size={16} />,
   Users: <IconUsers size={16} />,
   ShoppingCart: <IconShoppingCart size={16} />,
@@ -69,19 +51,8 @@ const PAGE_ICONS: Record<string, React.ReactNode> = {
   ChartBar: <IconChartBar size={16} />,
   FileText: <IconFileText size={16} />,
   Receipt: <IconReceipt size={16} />,
-  // F1 demo page icons
-  Flag: <IconFlag size={16} />,
-  Clock: <IconClock size={16} />,
-  Star: <IconStar size={16} />,
-  Table: <IconTable size={16} />,
-  Forms: <IconForms size={16} />,
-  History: <IconHistory size={16} />,
-  Home: <IconHome size={16} />,
-  Settings: <IconSettings size={16} />,
-  ShieldCog: <IconShieldCog size={16} />,
 };
 
-/** Resolve a Tabler icon name string to a React icon element. */
 function getPageIcon(iconName: string): React.ReactNode {
   return PAGE_ICONS[iconName] ?? <IconLayoutDashboard size={16} />;
 }
@@ -116,8 +87,6 @@ interface SidebarNavTranslations {
   searchPlaceholder: string;
   /** No results text */
   noResults: string;
-  /** "System" badge label for static pages in builder mode */
-  systemBadge?: string;
 }
 
 interface SidebarNavProps {
@@ -127,15 +96,9 @@ interface SidebarNavProps {
   user: SidebarNavUser;
   /** Translation strings. */
   t: SidebarNavTranslations;
-  /**
-   * Optional list of dynamic (database) pages to merge with code-registered pages.
-   * Static pages always appear first, then dynamic-only pages after a subtle divider.
-   * When not provided, only code-registered pages are shown.
-   */
-  dynamicPages?: PageDefinition[];
 }
 
-export function SidebarNav({ ability, user, t, dynamicPages = [] }: SidebarNavProps) {
+export function SidebarNav({ ability, user, t }: SidebarNavProps) {
   const collapsed = useSidebarStore((s) => s.collapsed);
   const toggle = useSidebarStore((s) => s.toggle);
   const pinnedPages = useSidebarStore((s) => s.pinnedPages);
@@ -143,16 +106,9 @@ export function SidebarNav({ ability, user, t, dynamicPages = [] }: SidebarNavPr
   const searchQuery = useSidebarStore((s) => s.searchQuery);
   const setSearchQuery = useSidebarStore((s) => s.setSearchQuery);
   const activePanelId = usePanelStore((s) => s.activePanelId);
-  const panelModes = usePanelStore((s) => s.panelModes);
-
-  /** True when the currently active panel is in builder mode. */
-  const isBuilderMode = activePanelId != null
-    ? (panelModes[activePanelId] ?? 'editor') === 'builder'
-    : false;
+  const openPanel = (pageId: string) => openPanelByTypeId(pageId);
 
   const isAdmin = ability.can('manage', 'all');
-
-  const openPanel = (pageId: string) => openPanelByTypeId(pageId);
 
   // Register ⌘B / Ctrl+B keyboard shortcut to toggle sidebar.
   const handleKeyDown = useCallback(
@@ -170,36 +126,12 @@ export function SidebarNav({ ability, user, t, dynamicPages = [] }: SidebarNavPr
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
-  /**
-   * All pages in display order:
-   *   - Static pages (from code registry) first, sorted by section + order + name.
-   *   - Dynamic-only pages (from DB) appended after.
-   *
-   * Dynamic pages supplied via `dynamicPages` prop are filtered to 'pages' section
-   * only (system/admin items are always code-registered).
-   */
-  const staticPages = useMemo(() => getAllPages().filter((p) => (p.section ?? 'pages') === 'pages'), []);
-  const dynamicOnlyPages = useMemo(
-    () => dynamicPages.filter((p) => !staticPages.some((s) => s.id === p.id)),
-    [dynamicPages, staticPages],
-  );
-
-  /** Whether there are dynamic-only pages to show after the divider. */
-  const hasDynamicOnly = dynamicOnlyPages.length > 0;
-
-  // Filter pages by search query (case-insensitive). Searches both static and dynamic pages.
-  const { filteredStatic, filteredDynamic } = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return { filteredStatic: staticPages, filteredDynamic: dynamicOnlyPages };
-    }
+  // Filter pages by search query (case-insensitive).
+  const filteredPages = useMemo(() => {
+    if (!searchQuery.trim()) return MOCK_PAGES;
     const q = searchQuery.toLowerCase();
-    return {
-      filteredStatic: staticPages.filter((p) => p.name.toLowerCase().includes(q)),
-      filteredDynamic: dynamicOnlyPages.filter((p) => p.name.toLowerCase().includes(q)),
-    };
-  }, [searchQuery, staticPages, dynamicOnlyPages]);
-
-  const totalFiltered = filteredStatic.length + filteredDynamic.length;
+    return MOCK_PAGES.filter((p) => p.title.toLowerCase().includes(q));
+  }, [searchQuery]);
 
   const toggleButton = (
     <button
@@ -216,26 +148,6 @@ export function SidebarNav({ ability, user, t, dynamicPages = [] }: SidebarNavPr
       )}
     </button>
   );
-
-  /** Render a "System" badge next to a static page in builder mode. */
-  const systemBadge = isBuilderMode && !collapsed ? (
-    <Badge
-      size="xs"
-      variant="light"
-      style={{
-        fontSize: 'var(--v-text-xs)',
-        color: 'var(--v-text-tertiary)',
-        background: 'var(--v-bg-tertiary)',
-        border: '1px solid var(--v-border-subtle)',
-        fontWeight: 'var(--v-font-regular)',
-        letterSpacing: 0,
-        textTransform: 'none',
-        flexShrink: 0,
-      }}
-    >
-      {t.systemBadge ?? 'System'}
-    </Badge>
-  ) : null;
 
   return (
     <nav
@@ -316,7 +228,7 @@ export function SidebarNav({ ability, user, t, dynamicPages = [] }: SidebarNavPr
       <div className={classes.navBody}>
         {/* PAGES section */}
         <SidebarSection label={t.pagesSection} collapsed={collapsed}>
-          {totalFiltered === 0 ? (
+          {filteredPages.length === 0 ? (
             !collapsed && (
               <div
                 style={{
@@ -329,55 +241,20 @@ export function SidebarNav({ ability, user, t, dynamicPages = [] }: SidebarNavPr
               </div>
             )
           ) : (
-            <>
-              {/* Static (code-registered) pages */}
-              {filteredStatic.map((page) => (
-                <div key={page.id} style={{ display: 'flex', alignItems: 'center' }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <SidebarItem
-                      id={page.id}
-                      label={page.name}
-                      icon={getPageIcon(page.icon)}
-                      active={activePanelId === page.id}
-                      pinned={pinnedPages.includes(page.id)}
-                      showPin={true}
-                      collapsed={collapsed}
-                      onClick={() => openPanel(page.id)}
-                      onPinToggle={() => togglePin(page.id)}
-                    />
-                  </div>
-                  {systemBadge}
-                </div>
-              ))}
-
-              {/* Subtle divider between static and dynamic-only pages */}
-              {hasDynamicOnly && filteredStatic.length > 0 && filteredDynamic.length > 0 && (
-                <div
-                  aria-hidden="true"
-                  style={{
-                    height: '1px',
-                    background: 'var(--v-border-subtle)',
-                    margin: 'var(--v-space-1) var(--v-space-3)',
-                  }}
-                />
-              )}
-
-              {/* Dynamic-only pages (from the database, not code-registered) */}
-              {filteredDynamic.map((page) => (
-                <SidebarItem
-                  key={page.id}
-                  id={page.id}
-                  label={page.name}
-                  icon={getPageIcon(page.icon)}
-                  active={activePanelId === page.id}
-                  pinned={pinnedPages.includes(page.id)}
-                  showPin={true}
-                  collapsed={collapsed}
-                  onClick={() => openPanel(page.id)}
-                  onPinToggle={() => togglePin(page.id)}
-                />
-              ))}
-            </>
+            filteredPages.map((page) => (
+              <SidebarItem
+                key={page.id}
+                id={page.id}
+                label={page.title}
+                icon={getPageIcon(page.iconName)}
+                active={activePanelId === page.id}
+                pinned={pinnedPages.includes(page.id)}
+                showPin={true}
+                collapsed={collapsed}
+                onClick={() => openPanel(page.id)}
+                onPinToggle={() => togglePin(page.id)}
+              />
+            ))
           )}
         </SidebarSection>
 

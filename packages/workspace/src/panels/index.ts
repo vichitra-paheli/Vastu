@@ -6,15 +6,10 @@
  *
  * Custom panel types (from page templates) are registered in their respective
  * template modules and should be imported after this file.
- *
- * Page registry integration (VASTU-2A-206):
- * Call `registerPagePanels()` after all pages have been registered via
- * `registerPage()` to create a panel definition for each page. This allows
- * `openPanelByTypeId(page.id)` to work for any registered page.
  */
 
 import React from 'react';
-import { registerPanel, getPanel } from './registry';
+import { registerPanel } from './registry';
 import { WelcomePanel, WELCOME_PANEL_TYPE_ID } from './WelcomePanel';
 import { DataExplorerPanelWrapper } from './DataExplorerPanelWrapper';
 import { TableListingTemplate } from '../templates/TableListing/TableListingTemplate';
@@ -30,8 +25,6 @@ import {
   DASHBOARD_PANEL_TYPE,
 } from '../templates/Dashboard/DashboardTemplate';
 import { BuilderPanel } from '../components/BuilderPanel';
-import { getAllPages } from '../pages/registry';
-import type { TemplateType } from '../templates/types';
 import type { PanelProps } from '../types/panel';
 
 export const DATA_EXPLORER_PANEL_TYPE_ID = 'data-explorer';
@@ -82,94 +75,6 @@ function BuilderPanelWrapper({ params }: PanelProps) {
   return React.createElement(BuilderPanel, { pageId });
 }
 registerPanel({ id: BUILDER_PANEL_TYPE_ID, title: 'Builder', iconName: 'IconSettings', component: BuilderPanelWrapper });
-
-// ---------------------------------------------------------------------------
-// Page registry integration (VASTU-2A-206c)
-// ---------------------------------------------------------------------------
-
-/**
- * Map each TemplateType to the React component that renders it.
- *
- * Used by `registerPagePanels` to create page-specific panel definitions.
- * Each component receives the pageId from panel params.
- */
-function makePagePanelComponent(
-  templateType: TemplateType,
-): React.ComponentType<PanelProps> {
-  switch (templateType) {
-    case 'table-listing':
-      return function PageTableListingPanel({ params }: PanelProps) {
-        const pageId = typeof params.pageId === 'string' ? params.pageId : params.panelTypeId;
-        const config = {
-          templateType: 'table-listing' as const,
-          fields: [],
-          sections: [],
-          metadata: { summaryStrip: { enabled: false, metrics: [] } },
-        };
-        return React.createElement(TableListingTemplate, { pageId, config });
-      };
-    case 'multi-tab-detail':
-      return function PageMultiTabDetailPanel({ params }: PanelProps) {
-        const pageId = typeof params.pageId === 'string' ? params.pageId : params.panelTypeId;
-        return React.createElement(MultiTabDetailTemplate, { pageId });
-      };
-    case 'form-page':
-      return function PageFormPagePanel({ params }: PanelProps) {
-        const pageId = typeof params.pageId === 'string' ? params.pageId : params.panelTypeId;
-        return React.createElement(FormPageTemplate, { pageId });
-      };
-    case 'timeline-activity':
-      return function PageTimelinePanel({ params }: PanelProps) {
-        const pageId = typeof params.pageId === 'string' ? params.pageId : params.panelTypeId;
-        // TimelineActivityPanelWrapper already uses params.pageId internally
-        return React.createElement(TimelineActivityPanelWrapper, { params: { ...params, pageId } });
-      };
-    case 'summary-dashboard':
-      return function PageSummaryDashboardPanel({ params }: PanelProps) {
-        const pageId = typeof params.pageId === 'string' ? params.pageId : params.panelTypeId;
-        return React.createElement(SummaryDashboardTemplate, {
-          pageId,
-          config: { templateType: 'summary-dashboard' },
-        });
-      };
-    case 'data-explorer':
-      return function PageDataExplorerPanel(props: PanelProps) {
-        return React.createElement(DataExplorerPanelWrapper, props);
-      };
-    case 'dashboard':
-    default:
-      return function PageDashboardPanel({ params }: PanelProps) {
-        const pageId = typeof params.pageId === 'string' ? params.pageId : params.panelTypeId;
-        return React.createElement(DashboardTemplate, { pageId });
-      };
-  }
-}
-
-/**
- * Register a panel definition for each page in the page registry.
- *
- * Call this function once at application boot, after all pages have been
- * registered via `registerPage()`. Pages whose ID is already registered as
- * a panel type are skipped (to prevent double-registration).
- *
- * This enables `openPanelByTypeId(page.id)` to work for any registered page.
- */
-export function registerPagePanels(): void {
-  const pages = getAllPages();
-  for (const page of pages) {
-    if (getPanel(page.id)) {
-      // Already registered — skip to avoid duplicate registration errors.
-      continue;
-    }
-    const component = makePagePanelComponent(page.template);
-    registerPanel({
-      id: page.id,
-      title: page.name,
-      iconName: page.icon,
-      component,
-    });
-  }
-}
 
 // Re-export for convenience
 export { registerPanel, getPanel, getAllPanels, unregisterPanel, clearRegistry } from './registry';
