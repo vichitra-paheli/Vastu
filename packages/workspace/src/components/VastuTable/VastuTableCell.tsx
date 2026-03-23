@@ -22,6 +22,7 @@ import { TruncatedText } from '../TruncatedText';
 import { t } from '../../lib/i18n';
 import type { VastuColumn, CellDataType } from './types';
 import { LinkCell } from './LinkCell';
+import { getFormatter } from '../../formatters/registry';
 import classes from './VastuTable.module.css';
 
 export interface VastuTableCellProps<TData extends Record<string, unknown>> {
@@ -102,6 +103,23 @@ function renderCellContent<TData extends Record<string, unknown>>(
 
   if (col.renderCell) {
     return col.renderCell(value, row);
+  }
+
+  // Check FormatterRegistry for a registered formatter by displayType or dataType.
+  // displayType takes priority over dataType when both are set.
+  // Implements US-205 AC-2, AC-6 (VASTU-2A-205).
+  const formatterKey = col.displayType ?? col.dataType;
+  if (formatterKey) {
+    const formatter = getFormatter(formatterKey);
+    if (formatter) {
+      return formatter.render({ value, row: row as Record<string, unknown> });
+    }
+    // Unknown displayType — warn and fall through to text rendering
+    if (col.displayType && col.displayType !== col.dataType) {
+      console.warn(
+        `[VastuTable] Unknown displayType "${col.displayType}" — falling back to text rendering.`,
+      );
+    }
   }
 
   const dataType: CellDataType = col.dataType ?? 'text';
