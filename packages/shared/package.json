@@ -11,7 +11,9 @@
     "./utils/validation.server": "./src/utils/validation.server.ts",
     "./permissions": "./src/permissions/index.ts",
     "./prisma": "./src/prisma/index.ts",
-    "./data-engine": "./src/data-engine/index.ts"
+    "./data-engine": "./src/data-engine/index.ts",
+    "./data-engine/events": "./src/data-engine/events.ts",
+    "./data-engine/eventTypes": "./src/data-engine/eventTypes.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",
