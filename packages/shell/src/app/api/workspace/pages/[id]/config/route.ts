@@ -2,9 +2,12 @@
  * GET  /api/workspace/pages/[id]/config — fetch page template configuration
  * PUT  /api/workspace/pages/[id]/config — upsert page template configuration
  *
- * TODO: Replace the in-memory store with Prisma once the PageConfiguration
+ * TODO: Replace the in-memory stores with Prisma once the PageConfiguration
  * migration lands (see PageConfiguration type in @vastu/shared). The API
  * contract (request / response shape) will remain unchanged.
+ *
+ * AC-12: Every successful PUT writes an audit event to the in-memory audit
+ * store. TODO: Replace with Prisma-backed AuditEvent once the migration lands.
  *
  * Implements VASTU-1B-INFRA.
  */
@@ -12,17 +15,8 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { requireSessionWithAbility } from '@/lib/session';
-import type { PageConfiguration } from '@vastu/shared';
-
-/**
- * In-memory config store.
- * Key: `{organizationId}:{pageId}`
- * Value: PageConfiguration record.
- *
- * This is intentionally process-local and ephemeral — it is replaced by
- * Prisma persistence once the database migration is available.
- */
-const configStore = new Map<string, PageConfiguration>();
+import type { PageConfiguration, AuditEvent } from '@vastu/shared';
+import { configStore, storeKey, appendConfigAuditEvent } from './_stores';
 
 /**
  * Valid TemplateType values. Duplicated here from @vastu/workspace so that the
@@ -42,11 +36,6 @@ const VALID_TEMPLATE_TYPES = new Set([
 
 interface RouteParams {
   params: Promise<{ id: string }>;
-}
-
-/** Build a stable store key scoped to the organization. */
-function storeKey(organizationId: string, pageId: string): string {
-  return `${organizationId}:${pageId}`;
 }
 
 /**
@@ -89,6 +78,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
  *
  * Upsert the TemplateConfig for the page.
  * Validates the config shape: templateType is required and must be a known value.
+ * Writes an audit event on every successful save (AC-12).
  */
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
@@ -145,6 +135,28 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     };
 
     configStore.set(key, record);
+
+    // AC-12: Write audit event for every successful config save.
+    // TODO: Replace with Prisma AuditEvent once the migration lands.
+    const auditEvent: AuditEvent = {
+      id: `audit-${pageId}-${record.version}`,
+      userId: session.user.id,
+      userName: session.user.name ?? null,
+      action: existing ? 'page_config.updated' : 'page_config.created',
+      resourceType: 'PageConfiguration',
+      resourceId: record.id,
+      resourceDescription: `Page config for page ${pageId} (v${record.version})`,
+      payload: { templateType: body.config.templateType as string },
+      beforeState: existing ? (existing.config as Record<string, unknown>) : null,
+      afterState: body.config,
+      ipAddress: null,
+      userAgent: null,
+      tenantId: null,
+      organizationId: session.user.organizationId,
+      createdAt: now,
+    };
+
+    appendConfigAuditEvent(key, auditEvent);
 
     return NextResponse.json({ config: record.config, version: record.version });
   } catch (err) {

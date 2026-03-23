@@ -274,6 +274,15 @@ export type { DateGroupHeaderProps } from './templates/TimelineActivity/DateGrou
 // TimelineActivity panel
 export { TimelineActivityPanelWrapper, TIMELINE_ACTIVITY_PANEL_TYPE_ID } from './panels/index';
 
+// BuilderPanel (US-136)
+export { BuilderPanel } from './components/BuilderPanel';
+export type { BuilderPanelProps } from './components/BuilderPanel';
+export { BuilderWarningHeader } from './components/BuilderPanel';
+export type { BuilderWarningHeaderProps } from './components/BuilderPanel';
+export { useBuilderStore } from './stores/builderStore';
+export type { BuilderSection } from './stores/builderStore';
+export { BUILDER_PANEL_TYPE_ID } from './panels/index';
+
 // SummaryDashboard Template (US-130)
 export { SummaryDashboardTemplate, SUMMARY_DASHBOARD_PANEL_TYPE } from './templates/SummaryDashboard/SummaryDashboardTemplate';
 export { KPICardRow } from './templates/SummaryDashboard/KPICardRow';
