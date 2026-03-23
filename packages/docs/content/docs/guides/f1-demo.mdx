@@ -1,0 +1,238 @@
+---
+title: F1 Demo Walkthrough
+description: A guided tour of the demo-f1 application — a real Vastu app that uses every framework extension point.
+---
+
+**Purpose:** Show how the F1 demo application is structured so you can use it as a reference when building your own Vastu app.
+
+**Prerequisites:**
+- You have read [Getting Started](/docs/guides/getting-started) and [Extending the Schema](/docs/guides/schema-composition)
+- Docker services are running (`docker compose up -d`)
+- You understand what PageRegistry and FormatterRegistry do (see [PageRegistry reference](/docs/reference/page-registry) and [FormatterRegistry reference](/docs/reference/formatter-registry))
+
+---
+
+## What the F1 demo demonstrates
+
+The F1 demo (`apps/demo-f1/`) is a complete Vastu application built on top of the framework without modifying a single file in `packages/`. It proves every extension point works by consuming all of them:
+
+| Extension point | F1 demo usage |
+|----------------|---------------|
+| Schema composition | 16 domain tables added below the base schema marker |
+| Seed composition | `runBaseSeed()` + `runF1Seed()` in a single seed script |
+| FormatterRegistry | 8 custom formatters for lap times, tire compounds, flags, etc. |
+| PageRegistry | 9 pre-configured pages across all 6 built-in templates |
+| Cross-page navigation | Driver name links to Driver Profile; race name links to Race Weekend |
+
+The demo app is fully deletable: `rm -rf apps/demo-f1/` leaves the framework untouched.
+
+---
+
+## Architecture
+
+```
+apps/demo-f1/
+├── package.json              # depends on @vastu/shell, @vastu/workspace, @vastu/shared
+├── next.config.mjs           # Next.js config (transpilePackages for framework packages)
+├── tsconfig.json             # extends root tsconfig
+├── prisma/
+│   ├── schema.prisma         # base schema + 16 F1 domain tables
+│   ├── seed.ts               # calls runBaseSeed() then runF1Seed()
+│   └── f1Seed.ts             # generates 5 seasons of F1 data (~80K records)
+└── src/
+    ├── formatters.ts         # registers 8 custom cell formatters
+    └── pages.ts              # registers 9 domain pages (populated in US-223)
+```
+
+The F1 app does not contain API routes, server actions, or custom query logic. All data fetching goes through the generic [data engine](/docs/reference/data-query-api). The `pages.ts` and `formatters.ts` files are the only configuration the app provides.
+
+### How the framework loads app configuration
+
+At startup, the workspace imports `src/formatters.ts` and `src/pages.ts` as side-effectful modules. `formatters.ts` calls `registerFormatter()` for each custom formatter. `pages.ts` calls `PageRegistry.register()` for each domain page. Both registries are singletons that the framework reads when rendering the sidebar, cell renderer, and builder panel.
+
+---
+
+## Data model
+
+The F1 schema adds 16 domain tables to the base Vastu schema. Here is the entity relationship summary:
+
+**Core entities**
+
+| Table | Description |
+|-------|-------------|
+| `seasons` | A racing year (2020–2024). References champion driver and constructor at end of year. |
+| `circuits` | 25 real race venues with location, length, and type (Street / Permanent / SemiPermanent). |
+| `constructors` | 10 fictional racing teams with nationality, engine supplier, and soft-delete. |
+| `drivers` | 40+ fictional drivers with career stats (wins, poles, championships) and soft-delete. |
+
+**Race weekend**
+
+| Table | Description |
+|-------|-------------|
+| `races` | One race event per round per season. References circuit. Tracks weather, safety car laps, sprint flag. |
+| `race_results` | One row per driver per race. Grid position, finish position, points, status (Finished/DNF/DSQ/DNS), fastest lap. |
+| `qualifying_results` | Q1/Q2/Q3 lap times in milliseconds per driver per race. |
+| `sprint_results` | Sprint race results where applicable. |
+
+**Granular data**
+
+| Table | Description |
+|-------|-------------|
+| `pit_stops` | Each pit stop with lap number, duration in ms, and tire compound fitted. |
+| `lap_times` | One row per driver per lap (~65K rows total). Includes sector times and position at that lap. |
+
+**Standings and events**
+
+| Table | Description |
+|-------|-------------|
+| `driver_standings` | Championship points snapshot after each race per driver. |
+| `constructor_standings` | Championship points snapshot after each race per constructor. |
+| `race_events` | Timeline events for each race: start, overtakes, pit stops, safety cars, penalties, retirements. |
+| `penalties` | Penalties issued per driver per race with type and reason. |
+
+**Relationships:**
+
+```
+Season ──< Race >── Circuit
+Race ──< RaceResult >── Driver
+Race ──< RaceResult >── Constructor
+Race ──< QualifyingResult >── Driver
+Race ──< PitStop >── Driver
+Race ──< LapTime >── Driver
+Race ──< DriverStanding >── Driver
+Race ──< ConstructorStanding >── Constructor
+Race ──< RaceEvent >── Driver?
+Race ──< Penalty >── Driver
+```
+
+---
+
+## Running the demo
+
+### Step 1: Start Docker services
+
+```bash
+docker compose up -d
+```
+
+Postgres must be running on `localhost:5432`.
+
+### Step 2: Migrate the database
+
+Run the F1 schema migration from inside the `apps/demo-f1/` context:
+
+```bash
+pnpm --filter @app/demo-f1 prisma:migrate
+```
+
+This creates all 16 F1 domain tables alongside the base framework tables in a single migration.
+
+### Step 3: Seed the data
+
+```bash
+pnpm --filter @app/demo-f1 prisma:seed
+```
+
+This runs in two phases:
+
+1. `runBaseSeed(prisma)` — creates the Vastu org, tenant, default users (admin / editor / viewer), roles, and permissions. Idempotent; safe to re-run.
+2. `runF1Seed(prisma)` — generates 5 seasons of F1 data using a seeded PRNG (Mulberry32 with seed `0xf1f1f1f1`). Every run produces identical data. Expect ~80,000 database rows and 30–45 seconds to complete.
+
+### Step 4: Start the dev server
+
+```bash
+pnpm --filter @app/demo-f1 dev
+```
+
+Open [http://localhost:3001](http://localhost:3001). Log in with:
+
+- **Admin:** `admin@vastu.dev` / `admin1234`
+- **Editor:** `editor@vastu.dev` / `editor1234`
+- **Viewer:** `viewer@vastu.dev` / `viewer1234`
+
+The sidebar shows all 9 F1 pages immediately — no additional configuration required.
+
+### Resetting the database
+
+To start fresh:
+
+```bash
+pnpm --filter @app/demo-f1 prisma:reset
+pnpm --filter @app/demo-f1 prisma:seed
+```
+
+<Callout type="info">
+The seed is deterministic. Resetting and reseeding gives you the exact same data every time. Championship standings, lap times, and penalties are identical across runs.
+</Callout>
+
+---
+
+## The seed: how deterministic data generation works
+
+`apps/demo-f1/prisma/f1Seed.ts` uses the Mulberry32 algorithm — a fast, seedable pseudo-random number generator. A single shared `rng` instance is initialised at module load with the fixed seed `0xf1f1f1f1`. All random decisions (DNF rate, pit stop count, lap times, weather) draw from this sequence in a fixed order, so output is always identical.
+
+Record IDs are generated deterministically using SHA-256 hashes of a namespace + key string:
+
+```typescript
+// From apps/demo-f1/prisma/f1Seed.ts
+function makeId(namespace: string, key: string): string {
+  const hash = createHash('sha256').update(`f1-seed:${namespace}:${key}`).digest('hex');
+  // Returns a UUID-formatted string derived from the hash
+}
+```
+
+This means `upsert` calls are safe — the same ID is generated whether the seed runs for the first or the tenth time.
+
+---
+
+## The formatters: what each one does
+
+All formatters are registered in `apps/demo-f1/src/formatters.ts`. They are registered once at module load via `registerF1Formatters()`, which is called as a module side-effect when the file is imported.
+
+| Formatter ID | Input type | Display | Used on |
+|-------------|-----------|---------|---------|
+| `lap-time` | `number` (milliseconds) | `1:23.456` | `lap_times.time_ms`, qualifying times, fastest lap |
+| `pit-duration` | `number` (milliseconds) | `2.4s` | `pit_stops.duration_ms` |
+| `tire-compound` | `string` enum | Colored pill badge | `pit_stops.tire_compound` |
+| `position-change` | `number` (delta) | `▲3` green / `▼2` red / `—` gray | Grid vs finish delta |
+| `race-status` | `string` enum | Color-coded badge | `race_results.status` |
+| `nationality-flag` | `string` (nationality name) | Flag emoji + country code | `drivers.nationality`, `constructors.nationality` |
+| `circuit-type` | `string` enum | Colored badge | `circuits.circuit_type` |
+| `weather` | `string` enum | Icon + label | `races.weather` |
+
+Each formatter object implements three functions:
+
+- `render({ value, row })` — returns a React node for display in table cells and chart tooltips
+- `sort({ aValue, bValue })` — returns a sort comparison number for column sorting
+- `export({ value, row })` — returns a plain string for CSV export
+
+---
+
+## The pages: all 6 templates in one app
+
+`apps/demo-f1/src/pages.ts` will register 9 pages via `PageRegistry.register()` (full implementation: US-223). The 9 pages demonstrate every built-in template:
+
+| Page | Template | What it shows |
+|------|----------|--------------|
+| Races | `table-listing` | All races with weather, results, circuit links |
+| Drivers | `table-listing` | Driver roster with flag formatter and career stats |
+| Constructors | `table-listing` | Team list with nationality and status |
+| Championship | `summary-dashboard` | Season KPIs, points charts, latest race results |
+| Driver Profile | `multi-tab-detail` | Per-driver stats, results, qualifying, penalties, career timeline |
+| Lap Time Explorer | `data-explorer` | Lap time aggregates by circuit, driver, or tire compound |
+| Race Report | `form-page` | Multi-step form: select race, enter results, add incidents |
+| Race Weekend | `timeline-activity` | Per-race event timeline with type filtering |
+| My Dashboard | `dashboard` | Pinned KPIs, constructor wins chart, latest race top 10 |
+
+Cross-page navigation connects these pages: clicking a driver name in the Races table opens the Driver Profile; clicking a race name opens Race Weekend.
+
+---
+
+## Related pages
+
+- [F1 Customization Guide](/docs/guides/f1-customization) — add a new page, formatter, schema table, or seed records to the F1 demo
+- [Getting Started](/docs/guides/getting-started) — scaffold your own app from scratch
+- [PageRegistry reference](/docs/reference/page-registry) — full API for page registration
+- [FormatterRegistry reference](/docs/reference/formatter-registry) — full API for custom formatters
+- [Schema composition](/docs/guides/schema-composition) — how domain tables coexist with the base schema
+- [Data Query API](/docs/reference/data-query-api) — the generic data engine all pages use
