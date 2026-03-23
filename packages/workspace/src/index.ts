@@ -333,26 +333,6 @@ export {
 
 // dashboardStore (US-137)
 export { useDashboardStore, serializeDashboardState, deserializeDashboardState } from './stores/dashboardStore';
-
-// FormatterRegistry (VASTU-2A-205)
-export {
-  registerFormatter,
-  getFormatter,
-  getAllFormatters,
-  hasFormatter,
-  unregisterFormatter,
-  clearFormatterRegistry,
-  BUILTIN_FORMATTERS,
-  registerBuiltinFormatters,
-} from './formatters';
-export type {
-  FormatterDefinition,
-  FormatterMeta,
-  FormatterRenderContext,
-  FormatterSortContext,
-  FormatterExportContext,
-  FormatterFilterContext,
-} from './formatters';
 export type {
   DashboardCard as DashboardCardDef,
   DashboardCardType,
