@@ -137,6 +137,21 @@ export interface VastuChartProps {
   /** Called when the user clicks the retry button in the error state. */
   onRetry?: () => void;
   /**
+   * Called when the user activates a data point via keyboard (Enter key).
+   * Triggers the drill-down action for that point.
+   *
+   * @param dataIndex - Index of the active data point in the `data` array.
+   * @param seriesIndex - Index of the active series in the visible series array.
+   * @param dataPoint - The data object at the active index.
+   * @param series - The series config for the active series.
+   */
+  onDataPointClick?: (
+    dataIndex: number,
+    seriesIndex: number,
+    dataPoint: ChartDataPoint,
+    series: SeriesConfig,
+  ) => void;
+  /**
    * Accessible label describing the chart for screen readers.
    * Example: "Monthly revenue by region, line chart"
    */
