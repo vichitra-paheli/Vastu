@@ -1,0 +1,166 @@
+---
+title: Getting Started
+description: Create a new Vastu application from scratch using the scaffold CLI, register your first page, and run your first seed.
+---
+
+**Purpose:** This guide takes you from zero to a running Vastu application in under 10 minutes.
+
+**Prerequisites:**
+- Vastu monorepo cloned and installed (`pnpm install` complete)
+- Docker services running (`docker compose up -d`)
+- You have read [Installation](/docs/getting-started/installation) and [Project Structure](/docs/getting-started/project-structure)
+
+---
+
+## Step 1: Scaffold the application
+
+Run the init command from anywhere inside the monorepo:
+
+```bash
+pnpm vastu:init my-app
+```
+
+The CLI validates the app name (lowercase, hyphens allowed, must start with a letter) and creates `apps/my-app/` with everything you need:
+
+```
+apps/my-app/
+├── package.json            # depends on @vastu/shell, @vastu/workspace, @vastu/shared
+├── next.config.mjs         # Next.js config with transpilePackages
+├── tsconfig.json           # extends root tsconfig
+├── prisma/
+│   ├── schema.prisma       # base schema + YOUR DOMAIN MODELS section
+│   └── seed.ts             # calls runBaseSeed() then your domain seed
+├── src/
+│   ├── pages.ts            # register domain pages here
+│   ├── formatters.ts       # register custom cell formatters here
+│   └── app/
+│       ├── layout.tsx
+│       ├── page.tsx        # redirects to /workspace
+│       └── workspace/
+│           └── page.tsx    # renders WorkspaceShell
+└── README.md
+```
+
+## Step 2: Install and migrate
+
+After scaffolding, install the new package and run the database migration:
+
+```bash
+pnpm install
+
+pnpm --filter @app/my-app prisma:migrate
+pnpm --filter @app/my-app prisma:seed
+```
+
+The seed runs the framework base seed first (organization, tenant, users, roles, permissions), then calls your empty domain seed function. It is safe to run multiple times — all upserts use deterministic UUIDs.
+
+## Step 3: Start the dev server
+
+```bash
+pnpm --filter @app/my-app dev
+```
+
+Open [http://localhost:3001](http://localhost:3001). You will see the workspace with the default Welcome panel and a Settings link in the sidebar.
+
+## Step 4: Add your first domain table
+
+Open `apps/my-app/prisma/schema.prisma`. Scroll to the domain section at the bottom:
+
+```prisma
+// ═══════════════════════════════════════════════════════════════════════════
+// YOUR DOMAIN MODELS BELOW
+// ═══════════════════════════════════════════════════════════════════════════
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  price       Float
+  sku         String   @unique
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("products")
+}
+```
+
+Run the migration to apply it:
+
+```bash
+pnpm --filter @app/my-app prisma:migrate
+```
+
+## Step 5: Register your first page
+
+Open `apps/my-app/src/pages.ts` and add a page registration:
+
+```typescript
+import { PageRegistry } from '@vastu/workspace';
+
+PageRegistry.register({
+  id: 'products',
+  name: 'Products',
+  icon: 'ShoppingBag',
+  template: 'table-listing',
+  section: 'PAGES',
+  order: 1,
+  config: {
+    table: 'Product',
+    columns: [
+      { field: 'name', header: 'Name' },
+      { field: 'sku', header: 'SKU' },
+      { field: 'price', header: 'Price', displayType: 'currency' },
+    ],
+  },
+});
+```
+
+The `icon` value is a Tabler icon name — browse the full list at [tabler.io/icons](https://tabler.io/icons). The `template` value is one of the built-in templates (`table-listing`, `summary-dashboard`, `multi-tab-detail`, `data-explorer`, `form-page`, `timeline-activity`, `dashboard`).
+
+Restart the dev server. The Products page now appears in the sidebar.
+
+## Step 6: Seed domain data
+
+Open `apps/my-app/prisma/seed.ts` and add records to `runDomainSeed()`:
+
+```typescript
+async function runDomainSeed(): Promise<void> {
+  console.log('Seeding domain data for my-app...');
+
+  await prisma.product.upsert({
+    where: { id: 'aaaaaaaa-1111-4000-a000-000000000001' },
+    update: {},
+    create: {
+      id: 'aaaaaaaa-1111-4000-a000-000000000001',
+      name: 'Widget Pro',
+      price: 49.99,
+      sku: 'WGT-PRO-001',
+    },
+  });
+
+  console.log('  done');
+}
+```
+
+Use deterministic UUIDs (not `uuid()` calls) so the seed is idempotent. Run it:
+
+```bash
+pnpm --filter @app/my-app prisma:seed
+```
+
+The Products page now shows your seeded data.
+
+## What's next
+
+- [Extending the schema](/docs/guides/schema-composition) — add foreign keys, enums, relations, and run migrations
+- [Registering pages](/docs/reference/page-registry) — full PageRegistry API with all config options
+- [Custom formatters](/docs/reference/formatter-registry) — render lap times, flags, status badges
+- [Data engine](/docs/reference/data-query-api) — how the query and aggregate APIs work
+- [Live updates](/docs/reference/events) — emit SSE events and react to them in the UI
+
+---
+
+**Related pages:**
+- [Installation](/docs/getting-started/installation)
+- [Project Structure](/docs/getting-started/project-structure)
+- [PageRegistry reference](/docs/reference/page-registry)
+- [Schema composition](/docs/guides/schema-composition)

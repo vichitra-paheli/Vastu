@@ -1,0 +1,181 @@
+---
+title: Events and Live Updates
+description: Emit workspace events server-side and subscribe to them client-side via SSE so tables, dashboards, and timelines update without a full page reload.
+---
+
+**Purpose:** Teach you how to emit events from your API routes or seed scripts, and how to react to those events in the UI.
+
+**Prerequisites:**
+- [Getting Started](/docs/guides/getting-started) completed
+- Basic familiarity with Server-Sent Events (SSE)
+
+Sources:
+- Event emitter: `packages/shared/src/data-engine/events.ts`
+- Event types: `packages/shared/src/data-engine/eventTypes.ts`
+- SSE hook: `packages/workspace/src/hooks/useWorkspaceEvents.ts`
+- Cache invalidation hook: `packages/workspace/src/hooks/useEventInvalidation.ts`
+
+---
+
+## Overview
+
+The event system has two parts:
+
+1. **Server-side emitter** — your API routes call `emitWorkspaceEvent()` after mutations
+2. **Client-side SSE stream** — the browser subscribes to `/api/workspace/events` and receives events filtered to the current tenant
+
+The framework handles routing, filtering, and reconnection. You only need to emit and consume.
+
+## Emitting events
+
+Import `emitWorkspaceEvent` from `@vastu/shared/data-engine` in any server-side code (API routes, seed scripts):
+
+```typescript
+import { emitWorkspaceEvent } from '@vastu/shared/data-engine';
+
+// After creating a record
+await prisma.race.create({ data: raceData });
+
+emitWorkspaceEvent({
+  type: 'record.created',
+  table: 'race',
+  recordId: race.id,
+  tenantId: session.user.tenantId,
+});
+```
+
+```typescript
+// After updating a record
+emitWorkspaceEvent({
+  type: 'record.updated',
+  table: 'race',
+  recordId: race.id,
+  tenantId: session.user.tenantId,
+});
+```
+
+```typescript
+// For configuration changes (invalidates the pages query cache)
+emitWorkspaceEvent({
+  type: 'config.changed',
+  tenantId: session.user.tenantId,
+});
+```
+
+The `timestamp` field is added automatically if you omit it.
+
+## Event types
+
+| Type | When to emit | Effect in UI |
+|------|-------------|-------------|
+| `record.created` | After inserting a new record | Table listing shows "N new records" badge |
+| `record.updated` | After updating a record | TanStack Query invalidates that record |
+| `record.deleted` | After deleting a record | TanStack Query invalidates that table |
+| `view.saved` | After saving a view | Views dropdown refreshes |
+| `config.changed` | After changing page configuration | Sidebar refreshes page list |
+
+## `WorkspaceEvent` type
+
+```typescript
+interface WorkspaceEvent {
+  type: 'record.created' | 'record.updated' | 'record.deleted' | 'view.saved' | 'config.changed';
+  tenantId: string;          // required — events are scoped to one tenant
+  timestamp: string;         // ISO-8601, auto-set by emitWorkspaceEvent()
+  table?: string;            // Prisma model name (lowercase: 'race', 'driver')
+  recordId?: string;         // primary key of the affected record
+  payload?: Record<string, unknown>;  // arbitrary extra data
+}
+```
+
+`table` and `recordId` are optional because non-record events (`view.saved`, `config.changed`) do not reference a specific record.
+
+## Subscribing in client components
+
+Use `useWorkspaceEvents` to subscribe to the SSE stream in any client component:
+
+```typescript
+'use client';
+import { useWorkspaceEvents } from '@vastu/workspace';
+
+function RacesTable() {
+  const [newCount, setNewCount] = useState(0);
+
+  const connectionState = useWorkspaceEvents((event) => {
+    if (event.type === 'record.created' && event.table === 'race') {
+      setNewCount((n) => n + 1);
+    }
+  });
+
+  return (
+    <>
+      {newCount > 0 && (
+        <Badge onClick={() => { refetch(); setNewCount(0); }}>
+          {newCount} new races
+        </Badge>
+      )}
+      {/* table content */}
+    </>
+  );
+}
+```
+
+`useWorkspaceEvents` returns the current connection state: `'connecting' | 'connected' | 'disconnected'`. The tray bar displays a status indicator driven by this value.
+
+The callback identity does not need to be stable — you do not need to wrap it in `useCallback`. The hook keeps a ref internally and updates it on each render without reconnecting the stream.
+
+## Automatic cache invalidation
+
+The framework already mounts `useEventInvalidation` near the top of the workspace provider tree. This hook listens to all events and invalidates TanStack Query caches automatically:
+
+| Event | Cache keys invalidated |
+|-------|----------------------|
+| `record.created` for table `T` | `['records', T]` |
+| `record.updated` for record `R` in table `T` | `['records', T]`, `['record', T, R]` |
+| `record.deleted` for record `R` in table `T` | `['records', T]`, `['record', T, R]` |
+| `view.saved` | `['views']` |
+| `config.changed` | `['pages']` |
+
+You do not need to mount `useEventInvalidation` yourself. If you use the standard TanStack Query key patterns above, your queries will refresh automatically when relevant events arrive.
+
+## Connection management
+
+`useWorkspaceEvents` manages the EventSource lifecycle:
+
+- Connects automatically on mount
+- Reconnects on error with exponential backoff: 1s → 2s → 4s → ... → 30s max
+- Backoff resets to 1s after a successful connection
+- Tears down and cancels retries on unmount
+
+The SSE endpoint is `/api/workspace/events`. Events are filtered server-side by `tenantId` — users only receive events for their own tenant.
+
+## Advanced: custom event payload
+
+You can attach arbitrary data to any event via `payload`. This is useful for optimistic UI updates where you want to pass the new record data alongside the notification:
+
+```typescript
+emitWorkspaceEvent({
+  type: 'record.created',
+  table: 'race',
+  recordId: race.id,
+  tenantId: session.user.tenantId,
+  payload: {
+    name: race.name,
+    date: race.date.toISOString(),
+  },
+});
+```
+
+The payload is delivered to the client callback as part of the `WorkspaceEvent` object.
+
+## Phase 2A limitation
+
+The current SSE implementation uses an in-process Node.js EventEmitter singleton. Events cross from one request handler to another within the same Next.js process, but do not cross process boundaries. In a multi-instance deployment, events emitted on process A will not reach clients connected to process B.
+
+Phase 3 will replace the in-process bus with Redis Pub/Sub. Your call sites (`emitWorkspaceEvent(...)`) will not change — only the internal delivery mechanism changes.
+
+---
+
+**Related pages:**
+- [Data query API](/docs/reference/data-query-api)
+- [Getting Started](/docs/guides/getting-started)
+- [Schema composition](/docs/guides/schema-composition)

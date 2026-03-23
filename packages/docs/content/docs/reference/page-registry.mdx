@@ -1,0 +1,185 @@
+---
+title: PageRegistry
+description: Register domain pages that appear in the sidebar, command palette, and page picker without modifying framework code.
+---
+
+**Purpose:** Reference documentation for the page registry API — how to define pages in code, how they appear alongside database-created pages, and how the sidebar orders them.
+
+**Prerequisites:**
+- [Getting Started](/docs/guides/getting-started) completed
+- Your app was created with `pnpm vastu:init`
+
+Source: `packages/workspace/src/pages/registry.ts`
+
+---
+
+## Overview
+
+The page registry is a module-level singleton map that holds all statically-defined pages for your application. You register pages in `apps/<your-app>/src/pages.ts` using the exported functions, which the framework loads at app startup.
+
+Static pages (registered in code) and dynamic pages (created via builder mode and stored in the database) are merged. Static pages always appear first in the sidebar, followed by dynamic pages separated by a subtle divider. In builder mode, static pages show a "System" badge — they cannot be deleted at runtime, but their configuration can be overridden.
+
+## Registering a page
+
+```typescript
+// apps/my-app/src/pages.ts
+import { registerPage } from '@vastu/workspace';
+
+registerPage({
+  id: 'products',
+  name: 'Products',
+  icon: 'ShoppingBag',
+  template: 'table-listing',
+  section: 'pages',
+  order: 1,
+  config: {
+    dataSource: { type: 'prisma', model: 'Product' },
+    fields: [
+      { key: 'name', label: 'Name', type: 'text' },
+      { key: 'sku', label: 'SKU', type: 'text' },
+      { key: 'price', label: 'Price', type: 'number' },
+    ],
+  },
+});
+```
+
+## `PageDefinition` type
+
+| Property | Type | Required | Default | Description |
+|----------|------|----------|---------|-------------|
+| `id` | `string` | Yes | — | Stable unique identifier. Used as the Dockview panel type ID when the page opens. Must be unique across all registered pages. |
+| `name` | `string` | Yes | — | Display name shown in the sidebar, command palette, and page picker. |
+| `template` | `TemplateType` | Yes | — | Template type that renders the page. See [Template values](#template-values). |
+| `icon` | `string` | Yes | — | Tabler icon name without the `Icon` prefix. Browse at [tabler.io/icons](https://tabler.io/icons). |
+| `section` | `PageSection` | No | `'pages'` | Sidebar section. See [Sidebar sections](#sidebar-sections). |
+| `order` | `number` | No | undefined | Sort order within the section. Lower numbers appear first. Pages with no order sort after pages with an explicit order, then alphabetically. |
+| `config` | `Partial<TemplateConfig>` | No | — | Default template configuration applied when no database override exists. Shape depends on the template. |
+
+## Template values
+
+| Value | Use for |
+|-------|---------|
+| `'table-listing'` | Tables with filters, sort, pagination, export |
+| `'summary-dashboard'` | KPI cards + charts, a single entity overview |
+| `'multi-tab-detail'` | Tabbed detail view for a single record |
+| `'data-explorer'` | Interactive chart explorer with dimension/metric controls |
+| `'form-page'` | Multi-step form / wizard |
+| `'timeline-activity'` | Chronological event stream |
+| `'dashboard'` | Free-form dashboard with pinnable cards |
+
+## Sidebar sections
+
+Pages are grouped into sidebar sections and rendered in section order: `pages` → `system` → `admin`.
+
+| Value | Intended use |
+|-------|-------------|
+| `'pages'` | Primary domain pages (most pages go here) |
+| `'system'` | Framework or admin utilities |
+| `'admin'` | Admin-only pages |
+
+## Registry functions
+
+All functions are exported from `@vastu/workspace`:
+
+```typescript
+import {
+  registerPage,
+  getAllPages,
+  getPageById,
+  unregisterPage,
+  clearPageRegistry,
+} from '@vastu/workspace';
+
+// Register a page (throws if ID already exists)
+registerPage(definition: PageDefinition): void
+
+// Get all pages sorted by section → order → name
+getAllPages(): PageDefinition[]
+
+// Look up a single page by ID
+getPageById(id: string): PageDefinition | undefined
+```
+
+`unregisterPage` and `clearPageRegistry` are exported for test isolation. Do not call them in production code.
+
+## Registering multiple pages
+
+```typescript
+import { registerPage } from '@vastu/workspace';
+
+const pages = [
+  {
+    id: 'drivers',
+    name: 'Drivers',
+    icon: 'User',
+    template: 'table-listing' as const,
+    section: 'pages' as const,
+    order: 1,
+    config: { dataSource: { type: 'prisma', model: 'Driver' } },
+  },
+  {
+    id: 'constructors',
+    name: 'Constructors',
+    icon: 'Car',
+    template: 'table-listing' as const,
+    section: 'pages' as const,
+    order: 2,
+    config: { dataSource: { type: 'prisma', model: 'Constructor' } },
+  },
+  {
+    id: 'driver-profile',
+    name: 'Driver Profile',
+    icon: 'UserCircle',
+    template: 'multi-tab-detail' as const,
+    section: 'pages' as const,
+    order: 10,
+  },
+];
+
+for (const page of pages) {
+  registerPage(page);
+}
+```
+
+## Error behavior
+
+Registering a page with a duplicate ID throws synchronously:
+
+```
+Error: [pageRegistry] Page "products" is already registered.
+Each page ID must be unique.
+```
+
+This is intentional — duplicate registrations in `src/pages.ts` are a programming error. The error surfaces at app startup, before any user interaction.
+
+## Merging static and dynamic pages
+
+`mergeWithDynamic` combines code-registered pages with database pages into a unified list for the sidebar:
+
+```typescript
+import { mergeWithDynamic } from '@vastu/workspace';
+
+// dbPages comes from your database query
+const merged = mergeWithDynamic(dbPages);
+// merged: MergedPage[] — static first, then dynamic-only
+```
+
+Each `MergedPage` has two additional fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `isStatic` | `boolean` | `true` for code-registered pages, `false` for database-only pages |
+| `resolvedConfig` | `Partial<TemplateConfig>` | Static default config merged with any database overrides (database wins on overlapping keys) |
+
+## How pages load at startup
+
+When the workspace initializes, it imports `src/pages.ts`. That import runs the `registerPage()` calls as module-level side effects. The sidebar and command palette then read from `getAllPages()` to build their lists.
+
+You do not need to configure anything else. The framework wires up the import automatically via `apps/<app-name>/src/app/workspace/page.tsx`.
+
+---
+
+**Related pages:**
+- [Getting Started](/docs/guides/getting-started)
+- [FormatterRegistry reference](/docs/reference/formatter-registry)
+- [Workspace templates](/docs/workspace/templates)
