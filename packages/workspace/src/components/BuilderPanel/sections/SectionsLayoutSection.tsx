@@ -23,54 +23,37 @@ import React from 'react';
 import { IconGripVertical } from '@tabler/icons-react';
 import { t } from '../../../lib/i18n';
 import type { TemplateConfig, SectionConfig } from '../../../templates/types';
+import { ToggleSwitch } from '../ToggleSwitch';
 import classes from '../BuilderPanel.module.css';
-
-// ─── Default sections ─────────────────────────────────────────────────────────
-
-const DEFAULT_SECTIONS: SectionConfig[] = [
-  { id: 'summaryStrip', label: t('builder.sectionsLayout.summaryStrip'), type: 'summaryStrip', visible: true, order: 0 },
-  { id: 'advancedSearch', label: t('builder.sectionsLayout.advancedSearch'), type: 'advancedSearch', visible: true, order: 1 },
-  { id: 'bulkActions', label: t('builder.sectionsLayout.bulkActions'), type: 'bulkActions', visible: true, order: 2 },
-  { id: 'detailDrawer', label: t('builder.sectionsLayout.detailDrawer'), type: 'detailDrawer', visible: true, order: 3 },
-];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function ToggleSwitch({
-  checked,
-  onChange,
-  id,
-}: {
-  checked: boolean;
-  onChange: (val: boolean) => void;
-  id: string;
-}) {
-  return (
-    <label className={classes.toggleSwitch} htmlFor={id}>
-      <input
-        id={id}
-        type="checkbox"
-        className={classes.toggleSwitchInput}
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-      />
-      <span className={classes.toggleSwitchTrack} />
-      <span className={classes.toggleSwitchThumb} />
-    </label>
-  );
+/**
+ * Build the list of default sections.
+ * Called inside the component render so t() is never invoked at module
+ * top-level before the i18n module has loaded.
+ */
+function buildDefaultSections(): SectionConfig[] {
+  return [
+    { id: 'summaryStrip', label: t('builder.sectionsLayout.summaryStrip'), type: 'summaryStrip', visible: true, order: 0 },
+    { id: 'advancedSearch', label: t('builder.sectionsLayout.advancedSearch'), type: 'advancedSearch', visible: true, order: 1 },
+    { id: 'bulkActions', label: t('builder.sectionsLayout.bulkActions'), type: 'bulkActions', visible: true, order: 2 },
+    { id: 'detailDrawer', label: t('builder.sectionsLayout.detailDrawer'), type: 'detailDrawer', visible: true, order: 3 },
+  ];
 }
 
 function resolvedSections(config: TemplateConfig): SectionConfig[] {
+  const defaultSections = buildDefaultSections();
   if (config.sections && config.sections.length > 0) {
     // Merge with defaults so any missing sections are included
     const existingIds = new Set(config.sections.map((s) => s.id));
-    const missing = DEFAULT_SECTIONS.filter((ds) => !existingIds.has(ds.id)).map((ds, i) => ({
+    const missing = defaultSections.filter((ds) => !existingIds.has(ds.id)).map((ds, i) => ({
       ...ds,
       order: config.sections!.length + i,
     }));
     return [...config.sections, ...missing].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   }
-  return DEFAULT_SECTIONS;
+  return defaultSections;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -128,16 +111,7 @@ export function SectionsLayoutSection({ config, onChange }: SectionsLayoutSectio
               onClick={() => moveSection(idx, 'up')}
               disabled={idx === 0}
               aria-label={t('builder.sectionsLayout.moveUp')}
-              style={{
-                padding: '2px 6px',
-                fontSize: 11,
-                cursor: idx === 0 ? 'not-allowed' : 'pointer',
-                opacity: idx === 0 ? 0.4 : 1,
-                border: '1px solid var(--v-border-default)',
-                borderRadius: 3,
-                background: 'var(--v-surface-2)',
-                color: 'var(--v-text-secondary)',
-              }}
+              className={classes.reorderButton}
             >
               ↑
             </button>
@@ -146,16 +120,7 @@ export function SectionsLayoutSection({ config, onChange }: SectionsLayoutSectio
               onClick={() => moveSection(idx, 'down')}
               disabled={idx === sections.length - 1}
               aria-label={t('builder.sectionsLayout.moveDown')}
-              style={{
-                padding: '2px 6px',
-                fontSize: 11,
-                cursor: idx === sections.length - 1 ? 'not-allowed' : 'pointer',
-                opacity: idx === sections.length - 1 ? 0.4 : 1,
-                border: '1px solid var(--v-border-default)',
-                borderRadius: 3,
-                background: 'var(--v-surface-2)',
-                color: 'var(--v-text-secondary)',
-              }}
+              className={classes.reorderButton}
             >
               ↓
             </button>

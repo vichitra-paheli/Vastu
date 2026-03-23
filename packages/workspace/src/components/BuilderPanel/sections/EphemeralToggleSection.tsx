@@ -15,6 +15,7 @@ import React from 'react';
 import { IconToggleRight, IconAlertCircle } from '@tabler/icons-react';
 import { t } from '../../../lib/i18n';
 import type { TemplateConfig } from '../../../templates/types';
+import { ToggleSwitch } from '../ToggleSwitch';
 import classes from '../BuilderPanel.module.css';
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -40,37 +41,17 @@ export function EphemeralToggleSection({ config, onChange }: EphemeralToggleSect
     <div data-testid="builder-ephemeral-section">
       <h2 className={classes.sectionTitle}>{t('builder.ephemeral.title')}</h2>
 
-      {/* Main toggle */}
-      <div
-        style={{
-          border: '1px solid var(--v-border-default)',
-          borderRadius: 6,
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '16px 20px',
-            background: ephemeralEnabled
-              ? 'var(--v-accent-primary-subtle, rgba(59, 130, 246, 0.08))'
-              : 'var(--v-surface-2)',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+      {/* Main toggle card */}
+      <div className={classes.ephemeralCard}>
+        <div className={`${classes.ephemeralCardHeader} ${ephemeralEnabled ? classes.ephemeralCardHeaderEnabled : ''}`}>
+          <div className={classes.ephemeralCardBody}>
             <IconToggleRight
               size={24}
-              style={{
-                color: ephemeralEnabled ? 'var(--v-accent-primary)' : 'var(--v-text-tertiary)',
-                marginTop: 1,
-                flexShrink: 0,
-              }}
+              className={ephemeralEnabled ? classes.ephemeralIconEnabled : classes.ephemeralIconDisabled}
               aria-hidden="true"
             />
             <div>
-              <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--v-text-primary)' }}>
+              <div className={classes.ephemeralToggleLabel}>
                 {t('builder.ephemeral.toggle')}
               </div>
               <div className={classes.hint} style={{ marginTop: 4 }}>
@@ -80,34 +61,16 @@ export function EphemeralToggleSection({ config, onChange }: EphemeralToggleSect
           </div>
 
           {/* Toggle switch */}
-          <label
-            className={classes.toggleSwitch}
-            htmlFor="builder-ephemeral-toggle"
-            style={{ marginLeft: 16 }}
-          >
-            <input
-              id="builder-ephemeral-toggle"
-              type="checkbox"
-              className={classes.toggleSwitchInput}
-              checked={ephemeralEnabled}
-              onChange={(e) => handleToggle(e.target.checked)}
-              aria-label={t('builder.ephemeral.toggleAriaLabel')}
-            />
-            <span className={classes.toggleSwitchTrack} />
-            <span className={classes.toggleSwitchThumb} />
-          </label>
+          <ToggleSwitch
+            id="builder-ephemeral-toggle"
+            checked={ephemeralEnabled}
+            onChange={handleToggle}
+            ariaLabel={t('builder.ephemeral.toggleAriaLabel')}
+          />
         </div>
 
         {/* Status indicator */}
-        <div
-          style={{
-            padding: '10px 20px',
-            borderTop: '1px solid var(--v-border-subtle)',
-            background: 'var(--v-surface-1)',
-            fontSize: 12,
-            color: ephemeralEnabled ? 'var(--v-state-success)' : 'var(--v-text-tertiary)',
-          }}
-        >
+        <div className={`${classes.ephemeralStatus} ${ephemeralEnabled ? classes.ephemeralStatusEnabled : ''}`}>
           {ephemeralEnabled
             ? t('builder.ephemeral.statusEnabled')
             : t('builder.ephemeral.statusDisabled')}
@@ -116,22 +79,10 @@ export function EphemeralToggleSection({ config, onChange }: EphemeralToggleSect
 
       {/* Warning when enabling */}
       {ephemeralEnabled && (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: 8,
-            marginTop: 16,
-            padding: '10px 14px',
-            background: 'var(--v-state-warning-bg, rgba(251, 191, 36, 0.1))',
-            border: '1px solid var(--v-state-warning-border, rgba(251, 191, 36, 0.25))',
-            borderRadius: 4,
-          }}
-          role="note"
-        >
+        <div className={classes.ephemeralWarning} role="note">
           <IconAlertCircle
             size={16}
-            style={{ color: 'var(--v-state-warning-icon, #d97706)', flexShrink: 0, marginTop: 1 }}
+            className={classes.ephemeralWarningIcon}
             aria-hidden="true"
           />
           <div className={classes.hint} style={{ marginTop: 0 }}>
@@ -143,15 +94,8 @@ export function EphemeralToggleSection({ config, onChange }: EphemeralToggleSect
       <hr className={classes.divider} />
 
       {/* Informational note about Workflow mode */}
-      <div
-        style={{
-          padding: '12px 16px',
-          background: 'var(--v-surface-2)',
-          borderRadius: 4,
-          border: '1px solid var(--v-border-subtle)',
-        }}
-      >
-        <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--v-text-secondary)', marginBottom: 6 }}>
+      <div className={classes.ephemeralNote}>
+        <div className={classes.ephemeralNoteTitle}>
           {t('builder.ephemeral.workflowNote.title')}
         </div>
         <div className={classes.hint}>

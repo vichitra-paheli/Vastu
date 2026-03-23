@@ -33,7 +33,7 @@
 }
 
 .warningIcon {
-  color: var(--v-state-warning-icon, #d97706);
+  color: var(--v-state-warning-icon, var(--v-status-warning));
   flex-shrink: 0;
 }
 
@@ -41,9 +41,8 @@
   font-size: 12px;
   font-weight: 400;
   color: var(--v-text-secondary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  /* TruncatedText component handles truncation — keep overflow visible */
+  min-width: 0;
 }
 
 .warningActions {
@@ -79,7 +78,7 @@
   border-radius: 4px;
   border: none;
   background: var(--v-accent-primary);
-  color: #fff;
+  color: var(--v-text-inverse);
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
@@ -284,7 +283,7 @@
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--v-text-inverse);
   top: 3px;
   left: 3px;
   transition: transform 150ms;
@@ -337,7 +336,7 @@
 }
 
 .healthWarn {
-  background: var(--v-state-warning-icon, #d97706);
+  background: var(--v-state-warning-icon, var(--v-status-warning));
 }
 
 .healthError {
@@ -361,6 +360,37 @@
   border-bottom: 1px solid var(--v-border-default);
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+
+/* ─── Hook card (HooksSection) ────────────────────────────────────────────── */
+.hookCard {
+  margin-bottom: 24px;
+  border: 1px solid var(--v-border-default);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.hookHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--v-surface-2);
+}
+
+.hookHeaderEnabled {
+  border-bottom: 1px solid var(--v-border-default);
+}
+
+.hookName {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--v-text-primary);
+  font-family: ui-monospace, monospace;
+}
+
+.hookEditorWrap {
+  padding: 14px;
 }
 
 /* ─── Hook editor ─────────────────────────────────────────────────────────── */
@@ -450,6 +480,145 @@
   flex: 1;
   font-size: 13px;
   color: var(--v-text-primary);
+}
+
+/* ─── Reorder buttons (SectionsLayoutSection) ───────────────────────────── */
+.reorderButton {
+  padding: 2px 6px;
+  font-size: 11px;
+  border: 1px solid var(--v-border-default);
+  border-radius: 3px;
+  background: var(--v-surface-2);
+  color: var(--v-text-secondary);
+  cursor: pointer;
+}
+
+.reorderButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ─── Ephemeral toggle section ───────────────────────────────────────────── */
+.ephemeralCard {
+  border: 1px solid var(--v-border-default);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.ephemeralCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: var(--v-surface-2);
+}
+
+.ephemeralCardHeaderEnabled {
+  background: var(--v-accent-primary-subtle, rgba(59, 130, 246, 0.08));
+}
+
+.ephemeralCardBody {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.ephemeralIconEnabled {
+  color: var(--v-accent-primary);
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+
+.ephemeralIconDisabled {
+  color: var(--v-text-tertiary);
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+
+.ephemeralToggleLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--v-text-primary);
+}
+
+.ephemeralStatus {
+  padding: 10px 20px;
+  border-top: 1px solid var(--v-border-subtle);
+  background: var(--v-surface-1);
+  font-size: 12px;
+  color: var(--v-text-tertiary);
+}
+
+.ephemeralStatusEnabled {
+  color: var(--v-state-success);
+}
+
+.ephemeralWarning {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 10px 14px;
+  background: var(--v-state-warning-bg, rgba(251, 191, 36, 0.1));
+  border: 1px solid var(--v-state-warning-border, rgba(251, 191, 36, 0.25));
+  border-radius: 4px;
+}
+
+.ephemeralWarningIcon {
+  color: var(--v-state-warning-icon, var(--v-status-warning));
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.ephemeralNote {
+  padding: 12px 16px;
+  background: var(--v-surface-2);
+  border-radius: 4px;
+  border: 1px solid var(--v-border-subtle);
+}
+
+.ephemeralNoteTitle {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--v-text-secondary);
+  margin-bottom: 6px;
+}
+
+/* ─── Loading and error states ───────────────────────────────────────────── */
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 24px;
+}
+
+.loadingBar {
+  height: 16px;
+  border-radius: 4px;
+  background: var(--v-surface-3);
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  gap: 8px;
+  color: var(--v-state-error);
+  font-size: 13px;
+  text-align: center;
+}
+
+.errorStateMessage {
+  color: var(--v-text-secondary);
+  font-size: 12px;
 }
 
 /* ─── Utility ────────────────────────────────────────────────────────────── */

@@ -36,17 +36,24 @@ import type { TemplateConfig } from '../../../templates/types';
 // ─── Mock useTemplateConfig ───────────────────────────────────────────────────
 
 const mockUpdateConfig = vi.fn();
+let mockTemplateConfigState: {
+  config: TemplateConfig | null;
+  loading: boolean;
+  error: string | null;
+} = {
+  config: {
+    templateType: 'table-listing',
+    fields: [],
+    sections: [],
+    metadata: {},
+  },
+  loading: false,
+  error: null,
+};
 
 vi.mock('../../../templates/useTemplateConfig', () => ({
   useTemplateConfig: () => ({
-    config: {
-      templateType: 'table-listing',
-      fields: [],
-      sections: [],
-      metadata: {},
-    } satisfies TemplateConfig,
-    loading: false,
-    error: null,
+    ...mockTemplateConfigState,
     updateConfig: mockUpdateConfig,
   }),
 }));
@@ -196,7 +203,7 @@ describe('BuilderWarningHeader', () => {
     expect(discardBtn).not.toBeDisabled();
   });
 
-  it('calls onDiscard when discard is clicked', () => {
+  it('opens confirm dialog when discard is clicked and calls onDiscard on confirmation', async () => {
     const onDiscard = vi.fn();
     renderWithProviders(
       <BuilderWarningHeader
@@ -207,14 +214,43 @@ describe('BuilderWarningHeader', () => {
       />,
     );
     fireEvent.click(screen.getByRole('button', { name: /discard/i }));
-    expect(onDiscard).toHaveBeenCalledTimes(1);
+    // Confirm dialog should appear
+    await waitFor(() => {
+      expect(screen.getByText(/Discard unsaved changes/i)).toBeInTheDocument();
+    });
+    // Click the confirm button in the dialog
+    fireEvent.click(screen.getByRole('button', { name: /Discard changes/i }));
+    await waitFor(() => {
+      expect(onDiscard).toHaveBeenCalledTimes(1);
+    });
   });
 
-  it('calls onSave when save is clicked', () => {
+  it('does not call onDiscard when discard confirmation is cancelled', async () => {
+    const onDiscard = vi.fn();
+    renderWithProviders(
+      <BuilderWarningHeader
+        isDirty={true}
+        isSaving={false}
+        onDiscard={onDiscard}
+        onSave={vi.fn()}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: /discard/i }));
+    await waitFor(() => {
+      expect(screen.getByText(/Discard unsaved changes/i)).toBeInTheDocument();
+    });
+    // Click Cancel in the dialog
+    fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
+    await waitFor(() => {
+      expect(onDiscard).not.toHaveBeenCalled();
+    });
+  });
+
+  it('calls onSave when save is clicked and panel is dirty', () => {
     const onSave = vi.fn();
     renderWithProviders(
       <BuilderWarningHeader
-        isDirty={false}
+        isDirty={true}
         isSaving={false}
         onDiscard={vi.fn()}
         onSave={onSave}
@@ -224,10 +260,22 @@ describe('BuilderWarningHeader', () => {
     expect(onSave).toHaveBeenCalledTimes(1);
   });
 
-  it('save button shows saving text when isSaving', () => {
+  it('save button is disabled when panel is not dirty', () => {
     renderWithProviders(
       <BuilderWarningHeader
         isDirty={false}
+        isSaving={false}
+        onDiscard={vi.fn()}
+        onSave={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole('button', { name: /save page configuration/i })).toBeDisabled();
+  });
+
+  it('save button shows saving text and is disabled when isSaving', () => {
+    renderWithProviders(
+      <BuilderWarningHeader
+        isDirty={true}
         isSaving={true}
         onDiscard={vi.fn()}
         onSave={vi.fn()}
@@ -246,6 +294,17 @@ describe('BuilderPanel', () => {
       pageState: {},
     });
     mockUpdateConfig.mockResolvedValue(undefined);
+    // Reset to default loaded state
+    mockTemplateConfigState = {
+      config: {
+        templateType: 'table-listing',
+        fields: [],
+        sections: [],
+        metadata: {},
+      },
+      loading: false,
+      error: null,
+    };
   });
 
   it('renders warning header', () => {
@@ -301,6 +360,41 @@ describe('BuilderPanel', () => {
     await waitFor(() => {
       expect(mockUpdateConfig).toHaveBeenCalled();
     });
+  });
+
+  it('shows loading skeleton when config is loading', () => {
+    mockTemplateConfigState = { config: null, loading: true, error: null };
+    renderWithProviders(<BuilderPanel pageId="page-1" />);
+    expect(screen.getByRole('status', { name: /loading builder configuration/i })).toBeInTheDocument();
+    // Nav and section content should not be visible during loading
+    expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
+  });
+
+  it('shows error state when config load fails', () => {
+    mockTemplateConfigState = { config: null, loading: false, error: 'Network request failed' };
+    renderWithProviders(<BuilderPanel pageId="page-1" />);
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+    // The error detail message is shown
+    expect(screen.getByText('Network request failed')).toBeInTheDocument();
+    // Nav should not be visible in error state
+    expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
+  });
+
+  it('shows save error when updateConfig rejects', async () => {
+    mockUpdateConfig.mockRejectedValue(new Error('Network error'));
+
+    useBuilderStore.getState().initPage('page-1', baseConfig);
+    useBuilderStore.getState().updateDraftConfig('page-1', { fields: configWithFields.fields });
+
+    renderWithProviders(<BuilderPanel pageId="page-1" />);
+
+    const saveBtn = screen.getByRole('button', { name: /save page configuration/i });
+    fireEvent.click(saveBtn);
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+    });
+    expect(screen.getByText(/Network error/)).toBeInTheDocument();
   });
 });
 

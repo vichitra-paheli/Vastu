@@ -20,6 +20,7 @@
 import React from 'react';
 import { t } from '../../../lib/i18n';
 import type { TemplateConfig } from '../../../templates/types';
+import { ToggleSwitch } from '../ToggleSwitch';
 import classes from '../BuilderPanel.module.css';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -60,32 +61,6 @@ const HOOK_TYPES: { id: HookType; labelKey: string; descriptionKey: string }[] =
   },
 ];
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function ToggleSwitch({
-  checked,
-  onChange,
-  id,
-}: {
-  checked: boolean;
-  onChange: (val: boolean) => void;
-  id: string;
-}) {
-  return (
-    <label className={classes.toggleSwitch} htmlFor={id}>
-      <input
-        id={id}
-        type="checkbox"
-        className={classes.toggleSwitchInput}
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-      />
-      <span className={classes.toggleSwitchTrack} />
-      <span className={classes.toggleSwitchThumb} />
-    </label>
-  );
-}
-
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export interface HooksSectionProps {
@@ -119,37 +94,11 @@ export function HooksSection({ config, onChange }: HooksSectionProps) {
       {HOOK_TYPES.map((hook) => {
         const hookConfig = hooks[hook.id] ?? { enabled: false, code: '' };
         return (
-          <div
-            key={hook.id}
-            style={{
-              marginBottom: 24,
-              border: '1px solid var(--v-border-default)',
-              borderRadius: 6,
-              overflow: 'hidden',
-            }}
-          >
+          <div key={hook.id} className={classes.hookCard}>
             {/* Hook header */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '10px 14px',
-                background: 'var(--v-surface-2)',
-                borderBottom: hookConfig.enabled
-                  ? '1px solid var(--v-border-default)'
-                  : 'none',
-              }}
-            >
+            <div className={`${classes.hookHeader} ${hookConfig.enabled ? classes.hookHeaderEnabled : ''}`}>
               <div>
-                <div
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 500,
-                    color: 'var(--v-text-primary)',
-                    fontFamily: 'ui-monospace, monospace',
-                  }}
-                >
+                <div className={classes.hookName}>
                   {t(hook.labelKey)}
                 </div>
                 <div className={classes.hint} style={{ marginTop: 2 }}>
@@ -165,7 +114,7 @@ export function HooksSection({ config, onChange }: HooksSectionProps) {
 
             {/* Hook editor (shown when enabled) */}
             {hookConfig.enabled && (
-              <div style={{ padding: 14 }}>
+              <div className={classes.hookEditorWrap}>
                 <label
                   className={classes.fieldLabel}
                   htmlFor={`hook-code-${hook.id}`}

@@ -561,9 +561,16 @@
   "builder.warning.message": "Page configuration — changes apply to all users. Requires builder or admin role.",
   "builder.warning.discard": "Discard",
   "builder.warning.discardAriaLabel": "Discard unsaved builder changes",
+  "builder.warning.discardConfirmTitle": "Discard unsaved changes?",
+  "builder.warning.discardConfirmDescription": "All unsaved configuration changes will be lost. This cannot be undone.",
+  "builder.warning.discardConfirmLabel": "Discard changes",
   "builder.warning.save": "Save config",
   "builder.warning.saveAriaLabel": "Save page configuration",
   "builder.warning.saving": "Saving\u2026",
+
+  "builder.loading": "Loading builder configuration",
+  "builder.loadError": "Failed to load page configuration",
+  "builder.save.errorFallback": "Failed to save configuration",
 
   "builder.dataSource.title": "Data source",
   "builder.dataSource.connection": "DB connection",
