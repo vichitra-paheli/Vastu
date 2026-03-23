@@ -46,6 +46,11 @@ export {
   _clearCache,
 } from './columnMeta';
 
+// ─── CASL query scoping (US-208) ──────────────────────────────────────────────
+
+export { scopeQuery, ForbiddenError } from './caslScope';
+export type { PrismaWhere as CaslPrismaWhere } from './caslScope';
+
 // ─── Workspace events (US-207) ────────────────────────────────────────────────
 
 export type { WorkspaceEvent, WorkspaceEventType } from './eventTypes';

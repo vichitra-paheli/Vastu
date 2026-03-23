@@ -4,7 +4,7 @@
  * Generic data query route that works with any Prisma model.
  * Returns paginated rows, total count, and column metadata.
  *
- * Implements US-202 AC-1, AC-4, AC-6, AC-7, AC-8, AC-9.
+ * Implements US-202 AC-1, AC-4, AC-6, AC-7, AC-8, AC-9; US-208 AC-2, AC-4.
  *
  * Query parameters:
  *   table       string         Prisma model name (required)
@@ -27,6 +27,8 @@ import {
   getColumnMeta,
   getModelNames,
   getStringColumns,
+  scopeQuery,
+  ForbiddenError,
 } from '@vastu/shared/data-engine';
 import type { FilterNode, SortSpec, DataQueryResponse } from '@vastu/shared/data-engine';
 import { getSessionWithAbility } from '@/lib/session';
@@ -114,7 +116,20 @@ export async function GET(request: NextRequest) {
   }
 
   // 5. Build Prisma where clause
-  //    Combine: filter tree + global search + tenant scope
+  //    Combine: filter tree + global search + tenant scope + CASL scoping
+
+  // CASL permission check (US-208 AC-2, AC-4): verify user can read this table
+  // and inject any conditional permission constraints into the where clause.
+  let caslScopedWhere: Record<string, unknown>;
+  try {
+    caslScopedWhere = scopeQuery(ability, 'read', table, {});
+  } catch (err) {
+    if (err instanceof ForbiddenError) {
+      return NextResponse.json({ error: err.message }, { status: 403 });
+    }
+    throw err;
+  }
+
   const filterWhere = translateFilter(filters);
   const stringCols = getStringColumns(table);
   const searchWhere = buildSearchWhere(search, stringCols);
@@ -122,7 +137,7 @@ export async function GET(request: NextRequest) {
   // Tenant scoping: inject tenantId if the model has that field (AC-9)
   const tenantWhere = buildTenantWhere(table, session.user.organizationId, knownModels);
 
-  const where = mergeWhere(filterWhere, searchWhere, tenantWhere);
+  const where = mergeWhere(filterWhere, searchWhere, tenantWhere, caslScopedWhere);
 
   // 6. Build Prisma orderBy
   const orderBy = translateSort(sort);
