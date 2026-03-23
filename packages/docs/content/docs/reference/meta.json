@@ -1,0 +1,10 @@
+{
+  "title": "Reference",
+  "pages": [
+    "page-registry",
+    "formatter-registry",
+    "data-query-api",
+    "events",
+    "schema-composition"
+  ]
+}

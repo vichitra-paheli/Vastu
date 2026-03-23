@@ -46,6 +46,22 @@ export {
   _clearCache,
 } from './columnMeta';
 
+// ─── Schema introspection (US-204) ────────────────────────────────────────────
+
+export type { FieldType, RelationType, FieldMeta, RelationMeta, ModelSchema } from './schemaIntrospector';
+export {
+  getModelList,
+  getModelSchema,
+  getModelFields,
+  getModelRelations,
+  _clearSchemaCache,
+} from './schemaIntrospector';
+
+// ─── CASL query scoping (US-208) ──────────────────────────────────────────────
+
+export { scopeQuery, ForbiddenError } from './caslScope';
+export type { PrismaWhere as CaslPrismaWhere } from './caslScope';
+
 // ─── Workspace events (US-207) ────────────────────────────────────────────────
 
 export type { WorkspaceEvent, WorkspaceEventType } from './eventTypes';
