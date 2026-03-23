@@ -38,3 +38,5 @@ export type { PrismaClient } from './prisma';
 export * from './permissions';
 
 export * from './utils';
+
+export * from './data-engine';
