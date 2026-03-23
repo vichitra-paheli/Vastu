@@ -76,6 +76,12 @@ export interface ViewState {
   columns: ColumnState[];
   pagination: PaginationState;
   scrollPosition: { x: number; y: number };
+  /**
+   * Optional dashboard card layout — only present when this view is for a
+   * dashboard template. Stored as a plain serializable array so it survives
+   * JSON round-trips through the view store.
+   */
+  dashboardCards?: unknown[];
 }
 
 /** Persisted view record from the database. */

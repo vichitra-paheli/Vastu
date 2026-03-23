@@ -123,6 +123,8 @@ interface ViewStoreState {
   updatePagination: (page: number, pageSize: number) => void;
   /** Update scroll position. */
   updateScrollPosition: (x: number, y: number) => void;
+  /** Update dashboard card layout (only used by DashboardTemplate). */
+  updateDashboardCards: (cards: unknown[]) => void;
   /** Set full view state (used when loading). */
   setViewState: (state: ViewState, viewId?: string) => void;
 }
@@ -138,12 +140,14 @@ function viewStatesEqual(a: ViewState, b: ViewState): boolean {
       sort: a.sort,
       columns: a.columns,
       pagination: a.pagination,
+      dashboardCards: a.dashboardCards,
     }) ===
     JSON.stringify({
       filters: b.filters,
       sort: b.sort,
       columns: b.columns,
       pagination: b.pagination,
+      dashboardCards: b.dashboardCards,
     })
   );
 }
@@ -257,6 +261,14 @@ export const useViewStore = create<ViewStoreState>()((set, get) => ({
       currentState: {
         ...state.currentState,
         scrollPosition: { x, y },
+      },
+    })),
+
+  updateDashboardCards: (cards) =>
+    set((state) => ({
+      currentState: {
+        ...state.currentState,
+        dashboardCards: cards,
       },
     })),
 

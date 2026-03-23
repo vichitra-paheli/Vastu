@@ -1,0 +1,605 @@
+/**
+ * DashboardTemplate layout styles.
+ *
+ * All colors via --v-* CSS custom properties.
+ * Implements US-137.
+ */
+
+/* ── Root ──────────────────────────────────────────────────────────────────── */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--v-bg-base);
+}
+
+/* ── Toolbar ───────────────────────────────────────────────────────────────── */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--v-space-sm);
+  padding: var(--v-space-xs) var(--v-space-md);
+  border-bottom: 1px solid var(--v-border-default);
+  background: var(--v-bg-surface);
+  flex-shrink: 0;
+}
+
+.toolbarLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-sm);
+}
+
+.toolbarRight {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-sm);
+}
+
+/* ── Greeting Header ───────────────────────────────────────────────────────── */
+
+.greeting {
+  padding: var(--v-space-lg) var(--v-space-md) var(--v-space-md);
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--v-border-subtle);
+}
+
+.greetingRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--v-space-md);
+  flex-wrap: wrap;
+}
+
+.greetingText {
+  font-size: var(--v-text-xl);
+  font-weight: 500;
+  color: var(--v-text-primary);
+  margin: 0;
+}
+
+.greetingMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-md);
+}
+
+.greetingDate {
+  font-size: var(--v-text-sm);
+  font-weight: 400;
+  color: var(--v-text-secondary);
+}
+
+.greetingBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--v-space-xxs);
+  font-size: var(--v-text-xs);
+  font-weight: 400;
+  color: var(--v-text-secondary);
+  background: var(--v-bg-subtle);
+  border: 1px solid var(--v-border-subtle);
+  border-radius: var(--v-radius-sm);
+  padding: 2px var(--v-space-xs);
+}
+
+.greetingBadgeAlert {
+  color: var(--v-color-warning);
+  border-color: var(--v-color-warning);
+  background: var(--v-bg-warning-subtle);
+}
+
+.greetingBadgeReview {
+  color: var(--v-accent-primary);
+  border-color: var(--v-accent-primary);
+  background: var(--v-bg-accent-subtle);
+}
+
+/* ── Content ───────────────────────────────────────────────────────────────── */
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--v-space-md);
+}
+
+/* ── Card Grid ─────────────────────────────────────────────────────────────── */
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--v-space-md);
+  align-items: start;
+}
+
+/* Card size variants applied to grid items */
+.cardSize2x1 {
+  grid-column: span 2;
+}
+
+.cardSize1x2 {
+  grid-row: span 2;
+}
+
+/* ── Dashboard Card ────────────────────────────────────────────────────────── */
+
+.dashboardCard {
+  background: var(--v-bg-surface);
+  border: 1px solid var(--v-border-default);
+  border-radius: var(--v-radius-md);
+  padding: var(--v-space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-space-sm);
+  position: relative;
+  min-height: 120px;
+}
+
+.dashboardCardDragging {
+  opacity: 0.5;
+  border-style: dashed;
+}
+
+.dashboardCardDragOver {
+  border-color: var(--v-accent-primary);
+  background: var(--v-bg-accent-subtle);
+}
+
+.dashboardCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--v-space-sm);
+}
+
+.dashboardCardTitle {
+  font-size: var(--v-text-sm);
+  font-weight: 500;
+  color: var(--v-text-primary);
+  flex: 1;
+  overflow: hidden;
+}
+
+.dashboardCardControls {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-xxs);
+  flex-shrink: 0;
+}
+
+.dashboardCardBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-space-xs);
+}
+
+/* ── Edit Mode ─────────────────────────────────────────────────────────────── */
+
+.editModeActive {
+  background: var(--v-bg-subtle);
+}
+
+.editModeBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--v-space-sm);
+  padding: var(--v-space-xs) var(--v-space-md);
+  background: var(--v-accent-primary);
+  color: var(--v-color-white);
+  font-size: var(--v-text-sm);
+  font-weight: 400;
+  flex-shrink: 0;
+}
+
+.editModeBannerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-sm);
+}
+
+/* Drag handle shown in edit mode */
+.dragHandle {
+  cursor: grab;
+  color: var(--v-text-secondary);
+  display: flex;
+  align-items: center;
+  padding: var(--v-space-xxs);
+  border-radius: var(--v-radius-sm);
+}
+
+.dragHandle:hover {
+  background: var(--v-bg-subtle);
+  color: var(--v-text-primary);
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+/* Remove button per card (visible only in edit mode) */
+.removeCardButton {
+  position: absolute;
+  top: var(--v-space-xs);
+  right: var(--v-space-xs);
+  background: var(--v-color-danger);
+  color: var(--v-color-white);
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  padding: 0;
+}
+
+.removeCardButton:hover {
+  background: var(--v-color-danger-dark);
+}
+
+/* Resize handle row in edit mode */
+.resizeRow {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-xxs);
+  flex-wrap: wrap;
+}
+
+.resizeButton {
+  font-size: var(--v-text-xs);
+  font-weight: 400;
+  color: var(--v-text-secondary);
+  background: var(--v-bg-subtle);
+  border: 1px solid var(--v-border-default);
+  border-radius: var(--v-radius-sm);
+  padding: 2px var(--v-space-xs);
+  cursor: pointer;
+}
+
+.resizeButtonActive {
+  background: var(--v-accent-primary);
+  border-color: var(--v-accent-primary);
+  color: var(--v-color-white);
+}
+
+/* ── Add Card ──────────────────────────────────────────────────────────────── */
+
+.addCardButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--v-space-xs);
+  min-height: 120px;
+  border: 2px dashed var(--v-border-default);
+  border-radius: var(--v-radius-md);
+  background: transparent;
+  color: var(--v-text-secondary);
+  font-size: var(--v-text-sm);
+  font-weight: 400;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+  padding: var(--v-space-md);
+  width: 100%;
+}
+
+.addCardButton:hover {
+  border-color: var(--v-accent-primary);
+  color: var(--v-accent-primary);
+}
+
+/* ── KPI Card ──────────────────────────────────────────────────────────────── */
+
+.kpiValue {
+  font-size: var(--v-text-2xl);
+  font-weight: 500;
+  color: var(--v-text-primary);
+  line-height: 1.2;
+}
+
+.kpiDelta {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-xxs);
+  font-size: var(--v-text-xs);
+  font-weight: 400;
+}
+
+.kpiDeltaPositive {
+  color: var(--v-color-success);
+}
+
+.kpiDeltaNegative {
+  color: var(--v-color-danger);
+}
+
+.kpiDeltaNeutral {
+  color: var(--v-text-secondary);
+}
+
+.kpiSparkline {
+  margin-top: var(--v-space-xs);
+}
+
+/* ── Pipeline Card ─────────────────────────────────────────────────────────── */
+
+.pipelineBar {
+  display: flex;
+  height: 24px;
+  border-radius: var(--v-radius-sm);
+  overflow: hidden;
+  gap: 2px;
+}
+
+.pipelineStage {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--v-text-xs);
+  font-weight: 400;
+  color: var(--v-color-white);
+  overflow: hidden;
+  min-width: 4px;
+  transition: flex 0.2s ease;
+}
+
+.pipelineLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--v-space-xs);
+  margin-top: var(--v-space-xs);
+}
+
+.pipelineLegendItem {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-xxs);
+  font-size: var(--v-text-xs);
+  font-weight: 400;
+  color: var(--v-text-secondary);
+}
+
+.pipelineLegendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Alert Card ────────────────────────────────────────────────────────────── */
+
+.alertList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-space-xs);
+}
+
+.alertItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--v-space-xs);
+  padding: var(--v-space-xs);
+  border-radius: var(--v-radius-sm);
+  font-size: var(--v-text-xs);
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.alertWarning {
+  background: var(--v-bg-warning-subtle);
+  color: var(--v-color-warning-dark);
+  border-left: 3px solid var(--v-color-warning);
+}
+
+.alertError {
+  background: var(--v-bg-error-subtle);
+  color: var(--v-color-danger-dark);
+  border-left: 3px solid var(--v-color-danger);
+}
+
+.alertInfo {
+  background: var(--v-bg-accent-subtle);
+  color: var(--v-accent-primary);
+  border-left: 3px solid var(--v-accent-primary);
+}
+
+.alertViewAll {
+  font-size: var(--v-text-xs);
+  font-weight: 400;
+  color: var(--v-accent-primary);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.alertViewAll:hover {
+  text-decoration: underline;
+}
+
+/* ── Quick Actions Card ────────────────────────────────────────────────────── */
+
+.actionList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-space-xs);
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-sm);
+  padding: var(--v-space-xs) var(--v-space-sm);
+  border-radius: var(--v-radius-sm);
+  background: var(--v-bg-subtle);
+  border: 1px solid var(--v-border-subtle);
+  font-size: var(--v-text-sm);
+  font-weight: 400;
+  color: var(--v-text-primary);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
+.actionButton:hover {
+  background: var(--v-bg-hover);
+  border-color: var(--v-border-default);
+}
+
+/* ── Table Card ────────────────────────────────────────────────────────────── */
+
+.miniTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.miniTableHead {
+  text-align: left;
+  font-size: var(--v-text-xs);
+  font-weight: 500;
+  color: var(--v-text-secondary);
+  padding: var(--v-space-xs) var(--v-space-sm);
+  border-bottom: 1px solid var(--v-border-default);
+}
+
+.miniTableCell {
+  font-size: var(--v-text-xs);
+  font-weight: 400;
+  color: var(--v-text-primary);
+  padding: var(--v-space-xs) var(--v-space-sm);
+  border-bottom: 1px solid var(--v-border-subtle);
+}
+
+.miniTableRow:last-child .miniTableCell {
+  border-bottom: none;
+}
+
+.viewAllLink {
+  font-size: var(--v-text-xs);
+  font-weight: 400;
+  color: var(--v-accent-primary);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  align-self: flex-end;
+}
+
+.viewAllLink:hover {
+  text-decoration: underline;
+}
+
+/* ── Empty state ───────────────────────────────────────────────────────────── */
+
+.emptyGrid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  color: var(--v-text-secondary);
+  gap: var(--v-space-sm);
+  text-align: center;
+  padding: var(--v-space-xl);
+}
+
+.emptyGridText {
+  font-size: var(--v-text-sm);
+  font-weight: 400;
+  color: var(--v-text-secondary);
+}
+
+/* ── Add Card Dialog ───────────────────────────────────────────────────────── */
+
+.cardTypeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--v-space-sm);
+}
+
+.cardTypeOption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--v-space-xs);
+  padding: var(--v-space-md);
+  border: 2px solid var(--v-border-default);
+  border-radius: var(--v-radius-md);
+  background: var(--v-bg-surface);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  font-size: var(--v-text-sm);
+  font-weight: 400;
+  color: var(--v-text-primary);
+}
+
+.cardTypeOption:hover {
+  border-color: var(--v-accent-primary);
+  background: var(--v-bg-accent-subtle);
+}
+
+.cardTypeOptionSelected {
+  border-color: var(--v-accent-primary);
+  background: var(--v-bg-accent-subtle);
+}
+
+.cardTypeIcon {
+  color: var(--v-accent-primary);
+}
+
+/* ── Pin to Dashboard Dialog ───────────────────────────────────────────────── */
+
+.pinDialogSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-space-xs);
+}
+
+.pinDialogLabel {
+  font-size: var(--v-text-sm);
+  font-weight: 500;
+  color: var(--v-text-primary);
+}
+
+.sizePickerRow {
+  display: flex;
+  gap: var(--v-space-sm);
+}
+
+.sizePickerOption {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--v-space-xs);
+  padding: var(--v-space-sm);
+  border: 2px solid var(--v-border-default);
+  border-radius: var(--v-radius-sm);
+  background: var(--v-bg-surface);
+  cursor: pointer;
+  font-size: var(--v-text-xs);
+  font-weight: 400;
+  color: var(--v-text-secondary);
+}
+
+.sizePickerOption:hover {
+  border-color: var(--v-accent-primary);
+}
+
+.sizePickerOptionSelected {
+  border-color: var(--v-accent-primary);
+  color: var(--v-accent-primary);
+}
