@@ -37,6 +37,7 @@ export default defineConfig({
       { find: '@vastu/shared/permissions', replacement: path.resolve(__dirname, '../shared/src/permissions/index.ts') },
       { find: '@vastu/shared/types', replacement: path.resolve(__dirname, '../shared/src/types/index.ts') },
       { find: '@vastu/shared/utils', replacement: path.resolve(__dirname, '../shared/src/utils/index.ts') },
+      { find: '@vastu/shared/data-engine', replacement: path.resolve(__dirname, '../shared/src/data-engine/index.ts') },
       { find: '@vastu/shared', replacement: path.resolve(__dirname, '../shared/src/index.ts') },
       { find: '@vastu/workspace', replacement: path.resolve(__dirname, '../workspace/src/index.ts') },
       { find: '@', replacement: path.resolve(__dirname, './src') },

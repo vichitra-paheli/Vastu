@@ -158,6 +158,9 @@ export async function GET(request: NextRequest) {
     const allColumnNames = new Set(allColumns.map((c) => c.name));
 
     // --- Parse `columns` (optional projection) ---
+    // Validate every requested column against the model's DMMF field list.
+    // Silently dropping unknown columns would allow callers to probe field existence;
+    // returning 400 prevents data leakage and surfaces mis-spellings immediately.
     const columnsParam = searchParams.get('columns');
     let requestedColumns: string[] | null = null;
     if (columnsParam) {
@@ -166,7 +169,16 @@ export async function GET(request: NextRequest) {
         if (!Array.isArray(parsed) || !parsed.every((c) => typeof c === 'string')) {
           return NextResponse.json({ error: '`columns` must be a JSON string array' }, { status: 400 });
         }
-        requestedColumns = (parsed as string[]).filter((c) => allColumnNames.has(c));
+        const invalidColumns = (parsed as string[]).filter((c) => !allColumnNames.has(c));
+        if (invalidColumns.length > 0) {
+          return NextResponse.json(
+            {
+              error: `\`columns\` contains field(s) not present on model "${modelName}": ${invalidColumns.join(', ')}`,
+            },
+            { status: 400 },
+          );
+        }
+        requestedColumns = parsed as string[];
       } catch {
         return NextResponse.json({ error: '`columns` is not valid JSON' }, { status: 400 });
       }
@@ -288,7 +300,11 @@ export async function GET(request: NextRequest) {
     const stringCols = getStringColumnNames(scalarColumns);
     const searchWhere = translateSearch(search, stringCols);
 
-    // Tenant scoping: inject organizationId if the model has that field
+    // Tenant scoping: inject organizationId if the model has that field.
+    // Models without an organizationId field (e.g. reference/lookup tables such as
+    // Season, Circuit, Constructor) are accessible to any authenticated user — they
+    // hold shared, non-tenant-specific data. CASL subject-level scoping (US-208) will
+    // add fine-grained access control for these models in a later phase.
     const hasTenantScope = allColumnNames.has('organizationId');
     const tenantWhere = hasTenantScope
       ? { organizationId: session.user.organizationId }
@@ -376,7 +392,6 @@ export async function GET(request: NextRequest) {
     if (err instanceof Error && err.message === 'Query timeout') {
       return NextResponse.json({ error: 'Query timed out' }, { status: 504 });
     }
-    console.error('[data/query GET] Unexpected error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
