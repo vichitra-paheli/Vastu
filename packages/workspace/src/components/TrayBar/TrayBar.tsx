@@ -30,12 +30,20 @@ import { useTrayStore } from '../../stores/trayStore';
 import { usePanelStore } from '../../stores/panelStore';
 import { openCommandPalette } from '../CommandPalette';
 import { TrayItem } from './TrayItem';
+import { SSEStatusIndicator } from '../SSEStatusIndicator';
+import { useWorkspaceEvents } from '../../hooks/useWorkspaceEvents';
 import classes from './TrayBar.module.css';
 
 export function TrayBar() {
   const trayItems = useTrayStore((state) => state.trayItems);
   const restorePanel = usePanelStore((state) => state.restorePanel);
   const removeFromTray = useTrayStore((state) => state.removeFromTray);
+
+  // SSE connection status — noop callback: TrayBar itself doesn't consume events.
+  // Components that need live data use useWorkspaceEvents with their own callback.
+  const sseState = useWorkspaceEvents((_event) => {
+    /* intentionally empty — TrayBar only needs the connection state */
+  });
 
   function handleRestore(panelId: string) {
     restorePanel(panelId);
@@ -80,7 +88,7 @@ export function TrayBar() {
         >
           <IconSearch size={16} />
         </ActionIcon>
-        <span className={classes.statusDot} aria-hidden="true" />
+        <SSEStatusIndicator state={sseState} />
       </div>
     </div>
   );
