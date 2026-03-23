@@ -1,0 +1,46 @@
+{
+  "name": "@app/demo-f1",
+  "version": "0.0.0",
+  "private": true,
+  "description": "demo-f1 application built on Vastu",
+  "scripts": {
+    "dev": "next dev --port 3001",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint src --ext .ts,.tsx --max-warnings 0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "prisma:migrate": "prisma migrate dev --schema=./prisma/schema.prisma",
+    "prisma:generate": "prisma generate --schema=./prisma/schema.prisma",
+    "prisma:seed": "tsx prisma/seed.ts",
+    "prisma:studio": "prisma studio --schema=./prisma/schema.prisma",
+    "prisma:reset": "prisma migrate reset --schema=./prisma/schema.prisma --force"
+  },
+  "dependencies": {
+    "@mantine/core": "^7.14.3",
+    "@mantine/form": "^7.14.3",
+    "@mantine/hooks": "^7.14.3",
+    "@mantine/notifications": "^7.14.3",
+    "@tabler/icons-react": "^3.24.0",
+    "@vastu/shared": "workspace:*",
+    "@vastu/shell": "workspace:*",
+    "@vastu/workspace": "workspace:*",
+    "next": "^14.2.18",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@prisma/client": "^5.22.0",
+    "@types/node": "^22.10.1",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.7.0",
+    "@vitest/coverage-v8": "^2.1.9",
+    "postcss": "^8.4.49",
+    "postcss-preset-mantine": "^1.17.0",
+    "prisma": "^5.22.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
