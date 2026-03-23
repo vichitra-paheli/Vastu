@@ -72,20 +72,25 @@ registerFormatter({
 Then use it in a column config:
 
 ```typescript
-PageRegistry.register({
+import { registerPage } from '@vastu/workspace';
+
+registerPage({
   id: 'lap-times',
   name: 'Lap Times',
+  icon: 'Clock',
   template: 'table-listing',
   config: {
-    table: 'LapTime',
-    columns: [
-      { field: 'lapNumber', header: 'Lap' },
-      { field: 'timeMs', header: 'Time', displayType: 'lap-time' },
-      { field: 'driverName', header: 'Driver' },
+    dataSource: { type: 'prisma', model: 'LapTime' },
+    fields: [
+      { key: 'lapNumber', label: 'Lap', type: 'number' },
+      { key: 'timeMs', label: 'Time', type: 'number' },
+      { key: 'driverName', label: 'Driver', type: 'text' },
     ],
   },
 });
 ```
+
+The `displayType` for a field is configured via the builder UI or directly in `FieldConfig.type`. Custom formatters registered with `registerFormatter` appear in the builder's display type picker.
 
 ## `FormatterDefinition` type
 

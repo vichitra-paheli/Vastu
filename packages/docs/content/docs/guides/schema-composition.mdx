@@ -131,23 +131,23 @@ async function runDomainSeed(): Promise<void> {
 
   // Use deterministic UUIDs so this is idempotent
   await prisma.category.upsert({
-    where: { id: 'cat-0000-0000-0000-000000000001' },
+    where: { id: 'aaaaaaaa-0001-4000-a000-000000000001' },
     update: {},
     create: {
-      id: 'cat-0000-0000-0000-000000000001',
+      id: 'aaaaaaaa-0001-4000-a000-000000000001',
       name: 'Electronics',
     },
   });
 
   await prisma.product.upsert({
-    where: { id: 'prd-0000-0000-0000-000000000001' },
+    where: { id: 'bbbbbbbb-0001-4000-a000-000000000001' },
     update: {},
     create: {
-      id: 'prd-0000-0000-0000-000000000001',
+      id: 'bbbbbbbb-0001-4000-a000-000000000001',
       name: 'Widget Pro',
       price: 49.99,
       sku: 'WGT-PRO-001',
-      categoryId: 'cat-0000-0000-0000-000000000001',
+      categoryId: 'aaaaaaaa-0001-4000-a000-000000000001',
     },
   });
 
@@ -164,34 +164,9 @@ main()
   .finally(() => prisma.$disconnect());
 ```
 
-`runBaseSeed` is exported from `@vastu/shared/prisma` (implementation: `packages/shared/src/prisma/baseSeed.ts`). It seeds:
+`runBaseSeed` is exported from `@vastu/shared/prisma` (implementation: `packages/shared/src/prisma/baseSeed.ts`). The base seed is idempotent: every record uses a deterministic UUID and `upsert`. You can run `pnpm prisma:seed` repeatedly without duplicating data.
 
-- Organization and tenant
-- Three system users: `admin@vastu.dev`, `editor@vastu.dev`, `viewer@vastu.dev`
-- Four system roles: Admin, Builder, Editor, Viewer — with permissions for all resources
-- Sample API keys, DB connections, and audit events
-
-The base seed is idempotent: every record uses a deterministic UUID and `upsert`. You can run `pnpm prisma:seed` repeatedly without duplicating data.
-
-## What the base schema contains
-
-The framework provides these tables. You do not need to define them:
-
-| Table | Purpose |
-|-------|---------|
-| `organizations` | Top-level account container |
-| `tenants` | Multi-tenant isolation unit |
-| `users` | User accounts |
-| `roles` | Role definitions (system and custom) |
-| `user_roles` | Role assignments (user × role × tenant) |
-| `permissions` | Fine-grained permission grants per role |
-| `api_keys` | API key management |
-| `db_connections` | Configured external database connections |
-| `sso_providers` | SAML/OIDC SSO configurations |
-| `audit_events` | Immutable audit log |
-| `pages` | Dynamically created pages (runtime) |
-| `views` | Saved view state snapshots |
-| `accounts`, `sessions`, `verification_tokens` | next-auth adapter tables |
+For details on what `runBaseSeed` creates and the full list of base tables, see the [Schema Composition reference](/docs/reference/schema-composition).
 
 <Callout type="warning">
 Do not modify the framework tables or enums in your `schema.prisma`. Edits to those sections will conflict with future framework upgrades. Only add content in the YOUR DOMAIN MODELS section.
