@@ -4,7 +4,7 @@
  * Tests: emitWorkspaceEvent, subscribe (tenant scoping), unsubscribe, subscriberCount.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { emitWorkspaceEvent, subscribe, subscriberCount } from '../events';
 
 describe('workspace event bus', () => {
