@@ -5,10 +5,10 @@
   "description": "demo-f1 application built on Vastu",
   "scripts": {
     "dev": "next dev --port 3001",
-    "build": "next build",
+    "build": "prisma generate --schema=./prisma/schema.prisma && next build",
     "start": "next start",
     "lint": "eslint src --ext .ts,.tsx --max-warnings 0",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "prisma generate --schema=./prisma/schema.prisma && tsc --noEmit",
     "test": "vitest run",
     "prisma:migrate": "prisma migrate dev --schema=./prisma/schema.prisma",
     "prisma:generate": "prisma generate --schema=./prisma/schema.prisma",
@@ -17,6 +17,7 @@
     "prisma:reset": "prisma migrate reset --schema=./prisma/schema.prisma --force"
   },
   "dependencies": {
+    "@prisma/client": "^5.22.0",
     "@mantine/core": "^7.14.3",
     "@mantine/form": "^7.14.3",
     "@mantine/hooks": "^7.14.3",
@@ -30,7 +31,6 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@prisma/client": "^5.22.0",
     "@types/node": "^22.10.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",

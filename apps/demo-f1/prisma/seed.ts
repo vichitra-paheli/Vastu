@@ -15,29 +15,9 @@
 
 import { runBaseSeed } from '@vastu/shared/prisma';
 import { PrismaClient } from '@prisma/client';
+import { runF1Seed } from './f1Seed';
 
 const prisma = new PrismaClient();
-
-// ---------------------------------------------------------------------------
-// Domain seed — F1-specific data
-// ---------------------------------------------------------------------------
-
-async function runDomainSeed(): Promise<void> {
-  console.log('Seeding domain data for demo-f1...');
-
-  // TODO (US-221): Full F1 seed with 5 seasons of realistic data will be
-  // implemented in the next story. This stub ensures the seed wiring is
-  // correct and the base seed completes successfully.
-
-  // Example of the pattern that will be used:
-  //   await prisma.season.upsert({
-  //     where: { year: 2024 },
-  //     update: {},
-  //     create: { year: 2024, rounds: 24, ... },
-  //   });
-
-  console.log('  done');
-}
 
 // ---------------------------------------------------------------------------
 // Main — base seed runs first, domain seed second
@@ -48,8 +28,9 @@ async function main(): Promise<void> {
   //   org, tenant, users (admin/editor/viewer), roles, permissions, API keys, audit events
   await runBaseSeed(prisma);
 
-  // Step 2: Run F1-specific domain seed
-  await runDomainSeed();
+  // Step 2: Run F1-specific domain seed (US-221)
+  //   circuits, constructors, drivers, seasons, races, results, standings, etc.
+  await runF1Seed(prisma);
 }
 
 main()
