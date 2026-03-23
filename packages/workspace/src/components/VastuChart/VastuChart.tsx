@@ -16,19 +16,32 @@
  * - Dot radius: 3px (hover: 5px)
  * - prefers-reduced-motion: animations disabled
  *
- * Implements US-135 AC-1 through AC-12.
+ * Accessibility (US-210):
+ * - ChartKeyboardNav wrapper: Tab focuses chart, arrow keys move between data points
+ * - aria-live region for active point announcements
+ * - "View as table" toggle on all chart types (sparklines exempt)
+ *
+ * Implements US-135 AC-1 through AC-12, US-210 AC-1 through AC-7.
  */
 
 import React, { useState, useCallback, useMemo, useEffect, useSyncExternalStore } from 'react';
 import { Skeleton, Button } from '@mantine/core';
 import { ResponsiveContainer, Legend as RechartsLegend } from 'recharts';
-import { IconAlertCircle, IconSettings, IconChartLine } from '@tabler/icons-react';
+import {
+  IconAlertCircle,
+  IconSettings,
+  IconChartLine,
+  IconTable,
+  IconChartBar,
+} from '@tabler/icons-react';
 
-import type { VastuChartProps, ChartConfig, SeriesConfig } from './types';
+import type { VastuChartProps, ChartConfig, SeriesConfig, ChartDataPoint } from './types';
 import { getSeriesColor } from './chartColors';
 import { ChartLegend } from './ChartLegend';
 import { ChartConfigPanel } from './ChartConfigPanel';
 import { ChartRenderer } from './ChartRenderer';
+import { ChartKeyboardNav } from './ChartKeyboardNav';
+import { ChartAccessibleTable } from './ChartAccessibleTable';
 import { useChartElements } from './useChartElements';
 import { EmptyState } from '../EmptyState';
 import { t } from '../../lib/i18n';
@@ -64,7 +77,6 @@ function resolveSeriesColors(series: SeriesConfig[]): Record<string, string> {
 
 /**
  * Subscribe to prefers-reduced-motion media query changes.
- * Used by useSyncExternalStore to react when the user toggles accessibility settings.
  */
 function subscribePrefersReducedMotion(callback: () => void): () => void {
   if (typeof window === 'undefined') return () => undefined;
@@ -78,15 +90,10 @@ function getPrefersReducedMotionSnapshot(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-/** Server snapshot: conservative default returns true (no animation during SSR). */
 function getPrefersReducedMotionServerSnapshot(): boolean {
   return true;
 }
 
-/**
- * Hook: reactively returns the current prefers-reduced-motion value.
- * Updates immediately when the user toggles accessibility settings.
- */
 function usePrefersReducedMotion(): boolean {
   return useSyncExternalStore(
     subscribePrefersReducedMotion,
@@ -97,7 +104,6 @@ function usePrefersReducedMotion(): boolean {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-/** Stable empty object so the default prop doesn't create a new reference each render. */
 const EMPTY_CONFIG: ChartConfig = {};
 
 export function VastuChart({
@@ -109,6 +115,7 @@ export function VastuChart({
   loading = false,
   error = null,
   onRetry,
+  onDataPointClick,
   ariaLabel,
   className,
 }: VastuChartProps) {
@@ -118,8 +125,8 @@ export function VastuChart({
   const [previousHidden, setPreviousHidden] = useState<Set<string> | null>(null);
   const [configPanelOpen, setConfigPanelOpen] = useState(false);
   const [internalConfig, setInternalConfig] = useState<ChartConfig>(config);
+  const [tableView, setTableView] = useState(false);
 
-  // Sync internalConfig when prop changes
   useEffect(() => {
     setInternalConfig(config);
   }, [config]);
@@ -127,7 +134,6 @@ export function VastuChart({
   const resolvedColors = useMemo(() => resolveSeriesColors(series), [series]);
   const reducedMotion = usePrefersReducedMotion();
 
-  // Effective config (merge defaults)
   const effectiveConfig: Required<ChartConfig> = {
     height: internalConfig.height ?? DEFAULT_HEIGHT,
     showLegend: internalConfig.showLegend ?? true,
@@ -142,15 +148,12 @@ export function VastuChart({
     xAxisKey: internalConfig.xAxisKey ?? (data.length > 0 ? Object.keys(data[0])[0] : 'x'),
   };
 
-  // Visible series (not hidden)
   const visibleSeries = useMemo(
     () => series.filter((s) => !hiddenSeries.has(s.dataKey)),
     [series, hiddenSeries],
   );
 
   const strokeWidth = series.length > 5 ? LINE_STROKE_WIDTH_DENSE : LINE_STROKE_WIDTH;
-
-  // ─── Chart elements (shared axis/grid/tooltip) ─────────────────────────────
 
   const chartElements = useChartElements({
     effectiveConfig,
@@ -203,6 +206,15 @@ export function VastuChart({
       onConfigChange?.(newConfig);
     },
     [onConfigChange],
+  );
+
+  // ─── Keyboard nav: Enter drill-down ───────────────────────────────────────
+
+  const handleKeyboardEnter = useCallback(
+    (dataIndex: number, seriesIndex: number, dataPoint: ChartDataPoint, activeSeries: SeriesConfig) => {
+      onDataPointClick?.(dataIndex, seriesIndex, dataPoint, activeSeries);
+    },
+    [onDataPointClick],
   );
 
   // ─── Loading state ────────────────────────────────────────────────────────
@@ -281,112 +293,165 @@ export function VastuChart({
   const showLegend = effectiveConfig.showLegend && !isSparkline && series.length > 0;
   const legendPosition = effectiveConfig.legendPosition;
   const isLegendVertical = legendPosition === 'left' || legendPosition === 'right';
+  const resolvedAriaLabel = ariaLabel ?? t('chart.ariaLabel');
 
   const chartHeight = isSparkline
     ? Math.min(effectiveConfig.height, DEFAULT_HEIGHT_FULL)
     : effectiveConfig.height;
 
+  // "View as table" is available for all chart types except sparkline (AC-7)
+  const showTableToggle = !isSparkline;
+
   return (
     <div
       className={`${classes.root}${className ? ` ${className}` : ''}`}
-      aria-label={ariaLabel ?? t('chart.ariaLabel')}
       role="img"
+      aria-label={resolvedAriaLabel}
     >
-      {/* ─── Legend top ─────────────────────────────────────────────────────── */}
-      {showLegend && legendPosition === 'top' && (
-        <ChartLegend
-          series={series}
-          resolvedColors={resolvedColors}
-          hiddenSeries={hiddenSeries}
-          position="top"
-          onToggle={handleLegendToggle}
-          onSolo={handleLegendSolo}
-        />
+      {/* ─── Toolbar: View as table toggle (AC-6) ───────────────────────────── */}
+      {showTableToggle && (
+        <div className={classes.toolbar}>
+          <button
+            type="button"
+            className={classes.tableToggleBtn}
+            onClick={() => setTableView((v) => !v)}
+            aria-pressed={tableView}
+            data-active={tableView}
+            aria-label={tableView ? t('chart.a11y.viewAsChart') : t('chart.a11y.viewAsTable')}
+          >
+            {tableView ? (
+              <>
+                <IconChartBar size={14} aria-hidden="true" />
+                {t('chart.a11y.viewAsChart')}
+              </>
+            ) : (
+              <>
+                <IconTable size={14} aria-hidden="true" />
+                {t('chart.a11y.viewAsTable')}
+              </>
+            )}
+          </button>
+        </div>
       )}
 
-      {/* ─── Chart wrapper (flex for left/right legends) ──────────────────── */}
-      <div
-        style={{
-          display: isLegendVertical ? 'flex' : 'block',
-          flex: 1,
-        }}
-      >
-        {/* Legend left — inside flex container so it participates in horizontal layout */}
-        {showLegend && legendPosition === 'left' && (
-          <ChartLegend
-            series={series}
-            resolvedColors={resolvedColors}
-            hiddenSeries={hiddenSeries}
-            position="left"
-            onToggle={handleLegendToggle}
-            onSolo={handleLegendSolo}
-          />
-        )}
-
-        <div className={classes.chartArea} style={{ height: chartHeight }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <ChartRenderer
-              type={type}
-              data={data}
-              visibleSeries={visibleSeries}
-              allSeries={series}
-              hiddenSeries={hiddenSeries}
-              resolvedColors={resolvedColors}
-              effectiveConfig={effectiveConfig}
-              strokeWidth={strokeWidth}
-              reducedMotion={reducedMotion}
-              chartElements={chartElements}
-            />
-          </ResponsiveContainer>
-
-          {/* Config gear button — shown unless sparkline */}
-          {!isSparkline && onConfigChange && (
-            <button
-              type="button"
-              className={classes.configButton}
-              onClick={() => setConfigPanelOpen((prev) => !prev)}
-              aria-label={t('chart.config.openAriaLabel')}
-              aria-expanded={configPanelOpen}
-              aria-haspopup="dialog"
-            >
-              <IconSettings size={16} aria-hidden="true" />
-            </button>
-          )}
-
-          {/* Config panel */}
-          {configPanelOpen && onConfigChange && (
-            <ChartConfigPanel
-              config={internalConfig}
-              currentType={type}
-              onConfigChange={handleConfigChange}
-              onClose={() => setConfigPanelOpen(false)}
-            />
-          )}
-        </div>
-
-        {/* Legend right */}
-        {showLegend && legendPosition === 'right' && (
-          <ChartLegend
-            series={series}
-            resolvedColors={resolvedColors}
-            hiddenSeries={hiddenSeries}
-            position="right"
-            onToggle={handleLegendToggle}
-            onSolo={handleLegendSolo}
-          />
-        )}
-      </div>
-
-      {/* ─── Legend bottom ──────────────────────────────────────────────────── */}
-      {showLegend && legendPosition === 'bottom' && (
-        <ChartLegend
+      {/* ─── Table view (AC-6) ──────────────────────────────────────────────── */}
+      {tableView && showTableToggle ? (
+        <ChartAccessibleTable
+          data={data}
           series={series}
           resolvedColors={resolvedColors}
-          hiddenSeries={hiddenSeries}
-          position="bottom"
-          onToggle={handleLegendToggle}
-          onSolo={handleLegendSolo}
+          xAxisKey={effectiveConfig.xAxisKey}
+          chartType={type}
+          caption={resolvedAriaLabel}
         />
+      ) : (
+        /* ─── Chart view ─────────────────────────────────────────────────────── */
+        <ChartKeyboardNav
+          data={data}
+          visibleSeries={visibleSeries}
+          xAxisKey={effectiveConfig.xAxisKey}
+          chartType={type}
+          ariaLabel={resolvedAriaLabel}
+          onEnter={handleKeyboardEnter}
+          enabled={!isSparkline}
+        >
+          {/* ─── Legend top ─────────────────────────────────────────────────── */}
+          {showLegend && legendPosition === 'top' && (
+            <ChartLegend
+              series={series}
+              resolvedColors={resolvedColors}
+              hiddenSeries={hiddenSeries}
+              position="top"
+              onToggle={handleLegendToggle}
+              onSolo={handleLegendSolo}
+            />
+          )}
+
+          {/* ─── Chart wrapper (flex for left/right legends) ──────────────── */}
+          <div
+            style={{
+              display: isLegendVertical ? 'flex' : 'block',
+              flex: 1,
+            }}
+          >
+            {/* Legend left */}
+            {showLegend && legendPosition === 'left' && (
+              <ChartLegend
+                series={series}
+                resolvedColors={resolvedColors}
+                hiddenSeries={hiddenSeries}
+                position="left"
+                onToggle={handleLegendToggle}
+                onSolo={handleLegendSolo}
+              />
+            )}
+
+            <div className={classes.chartArea} style={{ height: chartHeight }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <ChartRenderer
+                  type={type}
+                  data={data}
+                  visibleSeries={visibleSeries}
+                  allSeries={series}
+                  hiddenSeries={hiddenSeries}
+                  resolvedColors={resolvedColors}
+                  effectiveConfig={effectiveConfig}
+                  strokeWidth={strokeWidth}
+                  reducedMotion={reducedMotion}
+                  chartElements={chartElements}
+                />
+              </ResponsiveContainer>
+
+              {/* Config gear button — shown unless sparkline */}
+              {!isSparkline && onConfigChange && (
+                <button
+                  type="button"
+                  className={classes.configButton}
+                  onClick={() => setConfigPanelOpen((prev) => !prev)}
+                  aria-label={t('chart.config.openAriaLabel')}
+                  aria-expanded={configPanelOpen}
+                  aria-haspopup="dialog"
+                >
+                  <IconSettings size={16} aria-hidden="true" />
+                </button>
+              )}
+
+              {/* Config panel */}
+              {configPanelOpen && onConfigChange && (
+                <ChartConfigPanel
+                  config={internalConfig}
+                  currentType={type}
+                  onConfigChange={handleConfigChange}
+                  onClose={() => setConfigPanelOpen(false)}
+                />
+              )}
+            </div>
+
+            {/* Legend right */}
+            {showLegend && legendPosition === 'right' && (
+              <ChartLegend
+                series={series}
+                resolvedColors={resolvedColors}
+                hiddenSeries={hiddenSeries}
+                position="right"
+                onToggle={handleLegendToggle}
+                onSolo={handleLegendSolo}
+              />
+            )}
+          </div>
+
+          {/* ─── Legend bottom ──────────────────────────────────────────────── */}
+          {showLegend && legendPosition === 'bottom' && (
+            <ChartLegend
+              series={series}
+              resolvedColors={resolvedColors}
+              hiddenSeries={hiddenSeries}
+              position="bottom"
+              onToggle={handleLegendToggle}
+              onSolo={handleLegendSolo}
+            />
+          )}
+        </ChartKeyboardNav>
       )}
     </div>
   );
