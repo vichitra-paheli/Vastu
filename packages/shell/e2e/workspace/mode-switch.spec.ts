@@ -23,18 +23,6 @@ import { loginAs, TEST_USERS } from '../fixtures';
 import { WorkspacePage, WS } from './fixtures/workspace-page';
 
 // ---------------------------------------------------------------------------
-// Auth protection (no Docker required)
-// ---------------------------------------------------------------------------
-
-test.describe('Mode switch — auth protection', () => {
-  test('unauthenticated access to /workspace redirects to /login', async ({ page }) => {
-    await page.context().clearCookies();
-    await page.goto('/workspace');
-    await expect(page).toHaveURL(/\/login/);
-  });
-});
-
-// ---------------------------------------------------------------------------
 // AC-10: Mode switch visible state
 // ---------------------------------------------------------------------------
 
@@ -75,7 +63,10 @@ test.describe('Mode switch — AC-10: visibility by role', () => {
     await ws.waitForShell();
 
     await ws.sidebar.clickItem('Dashboard');
-    await page.waitForTimeout(2_000); // wait for panel to settle
+
+    // Wait for the Dockview panel content to appear before asserting the
+    // ModeSwitch is absent (auto-retrying with generous timeout).
+    await expect(page.locator(WS.dockviewPanelContent).first()).toBeVisible({ timeout: 8_000 });
 
     // ModeSwitch should not be visible for editors.
     await expect(page.locator(WS.modeSwitchGroup)).not.toBeVisible();
@@ -88,7 +79,10 @@ test.describe('Mode switch — AC-10: visibility by role', () => {
     await ws.waitForShell();
 
     await ws.sidebar.clickItem('Dashboard');
-    await page.waitForTimeout(2_000);
+
+    // Wait for the Dockview panel content to appear before asserting the
+    // ModeSwitch is absent (auto-retrying with generous timeout).
+    await expect(page.locator(WS.dockviewPanelContent).first()).toBeVisible({ timeout: 8_000 });
 
     await expect(page.locator(WS.modeSwitchGroup)).not.toBeVisible();
   });

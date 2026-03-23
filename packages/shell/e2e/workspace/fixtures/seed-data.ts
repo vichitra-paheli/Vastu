@@ -12,31 +12,40 @@
  * Seed user IDs and credentials match auth-setup.ts and fixtures.ts.
  */
 
+import { TEST_USERS } from '../../fixtures';
+
 // ---------------------------------------------------------------------------
 // Seed users
 // ---------------------------------------------------------------------------
 
+/**
+ * Workspace seed users — extends TEST_USERS from shell fixtures with
+ * workspace-specific fields (id, role) that are not needed in shell auth tests.
+ *
+ * Credentials (email/password) are sourced from the canonical TEST_USERS so
+ * that there is a single source of truth and no duplication.
+ */
 export const SEED_USERS = {
   admin: {
     id: 'cccccccc-0000-4000-a000-000000000001',
-    email: 'admin@vastu.dev',
-    password: 'Admin1234!',
-    name: 'Admin User',
-    role: 'Admin',
+    email: TEST_USERS.admin.email,
+    password: TEST_USERS.admin.password,
+    name: TEST_USERS.admin.name,
+    role: TEST_USERS.admin.role,
   },
   editor: {
     id: 'cccccccc-0000-4000-a000-000000000002',
-    email: 'editor@vastu.dev',
-    password: 'Editor1234!',
-    name: 'Editor User',
-    role: 'Editor',
+    email: TEST_USERS.editor.email,
+    password: TEST_USERS.editor.password,
+    name: TEST_USERS.editor.name,
+    role: TEST_USERS.editor.role,
   },
   viewer: {
     id: 'cccccccc-0000-4000-a000-000000000003',
-    email: 'viewer@vastu.dev',
-    password: 'Viewer1234!',
-    name: 'Viewer User',
-    role: 'Viewer',
+    email: TEST_USERS.viewer.email,
+    password: TEST_USERS.viewer.password,
+    name: TEST_USERS.viewer.name,
+    role: TEST_USERS.viewer.role,
   },
 } as const;
 
@@ -70,11 +79,16 @@ export const FIRST_SIDEBAR_PAGE = MOCK_SIDEBAR_PAGES[0];
 
 /**
  * Commands available in the command palette COMMANDS group.
- * These match the built-in commands registered via useCommandPaletteActions.
+ * These match the built-in commands registered via useCommandPaletteActions
+ * (packages/workspace/src/hooks/useCommandPaletteActions.ts).
+ * Update this list whenever buildStaticCommands changes.
  */
 export const BUILT_IN_COMMANDS = [
   'Toggle sidebar',
-  'Show keyboard shortcuts',
+  'New panel',
+  'Close all panels',
+  'Open settings',
+  'Keyboard shortcuts',
 ] as const;
 
 // ---------------------------------------------------------------------------
@@ -131,6 +145,12 @@ export interface SampleView {
   pageId: string;
   createdBy: string;
   isShared: boolean;
+  /**
+   * Hex color string stored in the database as serialized view state.
+   * These are raw persisted values, NOT UI-rendered colors — CSS custom
+   * properties (--v-*) do not apply here. The hex value is stored as-is
+   * and rendered into a small color dot indicator in the ViewSelector.
+   */
   colorDot: string;
 }
 

@@ -22,18 +22,6 @@ import { WorkspacePage, WS } from './fixtures/workspace-page';
 import { BUILT_IN_COMMANDS } from './fixtures/seed-data';
 
 // ---------------------------------------------------------------------------
-// Auth protection (no Docker required)
-// ---------------------------------------------------------------------------
-
-test.describe('Command palette — auth protection', () => {
-  test('unauthenticated access to /workspace redirects to /login', async ({ page }) => {
-    await page.context().clearCookies();
-    await page.goto('/workspace');
-    await expect(page).toHaveURL(/\/login/);
-  });
-});
-
-// ---------------------------------------------------------------------------
 // AC-6: Open via keyboard shortcut
 // ---------------------------------------------------------------------------
 
@@ -113,9 +101,7 @@ test.describe('Command palette — AC-6: search and result groups', () => {
     await ws.commandPalette.openViaKeyboard();
     await ws.commandPalette.type('Dashboard');
 
-    // Wait for results to appear after the 150ms debounce.
-    await page.waitForTimeout(300);
-
+    // Wait for results to appear (auto-retrying assertion handles the debounce).
     await expect(ws.commandPalette.results.filter({ hasText: 'Dashboard' }).first()).toBeVisible({
       timeout: 5_000,
     });
@@ -130,9 +116,8 @@ test.describe('Command palette — AC-6: search and result groups', () => {
     // Typing ">" activates commands-only mode.
     await ws.commandPalette.openViaKeyboard();
     await ws.commandPalette.type('>');
-    await page.waitForTimeout(300);
 
-    // All built-in command labels should appear.
+    // All built-in command labels should appear (auto-retrying assertion).
     for (const command of BUILT_IN_COMMANDS) {
       await expect(
         ws.commandPalette.results.filter({ hasText: command }).first(),
@@ -148,9 +133,8 @@ test.describe('Command palette — AC-6: search and result groups', () => {
 
     await ws.commandPalette.openViaKeyboard();
     await ws.commandPalette.type('zzz-no-match-zzz');
-    await page.waitForTimeout(300);
 
-    // Mantine Spotlight.Empty renders the no-results message.
+    // Mantine Spotlight.Empty renders the no-results message (auto-retrying assertion).
     await expect(page.locator(WS.commandPaletteEmpty)).toBeVisible({ timeout: 5_000 });
     await expect(page.locator(WS.commandPaletteEmpty)).toContainText('zzz-no-match-zzz');
   });
@@ -174,9 +158,8 @@ test.describe('Command palette — AC-6: search and result groups', () => {
 
     await ws.commandPalette.openViaKeyboard();
     await ws.commandPalette.type('>');
-    await page.waitForTimeout(300);
 
-    // The commands-mode hint banner should appear.
+    // The commands-mode hint banner should appear (auto-retrying assertion).
     const hint = page.locator('[aria-live="polite"]').filter({ hasText: /command/i });
     await expect(hint).toBeVisible({ timeout: 3_000 });
   });
@@ -198,7 +181,11 @@ test.describe('Command palette — AC-6: select result opens panel', () => {
     // Open palette and search for "Contacts".
     await ws.commandPalette.openViaKeyboard();
     await ws.commandPalette.type('Contacts');
-    await page.waitForTimeout(300);
+
+    // Wait for the Contacts result to appear before clicking (auto-retrying).
+    await expect(ws.commandPalette.results.filter({ hasText: 'Contacts' }).first()).toBeVisible({
+      timeout: 5_000,
+    });
 
     // Click the Contacts result.
     await ws.commandPalette.selectResult('Contacts');
@@ -223,7 +210,11 @@ test.describe('Command palette — AC-6: select result opens panel', () => {
 
     await ws.commandPalette.openViaKeyboard();
     await ws.commandPalette.type('>toggle');
-    await page.waitForTimeout(300);
+
+    // Wait for the Toggle sidebar result to appear (auto-retrying assertion).
+    await expect(
+      ws.commandPalette.results.filter({ hasText: 'Toggle sidebar' }).first(),
+    ).toBeVisible({ timeout: 5_000 });
 
     await ws.commandPalette.selectResult('Toggle sidebar');
 
@@ -243,7 +234,9 @@ test.describe('Command palette — AC-6: select result opens panel', () => {
 
     await ws.commandPalette.openViaKeyboard();
     await ws.commandPalette.type('a');
-    await page.waitForTimeout(300);
+
+    // Wait for at least one result to appear before pressing ArrowDown (auto-retrying).
+    await expect(ws.commandPalette.results.first()).toBeVisible({ timeout: 5_000 });
 
     // Press ArrowDown to move focus to the first result.
     await page.keyboard.press('ArrowDown');
@@ -261,7 +254,11 @@ test.describe('Command palette — AC-6: select result opens panel', () => {
 
     await ws.commandPalette.openViaKeyboard();
     await ws.commandPalette.type('Dashboard');
-    await page.waitForTimeout(300);
+
+    // Wait for the Dashboard result to appear before navigating (auto-retrying).
+    await expect(ws.commandPalette.results.filter({ hasText: 'Dashboard' }).first()).toBeVisible({
+      timeout: 5_000,
+    });
 
     await page.keyboard.press('ArrowDown');
     await page.keyboard.press('Enter');

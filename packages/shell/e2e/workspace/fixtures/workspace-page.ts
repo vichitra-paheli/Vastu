@@ -36,12 +36,21 @@ export const WS = {
   sidebarToggleCollapse: '[aria-label="Collapse sidebar"]',
   sidebarToggleExpand: '[aria-label="Expand sidebar"]',
   sidebarSearch: '[placeholder="Search pages..."]',
-  sidebarNavItem: '[data-testid^="sidebar-item-"]',
+  // SidebarItem renders data-item-id={id} on the <button> element (not data-testid).
+  // See packages/workspace/src/components/SidebarNav/SidebarItem.tsx.
+  sidebarNavItem: '[data-item-id]',
 
-  // Dockview
+  // Dockview — internal CSS selectors from Dockview v4.x.
+  // These classes are part of Dockview's internal DOM structure and may change
+  // if the Dockview version is upgraded. Update these selectors when bumping
+  // the dockview package version.
+  // Dockview v4.x internal selector — update if Dockview version changes.
   dockviewContainer: '.dv-react-dockview',
+  // Dockview v4.x internal selector — update if Dockview version changes.
   dockviewTab: '.dv-tab',
+  // Dockview v4.x internal selector — update if Dockview version changes.
   dockviewActiveTab: '.dv-tab.dv-active-tab',
+  // Dockview v4.x internal selector — update if Dockview version changes.
   dockviewPanelContent: '.dv-panel-content',
 
   // TrayBar
@@ -52,8 +61,9 @@ export const WS = {
   trayItemChip: '[data-testid^="tray-item-"]',
 
   // CommandPalette (Mantine Spotlight)
+  // The aria-label value matches commandPalette.searchAriaLabel in en.json.
   commandPaletteRoot: '[data-testid="command-palette"]',
-  commandPaletteSearch: '[aria-label="Search pages, records and commands"]',
+  commandPaletteSearch: '[aria-label="Search command palette"]',
   commandPaletteResult: '[data-testid^="cp-result-"]',
   commandPaletteEmpty: '[class*="emptyState"]',
   commandPaletteFooter: '[class*="footer"]',
@@ -70,11 +80,17 @@ export const WS = {
   tableFooter: '[role="status"][aria-live="polite"]',
   tableSortIcon: '[data-testid^="sort-icon-"]',
 
-  // ViewToolbar
-  viewToolbar: '[data-testid="view-toolbar"]',
-  viewName: '[data-testid="view-name"]',
-  viewSaveButton: '[data-testid="view-save-button"]',
-  viewResetButton: '[data-testid="view-reset-button"]',
+  // ViewToolbar — selectors match ViewToolbar.tsx actual data-testid values.
+  // The toolbar root uses role="toolbar" with an aria-label; individual
+  // controls use the data-testid values rendered in the component.
+  // See packages/workspace/src/components/ViewToolbar/ViewToolbar.tsx.
+  viewToolbar: '[role="toolbar"]',
+  // The view name is an <input> with aria-label matching view.toolbar.viewNameAriaLabel.
+  viewName: '[aria-label][class*="viewNameInput"]',
+  // Save button uses data-testid="save-button" (not "view-save-button").
+  viewSaveButton: '[data-testid="save-button"]',
+  // Reset button uses data-testid="reset-button" (not "view-reset-button").
+  viewResetButton: '[data-testid="reset-button"]',
   viewSelector: '[aria-label*="view selector"], [aria-label*="View selector"]',
 } as const;
 
@@ -159,9 +175,12 @@ export class TrayPOM {
 export class CommandPalettePOM {
   constructor(private readonly page: Page) {}
 
-  /** Open via keyboard shortcut (Cmd/Ctrl+K). */
+  /** Open via keyboard shortcut (Cmd+K on macOS, Ctrl+K on Windows/Linux). */
   async openViaKeyboard(): Promise<void> {
-    await this.page.keyboard.press('Meta+k');
+    // Meta+k works on macOS; Control+k is the cross-platform fallback.
+    // Playwright's page.keyboard.press supports both modifier names.
+    const isMac = process.platform === 'darwin';
+    await this.page.keyboard.press(isMac ? 'Meta+k' : 'Control+k');
   }
 
   /** Open via the tray search button. */

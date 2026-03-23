@@ -28,18 +28,6 @@ import { loginAs, TEST_USERS } from '../fixtures';
 import { WorkspacePage, WS } from './fixtures/workspace-page';
 
 // ---------------------------------------------------------------------------
-// Auth protection (no Docker required)
-// ---------------------------------------------------------------------------
-
-test.describe('Table interactions — auth protection', () => {
-  test('unauthenticated access to /workspace redirects to /login', async ({ page }) => {
-    await page.context().clearCookies();
-    await page.goto('/workspace');
-    await expect(page).toHaveURL(/\/login/);
-  });
-});
-
-// ---------------------------------------------------------------------------
 // Shared helper: navigate to a page that renders a VastuTable
 // ---------------------------------------------------------------------------
 
@@ -66,82 +54,65 @@ test.describe('Table interactions — AC-7: column sort', () => {
     // Requires: docker compose up -d + seeded Contacts data
     const ws = await openTablePage(page);
 
-    // Get the first cell value in the Name column before sorting.
-    const firstRowBefore = await page.locator(WS.tableRow).first().textContent();
-
     // Click the "Name" column header to sort ascending.
     await ws.table.clickHeader('Name');
 
-    // Wait briefly for the sort to apply.
-    await page.waitForTimeout(500);
+    // Wait for the sort indicator to appear on the Name header (auto-retrying).
+    const nameHeader = page.locator(WS.tableHeaderRow).filter({ hasText: /^name$/i });
+    await expect(nameHeader).toHaveAttribute('aria-sort', 'ascending', { timeout: 5_000 });
 
-    const firstRowAfter = await page.locator(WS.tableRow).first().textContent();
-
-    // After sorting the first row may differ (if data wasn't already sorted).
-    // We can't know the exact expected value without the database, so we assert
-    // the table still renders rows.
-    const rowCount = await page.locator(WS.tableRow).count();
-    expect(rowCount).toBeGreaterThan(0);
-    // The sort interaction completed without error (row content may or may not change).
-    expect(typeof firstRowAfter).toBe('string');
-    // Suppress unused variable warning.
-    void firstRowBefore;
+    // Table must still render rows after sorting.
+    await expect(page.locator(WS.tableRow).first()).toBeVisible({ timeout: 5_000 });
   });
 
   test.skip('clicking a sorted column header again reverses the sort order', async ({ page }) => {
     // Requires: docker compose up -d + seeded Contacts data
     const ws = await openTablePage(page);
 
-    // Click once → ascending, click again → descending.
-    await ws.table.clickHeader('Name');
-    await page.waitForTimeout(300);
-    await ws.table.clickHeader('Name');
-    await page.waitForTimeout(300);
+    const nameHeader = page.locator(WS.tableHeaderRow).filter({ hasText: /^name$/i });
 
-    // Table should still render rows (no crash on sort toggle).
-    const rowCount = await page.locator(WS.tableRow).count();
-    expect(rowCount).toBeGreaterThan(0);
+    // Click once → ascending.
+    await ws.table.clickHeader('Name');
+    await expect(nameHeader).toHaveAttribute('aria-sort', 'ascending', { timeout: 5_000 });
+
+    // Click again → descending.
+    await ws.table.clickHeader('Name');
+    await expect(nameHeader).toHaveAttribute('aria-sort', 'descending', { timeout: 5_000 });
   });
 
   test.skip('sort indicator icon appears after clicking a column header', async ({ page }) => {
     // Requires: docker compose up -d + seeded Contacts data
     const ws = await openTablePage(page);
 
-    // Before clicking there should be no active sort indicator.
-    const sortedHeader = page
-      .locator(WS.tableHeaderRow)
-      .filter({ has: page.locator('[aria-sort]') });
-    const beforeCount = await sortedHeader.count();
+    // Before clicking, the Name header should have no sort direction.
+    const nameHeader = page.locator(WS.tableHeaderRow).filter({ hasText: /^name$/i });
 
     await ws.table.clickHeader('Name');
-    await page.waitForTimeout(300);
 
-    // After clicking, at least one header should carry an aria-sort attribute.
-    const afterCount = await sortedHeader.count();
-    expect(afterCount).toBeGreaterThanOrEqual(beforeCount);
+    // After clicking, the Name header should carry an aria-sort attribute.
+    await expect(nameHeader).toHaveAttribute('aria-sort', /(ascending|descending)/, {
+      timeout: 5_000,
+    });
   });
 
   test.skip('row order changes after sorting by a numeric column', async ({ page }) => {
     // Requires: docker compose up -d + seeded Contacts data with a numeric column
     await openTablePage(page);
 
-    // Capture text of first row before sort.
-    const before = await page.locator(WS.tableRow).first().textContent();
-
-    // Sort by "Amount" column (if present — gracefully skip if not).
+    // Sort by "Amount" column (if present — skip if not in the seed data).
     const amountHeader = page.locator(WS.tableHeaderRow).filter({ hasText: /amount/i });
     if ((await amountHeader.count()) === 0) {
       test.info().annotations.push({ type: 'note', description: 'Amount column not found' });
       return;
     }
     await amountHeader.first().click();
-    await page.waitForTimeout(500);
 
-    const after = await page.locator(WS.tableRow).first().textContent();
-    // The first row may differ after sorting by amount.
-    // We can't know the exact value without DB data, so just check rows exist.
-    expect(after).toBeTruthy();
-    void before;
+    // Wait for the sort indicator to confirm the sort applied (auto-retrying).
+    await expect(amountHeader.first()).toHaveAttribute('aria-sort', /(ascending|descending)/, {
+      timeout: 5_000,
+    });
+    // Table must remain visible after sort.
+    await expect(page.locator(WS.tableRow).first()).toBeVisible({ timeout: 5_000 });
   });
 
   test.skip('sorting does not affect row count', async ({ page }) => {
@@ -150,11 +121,9 @@ test.describe('Table interactions — AC-7: column sort', () => {
 
     const countBefore = await page.locator(WS.tableRow).count();
     await ws.table.clickHeader('Name');
-    await page.waitForTimeout(300);
-    const countAfter = await page.locator(WS.tableRow).count();
 
-    // Sorting should not add or remove rows.
-    expect(countAfter).toBe(countBefore);
+    // Wait for sort to settle before counting (auto-retrying via toHaveCount).
+    await expect(page.locator(WS.tableRow)).toHaveCount(countBefore, { timeout: 5_000 });
   });
 });
 
@@ -194,15 +163,15 @@ test.describe('Table interactions — AC-8: filter pills', () => {
       .nth(1);
     await firstDataCell.click({ button: 'right' });
 
-    // The context menu value is shown in the Include filter item.
+    // The "Include" context menu item must be present (fails test if missing).
     const includeItem = page.getByRole('menuitem', { name: /include/i });
-    if (await includeItem.isVisible()) {
-      await includeItem.click();
+    await expect(includeItem).toBeVisible({ timeout: 5_000 });
+    await includeItem.click();
 
-      // A filter pill should appear in the FilterBar above the table.
-      const filterPill = page.locator('[data-testid^="filter-pill-"]').first();
-      await expect(filterPill).toBeVisible({ timeout: 5_000 });
-    }
+    // A filter pill should appear in the FilterBar above the table (auto-retrying).
+    await expect(page.locator('[data-testid^="filter-pill-"]').first()).toBeVisible({
+      timeout: 5_000,
+    });
   });
 
   test.skip('applying a filter reduces the visible row count', async ({ page }) => {
@@ -220,14 +189,17 @@ test.describe('Table interactions — AC-8: filter pills', () => {
     await firstDataCell.click({ button: 'right' });
 
     const includeItem = page.getByRole('menuitem', { name: /include/i });
-    if (await includeItem.isVisible()) {
-      await includeItem.click();
-      await page.waitForTimeout(500);
+    await expect(includeItem).toBeVisible({ timeout: 5_000 });
+    await includeItem.click();
 
-      const filteredRows = await page.locator(WS.tableRow).count();
-      // Filtered row count should be <= total rows.
-      expect(filteredRows).toBeLessThanOrEqual(totalRows);
-    }
+    // Wait for the filter pill to appear, confirming the filter was applied.
+    await expect(page.locator('[data-testid^="filter-pill-"]').first()).toBeVisible({
+      timeout: 5_000,
+    });
+
+    // Filtered row count should be <= total rows (auto-retrying assertion).
+    const filteredRows = await page.locator(WS.tableRow).count();
+    expect(filteredRows).toBeLessThanOrEqual(totalRows);
   });
 
   test.skip('filter pill can be removed by clicking its dismiss button', async ({ page }) => {
@@ -245,25 +217,20 @@ test.describe('Table interactions — AC-8: filter pills', () => {
     await firstDataCell.click({ button: 'right' });
 
     const includeItem = page.getByRole('menuitem', { name: /include/i });
-    if (await includeItem.isVisible()) {
-      await includeItem.click();
-      await page.waitForTimeout(300);
+    await expect(includeItem).toBeVisible({ timeout: 5_000 });
+    await includeItem.click();
 
-      // Remove the filter pill.
-      const pillRemoveButton = page
-        .locator('[data-testid^="filter-pill-"]')
-        .first()
-        .getByRole('button', { name: /remove|close|dismiss/i });
+    // Wait for the filter pill to appear before removing it.
+    const filterPill = page.locator('[data-testid^="filter-pill-"]').first();
+    await expect(filterPill).toBeVisible({ timeout: 5_000 });
 
-      if (await pillRemoveButton.isVisible()) {
-        await pillRemoveButton.click();
-        await page.waitForTimeout(300);
+    // Remove the filter pill.
+    const pillRemoveButton = filterPill.getByRole('button', { name: /remove|close|dismiss/i });
+    await expect(pillRemoveButton).toBeVisible({ timeout: 5_000 });
+    await pillRemoveButton.click();
 
-        // Row count should return to original.
-        const restoredRows = await page.locator(WS.tableRow).count();
-        expect(restoredRows).toBe(totalRows);
-      }
-    }
+    // Row count should return to original (auto-retrying assertion).
+    await expect(page.locator(WS.tableRow)).toHaveCount(totalRows, { timeout: 5_000 });
   });
 
   test.skip('applying an Exclude filter removes matching rows', async ({ page }) => {
@@ -271,7 +238,6 @@ test.describe('Table interactions — AC-8: filter pills', () => {
     await openTablePage(page);
 
     const totalRows = await page.locator(WS.tableRow).count();
-    if (totalRows === 0) return;
 
     // Right-click the first data cell.
     const firstDataCell = page
@@ -282,14 +248,17 @@ test.describe('Table interactions — AC-8: filter pills', () => {
     await firstDataCell.click({ button: 'right' });
 
     const excludeItem = page.getByRole('menuitem', { name: /exclude/i });
-    if (await excludeItem.isVisible()) {
-      await excludeItem.click();
-      await page.waitForTimeout(500);
+    await expect(excludeItem).toBeVisible({ timeout: 5_000 });
+    await excludeItem.click();
 
-      // After excluding, matching rows should be hidden.
-      const filteredRows = await page.locator(WS.tableRow).count();
-      expect(filteredRows).toBeLessThanOrEqual(totalRows);
-    }
+    // Wait for the filter pill to appear, confirming the filter was applied.
+    await expect(page.locator('[data-testid^="filter-pill-"]').first()).toBeVisible({
+      timeout: 5_000,
+    });
+
+    // After excluding, matching rows should be hidden.
+    const filteredRows = await page.locator(WS.tableRow).count();
+    expect(filteredRows).toBeLessThanOrEqual(totalRows);
   });
 
   test.skip('table footer updates row count when filter is applied', async ({ page }) => {
@@ -307,15 +276,18 @@ test.describe('Table interactions — AC-8: filter pills', () => {
     await firstDataCell.click({ button: 'right' });
 
     const includeItem = page.getByRole('menuitem', { name: /include/i });
-    if (await includeItem.isVisible()) {
-      await includeItem.click();
-      await page.waitForTimeout(500);
+    await expect(includeItem).toBeVisible({ timeout: 5_000 });
+    await includeItem.click();
 
-      const footerAfter = await ws.table.footerText();
-      // Footer text should reflect the filtered count (may differ from total).
-      expect(footerAfter).toBeTruthy();
-      void footerBefore;
-    }
+    // Wait for the filter pill to appear before checking the footer.
+    await expect(page.locator('[data-testid^="filter-pill-"]').first()).toBeVisible({
+      timeout: 5_000,
+    });
+
+    const footerAfter = await ws.table.footerText();
+    // Footer text should reflect the filtered count (may differ from total).
+    expect(footerAfter).toBeTruthy();
+    void footerBefore;
   });
 });
 
@@ -349,12 +321,14 @@ test.describe('Table interactions — AC-9: view save and load', () => {
     // Apply a sort so there is state to save.
     const ws = new WorkspacePage(page);
     await ws.table.clickHeader('Name');
-    await page.waitForTimeout(300);
+    // Wait for the sort to take effect before saving.
+    const nameHeader = page.locator(WS.tableHeaderRow).filter({ hasText: /^name$/i });
+    await expect(nameHeader).toHaveAttribute('aria-sort', 'ascending', { timeout: 5_000 });
 
     await page.locator(WS.viewSaveButton).click();
 
     // The save action may open a dialog or save silently and show a toast.
-    // We check for either a dialog or a success notification.
+    // We check for either a dialog or a success notification (auto-retrying).
     const dialog = page.getByRole('dialog');
     const toast = page.locator('[role="status"]').filter({ hasText: /saved|success/i });
 
@@ -370,68 +344,67 @@ test.describe('Table interactions — AC-9: view save and load', () => {
 
     // Save the current default view.
     await page.locator(WS.viewSaveButton).click();
-    await page.waitForTimeout(1_000);
 
-    // Dismiss any save dialog.
+    // Dismiss any save dialog (auto-retrying: wait for button, then click).
     const confirmButton = page.getByRole('button', { name: /save|confirm|ok/i });
-    if (await confirmButton.isVisible()) {
+    if (await confirmButton.isVisible({ timeout: 2_000 }).catch(() => false)) {
       await confirmButton.click();
-      await page.waitForTimeout(500);
     }
 
-    // Open the ViewSelector dropdown.
+    // Open the ViewSelector dropdown (must be present).
     const selectorTrigger = page.locator(WS.viewSelector);
-    if (await selectorTrigger.isVisible()) {
-      await selectorTrigger.click();
-      // There should be at least one view listed.
-      const viewEntries = page.locator('[data-active], [class*="entry"]');
-      const count = await viewEntries.count();
-      expect(count).toBeGreaterThan(0);
-    }
+    await expect(selectorTrigger).toBeVisible({ timeout: 5_000 });
+    await selectorTrigger.click();
+
+    // There should be at least one view listed (auto-retrying).
+    const viewEntries = page.locator('[data-active], [class*="entry"]');
+    await expect(viewEntries.first()).toBeVisible({ timeout: 5_000 });
   });
 
   test.skip('loading a saved view restores its sort state', async ({ page }) => {
     // Requires: docker compose up -d + database session (two-step test)
-    // Step 1: Sort, save the view.
-    // Step 2: Reload the page, load the saved view, verify sort is restored.
+    // Step 1: Sort by Name ascending, save the view.
+    // Step 2: Reload the page, load the saved view, verify the Name column
+    //         header still shows aria-sort="ascending" (not just rowCount > 0).
     await openTablePage(page);
 
     const ws = new WorkspacePage(page);
+    const nameHeader = page.locator(WS.tableHeaderRow).filter({ hasText: /^name$/i });
 
     // Sort by Name ascending.
     await ws.table.clickHeader('Name');
-    await page.waitForTimeout(300);
+    await expect(nameHeader).toHaveAttribute('aria-sort', 'ascending', { timeout: 5_000 });
 
     // Save the view.
     await page.locator(WS.viewSaveButton).click();
-    await page.waitForTimeout(500);
 
     const confirmButton = page.getByRole('button', { name: /save|confirm/i });
-    if (await confirmButton.isVisible()) {
+    if (await confirmButton.isVisible({ timeout: 2_000 }).catch(() => false)) {
       await confirmButton.click();
-      await page.waitForTimeout(500);
     }
 
-    // Reload the workspace page.
+    // Reload the workspace page and navigate back to Contacts.
     await page.reload();
     await ws.waitForShell();
     await ws.sidebar.clickItem('Contacts');
     await page.locator(WS.tableContainer).waitFor({ state: 'visible', timeout: 10_000 });
 
-    // Load the saved view from the ViewSelector.
+    // Load the saved view from the ViewSelector (must be present).
     const selectorTrigger = page.locator(WS.viewSelector);
-    if (await selectorTrigger.isVisible()) {
-      await selectorTrigger.click();
-      const viewEntry = page.locator('[class*="entry"]').first();
-      if (await viewEntry.isVisible()) {
-        await viewEntry.click();
-        await page.waitForTimeout(500);
+    await expect(selectorTrigger).toBeVisible({ timeout: 5_000 });
+    await selectorTrigger.click();
 
-        // The table should still have rows (sort state loaded).
-        const rowCount = await page.locator(WS.tableRow).count();
-        expect(rowCount).toBeGreaterThan(0);
-      }
-    }
+    const viewEntry = page.locator('[class*="entry"]').first();
+    await expect(viewEntry).toBeVisible({ timeout: 5_000 });
+    await viewEntry.click();
+
+    // The Name column header must show the restored sort state (ascending).
+    // This verifies sort state is actually persisted, not just that rows exist.
+    await expect(page.locator(WS.tableHeaderRow).filter({ hasText: /^name$/i })).toHaveAttribute(
+      'aria-sort',
+      'ascending',
+      { timeout: 5_000 },
+    );
   });
 
   test.skip('reset button restores the default view state', async ({ page }) => {
@@ -439,38 +412,37 @@ test.describe('Table interactions — AC-9: view save and load', () => {
     await openTablePage(page);
 
     const ws = new WorkspacePage(page);
+    const nameHeader = page.locator(WS.tableHeaderRow).filter({ hasText: /^name$/i });
 
     // Apply a sort change.
     await ws.table.clickHeader('Name');
-    await page.waitForTimeout(300);
+    await expect(nameHeader).toHaveAttribute('aria-sort', 'ascending', { timeout: 5_000 });
 
-    // Click reset if visible.
+    // Reset button must be present (fails test if missing).
     const resetButton = page.locator(WS.viewResetButton);
-    if (await resetButton.isVisible()) {
-      await resetButton.click();
-      await page.waitForTimeout(300);
+    await expect(resetButton).toBeVisible({ timeout: 5_000 });
+    await resetButton.click();
 
-      // After reset the table should still render rows.
-      const rowCount = await page.locator(WS.tableRow).count();
-      expect(rowCount).toBeGreaterThan(0);
-    }
+    // After reset the sort indicator should be gone (auto-retrying).
+    await expect(nameHeader).not.toHaveAttribute('aria-sort', /(ascending|descending)/, {
+      timeout: 5_000,
+    });
+    // Table must still render rows.
+    await expect(page.locator(WS.tableRow).first()).toBeVisible({ timeout: 5_000 });
   });
 
   test.skip('view selector shows MY VIEWS section for owned views', async ({ page }) => {
     // Requires: docker compose up -d + saved views for admin user
     await openTablePage(page);
 
+    // ViewSelector must be present (fails test if missing).
     const selectorTrigger = page.locator(WS.viewSelector);
-    if (await selectorTrigger.isVisible()) {
-      await selectorTrigger.click();
+    await expect(selectorTrigger).toBeVisible({ timeout: 5_000 });
+    await selectorTrigger.click();
 
-      // The MY VIEWS section header should appear.
-      const myViewsHeader = page.getByText(/my views/i);
-      // May not appear if no views are saved; just verify the dropdown opened.
-      const dropdown = page.locator('[class*="dropdown"]').first();
-      await expect(dropdown).toBeVisible({ timeout: 5_000 });
-      void myViewsHeader;
-    }
+    // The dropdown must open (auto-retrying).
+    const dropdown = page.locator('[class*="dropdown"]').first();
+    await expect(dropdown).toBeVisible({ timeout: 5_000 });
   });
 });
 
@@ -498,9 +470,8 @@ test.describe('Table interactions — accessibility', () => {
 
     // Press 'j' to move to the next row.
     await page.keyboard.press('j');
-    await page.waitForTimeout(100);
 
-    // The table should still be visible (no crash).
+    // The table should still be visible after the keypress (auto-retrying assertion).
     await expect(tableContainer).toBeVisible();
   });
 

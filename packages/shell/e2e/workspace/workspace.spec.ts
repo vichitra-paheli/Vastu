@@ -246,9 +246,10 @@ test.describe('Workspace — AC-3: open panel from sidebar', () => {
     await ws.sidebar.clickItem('Dashboard');
 
     const dashTabs = page.locator(WS.dockviewTab).filter({ hasText: 'Dashboard' });
-    // Should only exist once (or the panel store deduplicates).
+    // The panel store deduplicates: opening the same page twice must not
+    // create more than one tab. Exactly 1 is the expected and correct count.
     const count = await dashTabs.count();
-    expect(count).toBeLessThanOrEqual(2);
+    expect(count).toBe(1);
   });
 
   test.skip('panel content area renders after opening a page', async ({ page }) => {
