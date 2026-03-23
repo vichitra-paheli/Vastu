@@ -51,8 +51,9 @@ function mulberry32(seed: number) {
   };
 }
 
-// Single shared PRNG instance — seeded with a fixed value for determinism
-const rng = mulberry32(0xf1f1f1f1);
+// Module-level PRNG reference — reset at the start of each runF1Seed() call
+// so that multiple calls in the same process produce identical output.
+let rng = mulberry32(0xf1f1f1f1);
 
 function randInt(min: number, max: number): number {
   return Math.floor(rng() * (max - min + 1)) + min;
@@ -490,6 +491,9 @@ function generateLapTimes(
 // ---------------------------------------------------------------------------
 
 export async function runF1Seed(prisma: PrismaClient): Promise<void> {
+  // Reset PRNG to the fixed seed so every call produces identical data.
+  rng = mulberry32(0xf1f1f1f1);
+
   console.log('Seeding F1 domain data...');
 
   // 1. Circuits
@@ -646,7 +650,7 @@ async function seedSeason(prisma: PrismaClient, year: number): Promise<void> {
       WeatherCondition.Dry;
 
     const totalLaps = Math.round(305 / circuit.lengthKm); // F1 race distance ~305km
-    const safetyCatLaps = randBool(0.4) ? randInt(3, 12) : 0;
+    const safetyCarLaps = randBool(0.4) ? randInt(3, 12) : 0;
 
     await prisma.race.upsert({
       where: { id: raceId },
@@ -663,7 +667,7 @@ async function seedSeason(prisma: PrismaClient, year: number): Promise<void> {
         lapsCompleted: totalLaps,
         totalLaps,
         hasSprint,
-        safetyCatLaps,
+        safetyCarLaps,
         redFlagCount: randBool(0.1) ? 1 : 0,
       },
     });
@@ -712,7 +716,7 @@ async function seedSeason(prisma: PrismaClient, year: number): Promise<void> {
     await seedLapTimes(prisma, raceId, raceOrder, totalLaps, circuit.baseLapMs);
 
     // Seed race events
-    await seedRaceEvents(prisma, raceId, raceOrder, date, totalLaps, safetyCatLaps);
+    await seedRaceEvents(prisma, raceId, raceOrder, date, totalLaps, safetyCarLaps);
 
     // Seed penalties (~3 per race on average)
     await seedPenalties(prisma, raceId, raceOrder);
@@ -1072,7 +1076,18 @@ async function seedLapTimes(
     isPersonalBest: boolean;
   }> = [];
 
-  // Track each driver's current position (simplified — position based on cumulative time)
+  // Pre-compute driverIds once to avoid repeated SHA-256 hashing in the hot loop.
+  // Also build a reverse map (driverId -> driverKey) to avoid O(n) finds during
+  // position assignment.
+  const driverIdMap: Record<string, string> = {};
+  const driverIdToKey: Record<string, string> = {};
+  for (const entry of order) {
+    const driverId = makeId('driver', entry.driverKey);
+    driverIdMap[entry.driverKey] = driverId;
+    driverIdToKey[driverId] = entry.driverKey;
+  }
+
+  // Track each driver's cumulative race time (for position calculation)
   const cumulativeTimes: Record<string, number> = {};
   for (const entry of order) {
     cumulativeTimes[entry.driverKey] = 0;
@@ -1080,11 +1095,26 @@ async function seedLapTimes(
 
   const driverBestLap: Record<string, number> = {};
 
+  // Counter-based ID for lap times: lap time records are recreated on every seed
+  // run (skipDuplicates handles re-runs), so they do not require deterministic IDs.
+  // Using a simple counter avoids ~65,000 SHA-256 hashes per full seed.
+  let lapTimeCounter = 0;
+
+  function makeLapTimeId(): string {
+    const n = lapTimeCounter++;
+    // Format as a UUID v4-shaped string using the counter value.
+    const hex = n.toString(16).padStart(12, '0');
+    return `f1seed000-0000-4000-a000-${hex}`;
+  }
+
   for (let lap = 1; lap <= totalLaps; lap++) {
     const lapTimesForLap: Array<{ driverKey: string; lapMs: number }> = [];
+    // Keep a reference to just this lap's rows so position update is O(drivers),
+    // not O(accumulated rows) which grows to O(drivers × totalLaps).
+    const thisLapRows: Array<(typeof rows)[number]> = [];
 
     for (const entry of order) {
-      const driverId = makeId('driver', entry.driverKey);
+      const driverId = driverIdMap[entry.driverKey];
       const lapTimes = generateLapTimes(baseLapMs, 1, entry.skillRating, entry.constructorPerf);
       const timeMs = lapTimes[0];
 
@@ -1099,9 +1129,8 @@ async function seedLapTimes(
       const s2 = Math.round(timeMs * randFloat(0.33, 0.38));
       const s3 = timeMs - s1 - s2;
 
-      const id = makeId('lap-time', `${raceId}-${entry.driverKey}-${lap}`);
-      rows.push({
-        id,
+      const row = {
+        id: makeLapTimeId(),
         raceId,
         driverId,
         lapNumber: lap,
@@ -1111,7 +1140,9 @@ async function seedLapTimes(
         sector2Ms: s2,
         sector3Ms: Math.max(s3, 1000),
         isPersonalBest,
-      });
+      };
+      rows.push(row);
+      thisLapRows.push(row);
     }
 
     // Calculate positions for this lap
@@ -1121,12 +1152,10 @@ async function seedLapTimes(
       positionMap[driverKey] = idx + 1;
     });
 
-    // Update positions in rows
-    for (const row of rows) {
-      if (row.lapNumber === lap) {
-        const driverKey = order.find((e) => makeId('driver', e.driverKey) === row.driverId)?.driverKey;
-        if (driverKey) row.position = positionMap[driverKey] ?? 1;
-      }
+    // Update positions: iterate only this lap's rows (O(drivers)), not all rows
+    for (const row of thisLapRows) {
+      const driverKey = driverIdToKey[row.driverId];
+      if (driverKey) row.position = positionMap[driverKey] ?? 1;
     }
   }
 
@@ -1152,7 +1181,7 @@ async function seedRaceEvents(
   order: DriverEntry[],
   raceDate: Date,
   totalLaps: number,
-  safetyCatLaps: number,
+  safetyCarLaps: number,
 ): Promise<void> {
   const events: Array<{
     id: string;
@@ -1178,7 +1207,7 @@ async function seedRaceEvents(
   });
 
   // Safety car if applicable
-  if (safetyCatLaps > 0) {
+  if (safetyCarLaps > 0) {
     const scLap = randInt(5, Math.floor(totalLaps * 0.7));
     events.push({
       id: makeId('race-event', `${raceId}-safety-car`),
