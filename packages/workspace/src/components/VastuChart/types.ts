@@ -54,6 +54,12 @@ export interface SeriesConfig {
    * The main `dataKey` is used as the Y axis.
    */
   xDataKey?: string;
+  /**
+   * Formatter registry display type for this series' values in the tooltip.
+   * When set, the registered formatter's render function is used to display
+   * the series value (VASTU-2A-205c). When omitted, values are displayed as strings.
+   */
+  displayType?: string;
 }
 
 /**
