@@ -20,10 +20,10 @@ import { SidebarNav } from '../SidebarNav';
 import { useSidebarStore } from '../../../stores/sidebarStore';
 import { usePanelStore } from '../../../stores/panelStore';
 import { registerPanel, clearRegistry } from '../../../panels/registry';
+import { registerPage, clearPageRegistry } from '../../../pages/registry';
 import { TestProviders } from '../../../test-utils/providers';
 import { createMockDockviewApi } from '../../../test-utils/mock-dockview';
 import { defineAbilitiesFor, type AppAbility } from '@vastu/shared/permissions';
-import { MOCK_PAGES } from '../mockPages';
 
 // ---- helpers -----------------------------------------------------------
 
@@ -50,6 +50,17 @@ const DEFAULT_TRANSLATIONS = {
 
 const DEFAULT_USER = { name: 'Alice Smith', role: 'Admin' };
 
+/** Mock pages used as page registry entries for tests. */
+const TEST_PAGES = [
+  { id: 'dashboard', name: 'Dashboard', icon: 'LayoutDashboard', template: 'dashboard' as const, section: 'pages' as const, order: 0 },
+  { id: 'customers', name: 'Customers', icon: 'Users', template: 'table-listing' as const, section: 'pages' as const, order: 1 },
+  { id: 'orders', name: 'Orders', icon: 'ShoppingCart', template: 'table-listing' as const, section: 'pages' as const, order: 2 },
+  { id: 'products', name: 'Products', icon: 'Package', template: 'table-listing' as const, section: 'pages' as const, order: 3 },
+  { id: 'analytics', name: 'Analytics', icon: 'ChartBar', template: 'data-explorer' as const, section: 'pages' as const, order: 4 },
+  { id: 'reports', name: 'Reports', icon: 'FileText', template: 'table-listing' as const, section: 'pages' as const, order: 5 },
+  { id: 'invoices', name: 'Invoices', icon: 'Receipt', template: 'table-listing' as const, section: 'pages' as const, order: 6 },
+];
+
 function renderSidebar(ability: AppAbility = makeViewerAbility()) {
   return render(
     <SidebarNav ability={ability} user={DEFAULT_USER} t={DEFAULT_TRANSLATIONS} />,
@@ -62,12 +73,14 @@ function renderSidebar(ability: AppAbility = makeViewerAbility()) {
 describe('SidebarNav', () => {
   beforeEach(() => {
     clearRegistry();
-    // Register mock pages so openPanelByTypeId can find them.
-    for (const page of MOCK_PAGES) {
+    clearPageRegistry();
+    // Register test pages in both the page registry and panel registry.
+    for (const page of TEST_PAGES) {
+      registerPage(page);
       registerPanel({
         id: page.id,
-        title: page.title,
-        iconName: page.iconName,
+        title: page.name,
+        iconName: page.icon,
         component: () => null,
       });
     }
@@ -128,7 +141,7 @@ describe('SidebarNav', () => {
   it('shows page list in expanded mode', () => {
     useSidebarStore.setState({ collapsed: false });
     renderSidebar();
-    // "Dashboard" is the first mock page (aria-label is exact "Dashboard")
+    // "Dashboard" is the first registered page
     expect(screen.getByRole('button', { name: /^dashboard$/i })).toBeInTheDocument();
   });
 
