@@ -2,18 +2,10 @@
  * E2E tests - Builder mode config panel (US-136)
  * PR: https://github.com/vichitra-paheli/Vastu/pull/304
  */
+// Auth protection for /workspace is covered by workspace.spec.ts — not duplicated here.
+
 import { test, expect } from "@playwright/test";
 import { loginAs, TEST_USERS } from "../fixtures";
-
-// Auth protection (no Docker required)
-
-test.describe("Builder mode - auth protection", () => {
-  test("redirects unauthenticated users to /login", async ({ page }) => {
-    await page.context().clearCookies();
-    await page.goto("/workspace");
-    await expect(page).toHaveURL(/\/login/);
-  });
-});
 
 // AC-1: Builder mode replaces panel content
 
