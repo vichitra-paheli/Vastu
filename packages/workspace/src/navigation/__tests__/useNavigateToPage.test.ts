@@ -39,7 +39,8 @@ vi.mock('../../stores/panelStore', () => ({
 const mockUsePanelStore = vi.mocked(usePanelStore);
 
 function setupPanelStore(openPanelIds: string[] = []) {
-  mockUsePanelStore.mockImplementation((selector: (s: unknown) => unknown) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test mock for Zustand selector
+  mockUsePanelStore.mockImplementation((selector: any) => {
     const state = {
       openPanel: mockOpenPanel,
       focusPanel: mockFocusPanel,
