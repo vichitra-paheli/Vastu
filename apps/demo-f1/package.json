@@ -17,6 +17,7 @@
     "prisma:reset": "prisma migrate reset --schema=./prisma/schema.prisma --force"
   },
   "dependencies": {
+    "@prisma/client": "^5.22.0",
     "@mantine/core": "^7.14.3",
     "@mantine/form": "^7.14.3",
     "@mantine/hooks": "^7.14.3",
@@ -30,7 +31,6 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@prisma/client": "^5.22.0",
     "@types/node": "^22.10.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
