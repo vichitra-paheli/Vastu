@@ -3,6 +3,10 @@
   "pages": [
     "---Getting Started---",
     "getting-started",
+    "---Building Applications---",
+    "guides",
+    "---Reference---",
+    "reference",
     "---Architecture---",
     "architecture",
     "---Design System---",

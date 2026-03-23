@@ -1,0 +1,230 @@
+---
+title: Extending the Schema
+description: Add domain tables to your application's Prisma schema, run migrations, and compose the seed so base data and domain data load in the right order.
+---
+
+**Purpose:** Teach you how Vastu handles Prisma schema composition — one schema file per app that contains both framework tables and your domain tables.
+
+**Prerequisites:**
+- You have completed the [Getting Started](/docs/guides/getting-started) guide
+- Your app was created with `pnpm vastu:init`
+- Basic familiarity with Prisma schemas
+
+---
+
+## How schema composition works
+
+Each Vastu application owns a single `prisma/schema.prisma` file. The scaffold copies the full base schema into that file and marks a clearly labeled section at the bottom for your domain models.
+
+```
+apps/my-app/prisma/schema.prisma
+├── datasource db              (PostgreSQL connection)
+├── generator client           (per-app Prisma client)
+├── [framework enums]          (TenantStatus, SsoProviderType, ...)
+├── [framework models]         (Organization, User, Tenant, Role, ...)
+│                              (UserRole, Permission, ApiKey, ...)
+│                              (DbConnection, Page, View, ...)
+└── YOUR DOMAIN MODELS BELOW   ← add tables here
+```
+
+Prisma generates a per-app client that knows both the base tables and your domain tables. This means you can write:
+
+```typescript
+const users = await prisma.user.findMany();
+const products = await prisma.product.findMany();
+```
+
+Both in the same query context.
+
+## Adding a domain model
+
+Add your model in the domain section at the bottom of `apps/my-app/prisma/schema.prisma`:
+
+```prisma
+// ═══════════════════════════════════════════════════════════════════════════
+// YOUR DOMAIN MODELS BELOW
+// ═══════════════════════════════════════════════════════════════════════════
+
+model Product {
+  id          String    @id @default(uuid())
+  name        String
+  price       Float
+  sku         String    @unique
+  categoryId  String?   @map("category_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")       // soft-delete
+
+  category Category? @relation(fields: [categoryId], references: [id])
+
+  @@index([categoryId])
+  @@map("products")
+}
+
+model Category {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  products Product[]
+
+  @@map("categories")
+}
+```
+
+**Conventions to follow:**
+
+| Rule | Example |
+|------|---------|
+| All tables: `id` (UUID), `createdAt`, `updatedAt` | `@id @default(uuid())`, `@default(now())`, `@updatedAt` |
+| User-facing tables: soft-delete via `deletedAt` | `deletedAt DateTime? @map("deleted_at")` |
+| Field names: camelCase in Prisma, snake_case in DB | `categoryId String @map("category_id")` |
+| Index FK columns | `@@index([categoryId])` |
+| Map table to plural snake_case | `@@map("products")` |
+
+## Running migrations
+
+```bash
+# Create and apply the migration
+pnpm --filter @app/my-app prisma:migrate
+
+# Regenerate the Prisma client
+pnpm --filter @app/my-app prisma:generate
+```
+
+The migration file is created in `apps/my-app/prisma/migrations/`. Commit this file — it is the source of truth for your schema history.
+
+## Using the Prisma client in your app
+
+Import from `@prisma/client` in your app's server code (API routes, server components):
+
+```typescript
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+// Both framework and domain tables available
+const products = await prisma.product.findMany({
+  where: { deletedAt: null },
+  include: { category: true },
+  orderBy: { name: 'asc' },
+});
+```
+
+<Callout type="info">
+The Prisma client is generated per app. Each app gets its own `node_modules/.prisma/client` that includes only that app's schema. Do not share a client instance across apps.
+</Callout>
+
+## Seed composition
+
+The seed file at `apps/my-app/prisma/seed.ts` runs the framework base seed first, then your domain seed:
+
+```typescript
+import { runBaseSeed } from '@vastu/shared/prisma';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+async function runDomainSeed(): Promise<void> {
+  console.log('Seeding domain data for my-app...');
+
+  // Use deterministic UUIDs so this is idempotent
+  await prisma.category.upsert({
+    where: { id: 'cat-0000-0000-0000-000000000001' },
+    update: {},
+    create: {
+      id: 'cat-0000-0000-0000-000000000001',
+      name: 'Electronics',
+    },
+  });
+
+  await prisma.product.upsert({
+    where: { id: 'prd-0000-0000-0000-000000000001' },
+    update: {},
+    create: {
+      id: 'prd-0000-0000-0000-000000000001',
+      name: 'Widget Pro',
+      price: 49.99,
+      sku: 'WGT-PRO-001',
+      categoryId: 'cat-0000-0000-0000-000000000001',
+    },
+  });
+
+  console.log('  done');
+}
+
+async function main(): Promise<void> {
+  await runBaseSeed(prisma);   // framework first: org, tenant, users, roles, permissions
+  await runDomainSeed();       // your data second
+}
+
+main()
+  .catch((e) => { console.error(e); process.exit(1); })
+  .finally(() => prisma.$disconnect());
+```
+
+`runBaseSeed` is exported from `@vastu/shared/prisma` (implementation: `packages/shared/src/prisma/baseSeed.ts`). It seeds:
+
+- Organization and tenant
+- Three system users: `admin@vastu.dev`, `editor@vastu.dev`, `viewer@vastu.dev`
+- Four system roles: Admin, Builder, Editor, Viewer — with permissions for all resources
+- Sample API keys, DB connections, and audit events
+
+The base seed is idempotent: every record uses a deterministic UUID and `upsert`. You can run `pnpm prisma:seed` repeatedly without duplicating data.
+
+## What the base schema contains
+
+The framework provides these tables. You do not need to define them:
+
+| Table | Purpose |
+|-------|---------|
+| `organizations` | Top-level account container |
+| `tenants` | Multi-tenant isolation unit |
+| `users` | User accounts |
+| `roles` | Role definitions (system and custom) |
+| `user_roles` | Role assignments (user × role × tenant) |
+| `permissions` | Fine-grained permission grants per role |
+| `api_keys` | API key management |
+| `db_connections` | Configured external database connections |
+| `sso_providers` | SAML/OIDC SSO configurations |
+| `audit_events` | Immutable audit log |
+| `pages` | Dynamically created pages (runtime) |
+| `views` | Saved view state snapshots |
+| `accounts`, `sessions`, `verification_tokens` | next-auth adapter tables |
+
+<Callout type="warning">
+Do not modify the framework tables or enums in your `schema.prisma`. Edits to those sections will conflict with future framework upgrades. Only add content in the YOUR DOMAIN MODELS section.
+</Callout>
+
+## Enums in domain models
+
+Add your enums above your domain models (after the framework enums):
+
+```prisma
+// After the framework enums section, before the domain models marker:
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  DISCONTINUED
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// YOUR DOMAIN MODELS BELOW
+// ═══════════════════════════════════════════════════════════════════════════
+
+model Product {
+  id      String        @id @default(uuid())
+  name    String
+  status  ProductStatus @default(DRAFT)
+  // ...
+}
+```
+
+---
+
+**Related pages:**
+- [Getting Started](/docs/guides/getting-started)
+- [Data engine](/docs/reference/data-query-api)
+- [PageRegistry reference](/docs/reference/page-registry)

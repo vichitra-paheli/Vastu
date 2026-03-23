@@ -1,0 +1,201 @@
+---
+title: FormatterRegistry
+description: Register custom cell formatters for domain-specific display types — lap times, tire compounds, flags, status badges — without modifying framework code.
+---
+
+**Purpose:** Reference documentation for `FormatterRegistry` and `FormatterDefinition` — how to define, register, and use custom cell renderers in VastuTable and VastuChart.
+
+**Prerequisites:**
+- [Getting Started](/docs/guides/getting-started) completed
+- Familiarity with React (formatters return `React.ReactNode`)
+
+Source: `packages/workspace/src/formatters/registry.ts`, `packages/workspace/src/formatters/types.ts`
+
+---
+
+## Overview
+
+`FormatterRegistry` maps `displayType` strings to formatter definitions. When VastuTable renders a cell with `displayType: 'lap-time'`, it looks up the `lap-time` formatter and calls its `render` function. VastuChart uses the same lookup for tooltip values.
+
+The framework pre-registers built-in formatters. Your app extends the registry by calling `registerFormatter()` in `apps/<your-app>/src/formatters.ts`.
+
+## Built-in formatters
+
+These are pre-registered and available without any setup:
+
+| ID | Renders as |
+|----|-----------|
+| `text` | Plain string |
+| `number` | Locale-formatted integer or decimal |
+| `currency` | `$1,234.56` |
+| `date` | `Mar 23, 2026` |
+| `relativeDate` | `3 hours ago` |
+| `badge` | Colored pill |
+| `avatar` | Avatar image with fallback initials |
+| `boolean` | Check / cross icon |
+| `link` | Clickable anchor |
+| `monospace` | Monospace font (for IDs, codes) |
+
+## Registering a custom formatter
+
+```typescript
+// apps/my-app/src/formatters.ts
+import { registerFormatter } from '@vastu/workspace';
+
+registerFormatter({
+  id: 'lap-time',
+  meta: {
+    label: 'Lap Time',
+    group: 'racing',
+    description: 'Milliseconds rendered as mm:ss.SSS',
+  },
+  render: ({ value }) => {
+    if (value === null || value === undefined) return '—';
+    const ms = Number(value);
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    const millis = ms % 1000;
+    return `${minutes}:${String(seconds).padStart(2, '0')}.${String(millis).padStart(3, '0')}`;
+  },
+  sort: ({ aValue, bValue }) => Number(aValue) - Number(bValue),
+  export: ({ value }) => {
+    if (value === null || value === undefined) return '';
+    const ms = Number(value);
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    const millis = ms % 1000;
+    return `${minutes}:${String(seconds).padStart(2, '0')}.${String(millis).padStart(3, '0')}`;
+  },
+});
+```
+
+Then use it in a column config:
+
+```typescript
+PageRegistry.register({
+  id: 'lap-times',
+  name: 'Lap Times',
+  template: 'table-listing',
+  config: {
+    table: 'LapTime',
+    columns: [
+      { field: 'lapNumber', header: 'Lap' },
+      { field: 'timeMs', header: 'Time', displayType: 'lap-time' },
+      { field: 'driverName', header: 'Driver' },
+    ],
+  },
+});
+```
+
+## `FormatterDefinition` type
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `id` | `string` | Yes | Unique formatter ID. This is the `displayType` value used in column config. |
+| `meta.label` | `string` | Yes | Human-readable name shown in the builder display type picker. |
+| `meta.group` | `string` | No | Group name for organizing the picker (e.g. `'numbers'`, `'dates'`, `'visual'`). |
+| `meta.description` | `string` | No | Short description shown as a tooltip in the builder UI. |
+| `render` | `(ctx: FormatterRenderContext) => React.ReactNode` | Yes | Renders the cell value. Must be a pure function — no side effects. |
+| `sort` | `(ctx: FormatterSortContext) => number` | No | Custom sort comparator. Defaults to string/number comparison when omitted. |
+| `export` | `(ctx: FormatterExportContext) => string` | No | Plain-text serialization for CSV/clipboard export. Defaults to `String(value)`. |
+| `filter` | `(ctx: FormatterFilterContext) => unknown` | No | Value extractor for client-side filter matching. Defaults to the raw value. |
+
+## Context types
+
+Each callback receives a typed context object:
+
+```typescript
+// render and export
+interface FormatterRenderContext {
+  value: unknown;        // the raw cell value
+  row: Record<string, unknown>;  // the full row (for cross-field rendering)
+}
+
+// sort
+interface FormatterSortContext {
+  aValue: unknown;  // raw value from row A
+  bValue: unknown;  // raw value from row B
+}
+
+// export
+interface FormatterExportContext {
+  value: unknown;
+  row: Record<string, unknown>;
+}
+
+// filter
+interface FormatterFilterContext {
+  value: unknown;
+}
+```
+
+## Example: badge with dynamic color
+
+```typescript
+import { registerFormatter } from '@vastu/workspace';
+import { Badge } from '@mantine/core';
+
+registerFormatter({
+  id: 'race-status',
+  meta: { label: 'Race Status', group: 'racing' },
+  render: ({ value }) => {
+    const colorMap: Record<string, string> = {
+      Finished: 'green',
+      DNF: 'red',
+      DSQ: 'yellow',
+      DNS: 'gray',
+    };
+    const status = String(value ?? '');
+    return (
+      <Badge color={colorMap[status] ?? 'gray'} variant="light">
+        {status || '—'}
+      </Badge>
+    );
+  },
+  export: ({ value }) => String(value ?? ''),
+});
+```
+
+Note that the `render` function returns JSX. Your app must be configured to handle React in `formatters.ts` — the scaffold already sets this up.
+
+## Registry functions
+
+```typescript
+import {
+  registerFormatter,
+  getFormatter,
+  getAllFormatters,
+  hasFormatter,
+  unregisterFormatter,
+  clearFormatterRegistry,
+} from '@vastu/workspace';
+
+registerFormatter(definition)   // throws if ID already registered
+getFormatter(id)                // FormatterDefinition | undefined
+getAllFormatters()               // FormatterDefinition[], sorted by ID
+hasFormatter(id)                // boolean
+```
+
+`unregisterFormatter` and `clearFormatterRegistry` are for test isolation only.
+
+## Error behavior
+
+Registering a formatter with a duplicate ID throws synchronously:
+
+```
+Error: [formatterRegistry] Formatter "lap-time" is already registered.
+Each formatter ID must be unique. Built-in formatters cannot be replaced.
+```
+
+An unknown `displayType` in a column config does not crash — VastuTable falls back to text rendering and emits a `console.warn` in development.
+
+## Builder mode integration
+
+Custom formatters appear automatically in the builder display type picker alongside built-ins. The picker groups formatters by `meta.group`. Users can assign your custom formatter to any column without writing code.
+
+---
+
+**Related pages:**
+- [Getting Started](/docs/guides/getting-started)
+- [PageRegistry reference](/docs/reference/page-registry)
+- [Data engine](/docs/reference/data-query-api)

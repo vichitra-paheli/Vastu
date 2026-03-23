@@ -1,0 +1,176 @@
+---
+title: Schema Composition
+description: How Vastu composes the Prisma schema — base tables managed by the framework, domain tables added by your app — and how the seed layers work.
+---
+
+**Purpose:** Explain the design of Prisma schema composition in Vastu so you understand what the framework manages, what you own, and why the split is structured this way.
+
+**Prerequisites:**
+- [Extending the Schema](/docs/guides/schema-composition) guide (the practical how-to)
+- Familiarity with Prisma schemas
+
+Sources:
+- Base schema template: `scripts/templates/app/prisma/schema.prisma.tmpl`
+- Base seed: `packages/shared/src/prisma/baseSeed.ts`
+- Scaffold CLI: `scripts/vastu-init.ts`
+
+---
+
+## The composition model
+
+Vastu does not use Prisma's schema splitting feature. Each application owns a single `prisma/schema.prisma` file that contains both the framework's base tables and the app's domain tables. The scaffold copies the full base schema into this file and marks a domain section at the bottom.
+
+This single-file approach was chosen because:
+
+- **Tooling compatibility** — `prisma migrate` works with a single schema file without configuration flags
+- **Client generation** — the generated Prisma client sees all tables in one import (`@prisma/client`) with correct type inference across base and domain models
+- **Migrations are sequential** — base table migrations and domain table migrations live in the same `migrations/` directory, maintaining a single migration history
+
+The cost is that the framework base schema is copied into each app. Future framework schema upgrades require a manual migration step per app. This tradeoff is acceptable at the current scale — apps are few and the base schema is stable.
+
+## Base schema contents
+
+The scaffold copies these tables into every app:
+
+```
+Organization         — top-level account container
+Tenant               — multi-tenant isolation unit
+User                 — user accounts (+ deletedAt soft delete)
+Role                 — role definitions (system and custom)
+UserRole             — role assignments (user × role × tenant)
+Permission           — fine-grained grants per role
+ApiKey               — API key management (+ deletedAt soft delete)
+DbConnection         — configured external database connections
+SsoProvider          — SAML/OIDC SSO configurations
+AuditEvent           — immutable append-only audit log (no updatedAt)
+Account              — next-auth OAuth account links
+Session              — next-auth session records
+VerificationToken    — next-auth email verification tokens
+Page                 — dynamically created page definitions
+View                 — saved view state snapshots
+```
+
+You never modify these tables. They are managed by the framework and must remain compatible with `@vastu/shell`, `@vastu/workspace`, and `@vastu/shared`.
+
+## Domain section marker
+
+The scaffold adds a clearly delimited section:
+
+```prisma
+// ═══════════════════════════════════════════════════════════════════════════
+// YOUR DOMAIN MODELS BELOW
+// Add your application-specific tables here. They will live alongside the
+// base schema tables above and be included in the same database migration.
+//
+// Example:
+//   model Product {
+//     id          String   @id @default(uuid())
+//     name        String
+//     createdAt   DateTime @default(now()) @map("created_at")
+//     updatedAt   DateTime @updatedAt @map("updated_at")
+//     @@map("products")
+//   }
+// ═══════════════════════════════════════════════════════════════════════════
+```
+
+Everything above this marker is framework-owned. Everything below is app-owned.
+
+## Per-app Prisma client
+
+Each app runs `prisma generate` against its own schema. The generated client is scoped to that app's `node_modules/.prisma/client`. This means:
+
+- Type inference covers both base tables and domain tables
+- Domain models from `apps/demo-f1/` do not appear in the type definitions for `apps/my-crm/`
+- You can run two apps side-by-side without schema conflicts
+
+When you import `PrismaClient` in your app code:
+
+```typescript
+import { PrismaClient } from '@prisma/client';
+```
+
+You get the client generated from your app's schema, not a shared framework client.
+
+## Base seed composition
+
+The seed composition pattern is:
+
+```
+pnpm prisma:seed (your app)
+  └── runBaseSeed(prisma)          // from @vastu/shared/prisma
+  │     seedOrganization()         // Acme Corp
+  │     seedTenant()               // Default tenant
+  │     seedUsers()                // admin, editor, viewer users
+  │     seedRoles()                // Admin, Builder, Editor, Viewer roles
+  │     seedUserRoles()            // role assignments
+  │     seedPermissions()          // CRUD grants per role × resource
+  │     seedDbConnections()        // sample connections
+  │     seedApiKeys()              // sample keys
+  │     seedAuditEvents()          // sample audit log
+  └── runDomainSeed()              // your function (apps/<name>/prisma/seed.ts)
+        // your domain upserts here
+```
+
+`runBaseSeed` accepts any `PrismaClient` instance. Pass your app's client — the function does not create its own.
+
+```typescript
+import { runBaseSeed } from '@vastu/shared/prisma';
+
+// runBaseSeed uses the client your app provides
+await runBaseSeed(prisma);
+```
+
+This means `runBaseSeed` sees your domain tables (they are in the schema) but only writes to base tables. The domain seed runs after base seed, so you can reference base seed IDs (e.g. `BASE_SEED_IDS.tenant`) in your domain records:
+
+```typescript
+import { runBaseSeed, BASE_SEED_IDS } from '@vastu/shared/prisma';
+
+async function runDomainSeed(): Promise<void> {
+  // Reference the tenant created by runBaseSeed
+  await prisma.race.create({
+    data: {
+      name: 'Monaco Grand Prix',
+      tenantId: BASE_SEED_IDS.tenant,
+      // ...
+    },
+  });
+}
+```
+
+## Idempotency requirement
+
+All seed data must use `upsert` with deterministic UUIDs:
+
+```typescript
+await prisma.product.upsert({
+  where: { id: 'aaaaaaaa-1111-4000-a000-000000000001' },
+  update: {},
+  create: {
+    id: 'aaaaaaaa-1111-4000-a000-000000000001',
+    name: 'Widget Pro',
+  },
+});
+```
+
+Do not use `prisma.product.create` in seeds, and do not call `uuid()` at runtime. The seed must produce identical data on every run. This supports CI pipelines (which seed from scratch on each run) and local development (where developers re-seed frequently).
+
+## Multiple apps coexisting
+
+Multiple apps can live in `apps/` simultaneously:
+
+```
+apps/
+├── demo-f1/        — F1 demo application
+└── my-crm/         — your CRM application
+```
+
+Each has its own `prisma/schema.prisma`, its own migrations, and its own database (configured via `DATABASE_URL` in `.env`). They do not share a database or a Prisma client. Turborepo and pnpm workspaces treat each app as an independent package.
+
+Deleting one app (`rm -rf apps/demo-f1/`) leaves the framework packages and any other apps untouched.
+
+---
+
+**Related pages:**
+- [Extending the Schema](/docs/guides/schema-composition) — practical how-to guide
+- [Getting Started](/docs/guides/getting-started)
+- [Data query API](/docs/reference/data-query-api)

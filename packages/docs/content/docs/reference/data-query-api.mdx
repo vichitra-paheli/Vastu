@@ -1,0 +1,331 @@
+---
+title: Data Query API
+description: Generic query and aggregate endpoints that work with any Prisma model — no custom API routes required per table.
+---
+
+**Purpose:** Reference documentation for the generic data engine — query parameters, filter syntax, aggregate API, and how to integrate with TanStack Query.
+
+**Prerequisites:**
+- [Getting Started](/docs/guides/getting-started) completed
+- Familiarity with the Prisma schema you are querying
+
+Sources:
+- Types: `packages/shared/src/data-engine/types.ts`
+- Filter types: `packages/shared/src/data-engine/filterTypes.ts`
+- Translators: `packages/shared/src/data-engine/filterTranslator.ts`, `sortTranslator.ts`, `searchTranslator.ts`
+
+---
+
+## Query endpoint
+
+`GET /api/workspace/data/query`
+
+Returns paginated rows from any Prisma model. All queries are automatically scoped to the current tenant.
+
+### Request parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `table` | `string` | Yes | — | Prisma model name (case-sensitive, e.g. `'Race'`, `'Driver'`). |
+| `columns` | `string[]` | No | all scalar fields | Fields to select. Dot-notation for relations: `'driver.name'`. |
+| `filters` | `FilterNode` | No | none | Composable filter tree. See [FilterNode](#filternode). |
+| `sort` | `SortSpec[]` | No | none | Multi-column sort. See [Sorting](#sorting). |
+| `pagination` | `{ page, pageSize }` | No | `{ page: 1, pageSize: 50 }` | Page is 1-indexed. |
+| `search` | `string` | No | none | Global text search across all string columns. |
+| `include` | `string[]` | No | none | Relation names to eager-load (Prisma `include`). |
+
+### Response shape
+
+```typescript
+interface DataQueryResponse<T = Record<string, unknown>> {
+  rows: T[];        // fetched rows for the current page
+  total: number;    // total matching row count (for pagination UI)
+  page: number;     // current page (1-indexed)
+  pageSize: number; // rows per page
+  columns: ColumnMeta[];  // metadata for all scalar columns on the model
+}
+```
+
+### Column metadata
+
+Each response includes a `columns` array with schema information:
+
+```typescript
+interface ColumnMeta {
+  name: string;
+  type: 'String' | 'Int' | 'Float' | 'DateTime' | 'Boolean' | 'Enum';
+  nullable: boolean;
+  isPrimaryKey: boolean;
+  isForeignKey: boolean;
+  relatedModel?: string;  // set when isForeignKey is true
+}
+```
+
+Column metadata is derived from Prisma DMMF at query time and cached in memory — no additional database queries.
+
+## Aggregate endpoint
+
+`GET /api/workspace/data/aggregate`
+
+Returns computed aggregates from any Prisma model, with optional grouping and time bucketing.
+
+### Request parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `table` | `string` | Yes | Prisma model name |
+| `metric` | `'count' \| 'sum' \| 'avg' \| 'min' \| 'max'` | Yes | Aggregate function |
+| `field` | `string` | For sum/avg/min/max | Column to aggregate |
+| `groupBy` | `string` | No | Column to group by |
+| `timeField` | `string` | No | Date column for time bucketing |
+| `timeResolution` | `'hourly' \| 'daily' \| 'weekly' \| 'monthly' \| 'yearly'` | No | Time bucket size |
+| `filters` | `FilterNode` | No | Filter applied before aggregating |
+| `timeRange` | `{ start: string, end: string }` | No | ISO-8601 date range |
+| `comparePrevious` | `boolean` | No | Return prior-period values for delta calculation |
+
+### Response shapes
+
+Single series (groupBy only):
+
+```typescript
+{ data: { label: string; value: number }[]; total: number }
+```
+
+Multi-series (groupBy + timeField):
+
+```typescript
+{ series: { name: string; data: { label: string; value: number }[] }[] }
+```
+
+With `comparePrevious: true`, each data point includes a `previousValue`:
+
+```typescript
+{ data: { label: string; value: number; previousValue: number }[] }
+```
+
+## FilterNode
+
+`FilterNode` is the composable filter tree that both the query API and the client-side filter UI share. Import types from `@vastu/shared/data-engine`.
+
+A filter is either a leaf condition or a group that connects children:
+
+```typescript
+type FilterNode = FilterCondition | FilterGroup;
+
+interface FilterCondition {
+  type: 'condition';
+  column: string;      // dot-notation for relations: 'driver.name'
+  mode: 'include' | 'exclude' | 'regex';
+  dataType: 'text' | 'number' | 'date' | 'enum' | 'boolean';
+  value: FilterValue;  // shape depends on mode and dataType
+}
+
+interface FilterGroup {
+  type: 'group';
+  connector: 'AND' | 'OR';
+  children: FilterNode[];
+}
+```
+
+### Filter examples by data type
+
+**Text / Enum — include:**
+```json
+{
+  "type": "condition",
+  "column": "status",
+  "mode": "include",
+  "dataType": "enum",
+  "value": ["Completed", "Scheduled"]
+}
+```
+Translates to: `{ status: { in: ['Completed', 'Scheduled'] } }`
+
+**Text — exclude:**
+```json
+{
+  "type": "condition",
+  "column": "nationality",
+  "mode": "exclude",
+  "dataType": "text",
+  "value": ["Unknown"]
+}
+```
+Translates to: `{ NOT: { nationality: { in: ['Unknown'] } } }`
+
+**Text — regex:**
+```json
+{
+  "type": "condition",
+  "column": "name",
+  "mode": "regex",
+  "dataType": "text",
+  "value": "^Hamil"
+}
+```
+Translates to: `{ name: { contains: '^Hamil', mode: 'insensitive' } }`
+
+**Number range:**
+```json
+{
+  "type": "condition",
+  "column": "points",
+  "mode": "include",
+  "dataType": "number",
+  "value": { "min": 10, "max": 100 }
+}
+```
+Translates to: `{ points: { gte: 10, lte: 100 } }`
+
+**Date range:**
+```json
+{
+  "type": "condition",
+  "column": "createdAt",
+  "mode": "include",
+  "dataType": "date",
+  "value": { "start": "2024-01-01", "end": "2024-12-31" }
+}
+```
+Translates to: `{ createdAt: { gte: new Date('2024-01-01'), lte: new Date('2024-12-31') } }`
+
+**Boolean:**
+```json
+{
+  "type": "condition",
+  "column": "hasSprint",
+  "mode": "include",
+  "dataType": "boolean",
+  "value": true
+}
+```
+Translates to: `{ hasSprint: true }`
+
+**Dot-notation (relation field):**
+```json
+{
+  "type": "condition",
+  "column": "driver.nationality",
+  "mode": "include",
+  "dataType": "text",
+  "value": ["British"]
+}
+```
+Translates to: `{ driver: { nationality: { in: ['British'] } } }`
+
+**Compound AND/OR group:**
+```json
+{
+  "type": "group",
+  "connector": "AND",
+  "children": [
+    {
+      "type": "condition",
+      "column": "status",
+      "mode": "include",
+      "dataType": "enum",
+      "value": ["Completed"]
+    },
+    {
+      "type": "group",
+      "connector": "OR",
+      "children": [
+        { "type": "condition", "column": "weather", "mode": "include", "dataType": "enum", "value": ["Wet"] },
+        { "type": "condition", "column": "weather", "mode": "include", "dataType": "enum", "value": ["Mixed"] }
+      ]
+    }
+  ]
+}
+```
+
+## Sorting
+
+Sort specs use dot-notation for relation fields:
+
+```typescript
+interface SortSpec {
+  column: string;       // 'points' or 'driver.name'
+  direction: 'asc' | 'desc';
+}
+```
+
+Examples:
+
+| SortSpec | Prisma orderBy |
+|----------|----------------|
+| `{ column: 'name', direction: 'asc' }` | `[{ name: 'asc' }]` |
+| `{ column: 'driver.name', direction: 'desc' }` | `[{ driver: { name: 'desc' } }]` |
+| Two specs | `[{ points: 'desc' }, { driver: { name: 'asc' } }]` |
+
+## Global search
+
+The `search` parameter generates an `OR` clause across all string columns on the model:
+
+```
+search: 'hamilton'
+```
+
+Translates to:
+
+```javascript
+{
+  OR: [
+    { firstName: { contains: 'hamilton', mode: 'insensitive' } },
+    { lastName:  { contains: 'hamilton', mode: 'insensitive' } },
+    { nationality: { contains: 'hamilton', mode: 'insensitive' } },
+    // ...all other String fields
+  ]
+}
+```
+
+## Query timeout
+
+Both endpoints have a 10-second timeout. Queries that exceed this return `504 Gateway Timeout`. Design your domain schema with indexes on FK columns and frequently filtered fields.
+
+## Using the filter translator in app code
+
+The translator is a pure function exportable from `@vastu/shared/data-engine`. You can use it outside the data engine if you need to construct Prisma where clauses in your own API routes:
+
+```typescript
+import { translateFilter, translateSort } from '@vastu/shared/data-engine';
+import type { FilterNode, SortSpec } from '@vastu/shared/data-engine';
+
+const filters: FilterNode = {
+  type: 'condition',
+  column: 'status',
+  mode: 'include',
+  dataType: 'enum',
+  value: ['Completed'],
+};
+
+const where = translateFilter(filters);
+// { status: { in: ['Completed'] } }
+
+const orderBy = translateSort([{ column: 'date', direction: 'desc' }]);
+// [{ date: 'desc' }]
+
+const races = await prisma.race.findMany({ where, orderBy });
+```
+
+## TanStack Query integration
+
+The workspace uses TanStack Query for all data fetching. The data engine endpoints integrate with the query cache automatically — record mutation events from SSE invalidate the relevant query keys.
+
+Query keys follow this pattern:
+
+| Cache key | Invalidated by |
+|-----------|----------------|
+| `['records', table]` | `record.created`, `record.updated`, `record.deleted` for that table |
+| `['record', table, recordId]` | `record.updated`, `record.deleted` for that record |
+| `['views']` | `view.saved` |
+| `['pages']` | `config.changed` |
+
+See [Events and live updates](/docs/reference/events) for how to emit events that trigger these invalidations.
+
+---
+
+**Related pages:**
+- [Getting Started](/docs/guides/getting-started)
+- [Schema composition](/docs/guides/schema-composition)
+- [Events and live updates](/docs/reference/events)
+- [FormatterRegistry reference](/docs/reference/formatter-registry)
