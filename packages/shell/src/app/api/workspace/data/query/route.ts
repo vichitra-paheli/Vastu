@@ -77,6 +77,55 @@ const ALLOWED_TABLES = new Set([
 ]);
 
 // ---------------------------------------------------------------------------
+// Input validation helpers
+// ---------------------------------------------------------------------------
+
+type ValidationResult = { valid: true } | { valid: false; reason: string };
+
+/**
+ * Validate that a parsed JSON value conforms to the FilterNode shape.
+ *
+ * Rules:
+ *   - type 'condition': must have a string `column` and a string `mode`.
+ *   - type 'group': must have a `children` array.
+ *   - Nested nodes are validated recursively.
+ *
+ * This prevents malformed payloads from reaching translateFilter where
+ * undefined fields would produce `{undefined: {...}}` Prisma where clauses.
+ */
+function validateFilterNode(node: unknown, depth = 0): ValidationResult {
+  if (depth > 20) {
+    return { valid: false, reason: 'filter tree is too deeply nested' };
+  }
+  if (!node || typeof node !== 'object' || Array.isArray(node)) {
+    return { valid: false, reason: 'filter node must be a non-null object' };
+  }
+  const n = node as Record<string, unknown>;
+  if (n.type === 'condition') {
+    if (typeof n.column !== 'string' || n.column.trim() === '') {
+      return { valid: false, reason: "condition node must have a non-empty string `column`" };
+    }
+    if (typeof n.mode !== 'string' || n.mode.trim() === '') {
+      return { valid: false, reason: `condition for column "${n.column}" must have a string \`mode\`` };
+    }
+    return { valid: true };
+  }
+  if (n.type === 'group') {
+    if (!Array.isArray(n.children)) {
+      return { valid: false, reason: 'group node must have a `children` array' };
+    }
+    for (let i = 0; i < n.children.length; i++) {
+      const childResult = validateFilterNode(n.children[i], depth + 1);
+      if (!childResult.valid) {
+        return { valid: false, reason: `children[${i}]: ${childResult.reason}` };
+      }
+    }
+    return { valid: true };
+  }
+  return { valid: false, reason: `filter node has unknown type: "${String(n.type)}"` };
+}
+
+// ---------------------------------------------------------------------------
 // Route handler
 // ---------------------------------------------------------------------------
 
@@ -134,7 +183,15 @@ export async function GET(request: NextRequest) {
     let filterNode: FilterNode | null = null;
     if (filtersParam) {
       try {
-        filterNode = JSON.parse(filtersParam) as FilterNode;
+        const parsedFilter = JSON.parse(filtersParam) as unknown;
+        const filterValidation = validateFilterNode(parsedFilter);
+        if (!filterValidation.valid) {
+          return NextResponse.json(
+            { error: `\`filters\` is invalid: ${filterValidation.reason}` },
+            { status: 400 },
+          );
+        }
+        filterNode = parsedFilter as FilterNode;
       } catch {
         return NextResponse.json({ error: '`filters` is not valid JSON' }, { status: 400 });
       }
@@ -146,9 +203,26 @@ export async function GET(request: NextRequest) {
     if (sortParam) {
       try {
         const parsed = JSON.parse(sortParam) as unknown;
-        if (Array.isArray(parsed)) {
-          sortConfigs = parsed as SortConfig[];
+        if (!Array.isArray(parsed)) {
+          return NextResponse.json({ error: '`sort` must be a JSON array' }, { status: 400 });
         }
+        const invalidEntry = parsed.findIndex(
+          (entry) =>
+            !entry ||
+            typeof entry !== 'object' ||
+            typeof (entry as Record<string, unknown>).column !== 'string' ||
+            ((entry as Record<string, unknown>).direction !== 'asc' &&
+              (entry as Record<string, unknown>).direction !== 'desc'),
+        );
+        if (invalidEntry !== -1) {
+          return NextResponse.json(
+            {
+              error: `\`sort\` entry at index ${invalidEntry} must have a string \`column\` and \`direction\` of 'asc' or 'desc'`,
+            },
+            { status: 400 },
+          );
+        }
+        sortConfigs = parsed as SortConfig[];
       } catch {
         return NextResponse.json({ error: '`sort` is not valid JSON' }, { status: 400 });
       }
@@ -170,6 +244,35 @@ export async function GET(request: NextRequest) {
       try {
         const parsed = JSON.parse(includeParam) as unknown;
         if (parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          // Validate that all top-level keys are known relation fields for this model.
+          // This prevents bypassing the ALLOWED_TABLES allowlist via deeply nested includes.
+          const knownRelationNames = new Set(
+            allColumns.filter((c) => c.type === 'relation').map((c) => c.name),
+          );
+          const includeKeys = Object.keys(parsed as Record<string, unknown>);
+          const unknownRelations = includeKeys.filter((k) => !knownRelationNames.has(k));
+          if (unknownRelations.length > 0) {
+            return NextResponse.json(
+              {
+                error: `\`include\` contains unknown relation(s): ${unknownRelations.join(', ')}`,
+              },
+              { status: 400 },
+            );
+          }
+          // Limit nesting depth to 1: values must be `true` or an object with only
+          // `select`/`where`/`orderBy`/`take`/`skip` — no nested `include` allowed.
+          for (const [key, val] of Object.entries(parsed as Record<string, unknown>)) {
+            if (val !== true && typeof val === 'object' && val !== null) {
+              if ('include' in (val as Record<string, unknown>)) {
+                return NextResponse.json(
+                  {
+                    error: `\`include\` nesting depth is limited to 1 level (nested \`include\` on "${key}" is not allowed)`,
+                  },
+                  { status: 400 },
+                );
+              }
+            }
+          }
           includeClause = parsed as Record<string, unknown>;
         }
       } catch {
@@ -206,13 +309,20 @@ export async function GET(request: NextRequest) {
     const orderBy = translateSort(sortConfigs, scalarColumnNames);
 
     // --- Execute queries with timeout ---
+    // Prisma does not allow `select` and `include` in the same query.
+    // When `include` is provided, omit `select` — the caller gets all scalar fields
+    // plus the requested relations. When only `columns` is provided (no include),
+    // apply `select` for projection.
     const queryArgs = {
       where,
       orderBy: orderBy.length > 0 ? orderBy : undefined,
       skip,
       take: pageSize,
-      ...(selectClause ? { select: selectClause } : {}),
-      ...(includeClause ? { include: includeClause } : {}),
+      ...(includeClause
+        ? { include: includeClause }
+        : selectClause
+          ? { select: selectClause }
+          : {}),
     };
 
     // Use the Prisma client dynamically — the table name is validated against
