@@ -1,0 +1,183 @@
+---
+title: Templates
+description: How the page template system works — registry pattern, template types, useTemplateConfig, TemplateSkeleton, and creating a new template.
+---
+
+Page templates are the content that renders inside Dockview panels. Each template is a React component registered under a string key. When a panel opens, it looks up the registered component by key and renders it with the page's configuration.
+
+## Prerequisites
+
+- Read [Panels](/docs/workspace/panels) — templates render inside panels
+- Read [Builder Mode](/docs/workspace/builder-mode) — configuration is edited in builder mode
+
+## Template registry
+
+Templates are registered at module load time, before any panel mounts. Registration maps a `TemplateType` string to a React component and metadata.
+
+```ts
+import { registerTemplate } from '@vastu/workspace';
+import { MyTemplate } from './MyTemplate';
+
+registerTemplate(
+  'table-listing',       // TemplateType key
+  MyTemplate,            // React component (receives TemplateProps)
+  {
+    label: 'Table Listing',
+    icon: 'Table',
+    description: 'A filterable table with KPI summary strip',
+    defaultConfig: {
+      templateType: 'table-listing',
+      fields: [],
+    },
+  },
+);
+```
+
+Registering the same key twice throws. Import registrations as side effects from a single entry file:
+
+```ts
+// templates/index.ts
+import './TableListing/register';
+import './SummaryDashboard/register';
+```
+
+### Registry API
+
+```ts
+import { getTemplate, getRegisteredTemplates } from '@vastu/workspace';
+
+const entry = getTemplate('table-listing');
+// entry.component — React component
+// entry.meta      — label, icon, description, defaultConfig
+
+const all = getRegisteredTemplates();
+// [{ type, component, meta }, ...]
+```
+
+`getRegisteredTemplates` is used by the command palette and template picker.
+
+## TemplateType values
+
+| Key | Component | Purpose |
+|-----|-----------|---------|
+| `table-listing` | `TableListingTemplate` | Filterable table with KPI strip, row click to drawer |
+| `summary-dashboard` | `SummaryDashboardTemplate` | Time range, KPI cards, charts, mini tables |
+| `multi-tab-detail` | `MultiTabDetailTemplate` | Entity header, RBAC-gated tabs, activity timeline |
+| `data-explorer` | `DataExplorerTemplate` | Metric/dimension controls, chart toggle, companion table, export |
+| `form-page` | `FormPageTemplate` | Single-page or wizard form with auto-save drafts |
+| `timeline-activity` | `TimelineActivityTemplate` | Date-grouped event stream with type filters, infinite scroll |
+| `dashboard` | `DashboardTemplate` | Card grid with KPI, chart, table, pipeline, quick-actions, alert cards |
+
+Source: `packages/workspace/src/templates/`
+
+## TemplateProps
+
+Every template component receives the same props interface:
+
+```ts
+interface TemplateProps {
+  pageId: string;
+  config: TemplateConfig;
+  onConfigChange?: (config: TemplateConfig) => void;
+  loading?: boolean;
+  error?: string | null;
+}
+```
+
+`onConfigChange` is only provided when the page is in Builder mode.
+
+## TemplateConfig
+
+The base configuration shape shared by all templates. Extended per-template via `metadata`.
+
+```ts
+interface TemplateConfig {
+  templateType: TemplateType;
+  dataSource?: DataSourceConfig;
+  fields?: FieldConfig[];
+  sections?: SectionConfig[];
+  permissions?: PermissionConfig;
+  metadata?: Record<string, unknown>;
+}
+```
+
+Configuration is stored as JSON in the `page_configurations` table and retrieved via `useTemplateConfig`.
+
+Source: `packages/workspace/src/templates/types.ts`
+
+## useTemplateConfig
+
+The hook that fetches and persists a page's configuration. Templates call this internally; you rarely need to call it directly.
+
+```ts
+import { useTemplateConfig } from '@vastu/workspace';
+
+function MyTemplate({ pageId }: TemplateProps) {
+  const { config, loading, error, updateConfig } = useTemplateConfig(pageId);
+
+  if (loading) return <TemplateSkeleton />;
+  if (error) return <ErrorState message={error} />;
+  if (!config) return null;
+
+  return <div>Rendering with {config.templateType}</div>;
+}
+```
+
+| Return | Type | Description |
+|--------|------|-------------|
+| `config` | `TemplateConfig \| null` | The resolved config, or `null` during first load |
+| `loading` | `boolean` | True while the initial fetch is in flight |
+| `error` | `string \| null` | Non-null when fetch or save failed |
+| `updateConfig` | `(config) => Promise<void>` | Persist updated config; uses optimistic update |
+
+When the API returns 404 (unconfigured page), the hook returns a sensible default so templates render without an explicit save.
+
+Routes: `GET /api/workspace/pages/[id]/config` and `PUT /api/workspace/pages/[id]/config`.
+
+## TemplateSkeleton
+
+A loading skeleton that matches the height and layout of a template panel. Use it as the loading state for all templates.
+
+```tsx
+import { TemplateSkeleton } from '@vastu/workspace';
+
+if (loading) return <TemplateSkeleton />;
+```
+
+`TemplateSkeleton` follows the design system's skeleton → content → error pattern.
+
+## Creating a new template
+
+1. Create the component in `packages/workspace/src/templates/YourTemplate/`.
+2. Implement `TemplateProps`. Call `useTemplateConfig` for config if needed.
+3. Create a `register.ts` side-effect file:
+
+```ts
+// templates/YourTemplate/register.ts
+import { registerTemplate } from '@vastu/workspace';
+import { YourTemplate } from './YourTemplate';
+
+registerTemplate('your-key' as TemplateType, YourTemplate, {
+  label: 'Your Template',
+  icon: 'Layout',
+  description: 'What this template does.',
+  defaultConfig: { templateType: 'your-key' as TemplateType },
+});
+```
+
+4. Import the registration from `templates/index.ts`.
+5. Add a panel registration so the template opens in a Dockview panel (see [Panels](/docs/workspace/panels)).
+
+## Zero-config rendering
+
+All built-in templates render with mock/seed data when no configuration has been saved. This means the page is usable immediately after creation without a builder setup step. Templates progressively enhance as the builder configuration is filled in.
+
+<Callout type="info">
+Templates currently render seed data. Real external database queries are planned for Phase 2.
+</Callout>
+
+## Related pages
+
+- [Panels](/docs/workspace/panels) — templates render inside registered panels
+- [Builder Mode](/docs/workspace/builder-mode) — how templates are configured at runtime
+- [Dashboard](/docs/workspace/dashboard) — the dashboard template has additional card management

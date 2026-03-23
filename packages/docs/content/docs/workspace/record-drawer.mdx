@@ -1,0 +1,179 @@
+---
+title: Record Drawer
+description: The slide-out record detail drawer — opening from table rows, 5 tabs, prev/next navigation, drawer-to-panel promotion, and drawerStore.
+---
+
+`RecordDrawer` is a slide-out panel that shows the details of a single record without leaving the current page. Users open it by clicking a row in a table, navigating through related records, and optionally promoting it to a full Dockview panel.
+
+## Prerequisites
+
+- Read [Panels](/docs/workspace/panels)
+- Read [Tables](/docs/workspace/tables)
+
+## Opening the drawer
+
+Call `openDrawer` from `useDrawerStore`. Pass the record ID, and optionally the full navigation stack so the user can move forward and backward through the result set.
+
+```tsx
+import { useDrawerStore } from '@vastu/workspace';
+
+function CustomerTable({ rows }: { rows: Customer[] }) {
+  const openDrawer = useDrawerStore((s) => s.openDrawer);
+
+  const navigationStack = rows.map((r, i) => ({
+    recordId: r.id,
+    title: r.name,
+  }));
+
+  function handleRowClick(row: Customer, index: number) {
+    openDrawer(row.id, navigationStack, index);
+  }
+
+  // ...
+}
+```
+
+The `RecordDrawer` component should be mounted once at the workspace layout level — `WorkspaceShell` does this automatically. You do not need to render it per-panel.
+
+## Drawer tabs
+
+The drawer has five tabs:
+
+| Tab | ID | Content |
+|-----|----|---------|
+| Details | `details` | All record fields in a two-column layout |
+| Items | `items` | Related child records (sub-table) |
+| History | `history` | Audit trail for the record (from `/api/workspace/records/[id]/history`) |
+| Notes | `notes` | Freeform notes attached to the record (from `/api/workspace/records/[id]/notes`) |
+| Permissions | `permissions` | Per-object ACL editor (UI only in Phase 1B; enforcement in Phase 2) |
+
+Switch the active tab programmatically:
+
+```ts
+const setActiveTab = useDrawerStore((s) => s.setActiveTab);
+setActiveTab('history');
+```
+
+## drawerStore
+
+The drawer's state is managed by `useDrawerStore`:
+
+```ts
+import { useDrawerStore } from '@vastu/workspace';
+
+const {
+  isOpen,
+  recordId,
+  activeTab,
+  navigationStack,
+  navigationIndex,
+  openDrawer,
+  closeDrawer,
+  setActiveTab,
+  navigateToRecord,
+  goBack,
+  goForward,
+} = useDrawerStore();
+```
+
+| Action | Signature | Description |
+|--------|-----------|-------------|
+| `openDrawer` | `(recordId, stack?, index?) => void` | Open drawer for a record |
+| `closeDrawer` | `() => void` | Close and reset transient state |
+| `setActiveTab` | `(tab: DrawerTab) => void` | Switch the active tab |
+| `navigateToRecord` | `(recordId) => void` | Jump to a record without changing the stack |
+| `goBack` | `() => void` | Previous record in the navigation stack |
+| `goForward` | `() => void` | Next record in the navigation stack |
+
+Navigation clamps at the ends — it does not wrap. The prev/next buttons in the drawer footer are disabled when at the first or last record.
+
+Source: `packages/workspace/src/stores/drawerStore.ts`
+
+## Prev/next navigation
+
+When you pass a `navigationStack`, the drawer footer shows `‹ Previous` and `Next ›` buttons. The current position is shown as "3 of 47". Clicking prev or next calls `goBack`/`goForward` and fetches the adjacent record.
+
+Pass the navigation stack from the current table page:
+
+```ts
+// rows = current page from VastuTable (50 rows at a time)
+const stack = rows.map((r) => ({ recordId: r.id, title: r.name }));
+openDrawer(clickedRow.id, stack);
+```
+
+## Drawer-to-panel promotion
+
+Users can open the current drawer record as a full-size Dockview panel by clicking "Open in panel" in the drawer footer. This closes the drawer and opens a panel registered under the type ID `record-detail`.
+
+To support this, register a panel with `id: 'record-detail'` in your panel registry:
+
+```ts
+import { registerPanel } from '@vastu/workspace';
+import { RecordDetailPanel } from './RecordDetailPanel';
+
+registerPanel({
+  id: 'record-detail',
+  title: 'Record',
+  component: RecordDetailPanel,
+});
+```
+
+The promotion is handled by `useDrawerToPanel`:
+
+```ts
+import { useDrawerToPanel } from '@vastu/workspace';
+
+function DrawerFooter() {
+  const openInPanel = useDrawerToPanel();
+
+  return (
+    <button onClick={() => openInPanel()}>
+      Open in panel
+    </button>
+  );
+}
+```
+
+`useDrawerToPanel` closes the drawer and opens the panel. If no `record-detail` panel is registered it logs a warning and only closes the drawer.
+
+Source: `packages/workspace/src/hooks/useDrawerToPanel.ts`
+
+## API routes
+
+The drawer fetches record data from these shell API routes:
+
+| Method | URL | Description |
+|--------|-----|-------------|
+| `GET` | `/api/workspace/records/[id]` | Record fields for the Details tab |
+| `PUT` | `/api/workspace/records/[id]` | Save field edits |
+| `DELETE` | `/api/workspace/records/[id]` | Delete the record (triggers ConfirmDialog) |
+| `GET` | `/api/workspace/records/[id]/history` | Audit events for the History tab |
+| `GET` | `/api/workspace/records/[id]/notes` | Notes list for the Notes tab |
+| `POST` | `/api/workspace/records/[id]/notes` | Add a new note |
+
+## VastuTabs
+
+The drawer tabs are rendered by the `VastuTabs` component, which is also exported for use in other multi-tab surfaces:
+
+```tsx
+import { VastuTabs } from '@vastu/workspace';
+
+<VastuTabs
+  tabs={[
+    { id: 'overview', label: 'Overview' },
+    { id: 'activity', label: 'Activity' },
+  ]}
+  activeTab={activeTab}
+  onTabChange={setActiveTab}
+>
+  {/* render content for activeTab */}
+</VastuTabs>
+```
+
+Source: `packages/workspace/src/components/VastuTabs/`
+
+## Related pages
+
+- [Tables](/docs/workspace/tables) — trigger drawer from table row clicks
+- [Panels](/docs/workspace/panels) — register the `record-detail` panel for promotion
+- [Confirm Dialogs](/docs/workspace/confirm-dialogs) — delete action in the drawer footer

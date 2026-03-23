@@ -1,0 +1,182 @@
+---
+title: Charts
+description: VastuChart component — 6 chart types, props API, color palette, ChartTooltip, ChartLegend, and ChartConfigPanel.
+---
+
+`VastuChart` is the only charting component you should use in the workspace. It wraps Recharts with design system compliance, a 10-color palette, custom tooltip and legend, and a collapsible config panel.
+
+Never import from `recharts` directly — always use `VastuChart`.
+
+## Prerequisites
+
+- Read [Workspace Overview](/docs/workspace/overview)
+
+## Basic usage
+
+```tsx
+import { VastuChart } from '@vastu/workspace';
+
+const data = [
+  { month: 'Jan', revenue: 42000, costs: 31000 },
+  { month: 'Feb', revenue: 55000, costs: 35000 },
+  { month: 'Mar', revenue: 61000, costs: 38000 },
+];
+
+const series = [
+  { dataKey: 'revenue', name: 'Revenue' },
+  { dataKey: 'costs',   name: 'Costs' },
+];
+
+<VastuChart
+  type="line"
+  data={data}
+  series={series}
+  config={{ xAxisKey: 'month' }}
+  ariaLabel="Monthly revenue vs costs, line chart"
+/>
+```
+
+Source: `packages/workspace/src/components/VastuChart/`
+
+## Chart types
+
+| `type` | Description |
+|--------|-------------|
+| `line` | Multi-series line chart with optional dots |
+| `bar` | Vertical bar chart; supports stacking and horizontal orientation |
+| `area` | Area chart with 8% fill opacity |
+| `donut` | Pie chart with inner radius |
+| `sparkline` | Minimal single-series line — no axes, legend, or grid |
+| `scatter` | XY scatter chart; each series needs `xDataKey` set |
+
+## VastuChart props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `type` | `ChartType` | required | Chart variant to render |
+| `data` | `ChartDataPoint[]` | required | Array of data objects |
+| `series` | `SeriesConfig[]` | required | Series definitions |
+| `config` | `ChartConfig` | `{}` | Chart configuration overrides |
+| `onConfigChange` | `(config) => void` | — | Enables the config gear button |
+| `loading` | `boolean` | `false` | Renders a skeleton |
+| `error` | `string \| null` | `null` | Renders the error state |
+| `onRetry` | `() => void` | — | Retry button in the error state |
+| `ariaLabel` | `string` | auto | Accessible description for screen readers |
+| `className` | `string` | — | CSS class on the root element |
+
+## SeriesConfig
+
+```ts
+interface SeriesConfig {
+  dataKey: string;    // Field name in each data object
+  name: string;       // Label for legend and tooltip
+  color?: string;     // Override; omit to use palette assignment
+  hidden?: boolean;   // Start hidden (retains palette slot)
+  xDataKey?: string;  // Scatter only: field name for X axis values
+}
+```
+
+When `color` is omitted, the series is automatically assigned a color from the 10-color palette in order.
+
+## ChartConfig
+
+```ts
+interface ChartConfig {
+  height?: number;                          // Default: 240 inline, 360 full-width
+  showLegend?: boolean;                     // Default: true
+  legendPosition?: 'top' | 'bottom' | 'left' | 'right';  // Default: 'bottom'
+  showAxisLabels?: boolean;                 // Default: true
+  xAxisLabel?: string;
+  yAxisLabel?: string;
+  scaleType?: 'linear' | 'log';            // Default: 'linear'
+  stacked?: boolean;                        // bar and area only
+  barOrientation?: 'vertical' | 'horizontal';  // Default: 'vertical'
+  referenceLines?: ReferenceLineConfig[];
+  xAxisKey?: string;                        // Field used for the X axis
+}
+```
+
+## Color palette
+
+Colors are assigned in fixed order from the `CHART_SERIES_COLORS` palette (Style Guide §10.2). The same series index always gets the same color across different charts, so the visual meaning is consistent.
+
+```ts
+import { CHART_SERIES_COLORS, getSeriesColor } from '@vastu/workspace';
+
+const firstSeriesColor = getSeriesColor(0);  // '#76B900'
+```
+
+Use the palette in order — never rearrange colors to "look better" on one chart.
+
+When more than 10 series are present, series 10 and above are rendered in `var(--v-text-tertiary)` to indicate overflow. Consider aggregating into an "Other" series instead.
+
+## Loading and error states
+
+```tsx
+<VastuChart
+  type="bar"
+  data={data}
+  series={series}
+  loading={isLoading}
+  error={error?.message}
+  onRetry={refetch}
+  ariaLabel="Sales by region"
+/>
+```
+
+The loading state renders a Mantine `Skeleton` at the configured height. The error state shows a message with an optional retry button. An empty `data` array shows the `EmptyState` component.
+
+## ChartConfigPanel
+
+When you provide `onConfigChange`, a gear icon appears in the chart's top-right corner. Clicking it opens the `ChartConfigPanel` overlay, which lets users adjust axis labels, scale type, legend position, and stacking.
+
+```tsx
+const [chartConfig, setChartConfig] = useState<ChartConfig>({});
+
+<VastuChart
+  type="bar"
+  data={data}
+  series={series}
+  config={chartConfig}
+  onConfigChange={setChartConfig}
+  ariaLabel="Revenue chart"
+/>
+```
+
+The config panel is inside the chart boundary — it does not affect surrounding layout.
+
+## ChartLegend interaction
+
+The legend is interactive. Click a series swatch to toggle that series on or off. Alt-click (or click when all others are off) to solo a series — all others hide. Click again to restore.
+
+The `sparkline` type always hides the legend.
+
+## Reference lines
+
+Overlay horizontal or vertical reference lines to mark thresholds:
+
+```tsx
+<VastuChart
+  type="line"
+  data={data}
+  series={series}
+  config={{
+    xAxisKey: 'month',
+    referenceLines: [
+      { y: 50000, label: 'Target', color: 'var(--v-status-success)' },
+    ],
+  }}
+  ariaLabel="Revenue with target line"
+/>
+```
+
+## Accessibility
+
+Provide a meaningful `ariaLabel` on every chart. The root element has `role="img"` and the label is read by screen readers. The data explorer template also provides a "View as table" toggle for full data access without a visual chart.
+
+Set `prefers-reduced-motion` in the OS or browser and all chart animations are automatically disabled.
+
+## Related pages
+
+- [Templates](/docs/workspace/templates) — templates like data explorer and summary dashboard use VastuChart
+- [Dashboard](/docs/workspace/dashboard) — chart cards on the dashboard use VastuChart

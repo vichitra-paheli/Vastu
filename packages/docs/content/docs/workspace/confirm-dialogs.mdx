@@ -1,0 +1,134 @@
+---
+title: Confirm Dialogs
+description: ConfirmDialog component — 3 variants, useConfirmDialog imperative hook, usage pattern, and provider requirements.
+---
+
+`ConfirmDialog` is the shared confirmation modal for all destructive and cautionary actions in the workspace. Every action that deletes, overwrites, or performs an irreversible side effect must go through a confirmation dialog.
+
+## Prerequisites
+
+- Read [Workspace Overview](/docs/workspace/overview)
+
+## useConfirmDialog (imperative hook)
+
+The recommended pattern is the imperative `useConfirmDialog` hook. It returns an async `confirm` function that shows the dialog and resolves with `true` (confirmed) or `false` (cancelled).
+
+```tsx
+import { useConfirmDialog } from '@vastu/workspace';
+
+function DeleteButton({ recordId }: { recordId: string }) {
+  const confirm = useConfirmDialog();
+
+  async function handleDelete() {
+    const confirmed = await confirm({
+      title: 'Delete record?',
+      description: 'This record will be permanently deleted. This action cannot be undone.',
+      variant: 'delete',
+    });
+
+    if (confirmed) {
+      await deleteRecord(recordId);
+    }
+  }
+
+  return <button onClick={handleDelete}>Delete</button>;
+}
+```
+
+No state management needed at the call site. The hook manages the dialog's open/close lifecycle internally.
+
+Multiple concurrent `confirm` calls are queued. Only one dialog is visible at a time; each resolves before the next appears.
+
+Source: `packages/workspace/src/components/ConfirmDialog/useConfirmDialog.ts`
+
+## ConfirmOptions
+
+```ts
+interface ConfirmOptions {
+  title: string;           // Dialog heading
+  description: string;     // Impact explanation
+  variant?: 'delete' | 'warning' | 'info';  // Default: 'delete'
+  confirmLabel?: string;   // Override the confirm button label
+  cancelLabel?: string;    // Override the cancel button label
+}
+```
+
+## Variants
+
+| Variant | Button color | Default confirm label | Use for |
+|---------|-------------|----------------------|---------|
+| `delete` | Red | "Delete" | Permanently deleting records, views, configs |
+| `warning` | Amber | "Continue" | Caution-level actions with side effects |
+| `info` | Blue | "OK" | Confirmations that are informational, not destructive |
+
+## ConfirmDialogProvider
+
+The imperative hook requires `<ConfirmDialogProvider>` in the component tree. `WorkspaceShell` includes it automatically. You do not need to add it manually if you are using `WorkspaceShell`.
+
+If you are using `ConfirmDialog` outside of `WorkspaceShell` (for example, in a shell package page), add the provider to your layout:
+
+```tsx
+import { ConfirmDialogProvider } from '@vastu/workspace';
+
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <ConfirmDialogProvider>
+      {children}
+    </ConfirmDialogProvider>
+  );
+}
+```
+
+Calling `useConfirmDialog()` without a provider throws with a clear error message.
+
+## ConfirmDialog (controlled component)
+
+If you need direct control over the open/close state — for example, when building a custom dialog — use `ConfirmDialog` as a controlled component:
+
+```tsx
+import { ConfirmDialog } from '@vastu/workspace';
+
+function MyComponent() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <button onClick={() => setOpen(true)}>Discard changes</button>
+      <ConfirmDialog
+        opened={open}
+        title="Discard changes?"
+        description="Your unsaved changes will be lost."
+        variant="warning"
+        confirmLabel="Discard"
+        onConfirm={() => { discardChanges(); setOpen(false); }}
+        onCancel={() => setOpen(false)}
+      />
+    </>
+  );
+}
+```
+
+## ConfirmDialog props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `opened` | `boolean` | required | Controls dialog visibility |
+| `title` | `string` | required | Heading text |
+| `description` | `string` | required | Body text explaining the impact |
+| `variant` | `ConfirmDialogVariant` | `'delete'` | Visual variant |
+| `confirmLabel` | `string` | variant default | Confirm button label |
+| `cancelLabel` | `string` | "Cancel" | Cancel button label |
+| `onConfirm` | `() => void` | required | Called when user confirms |
+| `onCancel` | `() => void` | required | Called on cancel, Escape, or click-outside |
+
+## Focus management
+
+The cancel button receives autofocus when the dialog opens. This prevents accidental Enter key confirmation. Pressing `Enter` after the dialog opens activates "Cancel", not "Confirm" — users must move focus to the confirm button explicitly.
+
+Source: `packages/workspace/src/components/ConfirmDialog/`
+
+## Related pages
+
+- [Views](/docs/workspace/views) — view delete uses ConfirmDialog
+- [Record Drawer](/docs/workspace/record-drawer) — record delete uses ConfirmDialog
+- [Builder Mode](/docs/workspace/builder-mode) — discard unsaved changes uses ConfirmDialog

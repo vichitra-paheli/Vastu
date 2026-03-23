@@ -1,0 +1,44 @@
+---
+title: "ADR-009: Drawer-to-Panel Promotion Pattern"
+description: Why RecordDrawer and full Dockview panels share a content component tree, and how the promotion transition works.
+---
+
+**Status:** Accepted
+**Phase:** 1B
+**Date:** 2026-03-21
+
+## Context
+
+Users open records in `RecordDrawer` for quick inspection. Power users want to inspect a record alongside other panels — for example, comparing a customer record to a filtered table. This requires "promoting" the drawer view to a full Dockview panel without losing context (active tab, scroll position).
+
+Three approaches were considered:
+
+1. **Separate components** — `RecordDrawer` and the record detail panel are distinct components that duplicate the tab/field rendering.
+2. **Reuse via props** — the record detail panel renders the same content as the drawer by accepting an `isPanel` flag that adjusts chrome.
+3. **Shared content tree** — `RecordDrawer` and the panel both render the same inner content component (`RecordDetailContent`). The promotion hook closes the drawer and opens the panel, passing enough state for the panel to restore the same view.
+
+## Decision
+
+Share the content component tree (option 3). `RecordDrawer` and `record-detail` panels render the same inner component. The `useDrawerToPanel` hook handles the transition.
+
+## Rationale
+
+**Against separate components:** Maintaining two implementations of the same five-tab record detail is a maintenance liability. Any field, layout, or tab change would need to be applied in two places.
+
+**Against `isPanel` flag:** A boolean flag that changes significant rendering behavior is a code smell. The component tree diverges as new panel-specific features are added, and the flag becomes a growing conditional.
+
+**For shared content tree:** The inner content component (`RecordDetailContent`) has no knowledge of whether it is rendering inside a drawer or a panel. It receives a `recordId` and manages its own tab and scroll state. The drawer and panel are thin wrappers that provide chrome (drawer slide animation vs panel tab bar).
+
+The `useDrawerToPanel` hook captures the current `recordId` from `drawerStore`, closes the drawer, and calls `openPanel('record-detail', panelId)` using the `recordId` as the panel instance suffix. The panel component parses the `recordId` from its `panelId` on mount and restores the same record.
+
+## Consequences
+
+- The `record-detail` panel type must be registered in the panel registry. If it is not, `useDrawerToPanel` logs a warning and only closes the drawer.
+- The `panelId` convention `record-detail-{recordId}` means only one panel per record can be open at a time. Opening the same record again focuses the existing panel.
+- Active tab is not yet passed through the transition (Phase 1B known issue). The panel opens on the default tab rather than the drawer's last active tab. This will be resolved in Phase 2 when Dockview exposes a typed params API.
+
+## Files
+
+- `packages/workspace/src/hooks/useDrawerToPanel.ts`
+- `packages/workspace/src/stores/drawerStore.ts`
+- `packages/workspace/src/components/RecordDrawer/`

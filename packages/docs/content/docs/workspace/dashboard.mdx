@@ -1,0 +1,187 @@
+---
+title: Dashboard
+description: Dashboard view — card types, edit mode, drag-to-reorder, pin-to-dashboard, and dashboardStore.
+---
+
+The dashboard is the `dashboard` template type. It renders a responsive card grid with a greeting header and six card types. Users can enter edit mode to reorder cards and add or remove them. Any view in the workspace can be pinned to the dashboard.
+
+## Prerequisites
+
+- Read [Templates](/docs/workspace/templates) — the dashboard is registered as the `dashboard` template
+- Read [Charts](/docs/workspace/charts) — chart cards use VastuChart
+
+## Card types
+
+| Type | Description |
+|------|-------------|
+| `kpi` | Metric with value, optional delta, and optional sparkline |
+| `chart` | Line, bar, area, or donut chart using VastuChart |
+| `table` | A compact data table with a "View all" link |
+| `pipeline` | Horizontal stacked bar showing stage distribution |
+| `quick-actions` | Grid of icon-button shortcuts to other pages |
+| `alert` | List of warning/error/info alerts with a "View all" link |
+
+## dashboardStore
+
+Card state is managed by `useDashboardStore`:
+
+```ts
+import { useDashboardStore } from '@vastu/workspace';
+
+const {
+  cards,
+  editMode,
+  addCard,
+  removeCard,
+  reorderCards,
+  resizeCard,
+  updateCard,
+  toggleEditMode,
+  setCards,
+} = useDashboardStore();
+```
+
+| Action | Signature | Description |
+|--------|-----------|-------------|
+| `addCard` | `(card: DashboardCard) => void` | Append a new card at the end |
+| `removeCard` | `(id: string) => void` | Remove a card and renumber `order` |
+| `reorderCards` | `(orderedIds: string[]) => void` | Reorder by providing the new ID sequence |
+| `resizeCard` | `(id, size: CardSize) => void` | Change a card's grid size |
+| `updateCard` | `(id, updates) => void` | Partial update to any card field |
+| `toggleEditMode` | `() => void` | Toggle between view and edit mode |
+| `setCards` | `(cards) => void` | Replace the entire card list (used on load) |
+
+Source: `packages/workspace/src/stores/dashboardStore.ts`
+
+## Card definitions
+
+Each card type has a typed definition that extends `DashboardCardBase`:
+
+```ts
+interface DashboardCardBase {
+  id: string;
+  type: DashboardCardType;
+  title: string;
+  size: '1x1' | '2x1' | '1x2';
+  order: number;
+}
+```
+
+### KPI card
+
+```ts
+interface KPICardDef extends DashboardCardBase {
+  type: 'kpi';
+  metric?: string;
+  value?: string;
+  delta?: string;
+  sparklineData?: Array<{ value: number }>;
+}
+```
+
+`delta` is a formatted string like `+12%` or `-3%`. A positive delta renders in green; negative in red.
+
+### Chart card
+
+```ts
+interface ChartCardDef extends DashboardCardBase {
+  type: 'chart';
+  chartType?: 'line' | 'bar' | 'area' | 'donut';
+  data?: DashboardChartDataPoint[];
+  series?: Array<{ dataKey: string; name: string }>;
+}
+```
+
+### Alert card
+
+```ts
+interface AlertCardDef extends DashboardCardBase {
+  type: 'alert';
+  alerts?: Array<{
+    id: string;
+    message: string;
+    severity: 'warning' | 'error' | 'info';
+  }>;
+  viewAllPageId?: string;
+}
+```
+
+## Grid layout
+
+The dashboard uses CSS Grid with auto-fill columns:
+
+```css
+grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+```
+
+Card sizes map to `grid-column` and `grid-row` spans:
+
+| Size | Columns | Rows |
+|------|---------|------|
+| `1x1` | 1 | 1 |
+| `2x1` | 2 | 1 |
+| `1x2` | 1 | 2 |
+
+## Edit mode and drag-to-reorder
+
+Enter edit mode by clicking the "Edit dashboard" button in the toolbar. In edit mode:
+
+- Cards show a drag handle and a remove button.
+- Drag a card using the HTML5 Drag API to reorder it.
+- A drop indicator shows where the card will land.
+- An "Add card" button opens the add card dialog.
+
+Exit edit mode by clicking "Done". Changes take effect immediately and are persisted when the user saves the current view.
+
+```ts
+// Toggle edit mode programmatically
+useDashboardStore.getState().toggleEditMode();
+```
+
+<Callout type="info">
+Drag-to-reorder uses the HTML5 Drag API. It works on desktop browsers. Touch device support may be limited; a library-based fallback is planned if mobile becomes a requirement.
+</Callout>
+
+## Pinning views to the dashboard
+
+Users can pin any view in the workspace to the dashboard via "Pin to dashboard" in the view toolbar's overflow menu. This opens `PinToDashboardDialog`, which lets the user choose a card type and title.
+
+```ts
+import { useDashboardStore } from '@vastu/workspace';
+
+// Pin a view as a table card
+useDashboardStore.getState().addCard({
+  id: crypto.randomUUID(),
+  type: 'table',
+  title: 'Active Customers',
+  size: '2x1',
+  order: 999,
+  viewAllPageId: 'customers',
+});
+```
+
+Source: `packages/workspace/src/components/PinToDashboardDialog/`
+
+## Persisting dashboard state
+
+Dashboard card state is serialized into the view store when the user saves a dashboard view. Use the serialization helpers:
+
+```ts
+import {
+  serializeDashboardState,
+  deserializeDashboardState,
+} from '@vastu/workspace';
+
+// Serialize before saving to viewStore
+const payload = serializeDashboardState(cards);
+
+// Deserialize when restoring from viewStore
+const cards = deserializeDashboardState(savedPayload);
+useDashboardStore.getState().setCards(cards);
+```
+
+## Related pages
+
+- [Templates](/docs/workspace/templates) — the dashboard is registered as `dashboard` template type
+- [Charts](/docs/workspace/charts) — chart cards render VastuChart
+- [Views](/docs/workspace/views) — dashboard layout is saved in view state

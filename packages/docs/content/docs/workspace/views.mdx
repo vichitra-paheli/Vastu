@@ -27,6 +27,10 @@ interface ViewState {
 
 `scrollPosition` is excluded from the "is modified" comparison — scrolling never marks a view as dirty.
 
+<Callout type="info">
+The `ViewState` shape was corrected in Phase 1B (US-121) to include `scrollPosition` and fix several missing fields. If you serialized `ViewState` during Phase 1A, re-save those views — the shape has changed.
+</Callout>
+
 ## useViewStore
 
 The view store is headless. `ViewToolbar` consumes it, but you can also read from it directly to react to view changes.
@@ -110,10 +114,14 @@ function MyPanelToolbar() {
 ```
 
 - The **view name** is inline-editable. Click it to rename. Press Enter or blur to commit. Press Escape to cancel.
-- The **modified indicator** (goldenrod dot + "Modified" label + "Reset" link) appears when `isModified()` is true.
+- The **modified indicator** (goldenrod dot + "Modified" label + "Reset" link) appears when `isModified()` is true. This indicator was added in Phase 1B (US-121) — it was not present in Phase 1A.
 - The **Save button** is active (blue) when modified, dimmed when clean.
 - **⌘S / Ctrl+S** triggers Save from anywhere in the toolbar. It does not interfere with other input fields.
 - **Share** and **⋯ overflow** are rendered as disabled placeholders — they will be activated in a future phase.
+
+### View delete confirmation
+
+Deleting a view from the `⋯` overflow menu shows a `ConfirmDialog` before proceeding. This was added in Phase 1B (US-121) to fix bug [#144](https://github.com/your-org/vastu/issues/144). See [Confirm Dialogs](/docs/workspace/confirm-dialogs).
 
 ## ViewSelector
 

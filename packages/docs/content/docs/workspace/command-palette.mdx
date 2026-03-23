@@ -1,0 +1,125 @@
+---
+title: Command Palette
+description: Global search and command overlay — keyboard shortcut, search categories, registering custom actions, and useCommandPaletteActions.
+---
+
+The command palette is a full-screen overlay for navigating pages, opening recent records, and running workspace commands. It opens with `⌘K` (macOS) or `Ctrl+K` (Windows/Linux).
+
+## Prerequisites
+
+- Read [Workspace Overview](/docs/workspace/overview)
+- Read [Panels](/docs/workspace/panels) — pages in the palette open panels
+
+## Opening the palette
+
+The keyboard shortcut is wired by `WorkspaceShell`. You can also open it programmatically:
+
+```ts
+import { useCommandPaletteStore } from '@vastu/workspace';
+
+useCommandPaletteStore.getState().open();
+```
+
+The palette is built on Mantine Spotlight (`@mantine/spotlight`). It is mounted once in `WorkspaceShell`.
+
+## Search categories
+
+The palette groups results into three sections:
+
+| Group | Description |
+|-------|-------------|
+| Pages | Registered panels from the panel registry — opens the panel on select |
+| Recent records | Last 5 records opened from a drawer (stored in `localStorage`) |
+| Commands | Static workspace commands (toggle sidebar, new panel, settings, shortcuts) |
+
+Type `>` to switch to **commands-only mode** — only commands appear, filtered by the text after `>`.
+
+## useCommandPaletteActions hook
+
+`useCommandPaletteActions` returns filtered, grouped actions for the current query. You use this when building a custom command palette UI or adding actions to another search surface.
+
+```ts
+import { useCommandPaletteActions } from '@vastu/workspace';
+
+function MySearch({ query }: { query: string }) {
+  const { pages, recent, commands, commandsOnly, total } =
+    useCommandPaletteActions(query);
+
+  return (
+    <>
+      {pages.map((action) => <Item key={action.id} action={action} />)}
+      {recent.map((action) => <Item key={action.id} action={action} />)}
+      {commands.map((action) => <Item key={action.id} action={action} />)}
+    </>
+  );
+}
+```
+
+| Return | Type | Description |
+|--------|------|-------------|
+| `pages` | `CommandPaletteAction[]` | Page actions (empty in commands-only mode) |
+| `recent` | `CommandPaletteAction[]` | Recent record actions (empty in commands-only mode) |
+| `commands` | `CommandPaletteAction[]` | Workspace commands |
+| `commandsOnly` | `boolean` | True when query starts with `>` |
+| `total` | `number` | Total visible action count |
+
+Source: `packages/workspace/src/hooks/useCommandPaletteActions.ts`
+
+## CommandPaletteAction
+
+```ts
+interface CommandPaletteAction {
+  id: string;
+  label: string;
+  group: 'pages' | 'recent' | 'commands';
+  description?: string;
+  iconName?: string;      // Tabler icon name, no "Icon" prefix
+  panelTypeId?: string;   // For pages: open this panel type
+  recordId?: string;      // For records: the record to open
+  pageId?: string;        // For records: which page hosts it
+  onActivate?: () => void;
+}
+```
+
+## Registering custom commands
+
+Add custom commands by extending the static command list. The recommended pattern is to pass the commands into `useCommandPaletteActions` via the workspace configuration:
+
+```ts
+// At workspace startup — before CommandPalette mounts
+import { registerWorkspaceCommand } from '@vastu/workspace';
+
+registerWorkspaceCommand({
+  id: 'cmd:export-csv',
+  label: 'Export current view as CSV',
+  iconName: 'Download',
+  group: 'commands',
+  onActivate: () => exportCurrentView(),
+});
+```
+
+<Callout type="info">
+`registerWorkspaceCommand` is planned for Phase 2. In Phase 1B, commands are defined in `buildStaticCommands` inside `useCommandPaletteActions.ts`. Extend that array to add project-specific commands.
+</Callout>
+
+## Recent records
+
+When a user opens a record in the drawer, call `addRecentRecord` to track it for the "Recent records" palette category:
+
+```ts
+import { addRecentRecord } from '@vastu/workspace';
+
+addRecentRecord({
+  id: customer.id,
+  title: customer.name,
+  type: 'Customer',
+  pageId: 'customers',
+});
+```
+
+Records are stored in `localStorage` under the key `vastu-recent-records`. The most recent 5 are shown.
+
+## Related pages
+
+- [Panels](/docs/workspace/panels) — pages listed in the palette map to panel type IDs
+- [Keyboard Shortcuts](/docs/workspace/keyboard-shortcuts) — `⌘K` is one of the global shortcuts

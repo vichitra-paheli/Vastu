@@ -1,0 +1,145 @@
+---
+title: Builder Mode
+description: Builder mode — switching to builder, the 8-section config panel, builderStore, saving and discarding changes, and the page configuration API.
+---
+
+Builder mode lets administrators configure a page's template, data source, fields, and permissions at runtime — no deployment required. Configuration is stored as JSON in the database and applied immediately on save.
+
+## Prerequisites
+
+- Read [Templates](/docs/workspace/templates) — builder mode configures templates
+- CASL permission: user must have `configure` on `Page` or `manage` on `all`
+
+## Switching to builder mode
+
+Builder mode is per-panel. The `ModeSwitch` control in the panel tab bar shows `Editor | Builder | Workflow` segments. Users without the `configure` permission only see `Editor`.
+
+```ts
+import { usePanelStore } from '@vastu/workspace';
+
+// Read the current mode for a panel
+const mode = usePanelStore((s) => s.panelModes[panelId]);
+// 'editor' | 'builder' | 'workflow'
+
+// Switch programmatically
+usePanelStore.getState().setPanelMode(panelId, 'builder');
+```
+
+When a panel enters builder mode, it calls `builderStore.initPage(pageId, currentConfig)` to take a snapshot of the current config as the discard baseline.
+
+## Builder panel layout
+
+The builder panel (`BuilderPanel`) has two columns:
+- **Left column**: navigation between the 8 sections
+- **Right column**: the configuration UI for the selected section
+
+The 8 sections:
+
+| Section ID | Label | What it configures |
+|-----------|-------|-------------------|
+| `dataSource` | Data Source | Type (prisma/rest/graphql), endpoint, model, base filters |
+| `fieldConfig` | Fields | Which fields are visible, sortable, filterable; labels; widths |
+| `sectionsLayout` | Sections & Layout | Named sections, order, visibility |
+| `defaultView` | Default View | Default sort, default filters, default pagination |
+| `permissions` | Permissions | Roles that may view, edit, or delete records |
+| `hooks` | Hooks | Monaco editor for lifecycle hook code (execution deferred to Phase 3) |
+| `pageMetadata` | Page Metadata | Page title, description, icon |
+| `ephemeral` | Ephemeral Mode | Toggle that enables the Workflow mode tab |
+
+```ts
+import { useBuilderStore } from '@vastu/workspace';
+
+const setActiveSection = useBuilderStore((s) => s.setActiveSection);
+setActiveSection('fieldConfig');
+```
+
+Source: `packages/workspace/src/components/BuilderPanel/`
+
+## builderStore
+
+All in-flight edits are held in `builderStore` — they are not persisted until the user clicks "Save config".
+
+```ts
+import { useBuilderStore } from '@vastu/workspace';
+
+const {
+  activeSection,
+  getDraftConfig,
+  isPageDirty,
+  setActiveSection,
+  initPage,
+  updateDraftConfig,
+  discardChanges,
+  markSaved,
+} = useBuilderStore();
+```
+
+| Action | Signature | Description |
+|--------|-----------|-------------|
+| `initPage` | `(pageId, savedConfig) => void` | Snapshot config as the discard baseline |
+| `updateDraftConfig` | `(pageId, partial) => void` | Merge partial changes into the draft |
+| `setDraftConfig` | `(pageId, config) => void` | Replace the draft entirely |
+| `discardChanges` | `(pageId) => void` | Revert to the initPage snapshot |
+| `markSaved` | `(pageId) => void` | Clear the dirty flag after a successful save |
+| `getDraftConfig` | `(pageId) => TemplateConfig \| null` | Read the draft |
+| `isPageDirty` | `(pageId) => boolean` | True when draft differs from snapshot |
+
+Source: `packages/workspace/src/stores/builderStore.ts`
+
+## Save and discard
+
+The builder panel footer has "Discard" and "Save config" buttons. "Save config" is enabled when `isPageDirty(pageId)` is true.
+
+Saving calls the page configuration API and then `markSaved`:
+
+```ts
+import { useBuilderStore, useTemplateConfig } from '@vastu/workspace';
+
+async function saveBuilderConfig(pageId: string) {
+  const draft = useBuilderStore.getState().getDraftConfig(pageId);
+  if (!draft) return;
+
+  try {
+    await updateConfig(draft);             // PUT /api/workspace/pages/[id]/config
+    useBuilderStore.getState().markSaved(pageId);
+  } catch (err) {
+    showErrorToast('Failed to save config');
+  }
+}
+```
+
+"Discard" calls `discardChanges(pageId)` and reverts the UI to the snapshot taken when builder mode was entered. A `ConfirmDialog` prompts when there are unsaved changes and the user tries to leave builder mode.
+
+## Page configuration API
+
+Configuration is persisted to the `page_configurations` table via the shell API:
+
+| Method | URL | Description |
+|--------|-----|-------------|
+| `GET` | `/api/workspace/pages/[id]/config` | Fetch current config |
+| `PUT` | `/api/workspace/pages/[id]/config` | Save updated config |
+
+Every PUT writes an audit event to the `audit_events` table. The response body is `{ config: TemplateConfig }`.
+
+A 404 from GET means the page has no saved configuration — use the template's `defaultConfig` from the registry.
+
+## Dirty state and mode switching
+
+Switching a panel from Builder to Editor while the draft is dirty triggers a `ConfirmDialog`:
+
+```
+Unsaved changes
+You have unsaved builder changes. Discard them and switch to Editor?
+[ Keep editing ]  [ Discard and switch ]
+```
+
+If the user confirms, `discardChanges` is called and the mode switches. The prompt only appears when `isPageDirty` is true.
+
+<Callout type="warning">
+Hook execution is not yet implemented. The Hooks section shows a Monaco editor and stores the code in the config, but execution happens in Phase 3. A placeholder message is shown in the execution area.
+</Callout>
+
+## Related pages
+
+- [Templates](/docs/workspace/templates) — builder mode configures template type and options
+- [Confirm Dialogs](/docs/workspace/confirm-dialogs) — used when discarding unsaved changes

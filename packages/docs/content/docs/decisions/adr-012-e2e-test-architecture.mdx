@@ -1,0 +1,45 @@
+---
+title: "ADR-012: E2E Test Architecture for Workspace"
+description: Why workspace E2E tests use the page object pattern and where they live in the repository.
+---
+
+**Status:** Accepted
+**Phase:** 1B
+**Date:** 2026-03-21
+
+## Context
+
+Phase 1B added comprehensive E2E test coverage for all workspace features. Decisions were needed on:
+
+1. Where to place the workspace E2E specs within the monorepo
+2. How to structure tests for a feature-heavy, stateful UI
+3. How to share setup code across spec files
+
+## Decision
+
+Place workspace E2E specs under `packages/shell/e2e/workspace/` alongside the existing auth, admin, and settings suites. Use the **page object pattern** with a `WorkspacePage` fixture class.
+
+## Rationale
+
+**Co-location in shell:** The E2E tests require the full application stack — Next.js server, Postgres, Redis, Keycloak, MinIO. These are already set up for the shell package's existing E2E suites. Adding workspace specs to the same Playwright project reuses that infrastructure without duplication.
+
+Placing workspace E2E in `packages/workspace/e2e/` was considered but rejected: the workspace package is a React component library that is server-rendered through the shell. Running workspace E2E in isolation would require spinning up a separate test harness for the shell's routes, which is redundant.
+
+**Page object pattern:** A `WorkspacePage` fixture class encapsulates all workspace-specific Playwright interactions — opening panels, waiting for Dockview to settle, triggering the command palette, switching modes, and asserting on table state. Without this encapsulation, interaction code is duplicated across 9 spec files.
+
+The fixture extends Playwright's `test` function via `test.extend`, so specs import from `./fixtures` and get a pre-initialized `WorkspacePage` in the test function arguments.
+
+**One spec per feature domain:** Each of the 9 spec files covers a distinct domain (workspace load, sidebar, panel layout, command palette, mode switch, table interactions, view store, builder mode, dashboard view). This enables parallel execution without cross-spec interference. Seed data is reset before each suite using a Prisma-based seed helper.
+
+## Consequences
+
+- Running workspace E2E tests requires the full Docker Compose stack to be running (`docker compose up -d`).
+- CI configuration for workspace E2E needs a Docker Compose step before the Playwright run. This is not yet configured in GitHub Actions — it is listed in the Phase 1B known issues.
+- The `WorkspacePage` fixture is the single place to update when workspace UI changes that affect test interactions.
+- Tests run against seed data from `pnpm prisma:seed`. Tests that mutate data (view saves, builder config saves) should reset affected records in their `afterEach` or operate on isolated data namespaces.
+
+## Files
+
+- `packages/shell/e2e/workspace/` — 9 spec files
+- `packages/shell/e2e/workspace/fixtures.ts` — `WorkspacePage` fixture class
+- `packages/shell/e2e/workspace/seed-helpers.ts` — test data helpers

@@ -1,4 +1,11 @@
 {
   "title": "Decisions",
-  "pages": []
+  "pages": [
+    "adr-007-template-registry",
+    "adr-008-vastuchart",
+    "adr-009-drawer-to-panel",
+    "adr-010-builder-config-storage",
+    "adr-011-dashboard-card-grid",
+    "adr-012-e2e-test-architecture"
+  ]
 }

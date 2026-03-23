@@ -1,0 +1,48 @@
+---
+title: "ADR-010: Builder Mode Config Storage"
+description: Why page configuration is stored as JSON in a database table rather than in code or environment variables.
+---
+
+**Status:** Accepted
+**Phase:** 1B
+**Date:** 2026-03-21
+
+## Context
+
+Builder mode lets administrators change a page's template, data source, fields, and permissions. These changes need to be persisted and take effect for all users without a deployment.
+
+Options considered:
+
+1. **Hardcoded in source** — template configuration lives in TypeScript files next to the template.
+2. **Environment variables / config files** — configuration stored in `.env` or JSON config files, deployed with the application.
+3. **Database JSON column** — configuration stored in a `page_configurations` table, retrieved at runtime via API.
+
+## Decision
+
+Store configuration as JSON in the `page_configurations` database table, fetched and persisted via `GET/PUT /api/workspace/pages/[id]/config`.
+
+## Rationale
+
+**Against hardcoded source:** Changes require a code change, review, and deployment. Builder mode's primary value proposition is non-developer configuration — requiring a deployment defeats the purpose.
+
+**Against environment variables:** Environment variable changes also require a deployment. Config files checked into source control have the same problem and add a file management burden.
+
+**For database JSON:** Configuration changes take effect immediately on the next page load. Non-technical administrators can use builder mode without involving engineers. The Prisma schema for `page_configurations` is simple: `pageId`, `config` (JSON), `updatedAt`, `updatedBy`. Rolling back is a data operation, not a deployment.
+
+An audit trail is written on every PUT — `audit_events` records who changed what configuration and when. This satisfies enterprise change-management requirements.
+
+The `builderStore` (Zustand) holds in-flight edits in memory without writing to the API until the user clicks "Save config". This gives the user a clear save/discard transaction rather than auto-saving partial configs.
+
+## Consequences
+
+- The `page_configurations` table must be migrated before builder mode works. The migration was added in Phase 1B.
+- API latency means configuration is not available on the very first render. `useTemplateConfig` handles this with a loading state; templates render a `TemplateSkeleton` until the config arrives.
+- A 404 from the config API means the page has no saved configuration. `useTemplateConfig` returns a sensible default, so pages render immediately after creation without a required builder step.
+- Hook execution code is stored in the config but is not executed in Phase 1B. Execution sandboxing is deferred to Phase 3.
+
+## Files
+
+- `packages/workspace/src/stores/builderStore.ts`
+- `packages/workspace/src/templates/useTemplateConfig.ts`
+- `packages/workspace/src/components/BuilderPanel/`
+- `packages/shared/prisma/schema.prisma` — `page_configurations` table
