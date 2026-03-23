@@ -14,6 +14,7 @@
 
 import React, { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useEventInvalidation } from '../hooks/useEventInvalidation';
 
 function createQueryClient(): QueryClient {
   return new QueryClient({
@@ -32,10 +33,24 @@ interface WorkspaceProvidersProps {
   children: React.ReactNode;
 }
 
+/**
+ * Inner component that mounts inside the QueryClientProvider so that
+ * useEventInvalidation can call useQueryClient().
+ */
+function WorkspaceInner({ children }: { children: React.ReactNode }) {
+  // Mount the SSE → TanStack Query invalidation bridge once per workspace.
+  useEventInvalidation();
+  return <>{children}</>;
+}
+
 export function WorkspaceProviders({ children }: WorkspaceProvidersProps) {
   // Create a stable QueryClient instance per component mount.
   // Using useState ensures we don't recreate the client on every render.
   const [queryClient] = useState(() => createQueryClient());
 
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <WorkspaceInner>{children}</WorkspaceInner>
+    </QueryClientProvider>
+  );
 }
