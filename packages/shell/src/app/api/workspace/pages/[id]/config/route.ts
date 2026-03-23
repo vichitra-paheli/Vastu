@@ -16,35 +16,7 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { requireSessionWithAbility } from '@/lib/session';
 import type { PageConfiguration, AuditEvent } from '@vastu/shared';
-
-/**
- * In-memory config store.
- * Key: `{organizationId}:{pageId}`
- * Value: PageConfiguration record.
- *
- * This is intentionally process-local and ephemeral — it is replaced by
- * Prisma persistence once the database migration is available.
- */
-const configStore = new Map<string, PageConfiguration>();
-
-/**
- * In-memory audit event store for page config saves.
- * Key: `{organizationId}:{pageId}`
- * Value: ordered array of audit events (oldest first).
- *
- * TODO: Replace with Prisma AuditEvent model once the migration lands.
- * Pattern mirrors the historyStore in packages/shell/src/app/api/workspace/records/[id]/_stores.ts.
- */
-const configAuditStore = new Map<string, AuditEvent[]>();
-
-/**
- * Append an audit event for a config save.
- * Exported to make it testable without going through the HTTP layer.
- */
-export function appendConfigAuditEvent(key: string, event: AuditEvent): void {
-  const existing = configAuditStore.get(key) ?? [];
-  configAuditStore.set(key, [...existing, event]);
-}
+import { configStore, storeKey, appendConfigAuditEvent } from './_stores';
 
 /**
  * Valid TemplateType values. Duplicated here from @vastu/workspace so that the
@@ -64,11 +36,6 @@ const VALID_TEMPLATE_TYPES = new Set([
 
 interface RouteParams {
   params: Promise<{ id: string }>;
-}
-
-/** Build a stable store key scoped to the organization. */
-function storeKey(organizationId: string, pageId: string): string {
-  return `${organizationId}:${pageId}`;
 }
 
 /**
