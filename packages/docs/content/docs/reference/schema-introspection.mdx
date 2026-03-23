@@ -1,0 +1,236 @@
+---
+title: Schema Introspection
+description: Read Prisma DMMF at runtime to get field types, relation metadata, and enum values for any model — used by builder mode and the schema endpoint.
+---
+
+**Purpose:** Reference for the schema introspection API — functions that read Prisma DMMF to return structured model metadata without database queries.
+
+**Prerequisites:**
+- Familiarity with Prisma models and relations
+- [Schema Composition](/docs/reference/schema-composition) — understanding of how the Prisma schema is structured
+
+Source: `packages/shared/src/data-engine/schemaIntrospector.ts`
+
+---
+
+## Overview
+
+The schema introspector reads the Prisma DMMF (Data Model Meta Format) — the structured representation of your schema that Prisma generates at `prisma generate` time. This lets you inspect field types, relations, and enum values at runtime without querying the database.
+
+Results are cached in memory per model name after the first call. The cache persists for the process lifetime (schema is immutable at runtime).
+
+## Import
+
+```typescript
+import {
+  getModelList,
+  getModelSchema,
+  getModelFields,
+  getModelRelations,
+} from '@vastu/shared/data-engine';
+
+import type {
+  ModelSchema,
+  FieldMeta,
+  RelationMeta,
+  FieldType,
+  RelationType,
+} from '@vastu/shared/data-engine';
+```
+
+## Types
+
+### `ModelSchema`
+
+The complete introspected schema for a single Prisma model:
+
+```typescript
+interface ModelSchema {
+  name: string;            // Prisma model name, e.g. "Driver"
+  fields: FieldMeta[];     // all scalar and enum fields
+  relations: RelationMeta[]; // all relation fields
+}
+```
+
+### `FieldMeta`
+
+Metadata for a single scalar or enum field:
+
+```typescript
+interface FieldMeta {
+  name: string;
+  type: FieldType;        // 'String' | 'Int' | 'Float' | 'DateTime' | 'Boolean' | 'Enum'
+  isRequired: boolean;    // true when the field is not optional
+  isId: boolean;          // true when this field is the model's @id
+  isForeignKey: boolean;  // true when this field is a relation FK scalar
+  relatedModel?: string;  // set when isForeignKey is true
+  enumValues?: string[];  // set when type is 'Enum'
+}
+```
+
+`FieldMeta` excludes relation object fields — they appear in `RelationMeta` instead. The FK scalar field (e.g. `driverId`) appears in `fields` with `isForeignKey: true`.
+
+### `RelationMeta`
+
+Metadata for a relation field:
+
+```typescript
+interface RelationMeta {
+  name: string;           // relation field name, e.g. "driver"
+  type: RelationType;     // 'hasOne' | 'hasMany'
+  relatedModel: string;   // the Prisma model name of the related model
+  foreignKey: string[];   // FK scalar field(s) on this model backing the relation
+                          // empty for virtual back-relations (hasMany without FK on this side)
+}
+```
+
+### `FieldType`
+
+```typescript
+type FieldType = 'String' | 'Int' | 'Float' | 'DateTime' | 'Boolean' | 'Enum';
+```
+
+Prisma types are mapped as follows:
+
+| Prisma type | `FieldType` |
+|-------------|-------------|
+| `String` | `'String'` |
+| `Int` | `'Int'` |
+| `Float` | `'Float'` |
+| `BigInt` | `'Int'` |
+| `Decimal` | `'Float'` |
+| `DateTime` | `'DateTime'` |
+| `Boolean` | `'Boolean'` |
+| Any enum | `'Enum'` |
+| `Unsupported` / unknown | skipped |
+
+### `RelationType`
+
+```typescript
+type RelationType = 'hasOne' | 'hasMany';
+```
+
+`hasOne` — the relation field holds a single record (the DMMF `isList` flag is `false`).
+`hasMany` — the relation field holds a list of records (`isList` is `true`).
+
+## Functions
+
+### `getModelSchema`
+
+```typescript
+function getModelSchema(modelName: string): ModelSchema
+```
+
+Returns the full `ModelSchema` for the given Prisma model name.
+
+- `modelName` is case-sensitive: `"Driver"` not `"driver"`.
+- Throws `Error: Unknown Prisma model: "<name>"` if the model does not exist in the DMMF.
+- Results are cached after the first call.
+
+```typescript
+import { getModelSchema } from '@vastu/shared/data-engine';
+
+const schema = getModelSchema('Driver');
+// {
+//   name: 'Driver',
+//   fields: [
+//     { name: 'id', type: 'String', isRequired: true, isId: true, isForeignKey: false },
+//     { name: 'firstName', type: 'String', isRequired: true, isId: false, isForeignKey: false },
+//     { name: 'nationality', type: 'String', isRequired: false, isId: false, isForeignKey: false },
+//     { name: 'teamId', type: 'String', isRequired: true, isId: false, isForeignKey: true, relatedModel: 'Constructor' },
+//     ...
+//   ],
+//   relations: [
+//     { name: 'team', type: 'hasOne', relatedModel: 'Constructor', foreignKey: ['teamId'] },
+//     { name: 'results', type: 'hasMany', relatedModel: 'RaceResult', foreignKey: [] },
+//   ]
+// }
+```
+
+### `getModelList`
+
+```typescript
+function getModelList(): string[]
+```
+
+Returns all Prisma model names available in the DMMF. Use this to enumerate models or validate that a model name is valid before calling `getModelSchema`.
+
+```typescript
+import { getModelList } from '@vastu/shared/data-engine';
+
+const models = getModelList();
+// ['User', 'Organization', 'Tenant', 'Driver', 'Constructor', 'Race', ...]
+```
+
+### `getModelFields`
+
+```typescript
+function getModelFields(modelName: string): FieldMeta[]
+```
+
+Convenience wrapper — returns only the `fields` array from `getModelSchema`. Throws the same error for unknown models.
+
+```typescript
+import { getModelFields } from '@vastu/shared/data-engine';
+
+const fields = getModelFields('Race');
+// [{ name: 'id', type: 'String', ... }, { name: 'date', type: 'DateTime', ... }, ...]
+```
+
+### `getModelRelations`
+
+```typescript
+function getModelRelations(modelName: string): RelationMeta[]
+```
+
+Convenience wrapper — returns only the `relations` array from `getModelSchema`.
+
+```typescript
+import { getModelRelations } from '@vastu/shared/data-engine';
+
+const relations = getModelRelations('Race');
+// [
+//   { name: 'circuit', type: 'hasOne', relatedModel: 'Circuit', foreignKey: ['circuitId'] },
+//   { name: 'results', type: 'hasMany', relatedModel: 'RaceResult', foreignKey: [] },
+// ]
+```
+
+## Accessing enum values
+
+When a field has `type: 'Enum'`, its `enumValues` array contains the allowed string values as declared in the Prisma schema:
+
+```typescript
+const fields = getModelFields('RaceResult');
+const statusField = fields.find((f) => f.name === 'status');
+
+if (statusField?.type === 'Enum') {
+  console.log(statusField.enumValues);
+  // ['Finished', 'DNF', 'DNS', 'DSQ']
+}
+```
+
+## HTTP endpoint
+
+The workspace exposes schema introspection through `GET /api/workspace/data/schema`:
+
+```
+GET /api/workspace/data/schema?table=Race
+```
+
+Returns the `ModelSchema` for the requested model as JSON. The builder UI uses this endpoint to populate field pickers. You can call it from client components when you need model metadata without shipping the full DMMF to the browser.
+
+## Schema cache
+
+The introspector maintains two in-memory caches:
+
+- **Model cache** — `Map<string, ModelSchema>`, one entry per model name. Populated on first `getModelSchema` call for that model.
+- **Enum value map** — built lazily on first enum field access, then reused.
+
+Both caches persist for the Node.js process lifetime. In tests, call `_clearSchemaCache()` (exported from `@vastu/shared/data-engine`) between test cases to avoid cache pollution.
+
+---
+
+**Related pages:**
+- [Data Engine Internals](/docs/reference/data-engine)
+- [Data Query API](/docs/reference/data-query-api)
+- [Schema Composition](/docs/reference/schema-composition)

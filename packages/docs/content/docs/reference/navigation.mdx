@@ -1,0 +1,241 @@
+---
+title: Cross-Page Navigation
+description: Navigate between workspace panels programmatically, pass context to the target page, and open new panel instances with Ctrl+Click.
+---
+
+**Purpose:** Reference for the navigation system — how to navigate to a page from a cell click or button, how to pass record IDs and filters to the target page, and how the intent mailbox pattern works.
+
+**Prerequisites:**
+- [Getting Started](/docs/guides/getting-started) completed
+- [PageRegistry reference](/docs/reference/page-registry) — pages must be registered before they can be navigated to
+
+Sources:
+- `packages/workspace/src/navigation/types.ts`
+- `packages/workspace/src/hooks/useNavigateToPage.ts`
+- `packages/workspace/src/stores/navigationStore.ts`
+
+---
+
+## Overview
+
+The workspace uses a panel-based layout (Dockview). When you navigate from one page to another, the system opens a new panel or focuses an existing one. The navigation system handles:
+
+1. Resolving which panel type to open from the page registry
+2. Generating a unique panel instance ID
+3. Storing a `NavigationIntent` in a per-panel mailbox
+4. Opening or focusing the panel
+5. The target page reads and clears the intent on mount
+
+## `NavigationIntent`
+
+```typescript
+interface NavigationIntent {
+  targetPageId: string;        // required — must match a registered PageDefinition ID
+  recordId?: string;           // pre-select a record in the target page
+  params?: Record<string, string>;  // query-style key/value params
+  filters?: Record<string, unknown>; // pre-apply filter state on the target page
+  focusRecordId?: string;      // scroll/highlight a specific row after load
+  sourcePageId?: string;       // source page ID for breadcrumb ("← Back to ...")
+  sourcePageName?: string;     // source page display name for breadcrumb
+}
+```
+
+## `useNavigateToPage`
+
+```typescript
+import { useNavigateToPage } from '@vastu/workspace';
+
+function MyComponent() {
+  const { navigateToPage, isPageRegistered } = useNavigateToPage();
+  // ...
+}
+```
+
+Returns an object with two members:
+
+### `navigateToPage`
+
+```typescript
+navigateToPage(intent: NavigationIntent, forceNewPanel?: boolean): void
+```
+
+Navigate to the page specified by `intent.targetPageId`.
+
+- If the target page is already open and `forceNewPanel` is `false` (default), the existing panel is focused and its intent is updated.
+- If `forceNewPanel` is `true`, a new panel instance is always opened. Use this for Cmd+Click / Ctrl+Click behavior.
+- Emits a `console.warn` and returns without navigating if the target page ID is not registered.
+
+```typescript
+// Navigate to a driver profile page, passing the driver's ID
+navigateToPage({
+  targetPageId: 'driver-profile',
+  recordId: driverId,
+  sourcePageId: 'drivers',
+  sourcePageName: 'Drivers',
+});
+
+// Open in a new panel (Ctrl+Click)
+navigateToPage({
+  targetPageId: 'driver-profile',
+  recordId: driverId,
+}, true);
+```
+
+### `isPageRegistered`
+
+```typescript
+isPageRegistered(targetPageId: string): boolean
+```
+
+Returns `true` if the page ID is registered in either the panel registry or the page registry. Use this to conditionally show navigation controls or disable a link with a tooltip when the target page does not exist.
+
+```typescript
+const canNavigate = isPageRegistered('driver-profile');
+```
+
+## Receiving the intent in the target page
+
+The target page reads its intent from `navigationStore` on mount using `getNavigationIntent`:
+
+```typescript
+import { getNavigationIntent } from '@vastu/workspace';
+
+function DriverProfilePanel({ params }: { params: { panelId: string } }) {
+  const intent = getNavigationIntent(params.panelId);
+
+  useEffect(() => {
+    if (intent?.recordId) {
+      setSelectedDriverId(intent.recordId);
+    }
+  }, []);  // run once on mount
+
+  // ...
+}
+```
+
+`getNavigationIntent` is not a React hook — it reads from the Zustand store imperatively and removes the intent in one step. Call it once per panel mount. Subsequent calls for the same `panelId` return `undefined`.
+
+```typescript
+function getNavigationIntent(panelId: string): NavigationIntent | undefined
+```
+
+## Panel ID assignment
+
+When `forceNewPanel` is `false` (default), the panel instance ID is the page ID itself (`'driver-profile'`). This means navigating to the same page twice focuses the existing panel rather than opening a duplicate.
+
+When `forceNewPanel` is `true`, the panel instance ID is `'driver-profile--<uuid>'`. Each call opens a fresh panel, even in rapid succession.
+
+## `useNavigationStore` — direct store access
+
+In most cases you use `useNavigateToPage` rather than the store directly. When you need store access:
+
+```typescript
+import { useNavigationStore } from '@vastu/workspace';
+
+// In a component — reactive
+const intents = useNavigationStore((s) => s.intents);
+
+// Store API
+const setIntent   = useNavigationStore((s) => s.setIntent);
+const consumeIntent = useNavigationStore((s) => s.consumeIntent);
+const clearIntent  = useNavigationStore((s) => s.clearIntent);
+const clearAllIntents = useNavigationStore((s) => s.clearAllIntents);
+```
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `setIntent` | `(panelId, intent) => void` | Store an intent for a panel. Overwrites any existing intent. |
+| `consumeIntent` | `(panelId) => NavigationIntent \| undefined` | Read and remove the intent in one step. |
+| `clearIntent` | `(panelId) => void` | Remove the intent without reading it. |
+| `clearAllIntents` | `() => void` | Clear all pending intents. Used on workspace reset. |
+
+## Full navigation example
+
+Link cell in a drivers table navigating to a detail page:
+
+```typescript
+'use client';
+import { useNavigateToPage } from '@vastu/workspace';
+
+interface DriverLinkCellProps {
+  driverId: string;
+  driverName: string;
+}
+
+export function DriverLinkCell({ driverId, driverName }: DriverLinkCellProps) {
+  const { navigateToPage, isPageRegistered } = useNavigateToPage();
+
+  const canNavigate = isPageRegistered('driver-profile');
+
+  return (
+    <button
+      onClick={() =>
+        navigateToPage({
+          targetPageId: 'driver-profile',
+          recordId: driverId,
+          sourcePageId: 'drivers',
+          sourcePageName: 'Drivers',
+        })
+      }
+      onClickCapture={(e) => {
+        // Ctrl+Click / Cmd+Click opens a new panel
+        if (e.ctrlKey || e.metaKey) {
+          e.preventDefault();
+          navigateToPage(
+            { targetPageId: 'driver-profile', recordId: driverId },
+            true,
+          );
+        }
+      }}
+      disabled={!canNavigate}
+    >
+      {driverName}
+    </button>
+  );
+}
+```
+
+Target detail page consuming the intent:
+
+```typescript
+'use client';
+import { getNavigationIntent } from '@vastu/workspace';
+import { useEffect, useState } from 'react';
+
+export function DriverProfilePanel({ params }: { params: { panelId: string } }) {
+  const [driverId, setDriverId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const intent = getNavigationIntent(params.panelId);
+    if (intent?.recordId) {
+      setDriverId(intent.recordId);
+    }
+  }, [params.panelId]);
+
+  // Fetch and render the driver using driverId
+}
+```
+
+## Passing pre-applied filters
+
+Navigate from a summary chart to a filtered table:
+
+```typescript
+navigateToPage({
+  targetPageId: 'race-results',
+  sourcePageId: 'dashboard',
+  sourcePageName: 'Dashboard',
+  filters: {
+    status: { type: 'condition', column: 'status', mode: 'include', dataType: 'enum', value: ['DNF'] },
+  },
+});
+```
+
+The target page reads `intent.filters` and applies them to its initial filter state. The shape of `filters` matches the `FilterNode` structure from the data engine.
+
+---
+
+**Related pages:**
+- [PageRegistry reference](/docs/reference/page-registry)
+- [Events and Live Updates](/docs/reference/events)
+- [Getting Started](/docs/guides/getting-started)

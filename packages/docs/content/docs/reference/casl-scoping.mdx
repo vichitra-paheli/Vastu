@@ -1,0 +1,205 @@
+---
+title: CASL Query Scoping
+description: How the data engine automatically injects CASL permission conditions into Prisma where clauses so every query respects role-based access without manual auth checks.
+---
+
+**Purpose:** Explain the CASL query scoping layer — how it works, when it denies access, how conditional rules narrow query results, and how to use `scopeQuery` directly.
+
+**Prerequisites:**
+- Familiarity with [CASL](https://casl.js.org) `MongoAbility` and ability rules
+- [Data Query API](/docs/reference/data-query-api) — the HTTP layer that calls this
+
+Source: `packages/shared/src/data-engine/caslScope.ts`
+
+---
+
+## Overview
+
+`scopeQuery` merges a user's CASL permission conditions into an existing Prisma `where` clause. The query endpoint calls it automatically — every request to `/api/workspace/data/query` and `/api/workspace/data/aggregate` passes through CASL scoping before reaching the database.
+
+You do not need to call it manually for the generic endpoints. You do need it when you write your own API routes that query domain tables and want the same automatic permission enforcement.
+
+## Import
+
+```typescript
+import { scopeQuery, ForbiddenError } from '@vastu/shared/data-engine';
+import type { PrismaWhere } from '@vastu/shared/data-engine';
+```
+
+## `scopeQuery`
+
+```typescript
+function scopeQuery(
+  ability: AppAbility | AnyMongoAbility,
+  action: string,
+  table: string,
+  existingWhere: PrismaWhere,
+): PrismaWhere
+```
+
+| Parameter | Description |
+|-----------|-------------|
+| `ability` | The user's CASL `MongoAbility` instance, resolved from the session. |
+| `action` | The action to check: `'read'`, `'create'`, `'update'`, `'delete'`, or `'manage'`. |
+| `table` | The Prisma model name (e.g. `'Race'`). Used as the CASL subject string. |
+| `existingWhere` | The where clause already built from filters, search, and tenant scoping. |
+
+Returns the merged where clause with CASL conditions injected.
+
+Throws `ForbiddenError` (HTTP 403) when the user has no permission to perform `action` on `table`.
+
+## `ForbiddenError`
+
+```typescript
+class ForbiddenError extends Error {
+  readonly statusCode: 403;
+  // message: "Permission denied: cannot read Race"
+}
+```
+
+Catch this in your API routes and return 403:
+
+```typescript
+import { scopeQuery, ForbiddenError } from '@vastu/shared/data-engine';
+
+try {
+  const where = scopeQuery(ability, 'read', 'Race', tenantWhere);
+  const races = await prisma.race.findMany({ where });
+  return Response.json(races);
+} catch (err) {
+  if (err instanceof ForbiddenError) {
+    return new Response('Forbidden', { status: 403 });
+  }
+  throw err;
+}
+```
+
+## How `scopeQuery` works
+
+The algorithm has six steps:
+
+**Step 1 — Fast-path check.**
+`ability.can(action, table)` is called first. CASL evaluates all matching rules including `cannot` rules. If the result is `false`, `ForbiddenError` is thrown immediately without inspecting rule conditions.
+
+**Step 2 — Collect matching rules.**
+All CASL rules are walked to collect positive (`can`) and inverted (`cannot`) rules matching `(action, table)`. Rules match when:
+- `action` equals `rule.action`, or `rule.action` is `'manage'`
+- `table` equals `rule.subject`, or `rule.subject` is `'all'`
+
+**Step 3 — No positive rules.**
+If no positive rules match, `ForbiddenError` is thrown.
+
+**Step 4 — Admin shortcut.**
+If there is at least one unconditional positive rule (no `conditions`) and zero `cannot` rules, `existingWhere` is returned unchanged. Admins and blanket-granted users see everything.
+
+**Step 5 — Build allow-side clause.**
+Positive rules that have conditions are ORed together. An unconditional positive rule alongside `cannot` rules means the allow-side is unrestricted — only the `NOT` clauses from step 6 apply.
+
+**Step 6 — Apply `cannot` conditions.**
+Inverted rules with conditions become `{ NOT: condition }` clauses, ANDed with the allow-side result. An unconditional `cannot` rule is a full deny — CASL's `can()` check in step 1 would have already returned false for it.
+
+The final CASL where is merged with `existingWhere` using `{ AND: [existingWhere, caslWhere] }`.
+
+## Practical examples
+
+### Admin role — unconditional `can('manage', 'all')`
+
+```typescript
+// CASL rule: can('manage', 'all')
+const where = scopeQuery(ability, 'read', 'Race', { tenantId });
+// Returns: { tenantId }  — no extra conditions injected
+```
+
+### Editor with conditions — `can('read', 'Race', { status: 'Published' })`
+
+```typescript
+// CASL rule: can('read', 'Race', { status: 'Published' })
+const where = scopeQuery(ability, 'read', 'Race', { tenantId });
+// Returns: { AND: [{ tenantId }, { status: 'Published' }] }
+```
+
+### Reader with multiple OR conditions
+
+```typescript
+// CASL rules:
+//   can('read', 'Race', { season: 2024 })
+//   can('read', 'Race', { season: 2023 })
+const where = scopeQuery(ability, 'read', 'Race', { tenantId });
+// Returns: { AND: [{ tenantId }, { OR: [{ season: 2024 }, { season: 2023 }] }] }
+```
+
+### `cannot` rule — conditional exclusion
+
+```typescript
+// CASL rules:
+//   can('read', 'Race')                        — unconditional
+//   cannot('read', 'Race', { status: 'Draft' }) — exclude drafts
+const where = scopeQuery(ability, 'read', 'Race', { tenantId });
+// Returns: { AND: [{ tenantId }, { NOT: { status: 'Draft' } }] }
+```
+
+### No permission — throws `ForbiddenError`
+
+```typescript
+// No 'read' rule for 'Race'
+const where = scopeQuery(ability, 'read', 'Race', { tenantId });
+// Throws: ForbiddenError: Permission denied: cannot read Race
+```
+
+## Domain model subjects
+
+Framework permission rules use the `Resource` type union from `packages/shared/src/permissions/abilities.ts` for built-in tables. Domain tables (e.g. `Race`, `Driver`) are passed as raw strings.
+
+CASL's `createMongoAbility` supports arbitrary string subjects, so you can define rules for domain models without modifying the `Resource` union type:
+
+```typescript
+// In your ability factory
+ability.can('read', 'Race');          // works — string subject
+ability.can('read', 'Driver');        // works
+ability.can('read', 'User');          // works — 'User' is also a Resource
+```
+
+## Using `scopeQuery` in your own routes
+
+When you write custom API routes that access domain tables, call `scopeQuery` after building your filter/tenant where clause:
+
+```typescript
+import { getServerSession } from 'next-auth';
+import { buildAbilityForUser } from '@vastu/shared/permissions';
+import { scopeQuery, translateFilter, ForbiddenError } from '@vastu/shared/data-engine';
+
+export async function GET(req: Request) {
+  const session = await getServerSession();
+  if (!session) return new Response('Unauthorized', { status: 401 });
+
+  const ability = buildAbilityForUser(session.user);
+
+  // Start with tenant scoping
+  const tenantWhere = { tenantId: session.user.tenantId };
+
+  // Inject CASL conditions — throws 403 if user cannot read Race
+  let where: Record<string, unknown>;
+  try {
+    where = scopeQuery(ability, 'read', 'Race', tenantWhere);
+  } catch (err) {
+    if (err instanceof ForbiddenError) {
+      return new Response('Forbidden', { status: 403 });
+    }
+    throw err;
+  }
+
+  const races = await prisma.race.findMany({ where });
+  return Response.json(races);
+}
+```
+
+## Current limitations
+
+CASL conditions are passed through as-is from the CASL rule definition into the Prisma where clause. The condition shape must be compatible with the Prisma where type for the model. Complex CASL conditions that use MongoDB operators (e.g. `$gt`, `$regex`) are not translated — stick to simple equality conditions in your `can()` rule definitions for domain models.
+
+---
+
+**Related pages:**
+- [Data Query API](/docs/reference/data-query-api)
+- [Data Engine Internals](/docs/reference/data-engine)
+- [Getting Started](/docs/guides/getting-started)

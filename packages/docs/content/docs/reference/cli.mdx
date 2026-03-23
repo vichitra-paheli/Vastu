@@ -1,0 +1,159 @@
+---
+title: Scaffold CLI (vastu:init)
+description: Create a new Vastu application with a single command — scaffolds the full directory structure, Prisma schema, seed script, and registration entry points.
+---
+
+**Purpose:** Reference for the `vastu:init` scaffold CLI — what it accepts, what it generates, and how to customize the output.
+
+**Prerequisites:**
+- Vastu monorepo cloned locally
+- `pnpm install` completed at the repo root
+
+Source: `scripts/vastu-init.ts`
+
+---
+
+## Usage
+
+Run from inside the Vastu monorepo:
+
+```bash
+pnpm vastu:init <app-name>
+```
+
+The command creates `apps/<app-name>/` with all required files, then prints the next steps.
+
+```bash
+pnpm vastu:init --help   # print usage and exit
+pnpm vastu:init -h       # same
+```
+
+## App name rules
+
+The `app-name` argument is validated before any files are written.
+
+| Rule | Example valid | Example invalid |
+|------|--------------|-----------------|
+| Must start with a lowercase letter | `my-app` | `1app` |
+| Only lowercase letters, numbers, and hyphens | `demo-f1`, `sales-crm` | `My_App`, `my app` |
+| No uppercase letters | `my-app` | `myApp` |
+| No spaces | `demo-f1` | `demo f1` |
+| No underscores or dots | `sales-crm` | `sales_crm`, `sales.crm` |
+
+The regex the CLI enforces is `/^[a-z][a-z0-9-]*$/`.
+
+On a violation, the CLI exits with a descriptive error message and code `1` — no files are created.
+
+## Preconditions checked before scaffolding
+
+1. **Monorepo root detection** — walks up from `process.cwd()` looking for `pnpm-workspace.yaml`. If not found, exits with an error. Run the command from inside the repo.
+2. **Existing directory check** — if `apps/<app-name>/` already exists, exits with an error. Choose a different name or delete the existing directory first.
+3. **Template directory presence** — if `scripts/templates/app/` is missing, exits with an error.
+
+## Generated file structure
+
+```
+apps/<app-name>/
+├── package.json                  — package name: @app/<app-name>
+├── next.config.mjs               — Next.js config with transpilePackages
+├── tsconfig.json                  — extends root tsconfig
+├── prisma/
+│   ├── schema.prisma              — base schema + domain section placeholder
+│   └── seed.ts                    — calls runBaseSeed() then runDomainSeed()
+└── src/
+    ├── pages.ts                   — empty page registrations with example comment
+    ├── formatters.ts              — empty formatter registrations with example comment
+    └── app/
+        ├── layout.tsx             — Next.js root layout
+        ├── page.tsx               — redirects to /workspace
+        └── workspace/
+            └── page.tsx           — workspace mount point
+```
+
+The `package.json` is pre-configured with `@vastu/shell`, `@vastu/workspace`, and `@vastu/shared` as workspace dependencies. The dev server starts on port 3001 (separate from the framework's port 3000).
+
+## Template substitution
+
+All `.tmpl` files in `scripts/templates/app/` are rendered with one substitution:
+
+| Placeholder | Replaced with |
+|-------------|---------------|
+| `{{APP_NAME}}` | The `app-name` argument |
+
+The `.tmpl` suffix is stripped from the output filename. Non-`.tmpl` files are copied as-is.
+
+## Post-scaffold steps
+
+The CLI prints these steps after a successful scaffold:
+
+```bash
+# 1. Install dependencies (picks up the new package)
+pnpm install
+
+# 2. Set DATABASE_URL in your environment
+#    Add it to apps/<app-name>/.env or export it in your shell
+
+# 3. Run database migrations
+pnpm --filter @app/<app-name> prisma:migrate
+
+# 4. Seed the database
+pnpm --filter @app/<app-name> prisma:seed
+
+# 5. Start the dev server (port 3001)
+pnpm --filter @app/<app-name> dev
+```
+
+Then open `http://localhost:3001`.
+
+## Available pnpm scripts in the generated app
+
+| Script | Command | What it does |
+|--------|---------|--------------|
+| `dev` | `next dev --port 3001` | Start dev server on port 3001 |
+| `build` | `next build` | Production build |
+| `lint` | `eslint src --ext .ts,.tsx` | Run ESLint on source files |
+| `typecheck` | `tsc --noEmit` | TypeScript strict check |
+| `test` | `vitest run` | Run unit tests |
+| `prisma:migrate` | `prisma migrate dev` | Create and apply a new migration |
+| `prisma:generate` | `prisma generate` | Regenerate the Prisma client |
+| `prisma:seed` | `tsx prisma/seed.ts` | Seed the database |
+| `prisma:studio` | `prisma studio` | Open Prisma Studio |
+| `prisma:reset` | `prisma migrate reset --force` | Wipe and re-migrate |
+
+## Seed script structure
+
+The generated `prisma/seed.ts` calls `runBaseSeed` first, then your `runDomainSeed`:
+
+```typescript
+import { runBaseSeed } from '@vastu/shared/prisma';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+async function runDomainSeed(): Promise<void> {
+  // Add your domain-specific upserts here
+}
+
+async function main(): Promise<void> {
+  await runBaseSeed(prisma);   // framework: org, tenant, users, roles, permissions
+  await runDomainSeed();       // your app data
+}
+
+main()
+  .catch((e) => { console.error(e); process.exit(1); })
+  .finally(() => prisma.$disconnect());
+```
+
+See [Schema Composition](/docs/reference/schema-composition) for the full base seed contract and how to reference base seed IDs in your domain data.
+
+## Customizing templates
+
+To change what every new app gets by default, edit the files in `scripts/templates/app/`. Use `{{APP_NAME}}` anywhere you want the app name substituted. Changes affect future `vastu:init` runs — existing apps are not updated.
+
+---
+
+**Related pages:**
+- [Getting Started](/docs/guides/getting-started)
+- [Schema Composition](/docs/reference/schema-composition)
+- [PageRegistry reference](/docs/reference/page-registry)
+- [FormatterRegistry reference](/docs/reference/formatter-registry)
