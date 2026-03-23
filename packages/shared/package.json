@@ -10,7 +10,8 @@
     "./utils": "./src/utils/index.ts",
     "./utils/validation.server": "./src/utils/validation.server.ts",
     "./permissions": "./src/permissions/index.ts",
-    "./prisma": "./src/prisma/index.ts"
+    "./prisma": "./src/prisma/index.ts",
+    "./data-engine": "./src/data-engine/index.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",
