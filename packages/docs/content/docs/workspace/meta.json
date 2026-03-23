@@ -10,6 +10,14 @@
     "context-menus",
     "tray",
     "theming",
-    "authentication"
+    "authentication",
+    "templates",
+    "charts",
+    "record-drawer",
+    "command-palette",
+    "keyboard-shortcuts",
+    "builder-mode",
+    "dashboard",
+    "confirm-dialogs"
   ]
 }

@@ -176,6 +176,10 @@ However, `VastuTable` uses virtualized rendering which means rows are not standa
 
 The menu container has `role="menu"`. Each `ContextMenuItem` button has `role="menuitem"`. When a submenu is present, the item also has `aria-haspopup="menu"` and `aria-expanded`. `ContextMenuGroup` uses `role="group"`. `ContextMenuDivider` uses `role="separator"`.
 
+All `ContextMenuItem` labels are rendered via the `TruncatedText` component. Long labels truncate with an ellipsis rather than wrapping or overflowing the menu boundary.
+
+These ARIA roles and the `TruncatedText` wrapping were added in Phase 1B (US-123) to resolve bugs [#139](https://github.com/your-org/vastu/issues/139) and [#140](https://github.com/your-org/vastu/issues/140).
+
 ## Related pages
 
 - [Tables](/docs/workspace/tables) — built-in cell context menu callbacks

@@ -1,0 +1,51 @@
+---
+title: "ADR-007: Template Registry Pattern"
+description: Why templates are registered in a central registry rather than being imported directly or resolved via file-system conventions.
+---
+
+**Status:** Accepted
+**Phase:** 1B
+**Date:** 2026-03-21
+
+## Context
+
+The workspace needed a way to map page records (which store a `templateType` string in the database) to React components that render the page content inside Dockview panels. The mapping needed to:
+
+- Support multiple templates without importing all of them unconditionally
+- Allow templates to be added in future phases without modifying the panel renderer
+- Be inspectable at runtime (for the command palette and template picker)
+- Prevent duplicate registrations that would cause silent rendering bugs
+
+Three approaches were considered:
+
+1. **Direct switch/case** — the panel renderer has a switch on `templateType` and imports every template component.
+2. **File-system convention** — templates live in a known directory and are auto-imported with dynamic `import()` by path.
+3. **Explicit registry** — a `Map<TemplateType, TemplateRegistryEntry>` that is populated at module load time via `registerTemplate()` calls.
+
+## Decision
+
+Use the explicit registry pattern (option 3).
+
+Templates are registered via `registerTemplate(type, component, meta)` in side-effect files (e.g. `TableListing/register.ts`). The panel renderer calls `getTemplate(type)` to look up the component. The registry throws on duplicate registration.
+
+## Rationale
+
+**Against switch/case:** Adding a template requires modifying the panel renderer — a high-traffic file that would accumulate merge conflicts. It also unconditionally imports every template, increasing the initial bundle.
+
+**Against file-system convention:** Dynamic imports by path are opaque to TypeScript and lose compile-time safety on `TemplateType` values. The file-system layout becomes a contract that breaks on refactoring.
+
+**For explicit registry:** Registration is a one-line call at module scope, co-located with the template component. New templates are added without touching any shared file. The registry map is inspectable at runtime, which the command palette uses to enumerate available templates. Duplicate registration throws immediately, making accidental overwrites visible in development.
+
+The panel registry (Dockview panels) already used this pattern. Aligning templates to the same pattern keeps the mental model consistent.
+
+## Consequences
+
+- Templates must call `registerTemplate` before any panel mounts. A single `templates/index.ts` collects these side-effect imports.
+- `TemplateType` is a union type in `templates/types.ts`. Adding a new template requires adding its key to the union — this is intentional as it enforces compile-time exhaustiveness checks.
+- Test isolation requires `unregisterTemplate` / `clearTemplateRegistry` helpers, which are exported but marked "not for production use".
+
+## Files
+
+- `packages/workspace/src/templates/registry.ts`
+- `packages/workspace/src/templates/types.ts`
+- `packages/workspace/src/templates/useTemplateConfig.ts`

@@ -1,0 +1,54 @@
+---
+title: "ADR-008: VastuChart as the Sole Charting Abstraction"
+description: Why all charts go through VastuChart rather than allowing direct Recharts usage.
+---
+
+**Status:** Accepted
+**Phase:** 1B
+**Date:** 2026-03-21
+
+## Context
+
+The workspace needs charts in several places: KPI sparklines, the summary dashboard, the data explorer, and dashboard card charts. The underlying library chosen is Recharts.
+
+The question was whether to use Recharts directly or introduce a wrapper component.
+
+Arguments for using Recharts directly:
+- Less indirection
+- Full access to all Recharts configuration options immediately
+
+Arguments for a wrapper:
+- Design system compliance (colors, typography, axis styles) enforced in one place
+- Consistent loading, error, and empty states
+- Accessible aria-labels applied consistently
+- Custom tooltip and legend replace Recharts defaults that do not match the design system
+- Series color palette enforced in order
+
+## Decision
+
+All charts in the workspace go through `VastuChart`. Importing from `recharts` directly is prohibited in workspace components.
+
+## Rationale
+
+When charts are built directly on Recharts, compliance requirements (color tokens, reduced-motion, custom legend format, aria-labels) drift across implementations because each developer must remember to apply them. A single `VastuChart` component applies all requirements once.
+
+The palette rule — colors must be assigned from `CHART_SERIES_COLORS` in order, never rearranged — cannot be enforced if each chart manages its own colors. `VastuChart` assigns colors automatically by series index, making the palette consistent across charts even as the data changes.
+
+Custom `ChartTooltip` and `ChartLegend` components replace the Recharts defaults because the defaults do not use design system tokens and are not interactive (the custom legend supports toggle and solo). Centralizing these makes tooltip and legend behavior uniform.
+
+The `onConfigChange` callback and `ChartConfigPanel` overlay give users runtime control over chart settings without requiring developer changes. If these were spread across individual chart implementations, each would need its own config panel.
+
+## Consequences
+
+- `recharts` is a direct dependency of `@vastu/workspace` but is not a public API surface.
+- `VastuChart` exposes the subset of Recharts configuration that the workspace needs via `ChartConfig`. Configuration options not in `ChartConfig` are not accessible without modifying `VastuChart`.
+- Adding a seventh chart type or a new config option requires a `VastuChart` change rather than a consumer change — this is intentional.
+
+## Files
+
+- `packages/workspace/src/components/VastuChart/VastuChart.tsx`
+- `packages/workspace/src/components/VastuChart/types.ts`
+- `packages/workspace/src/components/VastuChart/chartColors.ts`
+- `packages/workspace/src/components/VastuChart/ChartTooltip.tsx`
+- `packages/workspace/src/components/VastuChart/ChartLegend.tsx`
+- `packages/workspace/src/components/VastuChart/ChartConfigPanel.tsx`

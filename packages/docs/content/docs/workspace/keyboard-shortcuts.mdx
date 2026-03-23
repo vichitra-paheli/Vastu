@@ -1,0 +1,137 @@
+---
+title: Keyboard Shortcuts
+description: Global keyboard shortcuts — all bindings, useKeyboardShortcuts hook, context-aware suppression, and ShortcutsModal.
+---
+
+Keyboard shortcuts are registered via `useKeyboardShortcuts`. The hook mounts a `keydown` listener on `window` and dispatches to registered handlers, suppressing shortcuts when focus is inside an input field.
+
+## Prerequisites
+
+- Read [Workspace Overview](/docs/workspace/overview)
+
+## Global shortcuts
+
+Press `?` from anywhere in the workspace (outside an input) to open the shortcuts reference modal. The full list of built-in bindings:
+
+| Shortcut | Group | Description |
+|----------|-------|-------------|
+| `⌘K` / `Ctrl+K` | General | Open command palette |
+| `?` | General | Open keyboard shortcuts reference |
+| `⌘B` / `Ctrl+B` | General | Toggle sidebar |
+| `Escape` | General | Close open overlay (drawer, dialog, menu) |
+| `⌘S` / `Ctrl+S` | General | Save current view |
+| `[` | Sidebar | Collapse sidebar |
+| `]` | Sidebar | Expand sidebar |
+| `↑` | Table | Move selection up one row |
+| `↓` | Table | Move selection down one row |
+| `Enter` | Table | Open selected row in drawer |
+| `⌘A` / `Ctrl+A` | Table | Select all rows |
+| `Delete` / `Backspace` | Table | Delete selected rows (triggers ConfirmDialog) |
+| `⌘↑` / `Ctrl+↑` | Drawer | Navigate to previous record |
+| `⌘↓` / `Ctrl+↓` | Drawer | Navigate to next record |
+| `Escape` | Drawer | Close drawer |
+
+Table and Drawer shortcuts are context-aware — they only fire when focus is inside the relevant element. General shortcuts fire anywhere.
+
+## useKeyboardShortcuts
+
+Call this hook at the layout level to register a list of shortcuts. Multiple calls from nested components accumulate — each component registers only its own shortcuts.
+
+```ts
+import {
+  useKeyboardShortcuts,
+  type ShortcutDefinition,
+} from '@vastu/workspace';
+
+const shortcuts: ShortcutDefinition[] = [
+  {
+    key: 'k',
+    modifiers: ['Meta'],
+    group: 'General',
+    description: 'Open command palette',
+    handler: openCommandPalette,
+  },
+  {
+    key: '?',
+    group: 'General',
+    description: 'Show keyboard shortcuts',
+    handler: openShortcutsModal,
+  },
+];
+
+function WorkspaceLayout() {
+  const { shortcuts: registeredShortcuts } = useKeyboardShortcuts(shortcuts);
+  // registeredShortcuts is the display list for ShortcutsModal
+
+  return <>{/* ... */}</>;
+}
+```
+
+Define the `shortcuts` array outside the component (or in `useMemo`) to keep the reference stable. Redefining it each render recreates the `keydown` listener unnecessarily.
+
+## ShortcutDefinition
+
+```ts
+interface ShortcutDefinition {
+  key: string;                              // e.g. 'k', 'Escape', '?', '['
+  modifiers?: ShortcutModifier[];           // 'Meta' | 'Ctrl' | 'Alt' | 'Shift'
+  contextRef?: React.RefObject<HTMLElement | null>;  // Scope to focused element
+  group: 'General' | 'Table' | 'Drawer' | 'Sidebar';
+  description: string;
+  handler: () => void;
+}
+```
+
+`'Meta'` matches `Cmd` on macOS and `Ctrl` on Windows/Linux automatically. Use `'Meta'` for cross-platform shortcuts instead of hardcoding `'Ctrl'`.
+
+## Context-aware suppression
+
+To scope a shortcut to a specific element — for example, table row navigation that only works when the table has focus — provide a `contextRef`:
+
+```ts
+const tableRef = useRef<HTMLDivElement>(null);
+
+const shortcuts: ShortcutDefinition[] = [
+  {
+    key: 'ArrowDown',
+    group: 'Table',
+    description: 'Move selection down',
+    handler: selectNextRow,
+    contextRef: tableRef,         // Only fires when tableRef contains focus
+  },
+];
+```
+
+The shortcut fires only when `contextRef.current` (or a descendant) is the active focused element.
+
+## Input suppression
+
+Shortcuts **without** a `Meta`/`Ctrl` modifier are automatically suppressed when focus is inside an `<input>`, `<textarea>`, `<select>`, or `[contenteditable]`. The `?` shortcut is always suppressed in input fields.
+
+`Meta`-modified shortcuts always fire regardless of focus — so `⌘K` works even when you are typing in the filter input.
+
+## ShortcutsModal
+
+`ShortcutsModal` renders the reference overlay. It is mounted once in `WorkspaceShell` and triggered by the `?` shortcut. You do not need to mount it manually.
+
+`useKeyboardShortcuts` returns a `shortcuts` array (type `ShortcutDisplayInfo[]`) that you can pass to `ShortcutsModal` if you build a custom implementation:
+
+```tsx
+import { ShortcutsModal } from '@vastu/workspace';
+
+<ShortcutsModal
+  opened={isOpen}
+  onClose={() => setIsOpen(false)}
+  shortcuts={registeredShortcuts}
+/>
+```
+
+The modal groups shortcuts by `group` and formats modifier keys with OS-appropriate symbols (⌘ on macOS, Ctrl on Windows/Linux).
+
+Source: `packages/workspace/src/hooks/useKeyboardShortcuts.ts`
+Source: `packages/workspace/src/components/ShortcutsModal/`
+
+## Related pages
+
+- [Command Palette](/docs/workspace/command-palette) — opened via `⌘K`
+- [Views](/docs/workspace/views) — `⌘S` saves the current view

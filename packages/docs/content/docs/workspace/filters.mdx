@@ -34,6 +34,10 @@ const root: FilterGroup = {
 
 `FilterNode = FilterCondition | FilterGroup`. The root is always a `FilterGroup`.
 
+<Callout type="info">
+The `FilterNode` type was aligned to the Patterns Library specification in Phase 1B (US-122). If you have existing code that checks `mode` on a `FilterGroup`, that field has been removed — `mode` only exists on `FilterCondition`. The `FilterBar` `mode` prop now correctly propagates to all new conditions added in that session.
+</Callout>
+
 ## IER modes
 
 Every condition has a `mode`:

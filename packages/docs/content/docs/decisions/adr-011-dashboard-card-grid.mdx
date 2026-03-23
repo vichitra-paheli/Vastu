@@ -1,0 +1,47 @@
+---
+title: "ADR-011: Dashboard Card Grid Implementation"
+description: Why the dashboard uses CSS Grid with the HTML5 Drag API rather than a third-party drag-and-drop library.
+---
+
+**Status:** Accepted
+**Phase:** 1B
+**Date:** 2026-03-21
+
+## Context
+
+The dashboard template needed a responsive card grid with drag-to-reorder in edit mode. The choices for drag-and-drop were:
+
+1. **Third-party library** — `dnd-kit`, `react-beautiful-dnd`, or similar.
+2. **HTML5 Drag API** — native browser drag events on card elements.
+
+The choices for the grid layout were:
+
+1. **Fixed column counts** — a 12-column grid with explicit column span values.
+2. **Auto-fill CSS Grid** — `grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))`.
+
+## Decision
+
+Use CSS Grid with `auto-fill` and `minmax(280px, 1fr)` for layout. Use the HTML5 Drag API for reorder in edit mode.
+
+## Rationale
+
+**Grid layout — against fixed 12 columns:** Fixed column grids require breakpoint management (`sm:col-span-6 md:col-span-4` etc.) and add significant complexity for a feature that is not the primary workspace surface. Auto-fill adapts naturally to any panel width, which is important because Dockview panels can be resized freely.
+
+**Grid layout — for auto-fill:** `minmax(280px, 1fr)` produces a natural 1-, 2-, or 3-column layout as the panel grows. Cards with `size: '2x1'` span two columns via `grid-column: span 2`. No JavaScript is needed to recompute columns on resize.
+
+**Drag API — against third-party library:** `dnd-kit` and `react-beautiful-dnd` are well-maintained but add 15–30 kB to the bundle. For the Phase 1B scope (desktop browser, no cross-list drag, no keyboard-sortable requirement), the native API is sufficient and has no bundle cost.
+
+**Drag API — for HTML5:** `dragstart`, `dragover`, and `drop` events are sufficient for card reorder within a single grid. The implementation stores a `draggedId` ref, computes the new order on drop, and calls `reorderCards`. Drop indicator rendering is handled with CSS.
+
+The `dashboardStore.reorderCards` action accepts an ordered array of IDs and recomputes `order` values, keeping the store as the single source of truth for card positions.
+
+## Consequences
+
+- Drag-to-reorder may have limited or no support on touch devices. A library-based fallback (e.g. `dnd-kit`) is the recommended upgrade path if mobile dashboard editing becomes a requirement.
+- The `reorderCards` action is idempotent — calling it with the same ID order produces no visible change.
+- Cards are serialized to the view store when the user saves. Layout is not auto-saved — unsaved edit mode changes are lost on page reload.
+
+## Files
+
+- `packages/workspace/src/templates/Dashboard/`
+- `packages/workspace/src/stores/dashboardStore.ts`
