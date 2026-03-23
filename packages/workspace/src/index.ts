@@ -274,39 +274,6 @@ export type { DateGroupHeaderProps } from './templates/TimelineActivity/DateGrou
 // TimelineActivity panel
 export { TimelineActivityPanelWrapper, TIMELINE_ACTIVITY_PANEL_TYPE_ID } from './panels/index';
 
-// Dashboard Template (US-137)
-export {
-  DashboardTemplate,
-  DASHBOARD_PANEL_TYPE,
-} from './templates/Dashboard';
-export type { DashboardTemplateProps } from './templates/Dashboard';
-export { DashboardGreeting } from './templates/Dashboard';
-export type { DashboardGreetingProps } from './templates/Dashboard';
-export { DashboardCard } from './templates/Dashboard';
-export type { DashboardCardProps } from './templates/Dashboard';
-export { EditGridModeBanner } from './templates/Dashboard';
-export type { EditGridModeBannerProps } from './templates/Dashboard';
-export { AddCardDialog } from './templates/Dashboard';
-export type { AddCardDialogProps } from './templates/Dashboard';
-export { PinToDashboardDialog } from './templates/Dashboard';
-export type { PinToDashboardDialogProps, PinConfig } from './templates/Dashboard';
-export { DashboardKPICard, DashboardChartCard, DashboardTableCard, DashboardPipelineCard, DashboardQuickActionsCard, DashboardAlertCard } from './templates/Dashboard';
-
-// dashboardStore (US-137)
-export { useDashboardStore, serializeDashboardState, deserializeDashboardState } from './stores/dashboardStore';
-export type {
-  DashboardCard as DashboardCardDef,
-  DashboardCardType,
-  CardSize,
-  DashboardCardBase,
-  KPICardDef,
-  ChartCardDef,
-  TableCardDef,
-  PipelineCardDef,
-  QuickActionsCardDef,
-  AlertCardDef,
-} from './stores/dashboardStore';
-
 // BuilderPanel (US-136)
 export { BuilderPanel } from './components/BuilderPanel';
 export type { BuilderPanelProps } from './components/BuilderPanel';
