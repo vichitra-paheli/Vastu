@@ -25,6 +25,27 @@ import {
 } from '../aggregateBuilder';
 import type { AggregateRequest } from '../aggregateTypes';
 
+// ─── Mock @prisma/client to provide a controlled DMMF ────────────────────────
+//
+// prismaModelToTableName reads Prisma.dmmf.datamodel.models to find the actual
+// table name (including @@map / dbName). We mock the DMMF to return our fake
+// models so the unit tests don't require prisma generate to have run.
+
+vi.mock('@prisma/client', () => ({
+  Prisma: {
+    dmmf: {
+      datamodel: {
+        models: [
+          { name: 'Race', dbName: null, fields: [] },
+          { name: 'RaceResult', dbName: null, fields: [] },
+          { name: 'DriverStanding', dbName: null, fields: [] },
+          { name: 'MappedModel', dbName: 'custom_table', fields: [] },
+        ],
+      },
+    },
+  },
+}));
+
 // ─── Mock columnMeta so tests don't need a live Prisma DMMF ──────────────────
 //
 // The aggregateBuilder calls getColumnMeta() for validation.
@@ -66,20 +87,22 @@ vi.mock('../columnMeta', () => ({
 // ─── prismaModelToTableName ───────────────────────────────────────────────────
 
 describe('prismaModelToTableName', () => {
-  it('lowercase passthrough for single-word model', () => {
-    expect(prismaModelToTableName('Race')).toBe('race');
+  it('returns the model name as-is when dbName is null (no @@map)', () => {
+    // The DMMF mock has Race with dbName: null, so the model name is used.
+    expect(prismaModelToTableName('Race')).toBe('Race');
   });
 
-  it('converts PascalCase to snake_case', () => {
-    expect(prismaModelToTableName('RaceResult')).toBe('race_result');
+  it('returns the model name as-is for multi-word model with no @@map', () => {
+    expect(prismaModelToTableName('RaceResult')).toBe('RaceResult');
   });
 
-  it('converts multi-word model', () => {
-    expect(prismaModelToTableName('DriverStanding')).toBe('driver_standing');
+  it('returns dbName when @@map is present', () => {
+    // MappedModel has dbName: 'custom_table' in our DMMF mock.
+    expect(prismaModelToTableName('MappedModel')).toBe('custom_table');
   });
 
-  it('handles already-lowercase', () => {
-    expect(prismaModelToTableName('user')).toBe('user');
+  it('throws AggregateValidationError for unknown model name', () => {
+    expect(() => prismaModelToTableName('NonExistent')).toThrow(AggregateValidationError);
   });
 });
 
@@ -138,16 +161,36 @@ describe('formatBucket', () => {
 // ─── escapeSqlIdent ───────────────────────────────────────────────────────────
 
 describe('escapeSqlIdent', () => {
-  it('returns clean identifiers unchanged', () => {
+  it('returns valid identifiers unchanged', () => {
     expect(escapeSqlIdent('my_column')).toBe('my_column');
   });
 
-  it('strips double-quote characters', () => {
-    expect(escapeSqlIdent('col"umn')).toBe('column');
+  it('accepts identifiers starting with underscore', () => {
+    expect(escapeSqlIdent('_private')).toBe('_private');
   });
 
-  it('strips multiple double-quotes', () => {
-    expect(escapeSqlIdent('"col"')).toBe('col');
+  it('accepts identifiers with mixed case and digits', () => {
+    expect(escapeSqlIdent('col123ABC')).toBe('col123ABC');
+  });
+
+  it('throws AggregateValidationError for identifier containing double-quote', () => {
+    expect(() => escapeSqlIdent('col"umn')).toThrow(AggregateValidationError);
+  });
+
+  it('throws AggregateValidationError for identifier starting with a digit', () => {
+    expect(() => escapeSqlIdent('1column')).toThrow(AggregateValidationError);
+  });
+
+  it('throws AggregateValidationError for identifier with semicolon (injection attempt)', () => {
+    expect(() => escapeSqlIdent('col; DROP TABLE users--')).toThrow(AggregateValidationError);
+  });
+
+  it('throws AggregateValidationError for empty string', () => {
+    expect(() => escapeSqlIdent('')).toThrow(AggregateValidationError);
+  });
+
+  it('throws AggregateValidationError for identifier with spaces', () => {
+    expect(() => escapeSqlIdent('my column')).toThrow(AggregateValidationError);
   });
 });
 
@@ -477,6 +520,108 @@ describe('runAggregate — comparePrevious', () => {
     }
     // Called twice: once for current period, once for previous period
     expect(mockRawQuery).toHaveBeenCalledTimes(2);
+  });
+});
+
+// ─── runAggregate — tenant scoping in comparePrevious ────────────────────────
+
+describe('runAggregate — tenant scoping in comparePrevious', () => {
+  it('applies extraWhere (tenant scope) to both current and previous-period simple count', async () => {
+    const countCalls: Array<{ where: unknown }> = [];
+    const mockModel = {
+      count: vi.fn().mockImplementation((args: { where: unknown }) => {
+        countCalls.push(args);
+        return Promise.resolve(countCalls.length === 1 ? 50 : 30);
+      }),
+    };
+    const mockPrisma = { race: mockModel };
+
+    const req: AggregateRequest = {
+      table: 'Race',
+      metric: 'count',
+      comparePrevious: true,
+      timeRange: { start: '2024-01-01', end: '2024-06-30' },
+    };
+    const extraWhere = { organizationId: 'org-tenant-1' };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await runAggregate(mockPrisma as any, req, extraWhere);
+
+    expect(mockModel.count).toHaveBeenCalledTimes(2);
+
+    // Both calls must include the tenant scope
+    for (const call of countCalls) {
+      const where = call.where as Record<string, unknown>;
+      const andClauses = (where.AND as Array<Record<string, unknown>>) ?? [where];
+      const hasTenantScope =
+        andClauses.some((c) => c.organizationId === 'org-tenant-1') ||
+        where.organizationId === 'org-tenant-1';
+      expect(hasTenantScope).toBe(true);
+    }
+  });
+
+  it('applies extraWhere (tenant scope) to both periods in groupBy comparePrevious', async () => {
+    const groupByCalls: Array<{ where: unknown }> = [];
+    const mockModel = {
+      groupBy: vi.fn().mockImplementation((args: { where: unknown }) => {
+        groupByCalls.push(args);
+        return Promise.resolve([]);
+      }),
+    };
+    const mockPrisma = { race: mockModel };
+
+    const req: AggregateRequest = {
+      table: 'Race',
+      metric: 'count',
+      groupBy: 'status',
+      comparePrevious: true,
+      timeRange: { start: '2024-01-01', end: '2024-06-30' },
+    };
+    const extraWhere = { organizationId: 'org-tenant-2' };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await runAggregate(mockPrisma as any, req, extraWhere);
+
+    expect(mockModel.groupBy).toHaveBeenCalledTimes(2);
+
+    for (const call of groupByCalls) {
+      const where = call.where as Record<string, unknown>;
+      const andClauses = (where.AND as Array<Record<string, unknown>>) ?? [where];
+      const hasTenantScope =
+        andClauses.some((c) => c.organizationId === 'org-tenant-2') ||
+        where.organizationId === 'org-tenant-2';
+      expect(hasTenantScope).toBe(true);
+    }
+  });
+
+  it('applies extraWhere (tenant scope) to previous-period in time-bucketed comparePrevious', async () => {
+    const rawQueryCalls: unknown[][] = [];
+    const mockRawQuery = vi.fn().mockImplementation((...args: unknown[]) => {
+      rawQueryCalls.push(args);
+      return Promise.resolve([]);
+    });
+    const mockPrisma = { $queryRawUnsafe: mockRawQuery };
+
+    const req: AggregateRequest = {
+      table: 'Race',
+      metric: 'count',
+      timeField: 'date',
+      timeResolution: 'monthly',
+      comparePrevious: true,
+      timeRange: { start: '2024-01-01', end: '2024-06-30' },
+    };
+    const extraWhere = { organizationId: 'org-tenant-3' };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await runAggregate(mockPrisma as any, req, extraWhere);
+
+    // Both the current and previous raw queries must be issued
+    expect(mockRawQuery).toHaveBeenCalledTimes(2);
+
+    // The previous-period SQL must include the tenant scope parameter.
+    // The second call's params (spread args) should include the tenant org ID.
+    const secondCallArgs = rawQueryCalls[1] as unknown[];
+    expect(secondCallArgs).toContain('org-tenant-3');
   });
 });
 

@@ -15,7 +15,7 @@
  * - Multi-series (groupBy + timeField): raw SQL with additional GROUP BY.
  */
 
-import type { PrismaClient } from '@prisma/client';
+import { Prisma, type PrismaClient } from '@prisma/client';
 import { translateFilter } from './filterTranslator';
 import { getColumnMeta } from './columnMeta';
 import type {
@@ -58,14 +58,14 @@ export async function runAggregate(
   }
 
   if (isTimeBucketed && req.timeField && req.timeResolution) {
-    return runTimeBucketQuery(prisma, req, where);
+    return runTimeBucketQuery(prisma, req, where, extraWhere);
   }
 
   if (req.groupBy) {
-    return runGroupByQuery(prisma, req, where);
+    return runGroupByQuery(prisma, req, where, extraWhere);
   }
 
-  return runSimpleQuery(prisma, req, where);
+  return runSimpleQuery(prisma, req, where, extraWhere);
 }
 
 // ─── Validation ───────────────────────────────────────────────────────────────
@@ -197,6 +197,7 @@ async function runSimpleQuery(
   prisma: PrismaClient,
   req: AggregateRequest,
   where: PrismaWhere,
+  extraWhere: PrismaWhere = {},
 ): Promise<SimpleAggregateResponse> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const model = (prisma as any)[lowerFirst(req.table)];
@@ -219,7 +220,7 @@ async function runSimpleQuery(
   };
 
   if (req.comparePrevious) {
-    const prevWhere = buildWhereForPrevious(req, {});
+    const prevWhere = buildWhereForPrevious(req, extraWhere);
     let prevValue: number;
     if (req.metric === 'count') {
       prevValue = await model.count({ where: prevWhere });
@@ -242,6 +243,7 @@ async function runGroupByQuery(
   prisma: PrismaClient,
   req: AggregateRequest,
   where: PrismaWhere,
+  extraWhere: PrismaWhere = {},
 ): Promise<SimpleAggregateResponse> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const model = (prisma as any)[lowerFirst(req.table)];
@@ -260,7 +262,7 @@ async function runGroupByQuery(
   const response: SimpleAggregateResponse = { kind: 'simple', data, total };
 
   if (req.comparePrevious) {
-    const prevWhere = buildWhereForPrevious(req, {});
+    const prevWhere = buildWhereForPrevious(req, extraWhere);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const prevRows = await model.groupBy({ by: [req.groupBy!], where: prevWhere, ...groupByArg }) as any[];
     const previous: AggregateDataPoint[] = prevRows.map((row) => ({
@@ -287,6 +289,7 @@ async function runTimeBucketQuery(
   prisma: PrismaClient,
   req: AggregateRequest,
   where: PrismaWhere,
+  extraWhere: PrismaWhere = {},
 ): Promise<SimpleAggregateResponse> {
   const tableName = prismaModelToTableName(req.table);
   const resolution = mapTimeResolution(req.timeResolution!);
@@ -318,7 +321,7 @@ async function runTimeBucketQuery(
   const response: SimpleAggregateResponse = { kind: 'simple', data, total };
 
   if (req.comparePrevious) {
-    const prevWhere = mergeWhere(translateFilter(req.filters), buildPreviousTimeRangeWhere(req));
+    const prevWhere = mergeWhere(translateFilter(req.filters), buildPreviousTimeRangeWhere(req), extraWhere);
     const { sql: prevWhereSql, params: prevWhereParams } = buildRawWhere(prevWhere);
     const prevParams: unknown[] = [resolution, ...prevWhereParams];
 
@@ -453,15 +456,29 @@ function extractGroupByValue(
 // ─── Raw SQL helpers ───────────────────────────────────────────────────────────
 
 /**
- * Convert a Prisma model name to the expected Postgres table name.
- * Prisma uses snake_case by default for the underlying table name.
- * We apply a simple camelCase → snake_case transformation.
+ * Resolve the Postgres table name for a Prisma model.
+ *
+ * Reads the actual table name from DMMF:
+ * - If the model has an `@@map("...")` directive, `dbName` holds the mapped name.
+ * - If no `@@map` is present, `dbName` is null and Prisma uses the model name as-is.
+ *
+ * This avoids incorrect heuristic snake_case conversion for models with custom
+ * `@@map` directives.
+ *
+ * @throws {AggregateValidationError} when the model name is not found in DMMF.
  */
 export function prismaModelToTableName(modelName: string): string {
-  return modelName
-    .replace(/([A-Z])/g, (match, letter: string, offset: number) =>
-      offset === 0 ? letter.toLowerCase() : `_${letter.toLowerCase()}`,
-    );
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const model = (Prisma.dmmf.datamodel.models as any[]).find(
+    (m: { name: string }) => m.name === modelName,
+  ) as { name: string; dbName: string | null } | undefined;
+
+  if (!model) {
+    throw new AggregateValidationError(`Unknown Prisma model: "${modelName}"`);
+  }
+
+  // dbName is set when @@map is present; fall back to model name when null.
+  return model.dbName ?? modelName;
 }
 
 /**
@@ -499,13 +516,26 @@ function buildSqlMetricExpr(
   }
 }
 
+/** Strict allowlist for SQL identifiers: must start with a letter or underscore,
+ *  followed only by letters, digits, or underscores. */
+const SQL_IDENT_RE = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+
 /**
- * Escape a SQL identifier to prevent injection.
- * Removes any double-quote characters from identifier names.
- * Column names are also validated against DMMF before use.
+ * Validate and escape a SQL identifier to prevent injection.
+ *
+ * Uses a strict allowlist regex rather than stripping characters — any
+ * identifier that doesn't match is rejected outright. The validated
+ * identifier is then wrapped in double-quotes for safe Postgres use.
+ *
+ * @throws {AggregateValidationError} when the identifier contains invalid characters.
  */
 export function escapeSqlIdent(ident: string): string {
-  return ident.replace(/"/g, '');
+  if (!SQL_IDENT_RE.test(ident)) {
+    throw new AggregateValidationError(
+      `Invalid SQL identifier: "${ident}". Identifiers must match /^[a-zA-Z_][a-zA-Z0-9_]*$/.`,
+    );
+  }
+  return ident;
 }
 
 /**

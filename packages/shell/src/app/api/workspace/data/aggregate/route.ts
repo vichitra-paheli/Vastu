@@ -194,7 +194,6 @@ export async function GET(request: NextRequest) {
         { status: 504 },
       );
     }
-    console.error('[data/aggregate GET] Unexpected error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
