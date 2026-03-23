@@ -53,8 +53,7 @@ function formatTooltipValue(
 ): React.ReactNode {
   if (value == null) return '\u2014';
 
-  const displayType = (seriesConfig as (SeriesConfig & { displayType?: string }) | undefined)
-    ?.displayType;
+  const displayType = seriesConfig?.displayType;
 
   if (displayType) {
     const formatter = getFormatter(displayType);
