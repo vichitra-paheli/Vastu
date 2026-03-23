@@ -30,12 +30,17 @@ import { useTrayStore } from '../../stores/trayStore';
 import { usePanelStore } from '../../stores/panelStore';
 import { openCommandPalette } from '../CommandPalette';
 import { TrayItem } from './TrayItem';
+import { SSEStatusIndicator } from '../SSEStatusIndicator';
+import { useSSEContext } from '../../providers/SSEProvider';
 import classes from './TrayBar.module.css';
 
 export function TrayBar() {
   const trayItems = useTrayStore((state) => state.trayItems);
   const restorePanel = usePanelStore((state) => state.restorePanel);
   const removeFromTray = useTrayStore((state) => state.removeFromTray);
+
+  // Read connection state from shared SSE context (no duplicate connection).
+  const { connectionState: sseState } = useSSEContext();
 
   function handleRestore(panelId: string) {
     restorePanel(panelId);
@@ -80,7 +85,7 @@ export function TrayBar() {
         >
           <IconSearch size={16} />
         </ActionIcon>
-        <span className={classes.statusDot} aria-hidden="true" />
+        <SSEStatusIndicator state={sseState} />
       </div>
     </div>
   );

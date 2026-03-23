@@ -1,0 +1,59 @@
+/**
+ * SSEStatusIndicator — connection state dot in the TrayBar status area.
+ *
+ * All colors via --v-* CSS custom properties only.
+ * Implements US-207 AC-10.
+ */
+
+/* Wrapper keeps the dot vertically centred with the other tray items */
+.indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* The coloured dot */
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--v-radius-full);
+  transition: background-color 200ms ease;
+}
+
+/* ── States ─────────────────────────────────────────────────────────────────── */
+
+/* Connected — green */
+.dot--connected {
+  background-color: var(--v-status-success);
+}
+
+/* Reconnecting — amber (warning colour) */
+.dot--connecting {
+  background-color: var(--v-status-warning);
+  /* Subtle pulse to signal activity */
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+/* Disconnected — red */
+.dot--disconnected {
+  background-color: var(--v-status-error);
+}
+
+/* Pulse animation for the reconnecting/connecting state */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* Honour reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .dot--connecting {
+    animation: none;
+  }
+}

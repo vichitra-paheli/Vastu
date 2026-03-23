@@ -1,8 +1,8 @@
 /**
  * Data engine barrel export.
  *
- * Exports types, translators, and utilities for the generic data query system.
- * Implements US-202 (AC-2, AC-3, AC-5, AC-6, AC-7).
+ * Exports types, translators, and utilities for the generic data query system
+ * (US-202) and workspace event bus (US-207).
  *
  * Accessible as: import { ... } from '@vastu/shared/data-engine'
  */
@@ -45,3 +45,8 @@ export {
   getStringColumns,
   _clearCache,
 } from './columnMeta';
+
+// ─── Workspace events (US-207) ────────────────────────────────────────────────
+
+export type { WorkspaceEvent, WorkspaceEventType } from './eventTypes';
+export { emitWorkspaceEvent, subscribe, subscriberCount } from './events';

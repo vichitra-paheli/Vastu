@@ -56,3 +56,42 @@ Object.defineProperty(window, 'localStorage', {
   value: localStorageMock,
   writable: true,
 });
+
+/**
+ * EventSource polyfill for jsdom.
+ * jsdom does not implement the EventSource API (SSE).
+ * Tests that exercise SSE behaviour (useWorkspaceEvents) use their own
+ * per-test mock via vi.stubGlobal. This stub prevents ReferenceError in
+ * components that mount useWorkspaceEvents without testing SSE directly.
+ */
+if (typeof globalThis.EventSource === 'undefined') {
+  class EventSourceStub extends EventTarget {
+    static readonly CONNECTING = 0;
+    static readonly OPEN = 1;
+    static readonly CLOSED = 2;
+    readonly CONNECTING = 0;
+    readonly OPEN = 1;
+    readonly CLOSED = 2;
+
+    readyState: number = EventSourceStub.CONNECTING;
+    url: string;
+    withCredentials: boolean = false;
+    onmessage: ((ev: MessageEvent) => void) | null = null;
+    onopen: ((ev: Event) => void) | null = null;
+    onerror: ((ev: Event) => void) | null = null;
+
+    constructor(url: string) {
+      super();
+      this.url = url;
+    }
+
+    close() {
+      this.readyState = EventSourceStub.CLOSED;
+    }
+  }
+
+  // Cast required because the full EventSource interface has readonly statics
+  // that TypeScript considers non-assignable to the global declaration.
+  // @ts-expect-error — intentional polyfill assignment
+  globalThis.EventSource = EventSourceStub;
+}

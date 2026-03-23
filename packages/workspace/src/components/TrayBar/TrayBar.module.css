@@ -51,14 +51,6 @@
   padding: 0 var(--v-space-1);
 }
 
-/* Status placeholder dot */
-.statusDot {
-  width: 6px;
-  height: 6px;
-  border-radius: var(--v-radius-full);
-  background-color: var(--v-text-tertiary);
-  opacity: 0.4;
-}
 
 /* Search / command palette trigger button (US-125) */
 .searchButton {
