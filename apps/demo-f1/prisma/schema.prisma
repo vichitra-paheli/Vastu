@@ -489,6 +489,7 @@ model Season {
   championConstructor Constructor? @relation("SeasonChampionConstructor", fields: [championConstructorId], references: [id])
   races               Race[]
 
+  @@index([year])
   @@map("seasons")
 }
 
@@ -605,6 +606,7 @@ model Driver {
   circuitLapRecords    Circuit[]          @relation("CircuitLapRecord")
   championSeasons      Season[]           @relation("SeasonChampionDriver")
 
+  @@index([abbreviation])
   @@index([nationality])
   @@map("drivers")
 }
