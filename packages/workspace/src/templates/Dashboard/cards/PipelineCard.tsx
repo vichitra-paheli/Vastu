@@ -19,15 +19,33 @@ export interface DashboardPipelineCardProps {
   card: PipelineCardDef;
 }
 
-const DEFAULT_STAGES: Array<{ label: string; count: number; color?: string }> = [
-  { label: t('dashboard.pipeline.stage1'), count: 10 },
-  { label: t('dashboard.pipeline.stage2'), count: 6 },
-  { label: t('dashboard.pipeline.stage3'), count: 4 },
-  { label: t('dashboard.pipeline.stage4'), count: 2 },
-];
+const DEFAULT_STAGE_COUNTS = [10, 6, 4, 2];
+
+/** Validate that a color value is a safe CSS color or --v-* token reference. */
+function isSafeColor(color: string): boolean {
+  // Allow CSS custom property references (--v-* tokens)
+  if (/^var\(--[a-z][\w-]*\)$/.test(color)) return true;
+  // Allow hex colors (#rgb, #rrggbb, #rgba, #rrggbbaa)
+  if (/^#[0-9a-fA-F]{3,8}$/.test(color)) return true;
+  // Allow named colors, rgb(), hsl(), etc. — basic safeguard: no semicolons or braces
+  if (/^[a-zA-Z0-9(),%. #-]+$/.test(color) && !color.includes(';') && !color.includes('{')) {
+    return true;
+  }
+  return false;
+}
 
 export function DashboardPipelineCard({ card }: DashboardPipelineCardProps) {
-  const stages = card.stages && card.stages.length > 0 ? card.stages : DEFAULT_STAGES;
+  const defaultStages = React.useMemo(
+    (): Array<{ label: string; count: number; color?: string }> => [
+      { label: t('dashboard.pipeline.stage1'), count: DEFAULT_STAGE_COUNTS[0] },
+      { label: t('dashboard.pipeline.stage2'), count: DEFAULT_STAGE_COUNTS[1] },
+      { label: t('dashboard.pipeline.stage3'), count: DEFAULT_STAGE_COUNTS[2] },
+      { label: t('dashboard.pipeline.stage4'), count: DEFAULT_STAGE_COUNTS[3] },
+    ],
+    [],
+  );
+
+  const stages = card.stages && card.stages.length > 0 ? card.stages : defaultStages;
   const total = stages.reduce((sum, s) => sum + s.count, 0);
 
   return (
@@ -39,7 +57,9 @@ export function DashboardPipelineCard({ card }: DashboardPipelineCardProps) {
       >
         {stages.map((stage, i) => {
           const flex = total > 0 ? stage.count / total : 0;
-          const color = stage.color ?? CHART_SERIES_COLORS[i % CHART_SERIES_COLORS.length];
+          const fallbackColor = CHART_SERIES_COLORS[i % CHART_SERIES_COLORS.length];
+          const color =
+            stage.color && isSafeColor(stage.color) ? stage.color : fallbackColor;
           return (
             <div
               key={stage.label}
@@ -55,7 +75,9 @@ export function DashboardPipelineCard({ card }: DashboardPipelineCardProps) {
 
       <div className={classes.pipelineLegend} role="list" aria-label={t('dashboard.pipeline.legendAriaLabel')}>
         {stages.map((stage, i) => {
-          const color = stage.color ?? CHART_SERIES_COLORS[i % CHART_SERIES_COLORS.length];
+          const fallbackColor = CHART_SERIES_COLORS[i % CHART_SERIES_COLORS.length];
+          const color =
+            stage.color && isSafeColor(stage.color) ? stage.color : fallbackColor;
           return (
             <div key={stage.label} className={classes.pipelineLegendItem} role="listitem">
               <div

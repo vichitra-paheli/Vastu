@@ -23,12 +23,14 @@
  */
 
 import React from 'react';
-import { Button, ActionIcon, Tooltip } from '@mantine/core';
-import { IconShare, IconDots } from '@tabler/icons-react';
+import { Button, ActionIcon, Tooltip, Menu } from '@mantine/core';
+import { IconShare, IconDots, IconPin } from '@tabler/icons-react';
 import { t } from '../../lib/i18n';
 import { useViewStore } from '../../stores/viewStore';
 import { ViewSelector } from './ViewSelector';
+import { PinToDashboardDialog } from '../../templates/Dashboard/PinToDashboardDialog';
 import type { View } from '@vastu/shared/types';
+import type { PinConfig } from '../../templates/Dashboard/PinToDashboardDialog';
 import classes from './ViewToolbar.module.css';
 
 export interface ViewToolbarProps {
@@ -64,6 +66,15 @@ export interface ViewToolbarProps {
    * Called when user deletes a view in the selector dropdown.
    */
   onDeleteView?: (id: string) => void;
+  /**
+   * Available dashboards for "Pin to dashboard".
+   * If not provided, the dialog will offer the default "Main dashboard" option.
+   */
+  availableDashboards?: Array<{ id: string; name: string }>;
+  /**
+   * Called when the user confirms pinning the current view to a dashboard.
+   */
+  onPinToDashboard?: (config: PinConfig) => void;
 }
 
 /**
@@ -80,11 +91,19 @@ export function ViewToolbar({
   onCreateView,
   onRenameView,
   onDeleteView,
+  availableDashboards,
+  onPinToDashboard,
 }: ViewToolbarProps) {
   const { currentViewId, isModified, saveView, loadView, resetView, newView } = useViewStore();
   // pageId is fully resolved by WorkspaceShell (activePanelId ?? prop fallback).
   // ViewToolbar uses it directly — no secondary panelStore lookup here.
   const resolvedPageId = pageId;
+
+  const [pinDialogOpen, setPinDialogOpen] = React.useState(false);
+
+  function handlePin(config: PinConfig) {
+    onPinToDashboard?.(config);
+  }
 
   // Ref to the inline name input — used to allow Cmd+S from within it.
   const nameInputRef = React.useRef<HTMLInputElement>(null);
@@ -203,6 +222,7 @@ export function ViewToolbar({
   }, [modified, localName, resolvedPageId]);
 
   return (
+    <>
     <div
       className={classes.toolbar}
       role="toolbar"
@@ -296,19 +316,41 @@ export function ViewToolbar({
           </ActionIcon>
         </Tooltip>
 
-        {/* Overflow — placeholder (AC-8, implemented with data features) */}
-        <Tooltip label={t('view.toolbar.more')}>
-          <ActionIcon
-            size="sm"
-            variant="subtle"
-            aria-label={t('view.toolbar.moreAriaLabel')}
-            disabled
-            data-testid="overflow-button"
-          >
-            <IconDots size={14} />
-          </ActionIcon>
-        </Tooltip>
+        {/* Overflow menu (AC-8) */}
+        <Menu position="bottom-end" withArrow shadow="md">
+          <Menu.Target>
+            <Tooltip label={t('view.toolbar.more')}>
+              <ActionIcon
+                size="sm"
+                variant="subtle"
+                aria-label={t('view.toolbar.moreAriaLabel')}
+                data-testid="overflow-button"
+              >
+                <IconDots size={14} />
+              </ActionIcon>
+            </Tooltip>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Item
+              leftSection={<IconPin size={14} />}
+              onClick={() => setPinDialogOpen(true)}
+              data-testid="pin-to-dashboard-menu-item"
+            >
+              {t('view.toolbar.pinToDashboard')}
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
       </div>
     </div>
+
+    {/* Pin to dashboard dialog */}
+    <PinToDashboardDialog
+      opened={pinDialogOpen}
+      onClose={() => setPinDialogOpen(false)}
+      viewName={localName}
+      dashboards={availableDashboards}
+      onPin={handlePin}
+    />
+    </>
   );
 }

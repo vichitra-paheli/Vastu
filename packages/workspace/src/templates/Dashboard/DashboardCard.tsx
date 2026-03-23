@@ -15,6 +15,7 @@ import React from 'react';
 import { ActionIcon, Tooltip } from '@mantine/core';
 import { IconGripVertical, IconX } from '@tabler/icons-react';
 import { TruncatedText } from '../../components/TruncatedText';
+import { useConfirmDialog } from '../../components/ConfirmDialog/useConfirmDialog';
 import { t } from '../../lib/i18n';
 import type { CardSize } from '../../stores/dashboardStore';
 import classes from './DashboardTemplate.module.css';
@@ -36,11 +37,7 @@ export interface DashboardCardProps {
   children: React.ReactNode;
 }
 
-const SIZE_OPTIONS: Array<{ value: CardSize; label: string }> = [
-  { value: '1x1', label: t('dashboard.card.size.1x1') },
-  { value: '2x1', label: t('dashboard.card.size.2x1') },
-  { value: '1x2', label: t('dashboard.card.size.1x2') },
-];
+const SIZE_OPTION_VALUES: CardSize[] = ['1x1', '2x1', '1x2'];
 
 function getSizeClass(size: CardSize): string {
   if (size === '2x1') return classes.cardSize2x1;
@@ -59,6 +56,7 @@ export function DashboardCard({
   onDrop,
   children,
 }: DashboardCardProps) {
+  const confirm = useConfirmDialog();
   const [isDragging, setIsDragging] = React.useState(false);
   const [isDragOver, setIsDragOver] = React.useState(false);
 
@@ -91,6 +89,18 @@ export function DashboardCard({
     const draggedId = e.dataTransfer.getData('text/plain');
     if (draggedId && draggedId !== id) {
       onDrop?.(draggedId, id);
+    }
+  }
+
+  async function handleRemoveClick() {
+    const confirmed = await confirm({
+      title: title,
+      description: t('dashboard.card.removeConfirmDescription', { title }),
+      variant: 'warning',
+      confirmLabel: t('dashboard.card.removeAriaLabel'),
+    });
+    if (confirmed) {
+      onRemove?.(id);
     }
   }
 
@@ -138,8 +148,8 @@ export function DashboardCard({
               <ActionIcon
                 size="xs"
                 variant="subtle"
-                color="red"
-                onClick={() => onRemove?.(id)}
+                style={{ color: 'var(--v-color-danger)' }}
+                onClick={() => void handleRemoveClick()}
                 aria-label={t('dashboard.card.removeAriaLabel')}
                 data-testid={`remove-card-${id}`}
               >
@@ -156,17 +166,20 @@ export function DashboardCard({
       {/* Resize controls (edit mode) */}
       {editMode && onResize && (
         <div className={classes.resizeRow} aria-label={t('dashboard.card.resizeAriaLabel')}>
-          {SIZE_OPTIONS.map((opt) => (
-            <button
-              key={opt.value}
-              className={`${classes.resizeButton} ${size === opt.value ? classes.resizeButtonActive : ''}`}
-              onClick={() => onResize(id, opt.value)}
-              aria-label={t('dashboard.card.resizeTo', { size: opt.label })}
-              aria-pressed={size === opt.value}
-            >
-              {opt.label}
-            </button>
-          ))}
+          {SIZE_OPTION_VALUES.map((sizeValue) => {
+            const sizeLabel = t(`dashboard.card.size.${sizeValue}`);
+            return (
+              <button
+                key={sizeValue}
+                className={`${classes.resizeButton} ${size === sizeValue ? classes.resizeButtonActive : ''}`}
+                onClick={() => onResize(id, sizeValue)}
+                aria-label={t('dashboard.card.resizeTo', { size: sizeLabel })}
+                aria-pressed={size === sizeValue}
+              >
+                {sizeLabel}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>

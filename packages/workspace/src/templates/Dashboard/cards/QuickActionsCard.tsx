@@ -19,12 +19,14 @@ export interface DashboardQuickActionsCardProps {
   onAction?: (actionId: string, pageId?: string) => void;
 }
 
-const DEFAULT_ACTIONS: Array<{ id: string; label: string; icon?: string; pageId?: string }> = [
-  { id: 'placeholder-1', label: t('dashboard.quickActions.placeholder') },
-];
-
 export function DashboardQuickActionsCard({ card, onAction }: DashboardQuickActionsCardProps) {
-  const actions = card.actions && card.actions.length > 0 ? card.actions : DEFAULT_ACTIONS;
+  const defaultActions = React.useMemo(
+    (): Array<{ id: string; label: string; icon?: string; pageId?: string }> => [
+      { id: 'placeholder-1', label: t('dashboard.quickActions.placeholder') },
+    ],
+    [],
+  );
+  const actions = card.actions && card.actions.length > 0 ? card.actions : defaultActions;
 
   return (
     <div

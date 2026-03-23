@@ -27,16 +27,16 @@ export interface DashboardGreetingProps {
 }
 
 /** Get the greeting prefix based on the current hour. */
-function getGreetingPrefix(): string {
+function computeGreetingPrefix(): string {
   const hour = new Date().getHours();
   if (hour < 12) return t('dashboard.greeting.morning');
   if (hour < 17) return t('dashboard.greeting.afternoon');
   return t('dashboard.greeting.evening');
 }
 
-/** Format the current date for display. */
+/** Format the current date for display using the browser's locale. */
 function formatGreetingDate(): string {
-  return new Date().toLocaleDateString('en-US', {
+  return new Date().toLocaleDateString(undefined, {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
@@ -49,8 +49,10 @@ export function DashboardGreeting({
   alertCount = 0,
   pendingReviewCount = 0,
 }: DashboardGreetingProps) {
-  const greeting = `${getGreetingPrefix()}, ${name}`;
-  const dateStr = formatGreetingDate();
+  // Memoized so a new Date() is not created on every render.
+  const greetingPrefix = React.useMemo(() => computeGreetingPrefix(), []);
+  const greeting = `${greetingPrefix}, ${name}`;
+  const dateStr = React.useMemo(() => formatGreetingDate(), []);
 
   return (
     <div className={classes.greeting} data-testid="dashboard-greeting">

@@ -8,8 +8,9 @@
  * - editMode: whether edit grid mode is active
  * - Actions: addCard, removeCard, reorderCards, resizeCard, setCards
  *
- * State is scoped per dashboard pageId so multiple dashboard panels
- * can coexist independently.
+ * NOTE: This is a global singleton store. All dashboard panels share the same
+ * card list. The DashboardTemplate serializes card state into the view store on
+ * save so that layouts are persisted per named view.
  *
  * Implements US-137.
  */

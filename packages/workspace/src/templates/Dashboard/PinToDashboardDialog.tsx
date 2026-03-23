@@ -14,7 +14,7 @@
  * Implements US-137 AC-7, AC-8.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Modal, Select, Button, Group, TextInput } from '@mantine/core';
 import { t } from '../../lib/i18n';
 import type { DashboardCardType, CardSize } from '../../stores/dashboardStore';
@@ -39,20 +39,8 @@ export interface PinConfig {
   title: string;
 }
 
-const CARD_TYPE_OPTIONS = [
-  { value: 'kpi', label: t('dashboard.cardType.kpi') },
-  { value: 'chart', label: t('dashboard.cardType.chart') },
-  { value: 'table', label: t('dashboard.cardType.table') },
-];
-
-const SIZE_OPTIONS: Array<{ value: CardSize; label: string }> = [
-  { value: '1x1', label: t('dashboard.card.size.1x1') },
-  { value: '2x1', label: t('dashboard.card.size.2x1') },
-];
-
-const DEFAULT_DASHBOARD: Array<{ id: string; name: string }> = [
-  { id: 'main', name: t('dashboard.pin.defaultDashboard') },
-];
+const CARD_TYPE_VALUES: DashboardCardType[] = ['kpi', 'chart', 'table'];
+const SIZE_OPTION_VALUES: CardSize[] = ['1x1', '2x1'];
 
 export function PinToDashboardDialog({
   opened,
@@ -61,7 +49,21 @@ export function PinToDashboardDialog({
   dashboards,
   onPin,
 }: PinToDashboardDialogProps) {
-  const availableDashboards = dashboards && dashboards.length > 0 ? dashboards : DEFAULT_DASHBOARD;
+  // Build select options inside the component to keep t() calls in render scope.
+  const cardTypeOptions = useMemo(
+    () => CARD_TYPE_VALUES.map((v) => ({ value: v, label: t(`dashboard.cardType.${v}`) })),
+    [],
+  );
+  const sizeOptions = useMemo(
+    () => SIZE_OPTION_VALUES.map((v) => ({ value: v, label: t(`dashboard.card.size.${v}`) })),
+    [],
+  );
+  const defaultDashboard = useMemo(
+    () => [{ id: 'main', name: t('dashboard.pin.defaultDashboard') }],
+    [],
+  );
+
+  const availableDashboards = dashboards && dashboards.length > 0 ? dashboards : defaultDashboard;
 
   const [title, setTitle] = useState(viewName);
   const [cardType, setCardType] = useState<DashboardCardType>('kpi');
@@ -127,7 +129,7 @@ export function PinToDashboardDialog({
         {/* Card type */}
         <Select
           label={t('dashboard.addCard.typeLabel')}
-          data={CARD_TYPE_OPTIONS}
+          data={cardTypeOptions}
           value={cardType}
           onChange={(v) => { if (v) setCardType(v as DashboardCardType); }}
           mb="md"
@@ -150,12 +152,12 @@ export function PinToDashboardDialog({
         <div className={classes.pinDialogSection} style={{ marginBottom: 'var(--v-space-md)' }}>
           <span className={classes.pinDialogLabel}>{t('dashboard.addCard.sizeLabel')}</span>
           <div className={classes.sizePickerRow}>
-            {SIZE_OPTIONS.map((opt) => (
+            {sizeOptions.map((opt) => (
               <button
                 key={opt.value}
                 type="button"
                 className={`${classes.sizePickerOption} ${size === opt.value ? classes.sizePickerOptionSelected : ''}`}
-                onClick={() => setSize(opt.value)}
+                onClick={() => setSize(opt.value as CardSize)}
                 aria-pressed={size === opt.value}
                 aria-label={opt.label}
               >

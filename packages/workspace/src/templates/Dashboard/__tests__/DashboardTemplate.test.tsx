@@ -23,7 +23,7 @@
 
 import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, cleanup, act } from '@testing-library/react';
+import { render, screen, fireEvent, cleanup, act, waitFor } from '@testing-library/react';
 import { TestProviders } from '../../../test-utils/providers';
 import { DashboardTemplate } from '../DashboardTemplate';
 import { DashboardGreeting } from '../DashboardGreeting';
@@ -316,7 +316,7 @@ describe('DashboardCard', () => {
     expect(screen.getByTestId('remove-card-card-1')).toBeTruthy();
   });
 
-  it('calls onRemove when remove button is clicked', () => {
+  it('calls onRemove when remove button is clicked and confirmed', async () => {
     const onRemove = vi.fn();
     render(
       <DashboardCard id="card-1" title="My Card" size="1x1" editMode onRemove={onRemove}>
@@ -324,8 +324,20 @@ describe('DashboardCard', () => {
       </DashboardCard>,
       { wrapper: TestProviders },
     );
-    fireEvent.click(screen.getByTestId('remove-card-card-1'));
-    expect(onRemove).toHaveBeenCalledWith('card-1');
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('remove-card-card-1'));
+    });
+    // Confirm dialog should appear — wait for the dialog then click the confirm action button.
+    const dialog = await screen.findByRole('dialog');
+    // The confirm/action button is the last button in the dialog (Cancel is first, action is last).
+    const dialogButtons = dialog.querySelectorAll('button');
+    const actionBtn = dialogButtons[dialogButtons.length - 1];
+    await act(async () => {
+      fireEvent.click(actionBtn!);
+    });
+    await waitFor(() => {
+      expect(onRemove).toHaveBeenCalledWith('card-1');
+    });
   });
 
   it('shows resize controls in edit mode', () => {

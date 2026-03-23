@@ -9,8 +9,9 @@
  * Implements US-137 AC-5.
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Modal, TextInput, Button, Group } from '@mantine/core';
+import { useForm } from '@mantine/form';
 import {
   IconChartBar,
   IconTable,
@@ -50,34 +51,37 @@ const CARD_TYPE_OPTIONS: CardTypeOption[] = [
   { type: 'alert', labelKey: 'dashboard.cardType.alert', IconComponent: IconBell, descriptionKey: 'dashboard.cardType.alert.description' },
 ];
 
+const SIZE_OPTIONS: CardSize[] = ['1x1', '2x1', '1x2'];
+
+interface AddCardFormValues {
+  type: DashboardCardType;
+  title: string;
+  size: CardSize;
+}
+
 export function AddCardDialog({ opened, onClose, onAdd }: AddCardDialogProps) {
-  const [selectedType, setSelectedType] = useState<DashboardCardType>('kpi');
-  const [title, setTitle] = useState('');
-  const [size, setSize] = useState<CardSize>('1x1');
-  const [titleError, setTitleError] = useState('');
+  const form = useForm<AddCardFormValues>({
+    initialValues: {
+      type: 'kpi',
+      title: '',
+      size: '1x1',
+    },
+    validate: {
+      title: (value) =>
+        value.trim().length === 0 ? t('dashboard.addCard.titleRequired') : null,
+    },
+  });
 
   function handleClose() {
-    setTitle('');
-    setSize('1x1');
-    setSelectedType('kpi');
-    setTitleError('');
+    form.reset();
     onClose();
   }
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const trimmed = title.trim();
-    if (trimmed.length === 0) {
-      setTitleError(t('dashboard.addCard.titleRequired'));
-      return;
-    }
-    setTitleError('');
-
-    // ID and order are assigned by DashboardTemplate.
+  function handleSubmit(values: AddCardFormValues) {
     const card: Omit<DashboardCard, 'id' | 'order'> = {
-      type: selectedType,
-      title: trimmed,
-      size,
+      type: values.type,
+      title: values.title.trim(),
+      size: values.size,
     } as Omit<DashboardCard, 'id' | 'order'>;
 
     onAdd(card);
@@ -92,7 +96,7 @@ export function AddCardDialog({ opened, onClose, onAdd }: AddCardDialogProps) {
       size="lg"
       aria-label={t('dashboard.addCard.dialogAriaLabel')}
     >
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={form.onSubmit(handleSubmit)}>
         {/* Card type picker */}
         <div style={{ marginBottom: 'var(--v-space-md)' }}>
           <div
@@ -105,17 +109,24 @@ export function AddCardDialog({ opened, onClose, onAdd }: AddCardDialogProps) {
           >
             {t('dashboard.addCard.typeLabel')}
           </div>
-          <div className={classes.cardTypeGrid} role="radiogroup" aria-label={t('dashboard.addCard.typeAriaLabel')}>
+          {/* role="group" with role="radio" + aria-checked for proper radio semantics */}
+          <div
+            className={classes.cardTypeGrid}
+            role="group"
+            aria-label={t('dashboard.addCard.typeAriaLabel')}
+          >
             {CARD_TYPE_OPTIONS.map((opt) => {
               const label = t(opt.labelKey);
               const description = t(opt.descriptionKey);
+              const isSelected = form.values.type === opt.type;
               return (
                 <button
                   key={opt.type}
                   type="button"
-                  className={`${classes.cardTypeOption} ${selectedType === opt.type ? classes.cardTypeOptionSelected : ''}`}
-                  onClick={() => setSelectedType(opt.type)}
-                  aria-pressed={selectedType === opt.type}
+                  role="radio"
+                  aria-checked={isSelected}
+                  className={`${classes.cardTypeOption} ${isSelected ? classes.cardTypeOptionSelected : ''}`}
+                  onClick={() => form.setFieldValue('type', opt.type)}
                   aria-label={label}
                   title={description}
                 >
@@ -133,9 +144,7 @@ export function AddCardDialog({ opened, onClose, onAdd }: AddCardDialogProps) {
         <TextInput
           label={t('dashboard.addCard.titleLabel')}
           placeholder={t('dashboard.addCard.titlePlaceholder')}
-          value={title}
-          onChange={(e) => setTitle(e.currentTarget.value)}
-          error={titleError || undefined}
+          {...form.getInputProps('title')}
           mb="md"
           data-testid="add-card-title-input"
         />
@@ -153,18 +162,22 @@ export function AddCardDialog({ opened, onClose, onAdd }: AddCardDialogProps) {
             {t('dashboard.addCard.sizeLabel')}
           </div>
           <div className={classes.sizePickerRow}>
-            {(['1x1', '2x1', '1x2'] as CardSize[]).map((s) => (
-              <button
-                key={s}
-                type="button"
-                className={`${classes.sizePickerOption} ${size === s ? classes.sizePickerOptionSelected : ''}`}
-                onClick={() => setSize(s)}
-                aria-pressed={size === s}
-                aria-label={t('dashboard.card.size', { size: s })}
-              >
-                {t(`dashboard.card.size.${s}`)}
-              </button>
-            ))}
+            {SIZE_OPTIONS.map((s) => {
+              const sizeLabel = t(`dashboard.card.size.${s}`);
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  role="radio"
+                  aria-checked={form.values.size === s}
+                  className={`${classes.sizePickerOption} ${form.values.size === s ? classes.sizePickerOptionSelected : ''}`}
+                  onClick={() => form.setFieldValue('size', s)}
+                  aria-label={t('dashboard.card.size', { size: s })}
+                >
+                  {sizeLabel}
+                </button>
+              );
+            })}
           </div>
         </div>
 

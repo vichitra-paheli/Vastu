@@ -35,7 +35,8 @@ import { DashboardQuickActionsCard } from './cards/QuickActionsCard';
 import { DashboardAlertCard } from './cards/AlertCard';
 import { useTemplateConfig } from '../useTemplateConfig';
 import { registerTemplate } from '../registry';
-import { useDashboardStore, deserializeDashboardState } from '../../stores/dashboardStore';
+import { useDashboardStore, deserializeDashboardState, serializeDashboardState } from '../../stores/dashboardStore';
+import { useViewStore } from '../../stores/viewStore';
 import { t } from '../../lib/i18n';
 import type { TemplateProps } from '../types';
 import type {
@@ -137,17 +138,34 @@ export function DashboardTemplate({
     setEditMode,
   } = useDashboardStore();
 
+  // View store — used to sync dashboard card layout for save/load.
+  const { currentState, updateDashboardCards } = useViewStore();
+
   // Initialise cards from persisted state on first render.
+  // Priority: viewStore.currentState.dashboardCards > config.metadata.cards
   const [initialised, setInitialised] = React.useState(false);
   React.useEffect(() => {
     if (!initialised && config) {
-      const persistedCards = meta.cards ?? [];
-      if (persistedCards.length > 0) {
-        setCards(deserializeDashboardState({ cards: persistedCards }));
+      // Prefer dashboard cards from a loaded view (higher priority than page config).
+      const fromView = currentState.dashboardCards;
+      if (Array.isArray(fromView) && fromView.length > 0) {
+        setCards(deserializeDashboardState({ cards: fromView }));
+      } else {
+        const persistedCards = meta.cards ?? [];
+        if (persistedCards.length > 0) {
+          setCards(deserializeDashboardState({ cards: persistedCards }));
+        }
       }
       setInitialised(true);
     }
-  }, [config, initialised, meta.cards, setCards]);
+  }, [config, initialised, meta.cards, setCards, currentState.dashboardCards]);
+
+  // Sync card layout changes back to viewStore so Save captures the latest layout.
+  React.useEffect(() => {
+    if (initialised) {
+      updateDashboardCards(serializeDashboardState(cards).cards as unknown[]);
+    }
+  }, [cards, initialised, updateDashboardCards]);
 
   // Dialog state
   const [addCardOpen, setAddCardOpen] = useState(false);

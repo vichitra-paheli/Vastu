@@ -76,6 +76,7 @@
   "view.toolbar.shareAriaLabel": "Share view",
   "view.toolbar.more": "More options",
   "view.toolbar.moreAriaLabel": "More view options",
+  "view.toolbar.pinToDashboard": "Pin to dashboard",
   "view.selector.ariaLabel": "Switch view",
   "view.selector.searchPlaceholder": "Search views...",
   "view.selector.searchAriaLabel": "Search views",
@@ -497,6 +498,7 @@
 
   "dashboard.card.dragAriaLabel": "Drag to reorder card",
   "dashboard.card.removeAriaLabel": "Remove card",
+  "dashboard.card.removeConfirmDescription": "Remove the \"{title}\" card from the dashboard?",
   "dashboard.card.resizeAriaLabel": "Resize card",
   "dashboard.card.resizeTo": "Resize to {size}",
   "dashboard.card.size": "{size}",

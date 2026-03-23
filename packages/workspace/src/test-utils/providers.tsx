@@ -12,6 +12,7 @@
 import React from 'react';
 import { MantineProvider } from '@mantine/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ConfirmDialogProvider } from '../components/ConfirmDialog/ConfirmDialogProvider';
 
 function createTestQueryClient(): QueryClient {
   return new QueryClient({
@@ -35,7 +36,9 @@ export function TestProviders({ children }: TestProvidersProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <MantineProvider>{children}</MantineProvider>
+      <MantineProvider>
+        <ConfirmDialogProvider>{children}</ConfirmDialogProvider>
+      </MantineProvider>
     </QueryClientProvider>
   );
 }
