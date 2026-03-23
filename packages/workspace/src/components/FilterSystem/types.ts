@@ -5,88 +5,38 @@
  *
  * FilterNode is a recursive JSON tree serialized into the view state (AC-9).
  * The same structure is accepted by MCP tools (Patterns Library §2.4).
- */
-
-/**
- * The three filter modes as described in Patterns Library §2.1.
  *
- * - include: Show only rows matching the value(s). Default mode.
- * - exclude: Hide rows matching the value(s).
- * - regex:   Match rows against a regular expression pattern.
+ * Core FilterNode types are re-exported from @vastu/shared/data-engine so the
+ * server-side Prisma translator and the client-side UI share a single definition.
+ * Workspace-specific types (FilterDimension, FilterState) and helper functions
+ * remain here.
  */
-export type FilterMode = 'include' | 'exclude' | 'regex';
 
-/**
- * Data types that the filter system handles.
- * Determines which input component is rendered (Patterns Library §2.2).
- */
-export type DataType = 'text' | 'number' | 'date' | 'enum' | 'boolean';
+// Re-export canonical type definitions from shared — backward-compat shim.
+// Consumers of this file continue to work without changes.
+import type {
+  FilterMode,
+  DataType,
+  NumberRangeValue,
+  DateRangeValue,
+  FilterValue,
+  FilterCondition,
+  FilterGroup,
+  FilterNode,
+} from '@vastu/shared/data-engine';
 
-/**
- * A leaf-level filter condition: one column, one mode, one value.
- * Corresponds to a single filter pill in the filter bar.
- */
-export interface FilterCondition {
-  type: 'condition';
-  /** Column/field name to filter on. */
-  column: string;
-  /** Filter mode. */
-  mode: FilterMode;
-  /**
-   * The filter value.
-   *
-   * - text/enum:    string | string[]  (multi-value tag input)
-   * - number:       { min?: number; max?: number }
-   * - date:         { start?: string; end?: string } (ISO 8601)
-   * - boolean:      boolean | null  (null = "any")
-   * - regex:        string  (pattern string, validated before use)
-   */
-  value: FilterValue;
-  /** Data type of the column — drives input rendering. */
-  dataType: DataType;
-}
+export type {
+  FilterMode,
+  DataType,
+  NumberRangeValue,
+  DateRangeValue,
+  FilterValue,
+  FilterCondition,
+  FilterGroup,
+  FilterNode,
+};
 
-/**
- * A group of conditions and/or nested groups.
- * Connected by AND or OR logic.
- */
-export interface FilterGroup {
-  type: 'group';
-  /** Logical connector applied between all direct children. */
-  connector: 'AND' | 'OR';
-  /** Child nodes (conditions or sub-groups). */
-  children: FilterNode[];
-}
-
-/**
- * Discriminated union of all filter node types.
- * The root of the filter JSON tree.
- */
-export type FilterNode = FilterCondition | FilterGroup;
-
-/**
- * Possible value shapes for a FilterCondition.
- * Typed as a union to prevent `any` while remaining serializable.
- */
-export type FilterValue =
-  | string
-  | string[]
-  | NumberRangeValue
-  | DateRangeValue
-  | boolean
-  | null;
-
-/** Min/max range for number and currency filters. */
-export interface NumberRangeValue {
-  min?: number;
-  max?: number;
-}
-
-/** ISO 8601 date range for date/datetime filters. */
-export interface DateRangeValue {
-  start?: string;
-  end?: string;
-}
+// ─── Workspace-specific types ─────────────────────────────────────────────────
 
 /**
  * A column/dimension available for filtering.
@@ -127,6 +77,8 @@ export interface FilterState {
   /** Whether the advanced composite builder is open. */
   advanced: boolean;
 }
+
+// ─── Helper functions ─────────────────────────────────────────────────────────
 
 /** Helper: create an empty AND root group. */
 export function createRootGroup(): FilterGroup {
