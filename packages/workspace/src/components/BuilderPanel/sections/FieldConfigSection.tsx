@@ -18,10 +18,20 @@
 import React from 'react';
 import { t } from '../../../lib/i18n';
 import type { TemplateConfig, FieldConfig } from '../../../templates/types';
-import { getAllFormatters } from '../../../formatters/registry';
 import classes from '../BuilderPanel.module.css';
 
-// ─── Display types (dynamic from FormatterRegistry) ─────────────────
+// ─── Display types ────────────────────────────────────────────────────────────
+
+const DISPLAY_TYPES: { value: string; label: string }[] = [
+  { value: 'text', label: 'Text' },
+  { value: 'badge', label: 'Badge' },
+  { value: 'currency', label: 'Currency' },
+  { value: 'date', label: 'Date' },
+  { value: 'avatar', label: 'Avatar' },
+  { value: 'monospace', label: 'Monospace' },
+  { value: 'boolean', label: 'Boolean' },
+  { value: 'link', label: 'Link' },
+];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -101,25 +111,6 @@ export function FieldConfigSection({ config, onChange }: FieldConfigSectionProps
   const displayTypes =
     ((config.metadata?.fieldDisplayTypes ?? {}) as Record<string, string>);
 
-  // Build display type options dynamically from the formatter registry.
-  // getAllFormatters() returns all registered formatters sorted by ID,
-  // so custom app formatters automatically appear in the picker.
-  const registeredFormatters = getAllFormatters();
-  const displayTypeOptions =
-    registeredFormatters.length > 0
-      ? registeredFormatters.map((f) => ({ value: f.id, label: f.meta.label }))
-      : // Fallback when registry is empty (e.g. in isolated unit tests)
-        [
-          { value: 'text', label: 'Text' },
-          { value: 'badge', label: 'Badge' },
-          { value: 'currency', label: 'Currency' },
-          { value: 'date', label: 'Date' },
-          { value: 'avatar', label: 'Avatar' },
-          { value: 'monospace', label: 'Monospace' },
-          { value: 'boolean', label: 'Boolean' },
-          { value: 'link', label: 'Link' },
-        ];
-
   function updateField(index: number, patch: Partial<FieldConfig>) {
     const updated = fields.map((f, i) => (i === index ? { ...f, ...patch } : f));
     onChange({ fields: updated });
@@ -190,7 +181,7 @@ export function FieldConfigSection({ config, onChange }: FieldConfigSectionProps
                   onChange={(e) => updateDisplayType(field.key, e.target.value)}
                   aria-label={`${t('builder.fieldConfig.col.displayType')} for ${field.key}`}
                 >
-                  {displayTypeOptions.map((dt) => (
+                  {DISPLAY_TYPES.map((dt) => (
                     <option key={dt.value} value={dt.value}>
                       {dt.label}
                     </option>

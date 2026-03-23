@@ -15,7 +15,6 @@
 import { useMemo } from 'react';
 import { t } from '../lib/i18n';
 import { getAllPanels } from '../panels/registry';
-import { getAllPages } from '../pages/registry';
 import { useSidebarStore } from '../stores/sidebarStore';
 
 /** The localStorage key for recent records. */
@@ -177,35 +176,14 @@ export function useCommandPaletteActions(query: string): GroupedActions {
     const effectiveQuery = commandsOnly ? query.slice(1).trimStart() : query;
 
     // ---- Pages ----
-    // Registered pages (from the page registry) take priority.
-    // Fall back to panel definitions for built-in panel types not in the page registry.
-    const registeredPages = getAllPages();
-    const registeredPageIds = new Set(registeredPages.map((p) => p.id));
-
-    const pageRegistryActions: CommandPaletteAction[] = registeredPages.map((page) => ({
-      id: `page:${page.id}`,
-      label: page.name,
-      group: 'pages' as ActionGroup,
-      iconName: page.icon,
-      panelTypeId: page.id,
-    }));
-
-    // Include panel definitions that are not already covered by the page registry.
     const allPanels = getAllPanels();
-    const panelFallbackActions: CommandPaletteAction[] = allPanels
-      .filter((def) => !registeredPageIds.has(def.id))
-      .map((def) => ({
-        id: `page:${def.id}`,
-        label: def.title,
-        group: 'pages' as ActionGroup,
-        iconName: def.iconName,
-        panelTypeId: def.id,
-      }));
-
-    const pageActions: CommandPaletteAction[] = [
-      ...pageRegistryActions,
-      ...panelFallbackActions,
-    ];
+    const pageActions: CommandPaletteAction[] = allPanels.map((def) => ({
+      id: `page:${def.id}`,
+      label: def.title,
+      group: 'pages' as ActionGroup,
+      iconName: def.iconName,
+      panelTypeId: def.id,
+    }));
 
     // ---- Recent records ----
     const recentRecords = readRecentRecords();

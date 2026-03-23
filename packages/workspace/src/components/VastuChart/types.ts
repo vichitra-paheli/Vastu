@@ -54,12 +54,6 @@ export interface SeriesConfig {
    * The main `dataKey` is used as the Y axis.
    */
   xDataKey?: string;
-  /**
-   * Formatter registry display type for this series' values in the tooltip.
-   * When set, the registered formatter's render function is used to display
-   * the series value (VASTU-2A-205c). When omitted, values are displayed as strings.
-   */
-  displayType?: string;
 }
 
 /**
@@ -136,21 +130,6 @@ export interface VastuChartProps {
   error?: string | null;
   /** Called when the user clicks the retry button in the error state. */
   onRetry?: () => void;
-  /**
-   * Called when the user activates a data point via keyboard (Enter key).
-   * Triggers the drill-down action for that point.
-   *
-   * @param dataIndex - Index of the active data point in the `data` array.
-   * @param seriesIndex - Index of the active series in the visible series array.
-   * @param dataPoint - The data object at the active index.
-   * @param series - The series config for the active series.
-   */
-  onDataPointClick?: (
-    dataIndex: number,
-    seriesIndex: number,
-    dataPoint: ChartDataPoint,
-    series: SeriesConfig,
-  ) => void;
   /**
    * Accessible label describing the chart for screen readers.
    * Example: "Monthly revenue by region, line chart"
