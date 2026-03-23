@@ -48,7 +48,7 @@ The F1 app does not contain API routes, server actions, or custom query logic. A
 
 ### How the framework loads app configuration
 
-At startup, the workspace imports `src/formatters.ts` and `src/pages.ts` as side-effectful modules. `formatters.ts` calls `registerFormatter()` for each custom formatter. `pages.ts` calls `PageRegistry.register()` for each domain page. Both registries are singletons that the framework reads when rendering the sidebar, cell renderer, and builder panel.
+At startup, the workspace imports `src/formatters.ts` and `src/pages.ts` as side-effectful modules. `formatters.ts` calls `registerFormatter()` for each custom formatter. `pages.ts` calls `registerPage()` for each domain page. Both registries are singletons that the framework reads when rendering the sidebar, cell renderer, and builder panel.
 
 ---
 
@@ -210,7 +210,7 @@ Each formatter object implements three functions:
 
 ## The pages: all 6 templates in one app
 
-`apps/demo-f1/src/pages.ts` will register 9 pages via `PageRegistry.register()` (full implementation: US-223). The 9 pages demonstrate every built-in template:
+`apps/demo-f1/src/pages.ts` will register 9 pages via `registerPage()` (full implementation: US-223). The 9 pages demonstrate every built-in template:
 
 | Page | Template | What it shows |
 |------|----------|--------------|

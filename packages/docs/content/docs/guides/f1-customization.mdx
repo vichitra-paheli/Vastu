@@ -18,64 +18,62 @@ This example adds a "Pit Stops" page that lists every pit stop with driver, lap,
 
 ### Step 1: Open `src/pages.ts`
 
-All page registrations live in `apps/demo-f1/src/pages.ts`. Open the file and import `PageRegistry`:
+All page registrations live in `apps/demo-f1/src/pages.ts`. Open the file and import `registerPage`:
 
 ```typescript
-import { PageRegistry } from '@vastu/workspace';
+import { registerPage } from '@vastu/workspace';
 ```
 
-### Step 2: Call `PageRegistry.register()`
+### Step 2: Call `registerPage()`
 
 Add the new page registration. Place it after existing registrations, with an `order` value higher than the last page:
 
 ```typescript
-PageRegistry.register({
+registerPage({
   id: 'f1-pit-stops',
   name: 'Pit Stops',
-  icon: 'IconTool',
+  icon: 'Tool',
   template: 'table-listing',
-  section: 'PAGES',
+  section: 'pages',
   order: 10,
   config: {
-    table: 'PitStop',
-    columns: [
+    dataSource: { type: 'prisma', model: 'PitStop' },
+    fields: [
       {
-        field: 'race.name',
-        header: 'Race',
-        displayType: 'text',
+        key: 'race.name',
+        label: 'Race',
+        type: 'text',
       },
       {
-        field: 'driver.lastName',
-        header: 'Driver',
-        displayType: 'text',
-        navigateTo: {
-          pageId: 'f1-driver-profile',
-          recordId: '{driver.id}',
-        },
+        key: 'driver.lastName',
+        label: 'Driver',
+        type: 'text',
       },
       {
-        field: 'lap',
-        header: 'Lap',
-        displayType: 'number',
+        key: 'lap',
+        label: 'Lap',
+        type: 'number',
       },
       {
-        field: 'stopNumber',
-        header: 'Stop',
-        displayType: 'number',
+        key: 'stopNumber',
+        label: 'Stop',
+        type: 'number',
       },
       {
-        field: 'tireCompound',
-        header: 'Compound',
-        displayType: 'tire-compound',   // custom F1 formatter
+        key: 'tireCompound',
+        label: 'Compound',
+        type: 'tire-compound',   // custom F1 formatter
       },
       {
-        field: 'durationMs',
-        header: 'Duration',
-        displayType: 'pit-duration',    // custom F1 formatter
+        key: 'durationMs',
+        label: 'Duration',
+        type: 'pit-duration',    // custom F1 formatter
       },
     ],
-    defaultSort: [{ column: 'durationMs', direction: 'asc' }],
-    include: ['race', 'driver'],
+    metadata: {
+      defaultSort: [{ column: 'durationMs', direction: 'asc' }],
+      include: ['race', 'driver'],
+    },
   },
 });
 ```
@@ -83,10 +81,11 @@ PageRegistry.register({
 Key points:
 
 - `id` must be unique across all registered pages. Prefix with your app name (`f1-`) to avoid collisions with future framework pages.
-- `icon` is a Tabler icon name. Browse the full list at [tabler.io/icons](https://tabler.io/icons).
+- `icon` is a Tabler icon name without the `Icon` prefix. Browse the full list at [tabler.io/icons](https://tabler.io/icons).
 - `template` must be one of the built-in template IDs: `table-listing`, `summary-dashboard`, `multi-tab-detail`, `data-explorer`, `form-page`, `timeline-activity`, `dashboard`.
-- `displayType: 'tire-compound'` and `displayType: 'pit-duration'` reference the custom formatters registered in `formatters.ts`.
-- `include: ['race', 'driver']` tells the data engine to eager-load those relations so `race.name` and `driver.lastName` are available.
+- `section` must be lowercase: `'pages'`, `'system'`, or `'admin'`.
+- `type: 'tire-compound'` and `type: 'pit-duration'` reference the custom formatters registered in `formatters.ts`.
+- `metadata.include: ['race', 'driver']` tells the data engine to eager-load those relations so `race.name` and `driver.lastName` are available.
 
 ### Step 3: Restart the dev server
 
@@ -175,13 +174,13 @@ Because `registerF1Formatters()` iterates `F1_FORMATTERS`, the new formatter is 
 
 ### Step 4: Use the formatter in a page config
 
-In any page that includes `race_results.fastest_lap`, set `displayType: 'fastest-lap'`:
+In any page that includes `race_results.fastest_lap`, set `type: 'fastest-lap'`:
 
 ```typescript
 {
-  field: 'fastestLap',
-  header: 'FL',
-  displayType: 'fastest-lap',
+  key: 'fastestLap',
+  label: 'FL',
+  type: 'fastest-lap',
 }
 ```
 
@@ -344,7 +343,7 @@ Follow the [Adding a new F1 page](#adding-a-new-f1-page) steps above, using `tab
 
 The F1 demo is designed to be the clearest possible example of a Vastu app. Every pattern you followed in this guide applies identically to your own application:
 
-- Your `src/pages.ts` → call `PageRegistry.register()` for each domain page
+- Your `src/pages.ts` → call `registerPage()` for each domain page
 - Your `src/formatters.ts` → call `registerFormatter()` for each custom cell renderer
 - Your `prisma/schema.prisma` → add domain models below the marker
 - Your `prisma/seed.ts` → call `runBaseSeed()` first, your seed second
