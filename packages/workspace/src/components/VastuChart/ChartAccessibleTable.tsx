@@ -74,7 +74,7 @@ export function ChartAccessibleTable({
           aria-labelledby={caption ? captionId : undefined}
         >
           {caption && (
-            <caption id={captionId} className="sr-only">
+            <caption id={captionId} className={classes.srOnly}>
               {caption}
             </caption>
           )}
@@ -118,7 +118,7 @@ export function ChartAccessibleTable({
         aria-labelledby={caption ? captionId : undefined}
       >
         {caption && (
-          <caption id={captionId} className="sr-only">
+          <caption id={captionId} className={classes.srOnly}>
             {caption}
           </caption>
         )}
