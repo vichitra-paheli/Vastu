@@ -2,6 +2,8 @@
   "title": "Building Applications",
   "pages": [
     "getting-started",
-    "schema-composition"
+    "schema-composition",
+    "f1-demo",
+    "f1-customization"
   ]
 }

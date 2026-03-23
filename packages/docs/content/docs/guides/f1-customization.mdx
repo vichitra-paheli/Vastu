@@ -1,0 +1,363 @@
+---
+title: F1 Customization Guide
+description: Extend the F1 demo app by adding a new page, a new formatter, a new schema table, and seed data — step by step.
+---
+
+**Purpose:** Walk you through every kind of extension the Vastu framework supports, using the F1 demo as a concrete example. After reading this you will know exactly what to do in your own application.
+
+**Prerequisites:**
+- You have read [F1 Demo Walkthrough](/docs/guides/f1-demo) and understand how the demo is structured
+- The demo is running locally (`pnpm --filter @app/demo-f1 dev`)
+- You have basic TypeScript and Prisma familiarity
+
+---
+
+## Adding a new F1 page
+
+This example adds a "Pit Stops" page that lists every pit stop with driver, lap, tire compound, and duration.
+
+### Step 1: Open `src/pages.ts`
+
+All page registrations live in `apps/demo-f1/src/pages.ts`. Open the file and import `registerPage`:
+
+```typescript
+import { registerPage } from '@vastu/workspace';
+```
+
+### Step 2: Call `registerPage()`
+
+Add the new page registration. Place it after existing registrations, with an `order` value higher than the last page:
+
+```typescript
+registerPage({
+  id: 'f1-pit-stops',
+  name: 'Pit Stops',
+  icon: 'Tool',
+  template: 'table-listing',
+  section: 'pages',
+  order: 10,
+  config: {
+    dataSource: { type: 'prisma', model: 'PitStop' },
+    fields: [
+      {
+        key: 'race.name',
+        label: 'Race',
+        type: 'text',
+      },
+      {
+        key: 'driver.lastName',
+        label: 'Driver',
+        type: 'text',
+      },
+      {
+        key: 'lap',
+        label: 'Lap',
+        type: 'number',
+      },
+      {
+        key: 'stopNumber',
+        label: 'Stop',
+        type: 'number',
+      },
+      {
+        key: 'tireCompound',
+        label: 'Compound',
+        type: 'tire-compound',   // custom F1 formatter
+      },
+      {
+        key: 'durationMs',
+        label: 'Duration',
+        type: 'pit-duration',    // custom F1 formatter
+      },
+    ],
+    metadata: {
+      defaultSort: [{ column: 'durationMs', direction: 'asc' }],
+      include: ['race', 'driver'],
+    },
+  },
+});
+```
+
+Key points:
+
+- `id` must be unique across all registered pages. Prefix with your app name (`f1-`) to avoid collisions with future framework pages.
+- `icon` is a Tabler icon name without the `Icon` prefix. Browse the full list at [tabler.io/icons](https://tabler.io/icons).
+- `template` must be one of the built-in template IDs: `table-listing`, `summary-dashboard`, `multi-tab-detail`, `data-explorer`, `form-page`, `timeline-activity`, `dashboard`.
+- `section` must be lowercase: `'pages'`, `'system'`, or `'admin'`.
+- `type: 'tire-compound'` and `type: 'pit-duration'` reference the custom formatters registered in `formatters.ts`.
+- `metadata.include: ['race', 'driver']` tells the data engine to eager-load those relations so `race.name` and `driver.lastName` are available.
+
+### Step 3: Restart the dev server
+
+The page registry is loaded at startup, so a restart is required to see new pages:
+
+```bash
+# Stop the current server (Ctrl+C), then:
+pnpm --filter @app/demo-f1 dev
+```
+
+The "Pit Stops" page now appears in the sidebar under PAGES, below your existing F1 pages.
+
+<Callout type="tip">
+Static pages (code-registered) always appear first in the sidebar, sorted by their `order` value. Pages created at runtime via builder mode appear below, separated by a subtle divider.
+</Callout>
+
+---
+
+## Adding a new F1 formatter
+
+This example adds a `fastest-lap` formatter that renders a boolean as a trophy icon when `true` and nothing when `false`.
+
+### Step 1: Open `src/formatters.ts`
+
+All formatter registrations live in `apps/demo-f1/src/formatters.ts`. The file registers formatters as a side effect — you add new formatters to the `F1_FORMATTERS` array and they are automatically registered.
+
+### Step 2: Define the formatter object
+
+Add the formatter definition before the `F1_FORMATTERS` array:
+
+```typescript
+/**
+ * fastest-lap formatter
+ *
+ * Renders a boolean fastest-lap flag as a trophy emoji when true.
+ * Used for: race_results.fastest_lap.
+ */
+const fastestLapFormatter = {
+  id: 'fastest-lap',
+  meta: {
+    label: 'Fastest lap',
+    group: 'f1',
+    description: 'Trophy icon when this driver set the fastest lap',
+  },
+  render({ value }: { value: unknown; row: Record<string, unknown> }): React.ReactNode {
+    if (!value) return null;
+    return React.createElement(
+      'span',
+      {
+        title: 'Fastest lap',
+        style: { fontSize: '14px' },
+        'aria-label': 'Fastest lap',
+      },
+      '🏆',
+    );
+  },
+  sort({ aValue, bValue }: { aValue: unknown; bValue: unknown }): number {
+    // true sorts before false
+    const a = aValue ? 1 : 0;
+    const b = bValue ? 1 : 0;
+    return b - a;
+  },
+  export({ value }: { value: unknown; row: Record<string, unknown> }): string {
+    return value ? 'Yes' : '';
+  },
+};
+```
+
+### Step 3: Add it to `F1_FORMATTERS`
+
+```typescript
+export const F1_FORMATTERS = [
+  lapTimeFormatter,
+  pitDurationFormatter,
+  tireCompoundFormatter,
+  positionChangeFormatter,
+  raceStatusFormatter,
+  nationalityFlagFormatter,
+  circuitTypeFormatter,
+  weatherFormatter,
+  fastestLapFormatter,   // add here
+] as const;
+```
+
+Because `registerF1Formatters()` iterates `F1_FORMATTERS`, the new formatter is registered automatically on the next startup.
+
+### Step 4: Use the formatter in a page config
+
+In any page that includes `race_results.fastest_lap`, set `type: 'fastest-lap'`:
+
+```typescript
+{
+  key: 'fastestLap',
+  label: 'FL',
+  type: 'fastest-lap',
+}
+```
+
+<Callout type="info">
+Formatters are registered before the workspace renders, so builder mode also shows `fastest-lap` in the display type picker alongside the built-in formatters.
+</Callout>
+
+---
+
+## Extending the schema
+
+This example adds a `car_liveries` table to track each constructor's visual design per season.
+
+### Step 1: Open `prisma/schema.prisma`
+
+Domain tables go in the section at the bottom of `apps/demo-f1/prisma/schema.prisma`, below the marker:
+
+```prisma
+// ═══════════════════════════════════════════════════════════════════════════
+// YOUR DOMAIN MODELS BELOW
+// ═══════════════════════════════════════════════════════════════════════════
+```
+
+### Step 2: Add an enum (if needed)
+
+Add enums before the domain models marker:
+
+```prisma
+enum LiveryColor {
+  Red
+  Blue
+  Black
+  White
+  Silver
+  Orange
+  Yellow
+  Green
+}
+```
+
+### Step 3: Add the model
+
+```prisma
+model CarLivery {
+  id            String       @id @default(uuid())
+  constructorId String       @map("constructor_id")
+  seasonId      String       @map("season_id")
+  primaryColor  LiveryColor  @map("primary_color")
+  secondaryColor LiveryColor? @map("secondary_color")
+  notes         String?
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+
+  constructor Constructor @relation(fields: [constructorId], references: [id])
+  season      Season      @relation(fields: [seasonId], references: [id])
+
+  @@unique([constructorId, seasonId])
+  @@index([constructorId])
+  @@index([seasonId])
+  @@map("car_liveries")
+}
+```
+
+You also need to add the reverse relations on the existing `Constructor` and `Season` models. Find the `Constructor` model in the schema and add:
+
+```prisma
+liveries CarLivery[]
+```
+
+Do the same on `Season`.
+
+### Step 4: Run the migration
+
+```bash
+pnpm --filter @app/demo-f1 prisma:migrate
+```
+
+Prisma detects the new model and enum, generates a migration file in `apps/demo-f1/prisma/migrations/`, and applies it to the database.
+
+```bash
+# Regenerate the TypeScript client
+pnpm --filter @app/demo-f1 prisma:generate
+```
+
+<Callout type="warning">
+Do not edit the base framework tables (Organization, User, Tenant, Role, etc.) or the base framework enums. Edits to those sections will conflict with future framework upgrades. Only add content below the YOUR DOMAIN MODELS marker.
+</Callout>
+
+---
+
+## Adding seed data for the new model
+
+This example seeds car liveries for each constructor and season.
+
+### Step 1: Open `prisma/f1Seed.ts`
+
+Find the function that seeds constructors and seasons — they already produce the IDs you need. Add a new function at the end of the file (before the `runF1Seed` export):
+
+```typescript
+async function seedCarLiveries(
+  prisma: PrismaClient,
+  constructors: { id: string }[],
+  seasons: { id: string }[],
+): Promise<void> {
+  console.log('  seeding car_liveries...');
+
+  const colors = ['Red', 'Blue', 'Black', 'White', 'Silver', 'Orange'] as const;
+
+  for (const constructor of constructors) {
+    for (const season of seasons) {
+      const id = makeId('car-livery', `${constructor.id}:${season.id}`);
+      const primary = colors[randInt(0, colors.length - 1)];
+
+      await prisma.carLivery.upsert({
+        where: { id },
+        update: {},
+        create: {
+          id,
+          constructorId: constructor.id,
+          seasonId: season.id,
+          primaryColor: primary,
+        },
+      });
+    }
+  }
+
+  console.log(`    done (${constructors.length * seasons.length} liveries)`);
+}
+```
+
+### Step 2: Call the function from `runF1Seed`
+
+Inside the exported `runF1Seed` function, after constructors and seasons have been seeded:
+
+```typescript
+const constructors = await seedConstructors(prisma);
+const seasons = await seedSeasons(prisma, constructors);
+await seedCarLiveries(prisma, constructors, seasons);
+```
+
+### Step 3: Re-run the seed
+
+```bash
+pnpm --filter @app/demo-f1 prisma:seed
+```
+
+Because `makeId()` produces the same ID for the same namespace + key pair, running the seed again is safe — existing records are not duplicated.
+
+<Callout type="tip">
+Always use `makeId()` for seed record IDs and always call `upsert` rather than `create`. This makes the seed safe to run on an already-populated database.
+</Callout>
+
+### Step 4: Register a page for the new table
+
+Follow the [Adding a new F1 page](#adding-a-new-f1-page) steps above, using `table: 'CarLivery'` in the page config.
+
+---
+
+## What the F1 demo shows you to do in your own app
+
+The F1 demo is designed to be the clearest possible example of a Vastu app. Every pattern you followed in this guide applies identically to your own application:
+
+- Your `src/pages.ts` → call `registerPage()` for each domain page
+- Your `src/formatters.ts` → call `registerFormatter()` for each custom cell renderer
+- Your `prisma/schema.prisma` → add domain models below the marker
+- Your `prisma/seed.ts` → call `runBaseSeed()` first, your seed second
+- Your domain seed → use deterministic IDs and `upsert`
+
+The only files that differ between the F1 demo and your app are the domain-specific ones. The framework packages (`@vastu/shell`, `@vastu/workspace`, `@vastu/shared`) are never modified.
+
+---
+
+## Related pages
+
+- [F1 Demo Walkthrough](/docs/guides/f1-demo) — architecture, data model, and setup instructions
+- [Getting Started](/docs/guides/getting-started) — scaffold a new app with `pnpm vastu:init`
+- [Extending the Schema](/docs/guides/schema-composition) — full schema composition guide with migration details
+- [PageRegistry reference](/docs/reference/page-registry) — all PageRegistry options and template config shapes
+- [FormatterRegistry reference](/docs/reference/formatter-registry) — full FormatterDefinition API with all function signatures
+- [Data Query API](/docs/reference/data-query-api) — how `include`, `columns`, and relation fields work in page configs
