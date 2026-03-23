@@ -1,0 +1,342 @@
+---
+title: Data Engine Internals
+description: Deep reference for the translator functions, column metadata utilities, and type definitions that power the generic data query API.
+---
+
+**Purpose:** Explain the internal translator functions and type system behind the data engine so you can use them directly in your own API routes, understand how queries are constructed, and extend the system.
+
+**Prerequisites:**
+- [Data Query API](/docs/reference/data-query-api) — the HTTP endpoints this engine backs
+- Familiarity with Prisma where clauses
+
+Sources:
+- `packages/shared/src/data-engine/filterTranslator.ts`
+- `packages/shared/src/data-engine/sortTranslator.ts`
+- `packages/shared/src/data-engine/searchTranslator.ts`
+- `packages/shared/src/data-engine/columnMeta.ts`
+- `packages/shared/src/data-engine/filterTypes.ts`
+- `packages/shared/src/data-engine/types.ts`
+
+---
+
+## Package import
+
+Everything documented here is exported from `@vastu/shared/data-engine`:
+
+```typescript
+import {
+  translateFilter,
+  translateSort,
+  buildSearchWhere,
+  getColumnMeta,
+  getModelNames,
+  getStringColumns,
+} from '@vastu/shared/data-engine';
+
+import type {
+  FilterNode,
+  FilterCondition,
+  FilterGroup,
+  FilterMode,
+  DataType,
+  FilterValue,
+  NumberRangeValue,
+  DateRangeValue,
+  SortSpec,
+  ColumnMeta,
+  DataQueryRequest,
+  DataQueryResponse,
+  PrismaWhere,
+  PrismaOrderByItem,
+} from '@vastu/shared/data-engine';
+```
+
+## FilterNode type system
+
+`FilterNode` is a discriminated union at the root of every filter tree:
+
+```typescript
+type FilterNode = FilterCondition | FilterGroup;
+```
+
+### `FilterCondition`
+
+A leaf node — one column, one mode, one value:
+
+```typescript
+interface FilterCondition {
+  type: 'condition';
+  column: string;     // dot-notation supported: 'driver.name'
+  mode: FilterMode;   // 'include' | 'exclude' | 'regex'
+  value: FilterValue; // shape depends on mode + dataType
+  dataType: DataType; // 'text' | 'number' | 'date' | 'enum' | 'boolean'
+}
+```
+
+### `FilterGroup`
+
+A group of children connected by AND or OR:
+
+```typescript
+interface FilterGroup {
+  type: 'group';
+  connector: 'AND' | 'OR';
+  children: FilterNode[];  // can be conditions or nested groups
+}
+```
+
+### `FilterMode`
+
+```typescript
+type FilterMode = 'include' | 'exclude' | 'regex';
+```
+
+| Mode | Behaviour |
+|------|-----------|
+| `include` | Show only rows matching the value(s) |
+| `exclude` | Hide rows matching the value(s) |
+| `regex` | Match rows against a regular expression pattern (text columns only) |
+
+### `DataType`
+
+```typescript
+type DataType = 'text' | 'number' | 'date' | 'enum' | 'boolean';
+```
+
+The `dataType` field determines which Prisma where clause shape is produced.
+
+### `FilterValue`
+
+```typescript
+type FilterValue =
+  | string
+  | string[]
+  | NumberRangeValue   // { min?: number; max?: number }
+  | DateRangeValue     // { start?: string; end?: string }  (ISO 8601)
+  | boolean
+  | null;
+```
+
+The expected `FilterValue` shape per `dataType`:
+
+| `dataType` | `mode: 'include'` | `mode: 'exclude'` | `mode: 'regex'` |
+|-----------|-------------------|-------------------|-----------------|
+| `text` | `string \| string[]` | `string \| string[]` | `string` (regex pattern) |
+| `enum` | `string[]` | `string[]` | not typical |
+| `number` | `NumberRangeValue` | `NumberRangeValue` | — |
+| `date` | `DateRangeValue` | `DateRangeValue` | — |
+| `boolean` | `boolean` | — | — |
+
+## `translateFilter`
+
+Converts a `FilterNode` tree into a Prisma `where` object.
+
+```typescript
+function translateFilter(node: FilterNode | null | undefined): PrismaWhere
+```
+
+- Returns `{}` when `node` is null or undefined.
+- Pure function — no I/O.
+- Throws `Error` if a `regex` mode condition contains an invalid regex pattern (validated with `new RegExp(pattern)` before reaching Postgres).
+
+### Translation rules
+
+| Input | Output Prisma where |
+|-------|---------------------|
+| `{ type: 'condition', column: 'status', mode: 'include', dataType: 'enum', value: ['Completed'] }` | `{ status: { in: ['Completed'] } }` |
+| `{ type: 'condition', column: 'status', mode: 'exclude', dataType: 'enum', value: ['DNF'] }` | `{ NOT: { status: { in: ['DNF'] } } }` |
+| `{ type: 'condition', column: 'name', mode: 'regex', dataType: 'text', value: '^Ham' }` | `{ name: { contains: '^Ham', mode: 'insensitive' } }` |
+| `{ type: 'condition', column: 'points', mode: 'include', dataType: 'number', value: { min: 10, max: 100 } }` | `{ points: { gte: 10, lte: 100 } }` |
+| `{ type: 'condition', column: 'date', mode: 'include', dataType: 'date', value: { start: '2024-01-01', end: '2024-12-31' } }` | `{ date: { gte: new Date('2024-01-01'), lte: new Date('2024-12-31') } }` |
+| `{ type: 'condition', column: 'hasSprint', mode: 'include', dataType: 'boolean', value: true }` | `{ hasSprint: true }` |
+| `{ type: 'group', connector: 'AND', children: [...] }` | `{ AND: [...translated children...] }` |
+| `{ type: 'group', connector: 'OR', children: [...] }` | `{ OR: [...translated children...] }` |
+
+### Dot-notation column nesting
+
+The column string supports arbitrary nesting depth:
+
+| Column | With value `['British']` | Output |
+|--------|--------------------------|--------|
+| `'nationality'` | include | `{ nationality: { in: ['British'] } }` |
+| `'driver.nationality'` | include | `{ driver: { nationality: { in: ['British'] } } }` |
+| `'race.circuit.country'` | include | `{ race: { circuit: { country: { in: ['British'] } } } }` |
+
+### Empty and null conditions
+
+Conditions with null, undefined, or empty-array values are silently skipped — they return `{}`. This means you can safely pass a filter tree that includes unfilled conditions without breaking the query.
+
+### Using `translateFilter` in your own routes
+
+```typescript
+import { translateFilter } from '@vastu/shared/data-engine';
+import type { FilterNode } from '@vastu/shared/data-engine';
+
+export async function POST(req: Request) {
+  const { filters }: { filters: FilterNode } = await req.json();
+
+  const where = translateFilter(filters);
+  // { status: { in: ['Completed'] }, ... }
+
+  const races = await prisma.race.findMany({ where });
+  return Response.json(races);
+}
+```
+
+## `translateSort`
+
+Converts `SortSpec[]` into a Prisma `orderBy` array.
+
+```typescript
+function translateSort(specs: SortSpec[]): PrismaOrderByItem[]
+```
+
+```typescript
+interface SortSpec {
+  column: string;            // 'points' or 'driver.name'
+  direction: 'asc' | 'desc';
+}
+```
+
+- Returns `[]` for empty or missing input.
+- Pure function.
+- Supports the same dot-notation as `translateFilter`.
+
+```typescript
+import { translateSort } from '@vastu/shared/data-engine';
+
+const orderBy = translateSort([
+  { column: 'points', direction: 'desc' },
+  { column: 'driver.name', direction: 'asc' },
+]);
+// [{ points: 'desc' }, { driver: { name: 'asc' } }]
+
+const drivers = await prisma.driver.findMany({ orderBy });
+```
+
+## `buildSearchWhere`
+
+Builds an OR clause across a list of string column names.
+
+```typescript
+function buildSearchWhere(
+  term: string | null | undefined,
+  stringColumns: string[],
+): PrismaWhere
+```
+
+- Returns `{}` when `term` is null, undefined, empty, or whitespace-only.
+- Returns `{}` when `stringColumns` is empty.
+- Each clause uses `{ contains: term, mode: 'insensitive' }` (case-insensitive substring match).
+
+```typescript
+import { buildSearchWhere, getStringColumns } from '@vastu/shared/data-engine';
+
+const stringCols = getStringColumns('Driver');
+// ['firstName', 'lastName', 'nationality', ...]
+
+const where = buildSearchWhere('hamilton', stringCols);
+// {
+//   OR: [
+//     { firstName: { contains: 'hamilton', mode: 'insensitive' } },
+//     { lastName:  { contains: 'hamilton', mode: 'insensitive' } },
+//     { nationality: { contains: 'hamilton', mode: 'insensitive' } },
+//   ]
+// }
+```
+
+## Column metadata
+
+Column metadata is derived from Prisma DMMF at runtime and cached in memory. No database queries are issued.
+
+### `getColumnMeta`
+
+```typescript
+function getColumnMeta(modelName: string): ColumnMeta[]
+```
+
+Returns an array of `ColumnMeta` for all scalar fields on the model. Relation object fields are excluded — the FK scalar field carries `isForeignKey: true` and `relatedModel` instead.
+
+```typescript
+interface ColumnMeta {
+  name: string;
+  type: 'String' | 'Int' | 'Float' | 'DateTime' | 'Boolean' | 'Enum';
+  nullable: boolean;
+  isPrimaryKey: boolean;
+  isForeignKey: boolean;
+  relatedModel?: string;  // set when isForeignKey is true
+}
+```
+
+Throws `Error: Unknown Prisma model: "<name>"` if the model is not in the DMMF.
+
+### `getModelNames`
+
+```typescript
+function getModelNames(): string[]
+```
+
+Returns all Prisma model names available in the DMMF. Used internally for table name validation in the query route. Useful when you need to enumerate all models.
+
+### `getStringColumns`
+
+```typescript
+function getStringColumns(modelName: string): string[]
+```
+
+Convenience wrapper — returns only the column names where `type === 'String'`. Used by `buildSearchWhere` internally. Throws the same error as `getColumnMeta` for unknown models.
+
+### Prisma scalar type mapping
+
+The data engine maps Prisma scalar types to a simplified enum:
+
+| Prisma type | `ColumnMeta.type` |
+|-------------|-------------------|
+| `String` | `'String'` |
+| `Int` | `'Int'` |
+| `Float` | `'Float'` |
+| `BigInt` | `'Int'` (display only) |
+| `Decimal` | `'Float'` (display only) |
+| `DateTime` | `'DateTime'` |
+| `Boolean` | `'Boolean'` |
+| Any enum type | `'Enum'` |
+
+`Unsupported` and unknown types are silently skipped — they do not appear in the `ColumnMeta` array.
+
+## Combining translators: full example
+
+```typescript
+import {
+  translateFilter,
+  translateSort,
+  buildSearchWhere,
+  getStringColumns,
+} from '@vastu/shared/data-engine';
+import type { FilterNode, SortSpec } from '@vastu/shared/data-engine';
+
+async function queryRaces(
+  filters: FilterNode | null,
+  sort: SortSpec[],
+  search: string,
+  tenantId: string,
+) {
+  const filterWhere = translateFilter(filters);
+  const searchWhere = buildSearchWhere(search, getStringColumns('Race'));
+  const orderBy = translateSort(sort);
+
+  const where = {
+    tenantId,           // tenant scoping always applied first
+    AND: [filterWhere, searchWhere].filter((w) => Object.keys(w).length > 0),
+  };
+
+  return prisma.race.findMany({ where, orderBy });
+}
+```
+
+---
+
+**Related pages:**
+- [Data Query API](/docs/reference/data-query-api)
+- [Aggregate API](/docs/reference/aggregate-api)
+- [CASL query scoping](/docs/reference/casl-scoping)
+- [Schema introspection](/docs/reference/schema-introspection)

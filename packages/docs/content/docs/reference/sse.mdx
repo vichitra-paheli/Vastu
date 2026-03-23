@@ -1,0 +1,199 @@
+---
+title: SSE Infrastructure
+description: How Server-Sent Events are delivered from the event bus to the browser — the SSE endpoint, connection sharing, and the provider architecture.
+---
+
+**Purpose:** Deep reference for the SSE infrastructure layer — the server-side event bus, SSE endpoint, `SSEProvider`, and `useEventInvalidation`. This page complements the usage guide in [Events and Live Updates](/docs/reference/events).
+
+**Prerequisites:**
+- [Events and Live Updates](/docs/reference/events) — how to emit events and subscribe to them
+- Basic familiarity with Server-Sent Events (SSE)
+
+Sources:
+- `packages/shared/src/data-engine/events.ts` — server-side event bus
+- `packages/shell/src/app/api/workspace/events/route.ts` — SSE HTTP endpoint
+- `packages/workspace/src/hooks/useWorkspaceEvents.ts` — low-level SSE hook
+- `packages/workspace/src/providers/SSEProvider.tsx` — shared connection provider
+- `packages/workspace/src/hooks/useEventInvalidation.ts` — cache invalidation hook
+
+---
+
+## Architecture
+
+```
+Your API route
+  └── emitWorkspaceEvent(...)
+        └── WorkspaceEventBus (Node.js EventEmitter, in-process singleton)
+              └── SSE route handler (one listener per connected browser tab)
+                    └── EventSource (browser)
+                          └── SSEProvider (single connection per workspace mount)
+                                ├── useEventInvalidation (TanStack Query invalidation)
+                                └── useWorkspaceEvents subscribers (your components)
+```
+
+The SSEProvider holds a single `EventSource` and fans out events to all subscribers using a `Set` of callbacks. This means the workspace opens one HTTP connection per browser tab, not one per component.
+
+## Server-side event bus
+
+Source: `packages/shared/src/data-engine/events.ts`
+
+### `emitWorkspaceEvent`
+
+```typescript
+function emitWorkspaceEvent(
+  event: Omit<WorkspaceEvent, 'timestamp'> & { timestamp?: string },
+): void
+```
+
+Emit an event to all current subscribers. `timestamp` is added automatically if omitted. `tenantId` is required.
+
+```typescript
+import { emitWorkspaceEvent } from '@vastu/shared/data-engine';
+
+emitWorkspaceEvent({
+  type: 'record.created',
+  table: 'race',
+  recordId: race.id,
+  tenantId: session.user.tenantId,
+});
+```
+
+### `subscribe`
+
+```typescript
+function subscribe(
+  tenantId: string,
+  callback: (event: WorkspaceEvent) => void,
+): () => void
+```
+
+Subscribe to all workspace events for a specific tenant. Returns an unsubscribe function — call it when the SSE connection closes to prevent memory leaks. The SSE route handler calls this on connection open and the returned unsubscribe on connection close.
+
+### `subscriberCount`
+
+```typescript
+function subscriberCount(): number
+```
+
+Returns the number of active listeners on the bus. Useful for health checks and debugging. Each open browser tab increments this count by 1.
+
+### Bus configuration
+
+The bus allows up to 1024 listeners (`MAX_LISTENERS = 1024`). This is the maximum number of concurrent open browser tabs across all users. The limit can be raised by changing the constant in `events.ts` — no API change required.
+
+## SSE HTTP endpoint
+
+`GET /api/workspace/events`
+
+The route handler:
+
+1. Authenticates the session and resolves the tenant ID.
+2. Calls `subscribe(tenantId, handler)` to register a listener on the event bus.
+3. Opens a streaming `ReadableStream` response with `Content-Type: text/event-stream`.
+4. Serializes each event as a custom `workspace` SSE event: `event: workspace\ndata: <JSON>\n\n`.
+5. Calls `unsubscribe()` when the client disconnects (via stream cancellation).
+
+Events are filtered by tenant ID server-side — users only receive events for their own organization.
+
+## `useWorkspaceEvents` (low-level hook)
+
+Source: `packages/workspace/src/hooks/useWorkspaceEvents.ts`
+
+```typescript
+function useWorkspaceEvents(callback: WorkspaceEventCallback): SSEConnectionState
+
+type SSEConnectionState = 'connecting' | 'connected' | 'disconnected';
+type WorkspaceEventCallback = (event: WorkspaceEvent) => void;
+```
+
+You should not call this hook directly in most cases. Use `SSEProvider` + `useSSEContext` instead to share the connection.
+
+The hook:
+- Creates a new `EventSource` at `/api/workspace/events` on mount.
+- Listens for custom `workspace` events and deserializes the JSON payload.
+- Reconnects on error with exponential backoff: 1s → 2s → 4s → ... → 30s max. Backoff resets after a successful connection.
+- Tears down the `EventSource` and cancels retries on unmount.
+- Keeps the callback in a ref — you do not need to memoize the callback. Changing it between renders takes effect on the next event without reconnecting.
+
+## `SSEProvider`
+
+Source: `packages/workspace/src/providers/SSEProvider.tsx`
+
+`SSEProvider` wraps one `useWorkspaceEvents` call and exposes a pub/sub API via React context. Mount it once near the top of the workspace provider tree. The workspace framework does this for you — you do not need to add it yourself.
+
+```typescript
+interface SSEContextValue {
+  connectionState: SSEConnectionState;
+  subscribe: (handler: WorkspaceEventCallback) => () => void;
+}
+```
+
+### `useSSEContext`
+
+Access the shared SSE context from any client component inside `SSEProvider`:
+
+```typescript
+import { useSSEContext } from '@vastu/workspace';
+
+function StatusIndicator() {
+  const { connectionState, subscribe } = useSSEContext();
+
+  useEffect(() => {
+    const unsubscribe = subscribe((event) => {
+      // handle event
+    });
+    return unsubscribe;
+  }, [subscribe]);
+
+  return <span>{connectionState}</span>;
+}
+```
+
+The `subscribe` function reference is stable — safe to use as a `useEffect` dependency.
+
+## `useEventInvalidation`
+
+Source: `packages/workspace/src/hooks/useEventInvalidation.ts`
+
+```typescript
+function useEventInvalidation(): void
+```
+
+Side-effect-only hook. Subscribes to all workspace events via `SSEProvider` and invalidates TanStack Query caches based on event type. Already mounted once inside the workspace provider tree — you do not mount it yourself.
+
+Cache invalidation map:
+
+| Event type | `table` / `recordId` | Query keys invalidated |
+|-----------|----------------------|------------------------|
+| `record.created` | `table` set | `['records', table]` |
+| `record.updated` | `table` set | `['records', table]` |
+| `record.updated` | `table` + `recordId` set | `['records', table]`, `['record', table, recordId]` |
+| `record.deleted` | `table` set | `['records', table]` |
+| `record.deleted` | `table` + `recordId` set | `['records', table]`, `['record', table, recordId]` |
+| `view.saved` | — | `['views']` |
+| `config.changed` | — | `['pages']` |
+
+If you use these standard TanStack Query key shapes in your own queries, they will invalidate automatically when relevant events arrive.
+
+## Connection states
+
+| State | Meaning |
+|-------|---------|
+| `'connecting'` | Initial connection attempt is in progress |
+| `'connected'` | `EventSource` is open and receiving events |
+| `'disconnected'` | Connection closed; retry scheduled or exhausted |
+
+The workspace tray bar displays a status indicator driven by `connectionState` from `useSSEContext`.
+
+## Phase 2A limitation
+
+The current implementation uses a Node.js `EventEmitter` singleton inside the Next.js process. Events emitted on one request handler are delivered to SSE clients connected to the same process. In a multi-instance deployment, events emitted on process A will not reach clients connected to process B.
+
+Phase 3 will replace the in-process bus with Redis Pub/Sub. Call sites (`emitWorkspaceEvent(...)`) will not change.
+
+---
+
+**Related pages:**
+- [Events and Live Updates](/docs/reference/events)
+- [Data Query API](/docs/reference/data-query-api)
+- [Getting Started](/docs/guides/getting-started)

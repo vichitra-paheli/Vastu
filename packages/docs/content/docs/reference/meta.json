@@ -1,10 +1,21 @@
 {
   "title": "Reference",
   "pages": [
+    "---Setup---",
+    "cli",
+    "schema-composition",
+    "---Data Engine---",
+    "data-query-api",
+    "data-engine",
+    "aggregate-api",
+    "schema-introspection",
+    "casl-scoping",
+    "---Workspace---",
     "page-registry",
     "formatter-registry",
-    "data-query-api",
+    "navigation",
+    "---Real-time---",
     "events",
-    "schema-composition"
+    "sse"
   ]
 }

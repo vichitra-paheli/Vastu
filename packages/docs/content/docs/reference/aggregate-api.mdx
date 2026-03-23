@@ -1,0 +1,215 @@
+---
+title: Aggregate API
+description: Compute counts, sums, averages, and time-bucketed series from any Prisma model — no custom SQL required.
+---
+
+**Purpose:** Comprehensive reference for the aggregate endpoint and the `runAggregate` function — request parameters, response shapes, validation rules, and usage examples.
+
+**Prerequisites:**
+- [Data Query API](/docs/reference/data-query-api) — the sibling query endpoint
+- [Data Engine Internals](/docs/reference/data-engine) — filter types used in aggregate requests
+
+Sources:
+- `packages/shared/src/data-engine/aggregateTypes.ts`
+- `packages/shared/src/data-engine/aggregateBuilder.ts`
+- `packages/shell/src/app/api/workspace/data/aggregate/route.ts`
+
+---
+
+## HTTP endpoint
+
+`GET /api/workspace/data/aggregate`
+
+Returns computed aggregates from any Prisma model. All queries are automatically scoped to the current tenant and pass through CASL permission checks.
+
+## Request parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `table` | `string` | Yes | Prisma model name (case-sensitive). Validated against DMMF. |
+| `metric` | `AggregateFunction` | Yes | Aggregate function: `'count'`, `'sum'`, `'avg'`, `'min'`, `'max'` |
+| `field` | `string` | For non-count metrics | Column to aggregate. Required for `sum`, `avg`, `min`, `max`. Must be a numeric column for `sum` and `avg`. |
+| `groupBy` | `string` | No | Column to group results by. Produces one row per distinct value. |
+| `timeField` | `string` | No | DateTime column for time bucketing. Requires `timeResolution`. |
+| `timeResolution` | `TimeResolution` | When `timeField` set | Bucket granularity: `'hourly'`, `'daily'`, `'weekly'`, `'monthly'`, `'yearly'` |
+| `filters` | `FilterNode` | No | Filter tree applied before aggregating. See [FilterNode](/docs/reference/data-engine#filternode-type-system). |
+| `timeRange` | `{ start?: string; end?: string }` | No | ISO 8601 date range applied to `timeField`. |
+| `comparePrevious` | `boolean` | No | Also compute the prior period for delta display. |
+
+## Response shapes
+
+The response `kind` field discriminates between response types.
+
+### Simple aggregate (no `groupBy`, no `timeField`)
+
+```typescript
+interface SimpleAggregateResponse {
+  kind: 'simple';
+  data: AggregateDataPoint[];   // single entry: [{ label: 'total', value: N }]
+  total: number;
+  previous?: AggregateDataPoint[];   // when comparePrevious: true
+  previousTotal?: number;            // when comparePrevious: true
+}
+
+interface AggregateDataPoint {
+  label: string;   // group value, time bucket string, or 'total'
+  value: number;
+}
+```
+
+### Grouped aggregate (`groupBy` only, no `timeField`)
+
+Returns `SimpleAggregateResponse` with one `AggregateDataPoint` per distinct group value:
+
+```json
+{
+  "kind": "simple",
+  "data": [
+    { "label": "Completed", "value": 42 },
+    { "label": "DNF", "value": 8 }
+  ],
+  "total": 50
+}
+```
+
+### Time-bucketed aggregate (`timeField` + `timeResolution`)
+
+Returns `SimpleAggregateResponse` with one point per time bucket:
+
+```json
+{
+  "kind": "simple",
+  "data": [
+    { "label": "2024-01", "value": 15 },
+    { "label": "2024-02", "value": 22 }
+  ],
+  "total": 37
+}
+```
+
+Bucket label formats by resolution:
+
+| `timeResolution` | Label format | Example |
+|-----------------|--------------|---------|
+| `'hourly'` | `YYYY-MM-DD HH:mm` | `"2024-03-15 14:00"` |
+| `'daily'` | `YYYY-MM-DD` | `"2024-03-15"` |
+| `'weekly'` | `YYYY-WNN` | `"2024-W11"` |
+| `'monthly'` | `YYYY-MM` | `"2024-03"` |
+| `'yearly'` | `YYYY` | `"2024"` |
+
+### Multi-series aggregate (`groupBy` + `timeField`)
+
+```typescript
+interface MultiSeriesAggregateResponse {
+  kind: 'multi-series';
+  series: AggregateSeries[];
+}
+
+interface AggregateSeries {
+  name: string;               // the distinct groupBy value
+  data: AggregateDataPoint[]; // one point per time bucket
+}
+```
+
+Example — race points by team, monthly:
+
+```json
+{
+  "kind": "multi-series",
+  "series": [
+    {
+      "name": "Red Bull",
+      "data": [
+        { "label": "2024-01", "value": 95 },
+        { "label": "2024-02", "value": 110 }
+      ]
+    },
+    {
+      "name": "Mercedes",
+      "data": [
+        { "label": "2024-01", "value": 80 },
+        { "label": "2024-02", "value": 88 }
+      ]
+    }
+  ]
+}
+```
+
+## Period comparison (`comparePrevious`)
+
+When `comparePrevious: true`, the response includes `previous` and `previousTotal` fields alongside the current period data.
+
+The prior period is calculated as the same duration immediately before the current `timeRange`. For example, if `timeRange` covers January 2024 (31 days), the prior period covers December 2023 (the 31 days before January 1).
+
+```json
+{
+  "kind": "simple",
+  "data": [{ "label": "total", "value": 450 }],
+  "total": 450,
+  "previous": [{ "label": "total", "value": 380 }],
+  "previousTotal": 380
+}
+```
+
+`comparePrevious` requires `timeRange` with both `start` and `end`. It is only available for `SimpleAggregateResponse` (not multi-series).
+
+## Validation errors
+
+`AggregateValidationError` is thrown (and translated to HTTP 400) when:
+
+| Condition | Error message |
+|-----------|---------------|
+| `metric` is `sum` / `avg` / `min` / `max` and `field` is omitted | `"field" is required when metric is "sum"` |
+| `timeField` is set but `timeResolution` is omitted | `"timeResolution" is required when "timeField" is provided` |
+| `field` is not a numeric column for `sum` or `avg` | `"field" must be a numeric column for metric "sum", got type "String"` |
+| `groupBy` column does not exist on the model | `groupBy column "xyz" does not exist on table "Race"` |
+
+## Using `runAggregate` directly
+
+The aggregate builder is a server-side function you can call from your own API routes:
+
+```typescript
+import { runAggregate } from '@vastu/shared/data-engine';
+import type { AggregateRequest } from '@vastu/shared/data-engine';
+
+// Count races per status
+const req: AggregateRequest = {
+  table: 'Race',
+  metric: 'count',
+  groupBy: 'status',
+};
+
+const result = await runAggregate(prisma, req, { tenantId: session.user.tenantId });
+// result.kind === 'simple'
+// result.data === [{ label: 'Completed', value: 18 }, ...]
+```
+
+The third argument, `extraWhere`, is merged with the filter tree and applied before aggregating. Pass your tenant scoping clause here.
+
+```typescript
+export async function runAggregate(
+  prisma: PrismaClient,
+  req: AggregateRequest,
+  extraWhere?: PrismaWhere,
+): Promise<AggregateResponse>
+```
+
+## Implementation notes
+
+The aggregate builder selects the Prisma API based on the combination of parameters:
+
+| Scenario | Prisma API used |
+|----------|----------------|
+| No `groupBy`, no `timeField` | `model.count()` or `model.aggregate()` |
+| `groupBy` only | `model.groupBy()` |
+| `timeField` + `timeResolution` | Raw SQL via `$queryRawUnsafe` with `date_trunc` |
+| `groupBy` + `timeField` | Raw SQL with additional `GROUP BY` dimension |
+
+The raw SQL path is the only place in the data engine that uses `$queryRawUnsafe`. Table names are resolved from the DMMF (respecting `@@map` directives), and column identifiers are validated against a strict allowlist regex (`/^[a-zA-Z_][a-zA-Z0-9_]*$/`) before interpolation. Values are always parameterised.
+
+---
+
+**Related pages:**
+- [Data Query API](/docs/reference/data-query-api)
+- [Data Engine Internals](/docs/reference/data-engine)
+- [CASL query scoping](/docs/reference/casl-scoping)
