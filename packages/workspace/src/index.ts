@@ -21,6 +21,26 @@ export { ViewToolbar, ViewSelector } from './components/ViewToolbar';
 export type { ViewToolbarProps, ViewSelectorProps } from './components/ViewToolbar';
 export type { WorkspaceUser, WorkspaceShellProps } from './components/WorkspaceShell';
 
+// Formatter registry (US-205)
+export {
+  registerFormatter,
+  getFormatter,
+  getAllFormatters,
+  hasFormatter,
+  unregisterFormatter,
+  clearFormatterRegistry,
+  BUILTIN_FORMATTERS,
+  registerBuiltinFormatters,
+} from './formatters';
+export type {
+  FormatterDefinition,
+  FormatterMeta,
+  FormatterRenderContext,
+  FormatterSortContext,
+  FormatterExportContext,
+  FormatterFilterContext,
+} from './formatters';
+
 // Panel registry and built-in panels
 export {
   registerPanel,
