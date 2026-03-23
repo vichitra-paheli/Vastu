@@ -43,6 +43,9 @@ export async function GET() {
 
   const encoder = new TextEncoder();
 
+  let unsubscribe: (() => void) | undefined;
+  let heartbeatTimer: ReturnType<typeof setInterval> | undefined;
+
   const stream = new ReadableStream({
     start(controller) {
       // ── Helpers ───────────────────────────────────────────────────────────
@@ -67,16 +70,16 @@ export async function GET() {
       send('retry: 1000\n\n');
 
       // ── Subscribe to the in-process event bus ─────────────────────────────
-      const unsubscribe = subscribe(tenantId, sendEvent);
+      unsubscribe = subscribe(tenantId, sendEvent);
 
       // ── Heartbeat timer ───────────────────────────────────────────────────
-      const heartbeatTimer = setInterval(sendHeartbeat, HEARTBEAT_MS);
+      heartbeatTimer = setInterval(sendHeartbeat, HEARTBEAT_MS);
+    },
 
-      // ── Cleanup on stream cancel (client disconnect) ──────────────────────
-      return () => {
-        clearInterval(heartbeatTimer);
-        unsubscribe();
-      };
+    cancel() {
+      // Called by the runtime when the client disconnects.
+      if (heartbeatTimer) clearInterval(heartbeatTimer);
+      if (unsubscribe) unsubscribe();
     },
   });
 

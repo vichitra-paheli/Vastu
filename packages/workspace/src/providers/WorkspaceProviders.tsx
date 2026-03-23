@@ -5,6 +5,8 @@
  *
  * Provides:
  * - QueryClientProvider: TanStack Query for server data fetching and caching.
+ * - SSEProvider: shared SSE connection for real-time events.
+ * - useEventInvalidation: bridges SSE events → TanStack Query cache invalidation.
  *
  * Note: MantineProvider is intentionally excluded here. The root layout in
  * packages/shell already wraps the entire app (including /workspace) with
@@ -14,6 +16,7 @@
 
 import React, { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { SSEProvider } from './SSEProvider';
 import { useEventInvalidation } from '../hooks/useEventInvalidation';
 
 function createQueryClient(): QueryClient {
@@ -34,8 +37,8 @@ interface WorkspaceProvidersProps {
 }
 
 /**
- * Inner component that mounts inside the QueryClientProvider so that
- * useEventInvalidation can call useQueryClient().
+ * Inner component that mounts inside SSEProvider + QueryClientProvider so that
+ * useEventInvalidation can call both useQueryClient() and useSSEContext().
  */
 function WorkspaceInner({ children }: { children: React.ReactNode }) {
   // Mount the SSE → TanStack Query invalidation bridge once per workspace.
@@ -50,7 +53,9 @@ export function WorkspaceProviders({ children }: WorkspaceProvidersProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <WorkspaceInner>{children}</WorkspaceInner>
+      <SSEProvider>
+        <WorkspaceInner>{children}</WorkspaceInner>
+      </SSEProvider>
     </QueryClientProvider>
   );
 }
