@@ -52,6 +52,19 @@ export type {
   UseKeyboardShortcutsReturn,
 } from './hooks/useKeyboardShortcuts';
 
+// SSE live update hooks (US-207)
+export { useWorkspaceEvents } from './hooks/useWorkspaceEvents';
+export type { WorkspaceEventHandler } from './hooks/useWorkspaceEvents';
+export { useEventInvalidation } from './hooks/useEventInvalidation';
+
+// SSE connection store (US-207)
+export { useSSEConnectionStore } from './stores/sseConnectionStore';
+export type { SSEConnectionStatus } from './stores/sseConnectionStore';
+
+// SSE status indicator (US-207)
+export { SSEStatusIndicator } from './components/SSEStatusIndicator';
+export type { SSEStatusIndicatorProps } from './components/SSEStatusIndicator';
+
 // ShortcutsModal
 export { ShortcutsModal } from './components/ShortcutsModal/ShortcutsModal';
 export type { ShortcutsModalProps } from './components/ShortcutsModal/ShortcutsModal';
