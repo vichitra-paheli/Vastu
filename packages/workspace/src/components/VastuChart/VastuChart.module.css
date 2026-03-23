@@ -26,52 +26,6 @@
   min-height: 0;
 }
 
-/* ─── Toolbar (view as table toggle) ────────────────────────────────────── */
-
-.toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--v-space-2);
-  padding-bottom: var(--v-space-2);
-}
-
-.tableToggleBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--v-space-1);
-  padding: var(--v-space-1) var(--v-space-2);
-  font-family: var(--v-font-sans);
-  font-size: 12px; /* --v-text-sm */
-  font-weight: 400;
-  color: var(--v-text-secondary);
-  background: transparent;
-  border: 1px solid var(--v-border-default);
-  border-radius: var(--v-radius-md);
-  cursor: pointer;
-  transition:
-    color var(--v-duration-fast) var(--v-ease-default),
-    background-color var(--v-duration-fast) var(--v-ease-default),
-    border-color var(--v-duration-fast) var(--v-ease-default);
-}
-
-.tableToggleBtn:hover {
-  color: var(--v-text-primary);
-  background-color: var(--v-bg-tertiary);
-  border-color: var(--v-border-strong);
-}
-
-.tableToggleBtn:focus-visible {
-  outline: none;
-  box-shadow: var(--v-shadow-focus);
-}
-
-.tableToggleBtn[data-active='true'] {
-  color: var(--v-accent-primary);
-  border-color: var(--v-accent-primary);
-  background-color: var(--v-accent-primary-light);
-}
-
 /* ─── Config button ──────────────────────────────────────────────────────── */
 
 .configButton {

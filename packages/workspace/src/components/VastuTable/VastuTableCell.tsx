@@ -3,17 +3,16 @@
 /**
  * VastuTableCell — cell component with type-aware formatting.
  *
- * Rendering priority:
- *   1. col.renderCell — explicit custom renderer (highest priority)
- *   2. FormatterRegistry — check registered formatters by col.dataType
- *      (supports both built-in and app-registered custom display types)
- *   3. Built-in switch — legacy fallback for the original CellDataType values
- *      (text, number, date, boolean, badge, enum)
- *
- * Unknown display types fall back to text rendering with a console.warn.
+ * Renders cell content based on the column's dataType:
+ * - text/enum: TruncatedText
+ * - number: right-aligned tabular numerals
+ * - date: locale-formatted date string
+ * - boolean: checkmark / cross icon
+ * - badge: coloured pill
+ * - custom: delegates to renderCell
  *
  * Right-click triggers VastuContextMenu with copy/filter options.
- * Implements US-112 (AC-8, AC-9), extended by VASTU-2A-205c.
+ * Implements US-112 (AC-8, AC-9).
  */
 
 import React from 'react';
@@ -22,7 +21,6 @@ import { IconCheck, IconX } from '@tabler/icons-react';
 import { TruncatedText } from '../TruncatedText';
 import { t } from '../../lib/i18n';
 import type { VastuColumn, CellDataType } from './types';
-import { getFormatter } from '../../formatters/registry';
 import classes from './VastuTable.module.css';
 
 export interface VastuTableCellProps<TData extends Record<string, unknown>> {
@@ -66,38 +64,20 @@ function formatNumber(value: unknown): string {
 
 /**
  * Render the cell content based on dataType.
- *
- * Priority:
- *   1. col.renderCell — explicit custom renderer
- *   2. FormatterRegistry — registered formatter for the dataType
- *   3. Built-in legacy switch — handles original CellDataType values
- *   4. Text fallback with console.warn for unknown types
+ * When renderCell is provided on the column def, it takes precedence.
  */
 function renderCellContent<TData extends Record<string, unknown>>(
   value: unknown,
   row: TData,
   col: VastuColumn<TData>,
 ): React.ReactNode {
-  // Priority 1: explicit custom renderer always wins
   if (col.renderCell) {
     return col.renderCell(value, row);
   }
 
-  const dataType: string = col.dataType ?? 'text';
+  const dataType: CellDataType = col.dataType ?? 'text';
 
-  // Priority 2: check FormatterRegistry for registered display types.
-  // This handles both built-in formatters (text, number, badge, etc.) and
-  // any custom formatters registered by the consuming application.
-  const formatter = getFormatter(dataType);
-  if (formatter) {
-    return formatter.render({ value, row: row as Record<string, unknown> });
-  }
-
-  // Priority 3: legacy built-in switch for CellDataType values that were
-  // present before the formatter registry. These are preserved so that
-  // existing column definitions continue to work when builtins.ts is not
-  // imported (e.g. in isolated unit tests).
-  switch (dataType as CellDataType) {
+  switch (dataType) {
     case 'number': {
       return (
         <TruncatedText>
@@ -139,23 +119,8 @@ function renderCellContent<TData extends Record<string, unknown>>(
     }
 
     case 'enum':
-    case 'text': {
-      const strVal = value !== null && value !== undefined ? String(value) : '';
-      return (
-        <TruncatedText>
-          {strVal}
-        </TruncatedText>
-      );
-    }
-
+    case 'text':
     default: {
-      // Unknown display type — warn in development and fall back to text.
-      if (process.env.NODE_ENV !== 'production') {
-        console.warn(
-          `[VastuTableCell] Unknown display type "${dataType}". ` +
-            'Register a custom formatter via registerFormatter() or import the built-in formatters.',
-        );
-      }
       const strVal = value !== null && value !== undefined ? String(value) : '';
       return (
         <TruncatedText>
@@ -175,7 +140,7 @@ function VastuTableCellInner<TData extends Record<string, unknown>>({
   const col = cell.column.columnDef.meta as VastuColumn<TData> | undefined;
   const value = cell.getValue();
   const row = cell.row.original;
-  const dataType: string = col?.dataType ?? 'text';
+  const dataType: CellDataType = col?.dataType ?? 'text';
 
   const tdClasses = [
     classes.td,
