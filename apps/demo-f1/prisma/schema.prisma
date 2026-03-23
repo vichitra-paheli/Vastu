@@ -489,7 +489,6 @@ model Season {
   championConstructor Constructor? @relation("SeasonChampionConstructor", fields: [championConstructorId], references: [id])
   races               Race[]
 
-  @@index([year])
   @@map("seasons")
 }
 
@@ -606,7 +605,6 @@ model Driver {
   circuitLapRecords    Circuit[]          @relation("CircuitLapRecord")
   championSeasons      Season[]           @relation("SeasonChampionDriver")
 
-  @@index([abbreviation])
   @@index([nationality])
   @@map("drivers")
 }
@@ -639,7 +637,7 @@ model Race {
   /// Whether a sprint race was held this weekend.
   hasSprint      Boolean         @default(false) @map("has_sprint")
   /// Number of laps run under Safety Car.
-  safetyCatLaps  Int             @default(0) @map("safety_car_laps")
+  safetyCarLaps  Int             @default(0) @map("safety_car_laps")
   /// Number of Red Flag stoppages.
   redFlagCount   Int             @default(0) @map("red_flag_count")
   createdAt      DateTime        @default(now()) @map("created_at")
