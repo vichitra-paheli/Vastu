@@ -16,6 +16,29 @@ export type { SortingState, ColumnSizingState, ColumnOrderState, VisibilityState
 export type CellDataType = 'text' | 'number' | 'date' | 'boolean' | 'enum' | 'badge' | 'custom';
 
 /**
+ * NavigateTo config for a link column.
+ *
+ * When set on a column, clicking the cell opens the target page in a new
+ * Dockview panel with the specified record pre-selected.
+ *
+ * Use '{value}' in the recordId template — it is replaced with the cell value.
+ *
+ * Example:
+ *   navigateTo: { pageId: 'f1-driver-profile', recordId: '{value}' }
+ *
+ * Implements US-209 AC-1 (VASTU-2A-209).
+ */
+export interface NavigateTo {
+  /** The target page ID registered in PageRegistry or panel registry. */
+  pageId: string;
+  /**
+   * Record ID template string.
+   * '{value}' is replaced with the raw cell value at render time.
+   */
+  recordId: string;
+}
+
+/**
  * Column definition for VastuTable.
  *
  * Wraps TanStack Table column definition with Vastu-specific metadata.
@@ -36,6 +59,40 @@ export interface VastuColumn<TData extends Record<string, unknown>> {
   renderCell?: (value: unknown, row: TData) => React.ReactNode;
   /** Custom header renderer. */
   renderHeader?: (column: { id: string; label: string }) => React.ReactNode;
+  /**
+   * Custom display type name from the FormatterRegistry.
+   * When set, the registered formatter's render function is used instead of
+   * the built-in dataType switch. Falls back to text with a console.warn
+   * when the formatter is not found.
+   *
+   * Implements US-205 AC-2 (VASTU-2A-205).
+   */
+  displayType?: string;
+  /**
+   * Cross-page navigation config.
+   *
+   * When set, the cell renders as a clickable link that opens the target page.
+   * Left-click opens in the same area; ⌘/Ctrl+Click forces a new panel.
+   *
+   * The source page info (sourcePageId, sourcePageName) is passed from the
+   * parent template that renders the VastuTable.
+   *
+   * Implements US-209 AC-1 (VASTU-2A-209).
+   */
+  navigateTo?: NavigateTo;
+  /**
+   * Source page ID passed to LinkCell for breadcrumb back-links.
+   * Set by the parent template to identify where navigation originated.
+   *
+   * Implements US-209 AC-4 (VASTU-2A-209).
+   */
+  sourcePageId?: string;
+  /**
+   * Source page display name for the breadcrumb label.
+   *
+   * Implements US-209 AC-4 (VASTU-2A-209).
+   */
+  sourcePageName?: string;
   /** Minimum column width in pixels. Default: 80. */
   minWidth?: number;
   /** Maximum column width in pixels. */

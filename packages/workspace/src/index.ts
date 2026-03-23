@@ -31,6 +31,24 @@ export {
 } from './panels/registry';
 export { WelcomePanel, WELCOME_PANEL_TYPE_ID } from './panels/WelcomePanel';
 
+// Page registry (US-206, restored for US-209)
+export {
+  registerPage,
+  getAllPages,
+  getPageById,
+  mergeWithDynamic,
+  unregisterPage,
+  clearPageRegistry,
+} from './pages/registry';
+export type { PageDefinition, MergedPage, PageSection } from './pages/types';
+
+// Navigation (US-209)
+export type { NavigationIntent } from './navigation/types';
+export { useNavigateToPage } from './navigation/useNavigateToPage';
+export type { UseNavigateToPageReturn } from './navigation/useNavigateToPage';
+export { PanelBreadcrumb } from './components/DockviewHost/PanelBreadcrumb';
+export type { PanelBreadcrumbProps } from './components/DockviewHost/PanelBreadcrumb';
+
 // Stores
 export { useSidebarStore } from './stores/sidebarStore';
 export { usePanelStore, openPanelByTypeId } from './stores/panelStore';
@@ -38,6 +56,7 @@ export { useTrayStore } from './stores/trayStore';
 export type { TrayItem } from './stores/trayStore';
 export { useViewStore } from './stores/viewStore';
 export { useViewFilterStore, useViewFilters, useViewMode } from './stores/viewFilterStore';
+export { useNavigationStore, useNavigationIntent } from './stores/navigationStore';
 
 // Hooks
 export { usePanelPersistence, PANEL_LAYOUT_STORAGE_KEY } from './hooks/usePanelPersistence';
@@ -98,6 +117,7 @@ export type {
   VastuColumn,
   VastuTableProps,
   CellDataType,
+  NavigateTo,
   HeaderContextData,
   CellContextData,
   DragColumnState,

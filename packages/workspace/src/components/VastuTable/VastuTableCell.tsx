@@ -21,6 +21,7 @@ import { IconCheck, IconX } from '@tabler/icons-react';
 import { TruncatedText } from '../TruncatedText';
 import { t } from '../../lib/i18n';
 import type { VastuColumn, CellDataType } from './types';
+import { LinkCell } from './LinkCell';
 import classes from './VastuTable.module.css';
 
 export interface VastuTableCellProps<TData extends Record<string, unknown>> {
@@ -71,6 +72,19 @@ function renderCellContent<TData extends Record<string, unknown>>(
   row: TData,
   col: VastuColumn<TData>,
 ): React.ReactNode {
+  // navigateTo takes priority — renders a clickable link for cross-page navigation.
+  // AC-1, AC-2, AC-3: US-209
+  if (col.navigateTo) {
+    return (
+      <LinkCell
+        value={value}
+        navigateTo={col.navigateTo}
+        sourcePageId={col.sourcePageId}
+        sourcePageName={col.sourcePageName}
+      />
+    );
+  }
+
   if (col.renderCell) {
     return col.renderCell(value, row);
   }
