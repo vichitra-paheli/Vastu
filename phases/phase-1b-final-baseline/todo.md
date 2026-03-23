@@ -1,8 +1,9 @@
 # Phase 1B: Page Templates + Builder Mode -- Todo
 
 > Created: 2026-03-21
-> Status: IN PROGRESS
-> Total: 19 features + 1 infra task, 67 subtasks
+> Completed: 2026-03-23
+> Status: COMPLETE
+> Total: 19 features + 1 infra task, 67 subtasks (all done)
 > User stories: US-120 through US-138
 
 ---
@@ -62,11 +63,11 @@ Branch: `feature/VASTU-1B-120-mode-switch-rebuild`
 Package: workspace | Agent: design-engineer + dev-engineer | Est: ~390 lines
 Closes: #136
 
-- [ ] VASTU-1B-120a: Rewrite ModeSwitch component for Editor/Builder/Workflow modes (workspace, M) [no deps] -- #185
+- [x] VASTU-1B-120a: Rewrite ModeSwitch component for Editor/Builder/Workflow modes (workspace, M) [no deps] -- #185
   - Files: `ModeSwitch.tsx`, `ModeSwitch.module.css`, `types/panel.ts`
-- [ ] VASTU-1B-120b: Add panelModes to panelStore and wire to PanelTab (workspace, S) [deps: 120a] -- #186
+- [x] VASTU-1B-120b: Add panelModes to panelStore and wire to PanelTab (workspace, S) [deps: 120a] -- #186
   - Files: `stores/panelStore.ts`, `DockviewHost/PanelTab.tsx`
-- [ ] VASTU-1B-120c: ModeSwitch unit and component tests (workspace, M) [deps: 120a, 120b] -- #187
+- [x] VASTU-1B-120c: ModeSwitch unit and component tests (workspace, M) [deps: 120a, 120b] -- #187
   - Files: `ModeSwitch/__tests__/ModeSwitch.test.tsx`
 
 ---
@@ -76,13 +77,13 @@ Branch: `feature/VASTU-1B-121-view-engine-fixes`
 Package: workspace, shared | Agent: dev-engineer + design-engineer | Est: ~240 lines
 Closes: #124, #125, #126, #141, #142, #143, #144
 
-- [ ] VASTU-1B-121a: Fix ViewState shape and viewStore saveView/resetView (shared+workspace, S) [no deps] -- #188
+- [x] VASTU-1B-121a: Fix ViewState shape and viewStore saveView/resetView (shared+workspace, S) [no deps] -- #188
   - Files: `shared/types/view.ts`, `stores/viewStore.ts`
-- [ ] VASTU-1B-121b: Fix ViewToolbar wiring, modified indicator, reset button (workspace, S) [deps: 121a] -- #189
+- [x] VASTU-1B-121b: Fix ViewToolbar wiring, modified indicator, reset button (workspace, S) [deps: 121a] -- #189
   - Files: `ViewToolbar/ViewToolbar.tsx`, `ViewToolbar.module.css`, `WorkspaceShell.tsx`
-- [ ] VASTU-1B-121c: Add view delete confirmation dialog in ViewSelector (workspace, S) [deps: 121a] -- #190
+- [x] VASTU-1B-121c: Add view delete confirmation dialog in ViewSelector (workspace, S) [deps: 121a] -- #190
   - Files: `ViewToolbar/ViewSelector.tsx`
-- [ ] VASTU-1B-121d: View engine fix tests (workspace, M) [deps: 121a, 121b, 121c] -- #191
+- [x] VASTU-1B-121d: View engine fix tests (workspace, M) [deps: 121a, 121b, 121c] -- #191
   - Files: `stores/__tests__/viewStore.test.ts`, `ViewToolbar/__tests__/ViewToolbar.test.tsx`
 
 ---
@@ -92,11 +93,11 @@ Branch: `feature/VASTU-1B-122-filter-system-fixes`
 Package: workspace, shared | Agent: dev-engineer | Est: ~145 lines
 Closes: #123, #138, #160
 
-- [ ] VASTU-1B-122a: Align FilterNode type to Patterns Library spec + runtime normalization (shared+workspace, M) [no deps] -- #192
+- [x] VASTU-1B-122a: Align FilterNode type to Patterns Library spec + runtime normalization (shared+workspace, M) [no deps] -- #192
   - Files: `shared/types/view.ts`, `stores/viewStore.ts`, `FilterSystem/types.ts`
-- [ ] VASTU-1B-122b: Fix FilterBar mode propagation and context menu include/exclude (workspace, S) [deps: 122a] -- #193
+- [x] VASTU-1B-122b: Fix FilterBar mode propagation and context menu include/exclude (workspace, S) [deps: 122a] -- #193
   - Files: `FilterSystem/FilterBar.tsx`, `VastuTable/VastuTable.tsx`
-- [ ] VASTU-1B-122c: Update all filter tests for corrected FilterNode schema (workspace, M) [deps: 122a, 122b] -- #194
+- [x] VASTU-1B-122c: Update all filter tests for corrected FilterNode schema (workspace, M) [deps: 122a, 122b] -- #194
   - Files: `FilterSystem/__tests__/FilterBar.test.tsx`, `FilterSystem/__tests__/FilterPill.test.tsx`, `stores/__tests__/viewStore.test.ts`
 
 ---
@@ -106,7 +107,7 @@ Branch: `feature/VASTU-1B-123-context-menu-fixes`
 Package: workspace | Agent: dev-engineer | Est: ~30 lines
 Closes: #139, #140
 
-- [ ] VASTU-1B-123a: Verify and fix context menu ARIA role and TruncatedText usage (workspace, S) [no deps] -- #195
+- [x] VASTU-1B-123a: Verify and fix context menu ARIA role and TruncatedText usage (workspace, S) [no deps] -- #195
   - Files: `ContextMenu/ContextMenu.tsx`, `ContextMenu/ContextMenuItem.tsx`, `ContextMenu/__tests__/ContextMenu.test.tsx`
 
 ---
@@ -116,13 +117,13 @@ Branch: `feature/VASTU-1B-124-design-system-sweep`
 Package: workspace | Agent: design-engineer | Est: ~265 lines
 Closes: #114, #115, #161
 
-- [ ] VASTU-1B-124a: Create EmptyState shared component (workspace, M) [no deps] -- #196
+- [x] VASTU-1B-124a: Create EmptyState shared component (workspace, M) [no deps] -- #196
   - Files: `EmptyState/EmptyState.tsx`, `EmptyState/EmptyState.module.css`, `EmptyState/__tests__/EmptyState.test.tsx`
-- [ ] VASTU-1B-124b: Fix SidebarUserAvatar token and SidebarItem TruncatedText (workspace, S) [no deps, parallel with 124a] -- #197
+- [x] VASTU-1B-124b: Fix SidebarUserAvatar token and SidebarItem TruncatedText (workspace, S) [no deps, parallel with 124a] -- #197
   - Files: `SidebarNav/SidebarUserAvatar.tsx`, `SidebarNav/SidebarItem.tsx`
-- [ ] VASTU-1B-124c: Replace VastuTable inline empty state with EmptyState component (workspace, S) [deps: 124a] -- #198
+- [x] VASTU-1B-124c: Replace VastuTable inline empty state with EmptyState component (workspace, S) [deps: 124a] -- #198
   - Files: `VastuTable/VastuTable.tsx`
-- [ ] VASTU-1B-124d: Design system audit: hex values, font weights, aria-labels (workspace, S) [no deps, parallel with 124a] -- #199
+- [x] VASTU-1B-124d: Design system audit: hex values, font weights, aria-labels (workspace, S) [no deps, parallel with 124a] -- #199
   - Files: All `.tsx` and `.css` files in workspace (audit + fix)
 
 ---
@@ -131,11 +132,11 @@ Closes: #114, #115, #161
 Branch: `feature/VASTU-1B-138-confirm-dialog` (branch from main AFTER Wave 0 merges)
 Package: workspace | Agent: design-engineer + dev-engineer | Est: ~320 lines
 
-- [ ] VASTU-1B-138a: Create ConfirmDialog component with three variants (workspace, M) [no deps] -- #200
+- [x] VASTU-1B-138a: Create ConfirmDialog component with three variants (workspace, M) [no deps] -- #200
   - Files: `ConfirmDialog/ConfirmDialog.tsx`, `ConfirmDialog/ConfirmDialog.module.css`
-- [ ] VASTU-1B-138b: Create useConfirmDialog hook for imperative usage (workspace, M) [deps: 138a] -- #201
+- [x] VASTU-1B-138b: Create useConfirmDialog hook for imperative usage (workspace, M) [deps: 138a] -- #201
   - Files: `ConfirmDialog/useConfirmDialog.ts`, `WorkspaceShell.tsx`
-- [ ] VASTU-1B-138c: ConfirmDialog tests (workspace, M) [deps: 138a, 138b] -- #202
+- [x] VASTU-1B-138c: ConfirmDialog tests (workspace, M) [deps: 138a, 138b] -- #202
   - Files: `ConfirmDialog/__tests__/ConfirmDialog.test.tsx`
 
 ---
@@ -144,15 +145,15 @@ Package: workspace | Agent: design-engineer + dev-engineer | Est: ~320 lines
 Branch: `feature/VASTU-1B-135-vastu-chart` (branch from main AFTER Wave 0 merges)
 Package: workspace | Agent: dev-engineer + design-engineer | Est: ~1370 lines
 
-- [ ] VASTU-1B-135a: VastuChart types, color palette, and base component setup (workspace, M) [no deps] -- #203
+- [x] VASTU-1B-135a: VastuChart types, color palette, and base component setup (workspace, M) [no deps] -- #203
   - Files: `VastuChart/types.ts`, `VastuChart/chartColors.ts`, `VastuChart/VastuChart.tsx`, `VastuChart/VastuChart.module.css`, `package.json`
-- [ ] VASTU-1B-135b: VastuChart chart type renderers (line, bar, area, donut, sparkline, scatter) (workspace, L) [deps: 135a] -- #204
+- [x] VASTU-1B-135b: VastuChart chart type renderers (line, bar, area, donut, sparkline, scatter) (workspace, L) [deps: 135a] -- #204
   - Files: `VastuChart/VastuChart.tsx`
-- [ ] VASTU-1B-135c: ChartTooltip and ChartLegend custom components (workspace, M) [deps: 135a] -- #205
+- [x] VASTU-1B-135c: ChartTooltip and ChartLegend custom components (workspace, M) [deps: 135a] -- #205
   - Files: `VastuChart/ChartTooltip.tsx`, `VastuChart/ChartLegend.tsx`
-- [ ] VASTU-1B-135d: ChartConfigPanel collapsible configuration (workspace, L) [deps: 135a] -- #206
+- [x] VASTU-1B-135d: ChartConfigPanel collapsible configuration (workspace, L) [deps: 135a] -- #206
   - Files: `VastuChart/ChartConfigPanel.tsx`
-- [ ] VASTU-1B-135e: VastuChart tests (workspace, L) [deps: 135b, 135c, 135d] -- #207
+- [x] VASTU-1B-135e: VastuChart tests (workspace, L) [deps: 135b, 135c, 135d] -- #207
   - Files: `VastuChart/__tests__/VastuChart.test.tsx`, `VastuChart/__tests__/ChartLegend.test.tsx`
 
 ---
@@ -162,11 +163,11 @@ Branch: `feature/VASTU-1B-125-command-palette` (branch from main AFTER Wave 0 me
 Package: workspace | Agent: design-engineer + dev-engineer | Est: ~530 lines
 Continues: #93
 
-- [ ] VASTU-1B-125a: CommandPalette with Mantine Spotlight integration (workspace, M) [no deps] -- #208
+- [x] VASTU-1B-125a: CommandPalette with Mantine Spotlight integration (workspace, M) [no deps] -- #208
   - Files: `CommandPalette/CommandPalette.tsx`, `CommandPalette/CommandPalette.module.css`, `WorkspaceShell.tsx`, `package.json`
-- [ ] VASTU-1B-125b: CommandPaletteResult rendering and useCommandPaletteActions hook (workspace, M) [deps: 125a] -- #209
+- [x] VASTU-1B-125b: CommandPaletteResult rendering and useCommandPaletteActions hook (workspace, M) [deps: 125a] -- #209
   - Files: `CommandPalette/CommandPaletteResult.tsx`, `hooks/useCommandPaletteActions.ts`, `TrayBar/TrayBar.tsx`
-- [ ] VASTU-1B-125c: CommandPalette keyboard navigation and tests (workspace, M) [deps: 125a, 125b] -- #210
+- [x] VASTU-1B-125c: CommandPalette keyboard navigation and tests (workspace, M) [deps: 125a, 125b] -- #210
   - Files: `CommandPalette/__tests__/CommandPalette.test.tsx`
 
 ---
@@ -176,13 +177,13 @@ Branch: `feature/VASTU-1B-126-keyboard-shortcuts` (branch from main AFTER Wave 0
 Package: workspace | Agent: dev-engineer + design-engineer | Est: ~650 lines
 Continues: #94
 
-- [ ] VASTU-1B-126a: Create useKeyboardShortcuts hook with global registrations (workspace, M) [no deps] -- #211
+- [x] VASTU-1B-126a: Create useKeyboardShortcuts hook with global registrations (workspace, M) [no deps] -- #211
   - Files: `hooks/useKeyboardShortcuts.ts`, `WorkspaceShell.tsx`
-- [ ] VASTU-1B-126b: Create ShortcutsModal reference overlay (workspace, M) [deps: 126a] -- #212
+- [x] VASTU-1B-126b: Create ShortcutsModal reference overlay (workspace, M) [deps: 126a] -- #212
   - Files: `ShortcutsModal/ShortcutsModal.tsx`, `ShortcutsModal/ShortcutsModal.module.css`
-- [ ] VASTU-1B-126c: Table-specific keyboard shortcuts and focus management (workspace, S) [deps: 126a] -- #213
+- [x] VASTU-1B-126c: Table-specific keyboard shortcuts and focus management (workspace, S) [deps: 126a] -- #213
   - Files: `VastuTable/VastuTable.tsx`
-- [ ] VASTU-1B-126d: Keyboard shortcuts tests (workspace, M) [deps: 126a, 126b, 126c] -- #214
+- [x] VASTU-1B-126d: Keyboard shortcuts tests (workspace, M) [deps: 126a, 126b, 126c] -- #214
   - Files: `hooks/__tests__/useKeyboardShortcuts.test.ts`, `ShortcutsModal/__tests__/ShortcutsModal.test.tsx`
 
 ---
@@ -191,19 +192,19 @@ Continues: #94
 Branch: `feature/VASTU-1B-128-record-drawer` (branch from main AFTER Wave 1 merges)
 Package: workspace, shell | Agent: dev-engineer + design-engineer | Est: ~1540 lines
 
-- [ ] VASTU-1B-128a: Create drawerStore and RecordDrawer shell with slide animation (workspace, M) [no deps] -- #215
+- [x] VASTU-1B-128a: Create drawerStore and RecordDrawer shell with slide animation (workspace, M) [no deps] -- #215
   - Files: `stores/drawerStore.ts`, `RecordDrawer/RecordDrawer.tsx`, `RecordDrawer/RecordDrawer.module.css`
-- [ ] VASTU-1B-128b: RecordDrawerHeader with navigation and actions (workspace, M) [deps: 128a] -- #216
+- [x] VASTU-1B-128b: RecordDrawerHeader with navigation and actions (workspace, M) [deps: 128a] -- #216
   - Files: `RecordDrawer/RecordDrawerHeader.tsx`
-- [ ] VASTU-1B-128c: RecordDrawer tabs: Details and Items + VastuTabs wrapper (workspace, L) [deps: 128a] -- #217
+- [x] VASTU-1B-128c: RecordDrawer tabs: Details and Items + VastuTabs wrapper (workspace, L) [deps: 128a] -- #217
   - Files: `RecordDrawer/tabs/DetailsTab.tsx`, `RecordDrawer/tabs/ItemsTab.tsx`, `VastuTabs/VastuTabs.tsx`
-- [ ] VASTU-1B-128d: RecordDrawer tabs: History, Notes, Permissions (workspace, L) [deps: 128a] -- #218
+- [x] VASTU-1B-128d: RecordDrawer tabs: History, Notes, Permissions (workspace, L) [deps: 128a] -- #218
   - Files: `RecordDrawer/tabs/HistoryTab.tsx`, `RecordDrawer/tabs/NotesTab.tsx`, `RecordDrawer/tabs/PermissionsTab.tsx`
-- [ ] VASTU-1B-128e: RecordDrawerFooter and drawer-to-panel promotion (workspace, M) [deps: 128a, 128b] -- #219
+- [x] VASTU-1B-128e: RecordDrawerFooter and drawer-to-panel promotion (workspace, M) [deps: 128a, 128b] -- #219
   - Files: `RecordDrawer/RecordDrawerFooter.tsx`, `hooks/useDrawerToPanel.ts`
-- [ ] VASTU-1B-128f: Record API routes (CRUD, history, notes) (shell, M) [no deps, parallel with 128a] -- #220
+- [x] VASTU-1B-128f: Record API routes (CRUD, history, notes) (shell, M) [no deps, parallel with 128a] -- #220
   - Files: `api/workspace/records/[id]/route.ts`, `api/workspace/records/[id]/history/route.ts`, `api/workspace/records/[id]/notes/route.ts`
-- [ ] VASTU-1B-128g: RecordDrawer tests (workspace, L) [deps: 128b, 128c, 128d, 128e] -- #221
+- [x] VASTU-1B-128g: RecordDrawer tests (workspace, L) [deps: 128b, 128c, 128d, 128e] -- #221
   - Files: `RecordDrawer/__tests__/RecordDrawer.test.tsx`, `VastuTabs/__tests__/VastuTabs.test.tsx`
 
 ---
@@ -212,7 +213,7 @@ Package: workspace, shell | Agent: dev-engineer + design-engineer | Est: ~1540 l
 Branch: `feature/VASTU-1B-INFRA-template-infra` (branch from main AFTER Wave 0 merges, can start with Wave 1)
 Package: workspace, shared, shell | Agent: dev-engineer | Est: ~410 lines
 
-- [ ] VASTU-1B-INFRA: Template types, registry, useTemplateConfig hook, TemplateSkeleton, PageConfiguration migration, API route
+- [x] VASTU-1B-INFRA: Template types, registry, useTemplateConfig hook, TemplateSkeleton, PageConfiguration migration, API route
   - Files: `templates/types.ts`, `templates/registry.ts`, `templates/useTemplateConfig.ts`, `templates/TemplateSkeleton.tsx`, `schema.prisma`, `shared/types/page.ts`, `api/workspace/pages/[id]/config/route.ts`
 
 ---
@@ -221,11 +222,11 @@ Package: workspace, shared, shell | Agent: dev-engineer | Est: ~410 lines
 Branch: `feature/VASTU-1B-129-table-listing` (branch from main AFTER INFRA + US-128 merge)
 Package: workspace | Agent: dev-engineer + design-engineer | Est: ~620 lines
 
-- [ ] VASTU-1B-129a: TableListingTemplate with VastuTable integration and panel registration (workspace, L) [no deps] -- #223
+- [x] VASTU-1B-129a: TableListingTemplate with VastuTable integration and panel registration (workspace, L) [no deps] -- #223
   - Files: `templates/TableListing/TableListingTemplate.tsx`, `TableListingTemplate.module.css`, `panels/index.ts`
-- [ ] VASTU-1B-129b: KPISummaryStrip component + shared KPICard (workspace, M) [no deps, parallel with 129a] -- #224
+- [x] VASTU-1B-129b: KPISummaryStrip component + shared KPICard (workspace, M) [no deps, parallel with 129a] -- #224
   - Files: `templates/TableListing/KPISummaryStrip.tsx`, `components/KPICard/KPICard.tsx`
-- [ ] VASTU-1B-129c: TableListingTemplate tests (workspace, M) [deps: 129a, 129b] -- #225
+- [x] VASTU-1B-129c: TableListingTemplate tests (workspace, M) [deps: 129a, 129b] -- #225
   - Files: `templates/TableListing/__tests__/TableListingTemplate.test.tsx`
 
 ---
@@ -234,11 +235,11 @@ Package: workspace | Agent: dev-engineer + design-engineer | Est: ~620 lines
 Branch: `feature/VASTU-1B-130-summary-dashboard` (branch from main AFTER INFRA + US-135 merge)
 Package: workspace | Agent: design-engineer + dev-engineer | Est: ~850 lines
 
-- [ ] VASTU-1B-130a: SummaryDashboardTemplate with time range and KPI cards (workspace, L) [no deps] -- #226
+- [x] VASTU-1B-130a: SummaryDashboardTemplate with time range and KPI cards (workspace, L) [no deps] -- #226
   - Files: `templates/SummaryDashboard/SummaryDashboardTemplate.tsx`, `.module.css`, `TimeRangeControl.tsx`, `KPICardRow.tsx`, `panels/index.ts`
-- [ ] VASTU-1B-130b: ChartRow and MiniSummaryTable (workspace, M) [deps: 130a] -- #227
+- [x] VASTU-1B-130b: ChartRow and MiniSummaryTable (workspace, M) [deps: 130a] -- #227
   - Files: `templates/SummaryDashboard/ChartRow.tsx`, `MiniSummaryTable.tsx`
-- [ ] VASTU-1B-130c: SummaryDashboardTemplate tests (workspace, M) [deps: 130a, 130b] -- #228
+- [x] VASTU-1B-130c: SummaryDashboardTemplate tests (workspace, M) [deps: 130a, 130b] -- #228
   - Files: `templates/SummaryDashboard/__tests__/SummaryDashboardTemplate.test.tsx`
 
 ---
@@ -247,11 +248,11 @@ Package: workspace | Agent: design-engineer + dev-engineer | Est: ~850 lines
 Branch: `feature/VASTU-1B-131-multi-tab-detail` (branch from main AFTER INFRA + US-128 merge)
 Package: workspace | Agent: design-engineer + dev-engineer | Est: ~900 lines
 
-- [ ] VASTU-1B-131a: MultiTabDetailTemplate with EntityHeader and VastuTabs (workspace, L) [no deps] -- #229
+- [x] VASTU-1B-131a: MultiTabDetailTemplate with EntityHeader and VastuTabs (workspace, L) [no deps] -- #229
   - Files: `templates/MultiTabDetail/MultiTabDetailTemplate.tsx`, `.module.css`, `EntityHeader.tsx`, `panels/index.ts`
-- [ ] VASTU-1B-131b: MultiTabDetail tab content: Overview, sub-tables, Activity (workspace, M) [deps: 131a] -- #230
+- [x] VASTU-1B-131b: MultiTabDetail tab content: Overview, sub-tables, Activity (workspace, M) [deps: 131a] -- #230
   - Files: `templates/MultiTabDetail/tabs/OverviewTab.tsx`
-- [ ] VASTU-1B-131c: MultiTabDetailTemplate tests (workspace, M) [deps: 131a, 131b] -- #231
+- [x] VASTU-1B-131c: MultiTabDetailTemplate tests (workspace, M) [deps: 131a, 131b] -- #231
   - Files: `templates/MultiTabDetail/__tests__/MultiTabDetailTemplate.test.tsx`
 
 ---
@@ -260,11 +261,11 @@ Package: workspace | Agent: design-engineer + dev-engineer | Est: ~900 lines
 Branch: `feature/VASTU-1B-132-data-explorer` (branch from main AFTER INFRA + US-135 merge)
 Package: workspace | Agent: dev-engineer | Est: ~700 lines
 
-- [ ] VASTU-1B-132a: DataExplorerTemplate with controls and chart (workspace, L) [no deps] -- #232
+- [x] VASTU-1B-132a: DataExplorerTemplate with controls and chart (workspace, L) [no deps] -- #232
   - Files: `templates/DataExplorer/DataExplorerTemplate.tsx`, `.module.css`, `ExplorerControls.tsx`, `ChartTypeToggle.tsx`, `panels/index.ts`
-- [ ] VASTU-1B-132b: Data explorer companion table and export (workspace, M) [deps: 132a] -- #233
+- [x] VASTU-1B-132b: Data explorer companion table and export (workspace, M) [deps: 132a] -- #233
   - Files: `templates/DataExplorer/DataExplorerTemplate.tsx`
-- [ ] VASTU-1B-132c: DataExplorerTemplate tests (workspace, M) [deps: 132a, 132b] -- #234
+- [x] VASTU-1B-132c: DataExplorerTemplate tests (workspace, M) [deps: 132a, 132b] -- #234
   - Files: `templates/DataExplorer/__tests__/DataExplorerTemplate.test.tsx`
 
 ---
@@ -273,13 +274,13 @@ Package: workspace | Agent: dev-engineer | Est: ~700 lines
 Branch: `feature/VASTU-1B-133-form-page` (branch from main AFTER INFRA merges)
 Package: workspace | Agent: design-engineer + dev-engineer | Est: ~1000 lines
 
-- [ ] VASTU-1B-133a: FormPageTemplate single-page mode with validation (workspace, L) [no deps] -- #235
+- [x] VASTU-1B-133a: FormPageTemplate single-page mode with validation (workspace, L) [no deps] -- #235
   - Files: `templates/FormPage/FormPageTemplate.tsx`, `FormPageTemplate.module.css`, `panels/index.ts`
-- [ ] VASTU-1B-133b: FormWizard multi-step mode with stepper (workspace, L) [deps: 133a] -- #236
+- [x] VASTU-1B-133b: FormWizard multi-step mode with stepper (workspace, L) [deps: 133a] -- #236
   - Files: `templates/FormPage/FormWizard.tsx`, `templates/FormPage/SearchOrCreate.tsx`
-- [ ] VASTU-1B-133c: Form auto-save draft and dirty state detection (workspace, M) [deps: 133a] -- #237
+- [x] VASTU-1B-133c: Form auto-save draft and dirty state detection (workspace, M) [deps: 133a] -- #237
   - Files: `templates/FormPage/useFormDraft.ts`
-- [ ] VASTU-1B-133d: FormPageTemplate tests (workspace, M) [deps: 133a, 133b, 133c] -- #238
+- [x] VASTU-1B-133d: FormPageTemplate tests (workspace, M) [deps: 133a, 133b, 133c] -- #238
   - Files: `templates/FormPage/__tests__/FormPageTemplate.test.tsx`
 
 ---
@@ -288,11 +289,11 @@ Package: workspace | Agent: design-engineer + dev-engineer | Est: ~1000 lines
 Branch: `feature/VASTU-1B-134-timeline-activity` (branch from main AFTER INFRA merges)
 Package: workspace | Agent: design-engineer + dev-engineer | Est: ~760 lines
 
-- [ ] VASTU-1B-134a: TimelineActivityTemplate with event stream and date grouping (workspace, L) [no deps] -- #239
+- [x] VASTU-1B-134a: TimelineActivityTemplate with event stream and date grouping (workspace, L) [no deps] -- #239
   - Files: `templates/TimelineActivity/TimelineActivityTemplate.tsx`, `.module.css`, `TimelineEvent.tsx`, `DateGroupHeader.tsx`, `panels/index.ts`
-- [ ] VASTU-1B-134b: TimelineFilters and view toolbar integration (workspace, M) [deps: 134a] -- #240
+- [x] VASTU-1B-134b: TimelineFilters and view toolbar integration (workspace, M) [deps: 134a] -- #240
   - Files: `templates/TimelineActivity/TimelineFilters.tsx`
-- [ ] VASTU-1B-134c: TimelineActivityTemplate tests (workspace, M) [deps: 134a, 134b] -- #241
+- [x] VASTU-1B-134c: TimelineActivityTemplate tests (workspace, M) [deps: 134a, 134b] -- #241
   - Files: `templates/TimelineActivity/__tests__/TimelineActivityTemplate.test.tsx`
 
 ---
@@ -301,15 +302,15 @@ Package: workspace | Agent: design-engineer + dev-engineer | Est: ~760 lines
 Branch: `feature/VASTU-1B-136-builder-mode` (branch from main AFTER US-120 + INFRA merge)
 Package: workspace, shared, shell | Agent: dev-engineer + design-engineer | Est: ~2310 lines
 
-- [ ] VASTU-1B-136a: BuilderPanel shell, warning header, section navigation, and builderStore (workspace, M) [no deps] -- #242
+- [x] VASTU-1B-136a: BuilderPanel shell, warning header, section navigation, and builderStore (workspace, M) [no deps] -- #242
   - Files: `BuilderPanel/BuilderPanel.tsx`, `.module.css`, `BuilderWarningHeader.tsx`, `stores/builderStore.ts`
-- [ ] VASTU-1B-136b: Builder DataSource and FieldConfig sections (workspace, L) [deps: 136a] -- #243
+- [x] VASTU-1B-136b: Builder DataSource and FieldConfig sections (workspace, L) [deps: 136a] -- #243
   - Files: `BuilderPanel/sections/DataSourceSection.tsx`, `FieldConfigSection.tsx`
-- [ ] VASTU-1B-136c: Builder Sections, DefaultView, Permissions, and Hooks sections (workspace, L) [deps: 136a] -- #244
+- [x] VASTU-1B-136c: Builder Sections, DefaultView, Permissions, and Hooks sections (workspace, L) [deps: 136a] -- #244
   - Files: `BuilderPanel/sections/SectionsLayoutSection.tsx`, `DefaultViewSection.tsx`, `PermissionsSection.tsx`, `HooksSection.tsx`
-- [ ] VASTU-1B-136d: Builder PageMetadata, EphemeralToggle sections and API route (workspace+shell, M) [deps: 136a] -- #245
+- [x] VASTU-1B-136d: Builder PageMetadata, EphemeralToggle sections and API route (workspace+shell, M) [deps: 136a] -- #245
   - Files: `BuilderPanel/sections/PageMetadataSection.tsx`, `EphemeralToggleSection.tsx`, `api/workspace/pages/[id]/config/route.ts`
-- [ ] VASTU-1B-136e: BuilderPanel tests (workspace, L) [deps: 136a, 136b, 136c, 136d] -- #246
+- [x] VASTU-1B-136e: BuilderPanel tests (workspace, L) [deps: 136a, 136b, 136c, 136d] -- #246
   - Files: `BuilderPanel/__tests__/BuilderPanel.test.tsx`
 
 ---
@@ -318,13 +319,13 @@ Package: workspace, shared, shell | Agent: dev-engineer + design-engineer | Est:
 Branch: `feature/VASTU-1B-137-dashboard-view` (branch from main AFTER INFRA + US-135 merge)
 Package: workspace | Agent: design-engineer + dev-engineer | Est: ~2060 lines
 
-- [ ] VASTU-1B-137a: DashboardTemplate with greeting header and card grid (workspace, L) [no deps] -- #247
+- [x] VASTU-1B-137a: DashboardTemplate with greeting header and card grid (workspace, L) [no deps] -- #247
   - Files: `templates/Dashboard/DashboardTemplate.tsx`, `.module.css`, `DashboardGreeting.tsx`, `DashboardCard.tsx`, `stores/dashboardStore.ts`, `panels/index.ts`
-- [ ] VASTU-1B-137b: Dashboard card types (KPI, Chart, Table, Pipeline, QuickActions, Alert) (workspace, L) [deps: 137a] -- #248
+- [x] VASTU-1B-137b: Dashboard card types (KPI, Chart, Table, Pipeline, QuickActions, Alert) (workspace, L) [deps: 137a] -- #248
   - Files: `templates/Dashboard/cards/KPICard.tsx`, `ChartCard.tsx`, `TableCard.tsx`, `PipelineCard.tsx`, `QuickActionsCard.tsx`, `AlertCard.tsx`
-- [ ] VASTU-1B-137c: Dashboard EditGridMode and AddCardDialog (workspace, L) [deps: 137a, 137b] -- #249
+- [x] VASTU-1B-137c: Dashboard EditGridMode and AddCardDialog (workspace, L) [deps: 137a, 137b] -- #249
   - Files: `templates/Dashboard/EditGridMode.tsx`, `AddCardDialog.tsx`
-- [ ] VASTU-1B-137d: PinToDashboardDialog and dashboard tests (workspace, L) [deps: 137a, 137b, 137c] -- #250
+- [x] VASTU-1B-137d: PinToDashboardDialog and dashboard tests (workspace, L) [deps: 137a, 137b, 137c] -- #250
   - Files: `templates/Dashboard/PinToDashboardDialog.tsx`, `__tests__/DashboardTemplate.test.tsx`
 
 ---
@@ -333,13 +334,13 @@ Package: workspace | Agent: design-engineer + dev-engineer | Est: ~2060 lines
 Branch: `feature/VASTU-1B-127-e2e-tests` (branch from main AFTER all features merge)
 Package: workspace | Agent: qa-engineer | Est: ~830 lines
 
-- [ ] VASTU-1B-127a: E2E fixtures: page objects and seed data (workspace, M) [no deps] -- #251
+- [x] VASTU-1B-127a: E2E fixtures: page objects and seed data (workspace, M) [no deps] -- #251
   - Files: `e2e/fixtures/workspace-page.ts`, `e2e/fixtures/seed-data.ts`
-- [ ] VASTU-1B-127b: E2E: workspace load, sidebar, panels, tray (workspace, L) [deps: 127a] -- #252
+- [x] VASTU-1B-127b: E2E: workspace load, sidebar, panels, tray (workspace, L) [deps: 127a] -- #252
   - Files: `e2e/workspace.spec.ts`
-- [ ] VASTU-1B-127c: E2E: command palette and mode switch (workspace, M) [deps: 127a] -- #253
+- [x] VASTU-1B-127c: E2E: command palette and mode switch (workspace, M) [deps: 127a] -- #253
   - Files: `e2e/command-palette.spec.ts`, `e2e/mode-switch.spec.ts`
-- [ ] VASTU-1B-127d: E2E: table interactions and view save/load (workspace, M) [deps: 127a] -- #254
+- [x] VASTU-1B-127d: E2E: table interactions and view save/load (workspace, M) [deps: 127a] -- #254
   - Files: `e2e/table-interactions.spec.ts`
 
 ---
@@ -411,23 +412,23 @@ Package: workspace | Agent: qa-engineer | Est: ~830 lines
 
 | Story | GitHub Issue | Status |
 |-------|-------------|--------|
-| US-120 | #166 | Open |
-| US-121 | #167 | Open |
-| US-122 | #168 | Open |
-| US-123 | #169 | Open |
-| US-124 | #170 | Open |
-| US-125 | #173 | Open |
-| US-126 | #174 | Open |
-| US-127 | #184 | Open |
-| US-128 | #175 | Open |
-| US-129 | #176 | Open |
-| US-130 | #177 | Open |
-| US-131 | #178 | Open |
-| US-132 | #179 | Open |
-| US-133 | #180 | Open |
-| US-134 | #181 | Open |
-| US-135 | #172 | Open |
-| US-136 | #182 | Open |
-| US-137 | #183 | Open |
-| US-138 | #171 | Open |
-| INFRA  | #222 | Open |
+| US-120 | #166 | Complete |
+| US-121 | #167 | Complete |
+| US-122 | #168 | Complete |
+| US-123 | #169 | Complete |
+| US-124 | #170 | Complete |
+| US-125 | #173 | Complete |
+| US-126 | #174 | Complete |
+| US-127 | #184 | Complete |
+| US-128 | #175 | Complete |
+| US-129 | #176 | Complete |
+| US-130 | #177 | Complete |
+| US-131 | #178 | Complete |
+| US-132 | #179 | Complete |
+| US-133 | #180 | Complete |
+| US-134 | #181 | Complete |
+| US-135 | #172 | Complete |
+| US-136 | #182 | Complete |
+| US-137 | #183 | Complete |
+| US-138 | #171 | Complete |
+| INFRA  | #222 | Complete |
