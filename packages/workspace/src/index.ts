@@ -6,6 +6,8 @@
 export { WorkspaceProviders } from './providers/WorkspaceProviders';
 export { AbilityProvider, useAbility } from './providers/AbilityContext';
 export type { AbilityProviderProps } from './providers/AbilityContext';
+export { SSEProvider, useSSEContext } from './providers/SSEProvider';
+export type { SSESubscribeFn } from './providers/SSEProvider';
 
 // Components
 export { WorkspaceShell } from './components/WorkspaceShell';

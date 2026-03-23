@@ -17,14 +17,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // ─── Mocks ───────────────────────────────────────────────────────────────────
 
-let capturedTenantId = '';
 let capturedCallback: ((e: unknown) => void) | null = null;
 let capturedSubscriptionId = '';
-let cancelCallback: (() => void) | null = null;
 
 vi.mock('@vastu/shared/data-engine', () => ({
   subscribe: vi.fn((tenantId: string, cb: (e: unknown) => void) => {
-    capturedTenantId = tenantId;
     capturedCallback = cb;
     capturedSubscriptionId = `sub_${tenantId}`;
     return capturedSubscriptionId;
@@ -32,7 +29,16 @@ vi.mock('@vastu/shared/data-engine', () => ({
   unsubscribe: vi.fn(),
 }));
 
-const mockGetSession = vi.fn();
+/**
+ * vi.hoisted ensures mockGetSession is initialized before vi.mock hoisting
+ * moves the @/lib/session factory to the top of the file. Without hoisted,
+ * 'const mockGetSession = vi.fn()' would be uninitialized when the factory
+ * runs, causing "Cannot access 'mockGetSession' before initialization".
+ */
+const { mockGetSession } = vi.hoisted(() => ({
+  mockGetSession: vi.fn(),
+}));
+
 vi.mock('@/lib/session', () => ({
   getSession: mockGetSession,
 }));
@@ -42,30 +48,12 @@ vi.mock('@/lib/session', () => ({
 import { subscribe, unsubscribe } from '@vastu/shared/data-engine';
 import { GET } from '../route';
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-async function collectStreamChunks(stream: ReadableStream): Promise<string[]> {
-  const reader = stream.getReader();
-  const decoder = new TextDecoder();
-  const chunks: string[] = [];
-  // Read a limited number of chunks to avoid infinite loop in tests
-  for (let i = 0; i < 5; i++) {
-    const { value, done } = await reader.read();
-    if (done) break;
-    if (value) chunks.push(decoder.decode(value));
-  }
-  reader.cancel();
-  return chunks;
-}
-
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
 beforeEach(() => {
   vi.clearAllMocks();
-  capturedTenantId = '';
   capturedCallback = null;
   capturedSubscriptionId = '';
-  cancelCallback = null;
 });
 
 describe('GET /api/workspace/events', () => {
@@ -126,8 +114,17 @@ describe('GET /api/workspace/events', () => {
       const response = await GET();
       const body = response.body;
       expect(body).not.toBeNull();
-      const chunks = await collectStreamChunks(body!);
-      const combined = chunks.join('');
+
+      // Read exactly the two preamble chunks synchronously, then cancel.
+      // Reading more would block indefinitely waiting for the heartbeat
+      // (setInterval fires every 30s in real time).
+      const reader = body!.getReader();
+      const decoder = new TextDecoder();
+      const { value: chunk1 } = await reader.read();
+      const { value: chunk2 } = await reader.read();
+      reader.cancel();
+
+      const combined = decoder.decode(chunk1) + decoder.decode(chunk2);
       expect(combined).toContain('retry: 1000');
       expect(combined).toContain(':ok');
     });
