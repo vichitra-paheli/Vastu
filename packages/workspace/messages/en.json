@@ -673,5 +673,12 @@
   "builder.ephemeral.statusDisabled": "Workflow mode is disabled for this page",
   "builder.ephemeral.warningMessage": "Enabling Workflow mode makes the Workflow tab visible to all admin users on this page. Workflow execution requires Phase 2 agent runtime.",
   "builder.ephemeral.workflowNote.title": "About Workflow mode",
-  "builder.ephemeral.workflowNote.body": "Workflow mode allows admins to build and run LangGraph workflows against this page's data. Full workflow execution is coming in Phase 2 (agent runtime). Enabling this toggle now reserves the tab and makes it visible to admins."
+  "builder.ephemeral.workflowNote.body": "Workflow mode allows admins to build and run LangGraph workflows against this page's data. Full workflow execution is coming in Phase 2 (agent runtime). Enabling this toggle now reserves the tab and makes it visible to admins.",
+
+  "sse.status.connected": "Live updates: connected",
+  "sse.status.connected.aria": "Connection status: connected",
+  "sse.status.connecting": "Live updates: connecting…",
+  "sse.status.connecting.aria": "Connection status: connecting",
+  "sse.status.disconnected": "Live updates: disconnected",
+  "sse.status.disconnected.aria": "Connection status: disconnected"
 }

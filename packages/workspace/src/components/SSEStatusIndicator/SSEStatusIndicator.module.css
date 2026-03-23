@@ -1,0 +1,60 @@
+/**
+ * SSEStatusIndicator — styles for the SSE connection status dot in the tray bar.
+ *
+ * Colors:
+ * - connected    → --v-status-success (green)
+ * - connecting   → --v-status-warning (amber)
+ * - disconnected → --v-status-error   (red)
+ *
+ * All colors via --v-* tokens. No hardcoded hex values.
+ * Implements US-207 AC-8 (connection status in tray bar).
+ */
+
+.indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--v-space-1);
+  cursor: default;
+  user-select: none;
+}
+
+/* ─── Status dot ─────────────────────────────────────────────────────────── */
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--v-radius-full);
+  flex-shrink: 0;
+  transition: background-color 200ms ease;
+}
+
+.dot[data-status='connected'] {
+  background-color: var(--v-status-success);
+}
+
+.dot[data-status='connecting'] {
+  background-color: var(--v-status-warning);
+  /* Pulse animation to indicate activity */
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.dot[data-status='disconnected'] {
+  background-color: var(--v-status-error);
+}
+
+/* ─── Label (sr-only unless caller opts in) ──────────────────────────────── */
+
+.label {
+  font-size: var(--v-text-xs);
+  font-family: var(--v-font-sans);
+  font-weight: var(--v-font-regular);
+  color: var(--v-text-tertiary);
+  white-space: nowrap;
+}
+
+/* ─── Pulse keyframes ────────────────────────────────────────────────────── */
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}

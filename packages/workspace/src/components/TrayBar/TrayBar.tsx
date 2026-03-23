@@ -29,6 +29,7 @@ import { t } from '../../lib/i18n';
 import { useTrayStore } from '../../stores/trayStore';
 import { usePanelStore } from '../../stores/panelStore';
 import { openCommandPalette } from '../CommandPalette';
+import { SSEStatusIndicator } from '../SSEStatusIndicator';
 import { TrayItem } from './TrayItem';
 import classes from './TrayBar.module.css';
 
@@ -80,7 +81,8 @@ export function TrayBar() {
         >
           <IconSearch size={16} />
         </ActionIcon>
-        <span className={classes.statusDot} aria-hidden="true" />
+        {/* SSE connection status indicator (US-207 AC-8) */}
+        <SSEStatusIndicator />
       </div>
     </div>
   );
