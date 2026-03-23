@@ -24,7 +24,7 @@
  * Implements US-207 AC-5, AC-9.
  */
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { WorkspaceEvent } from '@vastu/shared';
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
@@ -72,58 +72,68 @@ export function useWorkspaceEvents(callback: WorkspaceEventCallback): SSEConnect
     callbackRef.current = callback;
   }, [callback]);
 
-  // Accumulate the current back-off delay. We use a ref so the retry closure
-  // always reads the latest value without needing to re-register effects.
+  // Mutable state kept in refs to avoid re-registering the effect on changes.
   const backoffRef = useRef<number>(BACKOFF_INITIAL_MS);
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const esRef = useRef<EventSource | null>(null);
   const mountedRef = useRef(true);
 
-  const connect = useCallback(() => {
-    if (!mountedRef.current) return;
-
-    setConnectionState('connecting');
-
-    const es = new EventSource(SSE_ENDPOINT);
-    esRef.current = es;
-
-    es.addEventListener('open', () => {
-      if (!mountedRef.current) return;
-      // Reset back-off on successful connection.
-      backoffRef.current = BACKOFF_INITIAL_MS;
-      setConnectionState('connected');
-    });
-
-    // The server sends custom `workspace` events.
-    es.addEventListener('workspace', (ev: MessageEvent<string>) => {
-      if (!mountedRef.current) return;
-      try {
-        const event = JSON.parse(ev.data) as WorkspaceEvent;
-        callbackRef.current(event);
-      } catch {
-        // Malformed JSON — skip.
-      }
-    });
-
-    es.addEventListener('error', () => {
-      if (!mountedRef.current) return;
-      // Close the broken connection before scheduling a retry.
-      es.close();
-      esRef.current = null;
-      setConnectionState('disconnected');
-
-      const delay = backoffRef.current;
-      // Double back-off for next failure, capped at BACKOFF_MAX_MS.
-      backoffRef.current = Math.min(delay * 2, BACKOFF_MAX_MS);
-
-      retryTimerRef.current = setTimeout(() => {
-        if (mountedRef.current) connect();
-      }, delay);
-    });
-  }, []); // no deps — connect is stable across mounts
+  // connectRef allows the error handler to schedule a self-referential retry
+  // without creating a circular dependency in useCallback / useEffect deps.
+  const connectRef = useRef<() => void>(() => {
+    /* populated below */
+  });
 
   useEffect(() => {
     mountedRef.current = true;
+
+    function connect() {
+      if (!mountedRef.current) return;
+
+      setConnectionState('connecting');
+
+      const es = new EventSource(SSE_ENDPOINT);
+      esRef.current = es;
+
+      es.addEventListener('open', () => {
+        if (!mountedRef.current) return;
+        // Reset back-off on successful connection.
+        backoffRef.current = BACKOFF_INITIAL_MS;
+        setConnectionState('connected');
+      });
+
+      // The server sends custom `workspace` events.
+      es.addEventListener('workspace', (ev: MessageEvent<string>) => {
+        if (!mountedRef.current) return;
+        try {
+          const event = JSON.parse(ev.data) as WorkspaceEvent;
+          callbackRef.current(event);
+        } catch {
+          // Malformed JSON — skip.
+        }
+      });
+
+      es.addEventListener('error', () => {
+        if (!mountedRef.current) return;
+        // Close the broken connection before scheduling a retry.
+        es.close();
+        esRef.current = null;
+        setConnectionState('disconnected');
+
+        const delay = backoffRef.current;
+        // Double back-off for next failure, capped at BACKOFF_MAX_MS.
+        backoffRef.current = Math.min(delay * 2, BACKOFF_MAX_MS);
+
+        retryTimerRef.current = setTimeout(() => {
+          connectRef.current();
+        }, delay);
+      });
+    }
+
+    // Keep the ref in sync so the error handler's retry always calls the
+    // latest version of connect.
+    connectRef.current = connect;
+
     connect();
 
     return () => {
@@ -137,7 +147,8 @@ export function useWorkspaceEvents(callback: WorkspaceEventCallback): SSEConnect
         esRef.current = null;
       }
     };
-  }, [connect]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // intentionally empty — runs once on mount
 
   return connectionState;
 }
