@@ -57,6 +57,23 @@ export {
   _clearSchemaCache,
 } from './schemaIntrospector';
 
+// ─── Aggregate types (US-203) ─────────────────────────────────────────────────
+
+export type {
+  AggregateFunction,
+  TimeResolution,
+  AggregateRequest,
+  AggregateDataPoint,
+  AggregateSeries,
+  SimpleAggregateResponse,
+  MultiSeriesAggregateResponse,
+  AggregateResponse,
+} from './aggregateTypes';
+
+// ─── Aggregate builder (US-203) ───────────────────────────────────────────────
+
+export { runAggregate, AggregateValidationError } from './aggregateBuilder';
+
 // ─── CASL query scoping (US-208) ──────────────────────────────────────────────
 
 export { scopeQuery, ForbiddenError } from './caslScope';

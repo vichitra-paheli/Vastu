@@ -13,7 +13,9 @@
     "./prisma": "./src/prisma/index.ts",
     "./data-engine": "./src/data-engine/index.ts",
     "./data-engine/events": "./src/data-engine/events.ts",
-    "./data-engine/eventTypes": "./src/data-engine/eventTypes.ts"
+    "./data-engine/eventTypes": "./src/data-engine/eventTypes.ts",
+    "./data-engine/aggregateBuilder": "./src/data-engine/aggregateBuilder.ts",
+    "./data-engine/aggregateTypes": "./src/data-engine/aggregateTypes.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",
