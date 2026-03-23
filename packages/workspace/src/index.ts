@@ -179,6 +179,10 @@ export type { DrawerTab, DrawerNavigationEntry } from './stores/drawerStore';
 // CommandPalette
 export { CommandPalette, openCommandPalette } from './components/CommandPalette';
 
+// SSE hook (US-207)
+export { useWorkspaceEvents } from './hooks/useWorkspaceEvents';
+export type { SSEConnectionState, WorkspaceEventCallback } from './hooks/useWorkspaceEvents';
+
 // CommandPalette hooks
 export {
   useCommandPaletteActions,
