@@ -352,13 +352,15 @@ describe('f1-race-report page', () => {
 
   it('configures a wizard with 4 steps', () => {
     const page = getPageById('f1-race-report');
-    const steps = page?.config?.metadata?.wizard?.steps as unknown[] | undefined;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test accessing dynamic config shape
+    const steps = (page?.config?.metadata as any)?.wizard?.steps as unknown[] | undefined;
     expect(steps).toHaveLength(4);
   });
 
   it('wizard steps have expected IDs', () => {
     const page = getPageById('f1-race-report');
-    const steps = page?.config?.metadata?.wizard?.steps as Array<{
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test accessing dynamic config shape
+    const steps = (page?.config?.metadata as any)?.wizard?.steps as Array<{
       id: string;
     }> | undefined;
     const stepIds = (steps ?? []).map((s) => s.id);
@@ -370,7 +372,8 @@ describe('f1-race-report page', () => {
 
   it('review step has reviewMode: true', () => {
     const page = getPageById('f1-race-report');
-    const steps = page?.config?.metadata?.wizard?.steps as Array<{
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test accessing dynamic config shape
+    const steps = (page?.config?.metadata as any)?.wizard?.steps as Array<{
       id: string;
       reviewMode?: boolean;
     }> | undefined;
