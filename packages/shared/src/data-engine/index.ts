@@ -46,6 +46,17 @@ export {
   _clearCache,
 } from './columnMeta';
 
+// ─── Schema introspection (US-204) ────────────────────────────────────────────
+
+export type { FieldType, RelationType, FieldMeta, RelationMeta, ModelSchema } from './schemaIntrospector';
+export {
+  getModelList,
+  getModelSchema,
+  getModelFields,
+  getModelRelations,
+  _clearSchemaCache,
+} from './schemaIntrospector';
+
 // ─── CASL query scoping (US-208) ──────────────────────────────────────────────
 
 export { scopeQuery, ForbiddenError } from './caslScope';
