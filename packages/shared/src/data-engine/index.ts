@@ -46,6 +46,23 @@ export {
   _clearCache,
 } from './columnMeta';
 
+// ─── Aggregate types (US-203) ─────────────────────────────────────────────────
+
+export type {
+  AggregateFunction,
+  TimeResolution,
+  AggregateRequest,
+  AggregateDataPoint,
+  AggregateSeries,
+  SimpleAggregateResponse,
+  MultiSeriesAggregateResponse,
+  AggregateResponse,
+} from './aggregateTypes';
+
+// ─── Aggregate builder (US-203) ───────────────────────────────────────────────
+
+export { runAggregate, AggregateValidationError } from './aggregateBuilder';
+
 // ─── Workspace events (US-207) ────────────────────────────────────────────────
 
 export type { WorkspaceEvent, WorkspaceEventType } from './eventTypes';
