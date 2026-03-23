@@ -48,11 +48,13 @@ export interface UseNavigateToPageReturn {
  * When `forceNewPanel` is false, we use the page ID as the panel instance ID
  * so navigating to the same page repeatedly focuses the existing panel.
  *
- * When `forceNewPanel` is true, we append a timestamp to create a unique ID.
+ * When `forceNewPanel` is true, we append a UUID to guarantee uniqueness
+ * even when multiple navigations happen in rapid succession (avoids Date.now()
+ * collisions that could occur within the same millisecond).
  */
 function resolvePanelId(targetPageId: string, forceNewPanel: boolean): string {
   if (forceNewPanel) {
-    return `${targetPageId}--${Date.now()}`;
+    return `${targetPageId}--${crypto.randomUUID()}`;
   }
   return targetPageId;
 }

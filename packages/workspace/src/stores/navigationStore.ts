@@ -4,7 +4,7 @@
  * When a user clicks a LinkCell, the navigation system:
  *   1. Stores a NavigationIntent in this store, keyed by the target panel ID.
  *   2. Opens (or focuses) the target panel in Dockview.
- *   3. The target page reads the intent on mount via useNavigationIntent(panelId).
+ *   3. The target page reads the intent on mount via getNavigationIntent(panelId).
  *   4. The target page clears the intent after consuming it.
  *
  * This one-way mailbox pattern avoids coupling source and target panels
@@ -94,14 +94,18 @@ export const useNavigationStore = create<NavigationStoreState>()((set, get) => (
 }));
 
 /**
- * useNavigationIntent — hook for target pages to consume their navigation intent.
+ * getNavigationIntent — utility for target pages to consume their navigation intent.
  *
- * Call this hook inside the target page component on mount.
- * It reads and clears the pending intent for the given panel ID.
+ * Call this inside the target page component on mount (e.g. in a useEffect or
+ * directly in the component body as a one-time read).
+ * It reads and clears the pending intent for the given panel ID from the store.
+ *
+ * This is NOT a React hook (it contains no hook calls). It reads from the Zustand
+ * store imperatively via getState(), which is safe to call outside of React.
  *
  * @example
  * function DriverProfilePanel({ params }: PanelProps) {
- *   const intent = useNavigationIntent(params.panelId);
+ *   const intent = getNavigationIntent(params.panelId);
  *   useEffect(() => {
  *     if (intent?.recordId) setSelectedDriverId(intent.recordId);
  *   }, [intent]);
@@ -110,9 +114,9 @@ export const useNavigationStore = create<NavigationStoreState>()((set, get) => (
  * @param panelId - The Dockview panel instance ID.
  * @returns The pending NavigationIntent, or undefined if none.
  */
-export function useNavigationIntent(panelId: string): NavigationIntent | undefined {
+export function getNavigationIntent(panelId: string): NavigationIntent | undefined {
   // Read once on mount — consumeIntent removes it from the store.
-  // Using the store directly (not a hook selector) because this is a
+  // Using getState() directly (not a hook selector) because this is a
   // one-time read, not a reactive subscription.
   return useNavigationStore.getState().consumeIntent(panelId);
 }

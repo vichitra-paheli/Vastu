@@ -27,22 +27,10 @@ import { Tooltip } from '@mantine/core';
 import { TruncatedText } from '../TruncatedText';
 import { useNavigateToPage } from '../../navigation/useNavigateToPage';
 import { t } from '../../lib/i18n';
+import type { NavigateTo } from './types';
 import classes from './LinkCell.module.css';
 
-export interface NavigateTo {
-  /**
-   * The target page ID.
-   * Must match a registered PageDefinition or panel type ID.
-   */
-  pageId: string;
-
-  /**
-   * Record ID template.
-   * Use '{value}' as a placeholder — it is replaced with the cell value at render time.
-   * Example: '{value}' with cell value "42" → recordId "42".
-   */
-  recordId: string;
-}
+export type { NavigateTo };
 
 export interface LinkCellProps {
   /** The raw cell value. */

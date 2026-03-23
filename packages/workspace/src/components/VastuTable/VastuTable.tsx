@@ -48,6 +48,8 @@ function VastuTableInner<TData extends Record<string, unknown>>({
   filterRoot,
   loading = false,
   error = null,
+  sourcePageId,
+  sourcePageName,
   onSortChange,
   onColumnSizingChange,
   onColumnOrderChange,
@@ -409,6 +411,8 @@ function VastuTableInner<TData extends Record<string, unknown>>({
                   row={row}
                   top={virtualItem.start}
                   height={virtualItem.size}
+                  sourcePageId={sourcePageId}
+                  sourcePageName={sourcePageName}
                   onCellContextMenu={handleCellContextMenu}
                   onRowClick={handleRowClick}
                 />

@@ -149,7 +149,7 @@ describe('useNavigateToPage', () => {
       // openPanel called with a unique panel ID (not the base pageId)
       expect(mockOpenPanel).toHaveBeenCalledWith(
         mockDefinition,
-        expect.stringMatching(/^f1-races--\d+$/),
+        expect.stringMatching(/^f1-races--[0-9a-f-]{36}$/),
       );
       expect(mockFocusPanel).not.toHaveBeenCalled();
     });
@@ -166,11 +166,11 @@ describe('useNavigateToPage', () => {
         result.current.navigateToPage(intent, true);
       });
 
-      // The intent key should be the unique panel ID (containing timestamp)
+      // The intent key should be the unique panel ID (containing UUID)
       const intents = useNavigationStore.getState().intents;
       const keys = Object.keys(intents);
       expect(keys).toHaveLength(1);
-      expect(keys[0]).toMatch(/^f1-races--\d+$/);
+      expect(keys[0]).toMatch(/^f1-races--[0-9a-f-]{36}$/);
       expect(intents[keys[0]]).toEqual(intent);
     });
   });

@@ -56,7 +56,7 @@ export { useTrayStore } from './stores/trayStore';
 export type { TrayItem } from './stores/trayStore';
 export { useViewStore } from './stores/viewStore';
 export { useViewFilterStore, useViewFilters, useViewMode } from './stores/viewFilterStore';
-export { useNavigationStore, useNavigationIntent } from './stores/navigationStore';
+export { useNavigationStore, getNavigationIntent } from './stores/navigationStore';
 
 // Hooks
 export { usePanelPersistence, PANEL_LAYOUT_STORAGE_KEY } from './hooks/usePanelPersistence';

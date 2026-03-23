@@ -74,25 +74,12 @@ export interface VastuColumn<TData extends Record<string, unknown>> {
    * When set, the cell renders as a clickable link that opens the target page.
    * Left-click opens in the same area; ⌘/Ctrl+Click forces a new panel.
    *
-   * The source page info (sourcePageId, sourcePageName) is passed from the
-   * parent template that renders the VastuTable.
+   * The source page context (sourcePageId, sourcePageName) is passed at the
+   * table level via VastuTableProps, not repeated on every column.
    *
    * Implements US-209 AC-1 (VASTU-2A-209).
    */
   navigateTo?: NavigateTo;
-  /**
-   * Source page ID passed to LinkCell for breadcrumb back-links.
-   * Set by the parent template to identify where navigation originated.
-   *
-   * Implements US-209 AC-4 (VASTU-2A-209).
-   */
-  sourcePageId?: string;
-  /**
-   * Source page display name for the breadcrumb label.
-   *
-   * Implements US-209 AC-4 (VASTU-2A-209).
-   */
-  sourcePageName?: string;
   /** Minimum column width in pixels. Default: 80. */
   minWidth?: number;
   /** Maximum column width in pixels. */
@@ -136,6 +123,21 @@ export interface VastuTableProps<TData extends Record<string, unknown>> {
   loading?: boolean;
   /** Error to display in the error state. */
   error?: Error | null;
+  /**
+   * The page ID of the current (source) page that contains this table.
+   * Passed to LinkCell for NavigationIntent breadcrumb back-links.
+   * Set by the parent template — describes where cross-page navigation originates.
+   *
+   * Implements US-209 AC-4 (VASTU-2A-209).
+   */
+  sourcePageId?: string;
+  /**
+   * The display name of the current (source) page.
+   * Used in the "← Back to {sourcePageName}" breadcrumb label.
+   *
+   * Implements US-209 AC-4 (VASTU-2A-209).
+   */
+  sourcePageName?: string;
   /**
    * Called when the user changes the sort state.
    * Parent can persist to viewStore.

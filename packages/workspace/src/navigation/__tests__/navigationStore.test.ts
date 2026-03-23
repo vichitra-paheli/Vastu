@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { useNavigationStore, useNavigationIntent } from '../../stores/navigationStore';
+import { useNavigationStore, getNavigationIntent } from '../../stores/navigationStore';
 import type { NavigationIntent } from '../types';
 
 function resetStore() {
@@ -129,7 +129,7 @@ describe('navigationStore', () => {
     });
   });
 
-  describe('useNavigationIntent helper', () => {
+  describe('getNavigationIntent helper', () => {
     it('returns and consumes the intent for the given panel ID', () => {
       const intent: NavigationIntent = {
         targetPageId: 'f1-constructor-detail',
@@ -139,7 +139,7 @@ describe('navigationStore', () => {
 
       useNavigationStore.getState().setIntent('target-panel', intent);
 
-      const result = useNavigationIntent('target-panel');
+      const result = getNavigationIntent('target-panel');
 
       expect(result).toEqual(intent);
       // Should be consumed (cleared) after reading
@@ -147,7 +147,7 @@ describe('navigationStore', () => {
     });
 
     it('returns undefined when no intent is pending', () => {
-      const result = useNavigationIntent('panel-with-no-intent');
+      const result = getNavigationIntent('panel-with-no-intent');
       expect(result).toBeUndefined();
     });
   });
