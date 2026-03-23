@@ -10,7 +10,12 @@
  * - Square color swatch per series (10×10px, --v-radius-sm)
  * - Values sorted by value descending
  *
- * Implements US-135 AC-5.
+ * Value display:
+ *   1. If a seriesConfig provides a `displayType`, the registered formatter's
+ *      render function is used to format the value (VASTU-2A-205c).
+ *   2. Otherwise, the raw value is displayed as a string.
+ *
+ * Implements US-135 AC-5, extended by VASTU-2A-205c.
  *
  * Note: This component is passed as a render function to Recharts <Tooltip content={...}>.
  * Recharts injects active, payload, label at render time.
@@ -18,6 +23,7 @@
 
 import React from 'react';
 import type { SeriesConfig } from './types';
+import { getFormatter } from '../../formatters/registry';
 
 export interface ChartTooltipProps {
   /** Injected by Recharts: whether the tooltip is active. */
@@ -37,6 +43,28 @@ export interface ChartTooltipProps {
   resolvedColors: Record<string, string>;
 }
 
+/**
+ * Format a single tooltip value using the formatter registry when a displayType
+ * is configured on the matching SeriesConfig, otherwise falls back to String().
+ */
+function formatTooltipValue(
+  value: string | number | null | undefined,
+  seriesConfig: SeriesConfig | undefined,
+): React.ReactNode {
+  if (value == null) return '\u2014';
+
+  const displayType = seriesConfig?.displayType;
+
+  if (displayType) {
+    const formatter = getFormatter(displayType);
+    if (formatter) {
+      return formatter.render({ value, row: {} });
+    }
+  }
+
+  return String(value);
+}
+
 export function ChartTooltip({ active, payload, label, series, resolvedColors }: ChartTooltipProps) {
   if (!active || !payload || payload.length === 0) {
     return null;
@@ -52,6 +80,7 @@ export function ChartTooltip({ active, payload, label, series, resolvedColors }:
         name: seriesConfig?.name ?? String(entry.name ?? ''),
         value: entry.value as string | number | null | undefined,
         color: (dKey && resolvedColors[dKey]) ? resolvedColors[dKey] : (String(entry.color ?? 'var(--v-text-tertiary)')),
+        seriesConfig,
       };
     })
     // Sort by value descending (nulls last)
@@ -78,7 +107,7 @@ export function ChartTooltip({ active, payload, label, series, resolvedColors }:
             />
             <span style={tooltipStyles.name}>{entry.name}</span>
             <span style={tooltipStyles.value}>
-              {entry.value != null ? String(entry.value) : '\u2014'}
+              {formatTooltipValue(entry.value, entry.seriesConfig)}
             </span>
           </div>
         ))}

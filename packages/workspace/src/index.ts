@@ -334,3 +334,23 @@ export type {
   AlertCardDef,
   DashboardChartDataPoint,
 } from './stores/dashboardStore';
+
+// FormatterRegistry (VASTU-2A-205)
+export {
+  registerFormatter,
+  getFormatter,
+  getAllFormatters,
+  hasFormatter,
+  unregisterFormatter,
+  clearFormatterRegistry,
+  BUILTIN_FORMATTERS,
+  registerBuiltinFormatters,
+} from './formatters';
+export type {
+  FormatterDefinition,
+  FormatterMeta,
+  FormatterRenderContext,
+  FormatterSortContext,
+  FormatterExportContext,
+  FormatterFilterContext,
+} from './formatters';
