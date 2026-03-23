@@ -49,15 +49,17 @@ export class ForbiddenError extends Error {
  * Merge CASL permission conditions into an existing Prisma `where` clause.
  *
  * Algorithm:
- *  1. If the user has unconditional `manage` / `all` or `action` / `all`
- *     → return `existingWhere` untouched (admin sees everything).
- *  2. Collect all matching CASL rules for `(action, table)`.
- *  3. If no rules match at all → throw `ForbiddenError` (AC-4).
- *  4. Collect condition objects from the matching rules (AC-5).
- *  5. Combine: `AND [existingWhere, OR [condition1, condition2, ...]]`
- *     (multiple rules with conditions form an OR — matching any rule grants access).
- *  6. Rules without conditions (unconditional grants) mean the user can read
- *     all rows → return `existingWhere` untouched.
+ *  1. Fast-path check — if CASL says the user cannot perform this action on
+ *     this subject at all, throw 403 immediately (AC-4).
+ *  2. Collect all rules (both positive `can` and inverted `cannot`) matching
+ *     `(action, table)`.
+ *  3. If no positive rules match → throw `ForbiddenError` (AC-4).
+ *  4. If there are NO `cannot` rules and an unconditional `can` rule exists
+ *     → return `existingWhere` untouched (admin / blanket-grant sees everything).
+ *  5. Positive conditional rules form the allow-list; inverted rules are
+ *     translated to `NOT` clauses and ANDed with the allow-list result.
+ *  6. If an unconditional `can` rule exists alongside `cannot` rules,
+ *     the allow-side is effectively "all rows" and only the `NOT` clauses apply.
  *
  * @param ability - The user's CASL MongoAbility.
  * @param action  - The action being performed (e.g. 'read').
@@ -82,32 +84,58 @@ export function scopeQuery(
     throw new ForbiddenError(action, table);
   }
 
-  // Step 2: Admin shortcut — if there's an unconditional grant, return unchanged.
-  if (isUnconditionallyGranted(mono, action, table)) {
+  // Step 2: Collect all rules (both positive and inverted) matching (action, table).
+  const positiveRules = getMatchingRules(mono, action, table, false);
+  const invertedRules = getMatchingRules(mono, action, table, true);
+
+  // Step 3: No positive rules → deny.
+  if (positiveRules.length === 0) {
+    throw new ForbiddenError(action, table);
+  }
+
+  // Step 4: Admin shortcut — unconditional grant with no cannot rules at all.
+  const hasUnconditionalGrant = positiveRules.some((r: CaslRule) => !r.conditions);
+  if (hasUnconditionalGrant && invertedRules.length === 0) {
     return existingWhere;
   }
 
-  // Step 3: Collect only positive (non-inverted) rules matching (action, table).
-  const matchingRules = getMatchingRules(mono, action, table);
-
-  // Step 4: Separate conditional from unconditional rules.
-  const unconditionalRules = matchingRules.filter((r: CaslRule) => !r.conditions);
-  const conditionalRules = matchingRules.filter((r: CaslRule) => r.conditions);
-
-  // Any unconditional grant means the user can see all rows — no extra where needed.
-  if (unconditionalRules.length > 0) {
-    return existingWhere;
+  // Step 5: Build the allow-side clause from positive rules.
+  // An unconditional positive rule means "all rows allowed" on the allow-side.
+  let allowWhere: PrismaWhere | null;
+  if (hasUnconditionalGrant) {
+    // Unconditional grant — allow-side is unconstrained; only cannot rules restrict.
+    allowWhere = null;
+  } else {
+    // All positive rules have conditions — OR them together.
+    const conditionClauses = positiveRules.map(
+      (r: CaslRule) => (r.conditions ?? {}) as PrismaWhere,
+    );
+    allowWhere =
+      conditionClauses.length === 1 ? conditionClauses[0] : { OR: conditionClauses };
   }
 
-  // Step 5: All matching rules are conditional — build an OR of all condition objects.
-  const conditionClauses = conditionalRules.map(
-    (r: CaslRule) => (r.conditions ?? {}) as PrismaWhere,
-  );
+  // Step 6: Build NOT clauses from inverted rules that have conditions.
+  // Inverted rules without conditions are a full unconditional deny — but CASL's
+  // `ability.can()` check above would have already returned false for those,
+  // so we never reach here when a full deny exists.
+  const notClauses: PrismaWhere[] = invertedRules
+    .filter((r: CaslRule) => r.conditions)
+    .map((r: CaslRule) => ({ NOT: r.conditions as PrismaWhere }));
 
-  const caslWhere: PrismaWhere =
-    conditionClauses.length === 1
-      ? conditionClauses[0]
-      : { OR: conditionClauses };
+  // Step 7: Combine allow-side, not-clauses and existing where.
+  const parts: PrismaWhere[] = [];
+  if (allowWhere !== null) parts.push(allowWhere);
+  parts.push(...notClauses);
+
+  let caslWhere: PrismaWhere;
+  if (parts.length === 0) {
+    // No additional scoping needed (shouldn't normally reach here).
+    return existingWhere;
+  } else if (parts.length === 1) {
+    caslWhere = parts[0];
+  } else {
+    caslWhere = { AND: parts };
+  }
 
   return mergeWhere(existingWhere, caslWhere);
 }
@@ -115,57 +143,29 @@ export function scopeQuery(
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /**
- * Returns true when the ability grants unconditional access without
- * any conditions attached to a matching rule.
- *
- * "Unconditional" means:
- *   - `can('manage', 'all')` — admin
- *   - `can(action, 'all')` — blanket action on all resources (no conditions)
- *   - `can(action, table)` — direct unconditional grant on this table (no conditions)
- *   - `can('manage', table)` — manage on this specific table (no conditions)
- *
- * This is a fast-path check before iterating rules.
- */
-function isUnconditionallyGranted(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- cast to any to call relevantRuleFor with string args
-  ability: any,
-  action: string,
-  table: string,
-): boolean {
-  // Use relevantRuleFor to find the best-matching rule for this action+subject.
-  // If it exists and has no conditions, it is unconditional.
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- dynamic CASL API
-  const rule = ability.relevantRuleFor(action, table) as CaslRule | null;
-  if (rule && !rule.conditions && !rule.inverted) {
-    return true;
-  }
-
-  // Also check 'manage' on 'all' explicitly for the admin case.
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- dynamic CASL API
-  const manageRule = ability.relevantRuleFor('manage', 'all') as CaslRule | null;
-  if (manageRule && !manageRule.conditions && !manageRule.inverted) {
-    return true;
-  }
-
-  return false;
-}
-
-/**
- * Collect all CASL rules that positively match `(action, table)`.
+ * Collect all CASL rules matching `(action, table)`, filtered by whether they
+ * are inverted (`cannot`) or positive (`can`).
  *
  * We walk `ability.rules` manually because CASL's high-level API
  * (`can()`) only returns boolean — we need the condition objects.
  *
  * Rules are matched when:
- *   - Not inverted (`inverted: false | undefined`)
+ *   - `inverted` flag matches the requested `wantInverted` parameter
  *   - action === rule.action OR rule.action === 'manage'
  *   - subject === rule.subject OR rule.subject === 'all'
+ *
+ * @param ability       - The CASL ability instance.
+ * @param action        - The action being performed (e.g. 'read').
+ * @param table         - The Prisma model name (e.g. 'Race').
+ * @param wantInverted  - When `true`, return only `cannot` rules; when `false`,
+ *                        return only positive `can` rules.
  */
 function getMatchingRules(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- AnyMongoAbility needs any for .rules access
   ability: any,
   action: string,
   table: string,
+  wantInverted: boolean,
 ): CaslRule[] {
   // Cast to unknown first to safely convert the opaque CASL rule type to our
   // internal CaslRule interface. The structure is guaranteed by @casl/ability.
@@ -173,8 +173,9 @@ function getMatchingRules(
   const rules = ability.rules as unknown as CaslRule[];
 
   return rules.filter((rule: CaslRule) => {
-    // Skip inverted (cannot) rules — they restrict, not grant.
-    if (rule.inverted) return false;
+    // Filter by inverted flag.
+    const isInverted = rule.inverted === true;
+    if (isInverted !== wantInverted) return false;
 
     // Match action: exact match or 'manage' wildcard.
     const actionMatches =

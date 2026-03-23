@@ -327,6 +327,75 @@ describe('scopeQuery — domain table names (arbitrary string subjects)', () => 
   });
 });
 
+// ─── cannot rules (review issue fix) ─────────────────────────────────────────
+
+describe('scopeQuery — cannot rules with conditions', () => {
+  it('can + cannot with condition produces NOT clause', () => {
+    const ability = customAbility(({ can, cannot }) => {
+      can('read', 'Race');
+      cannot('read', 'Race', { status: 'Cancelled' });
+    });
+
+    const result = scopeQuery(ability, 'read', 'Race', {});
+    expect(result).toEqual({ NOT: { status: 'Cancelled' } });
+  });
+
+  it('can + cannot with condition merged with existing where via AND', () => {
+    const ability = customAbility(({ can, cannot }) => {
+      can('read', 'Race');
+      cannot('read', 'Race', { status: 'Cancelled' });
+    });
+
+    const result = scopeQuery(ability, 'read', 'Race', { organizationId: 'org-1' });
+    expect(result).toEqual({
+      AND: [{ organizationId: 'org-1' }, { NOT: { status: 'Cancelled' } }],
+    });
+  });
+
+  it('multiple cannot rules produce multiple NOT clauses in AND', () => {
+    const ability = customAbility(({ can, cannot }) => {
+      can('read', 'Race');
+      cannot('read', 'Race', { status: 'Cancelled' });
+      cannot('read', 'Race', { status: 'Draft' });
+    });
+
+    const result = scopeQuery(ability, 'read', 'Race', {});
+    expect(result).toEqual({
+      AND: [{ NOT: { status: 'Cancelled' } }, { NOT: { status: 'Draft' } }],
+    });
+  });
+
+  it('conditional can + cannot with condition: AND of allow-clause and NOT clause', () => {
+    const ability = customAbility(({ can, cannot }) => {
+      can('read', 'Race', { season: 2025 });
+      cannot('read', 'Race', { status: 'Cancelled' });
+    });
+
+    const result = scopeQuery(ability, 'read', 'Race', {});
+    expect(result).toEqual({
+      AND: [{ season: 2025 }, { NOT: { status: 'Cancelled' } }],
+    });
+  });
+
+  it('cannot without conditions (full deny) still throws ForbiddenError', () => {
+    const ability = customAbility(({ can, cannot }) => {
+      can('read', 'all');
+      cannot('read', 'SecretTable');
+    });
+
+    expect(() => scopeQuery(ability, 'read', 'SecretTable', {})).toThrow(ForbiddenError);
+  });
+
+  it('fast-path still applies when there are no cannot rules', () => {
+    const ability = customAbility(({ can }) => {
+      can('read', 'Race');
+    });
+
+    const existing = { organizationId: 'org-1' };
+    expect(scopeQuery(ability, 'read', 'Race', existing)).toEqual(existing);
+  });
+});
+
 // ─── Edge cases ───────────────────────────────────────────────────────────────
 
 describe('scopeQuery — edge cases', () => {
