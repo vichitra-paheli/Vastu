@@ -63,7 +63,7 @@ interface PanelStoreState {
    * @param definition - The panel type definition from the registry.
    * @param panelId - Optional explicit panel instance ID. Defaults to definition.id.
    */
-  openPanel: (definition: PanelDefinition, panelId?: PanelId) => void;
+  openPanel: (definition: PanelDefinition, panelId?: PanelId, extraParams?: Record<string, unknown>) => void;
 
   /**
    * Close a panel by its instance ID.
@@ -152,7 +152,7 @@ export const usePanelStore = create<PanelStoreState>()((set, get) => ({
     set({ api });
   },
 
-  openPanel: (definition, panelId) => {
+  openPanel: (definition, panelId, extraParams) => {
     const { api } = get();
     if (!api) return;
 
@@ -172,7 +172,9 @@ export const usePanelStore = create<PanelStoreState>()((set, get) => ({
       component: definition.id,
       params: {
         panelTypeId: definition.id,
+        pageId: id,
         title: definition.title,
+        ...extraParams,
       },
     });
 

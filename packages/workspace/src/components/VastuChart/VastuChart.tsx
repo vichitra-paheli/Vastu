@@ -112,8 +112,10 @@ export function VastuChart({
   ariaLabel,
   className,
 }: VastuChartProps) {
+  const safeSeries = series ?? [];
+  const safeData = data ?? [];
   const [hiddenSeries, setHiddenSeries] = useState<Set<string>>(
-    new Set(series.filter((s) => s.hidden).map((s) => s.dataKey)),
+    new Set(safeSeries.filter((s) => s.hidden).map((s) => s.dataKey)),
   );
   const [previousHidden, setPreviousHidden] = useState<Set<string> | null>(null);
   const [configPanelOpen, setConfigPanelOpen] = useState(false);
@@ -124,7 +126,7 @@ export function VastuChart({
     setInternalConfig(config);
   }, [config]);
 
-  const resolvedColors = useMemo(() => resolveSeriesColors(series), [series]);
+  const resolvedColors = useMemo(() => resolveSeriesColors(safeSeries), [safeSeries]);
   const reducedMotion = usePrefersReducedMotion();
 
   // Effective config (merge defaults)
@@ -139,22 +141,22 @@ export function VastuChart({
     stacked: internalConfig.stacked ?? false,
     barOrientation: internalConfig.barOrientation ?? 'vertical',
     referenceLines: internalConfig.referenceLines ?? [],
-    xAxisKey: internalConfig.xAxisKey ?? (data.length > 0 ? Object.keys(data[0])[0] : 'x'),
+    xAxisKey: internalConfig.xAxisKey ?? (safeData.length > 0 ? Object.keys(safeData[0])[0] : 'x'),
   };
 
   // Visible series (not hidden)
   const visibleSeries = useMemo(
-    () => series.filter((s) => !hiddenSeries.has(s.dataKey)),
-    [series, hiddenSeries],
+    () => safeSeries.filter((s) => !hiddenSeries.has(s.dataKey)),
+    [safeSeries, hiddenSeries],
   );
 
-  const strokeWidth = series.length > 5 ? LINE_STROKE_WIDTH_DENSE : LINE_STROKE_WIDTH;
+  const strokeWidth = safeSeries.length > 5 ? LINE_STROKE_WIDTH_DENSE : LINE_STROKE_WIDTH;
 
   // ─── Chart elements (shared axis/grid/tooltip) ─────────────────────────────
 
   const chartElements = useChartElements({
     effectiveConfig,
-    series,
+    series: safeSeries,
     resolvedColors,
     reducedMotion,
   });
@@ -175,7 +177,7 @@ export function VastuChart({
 
   const handleLegendSolo = useCallback(
     (dataKey: string) => {
-      const allOtherKeys = series
+      const allOtherKeys = safeSeries
         .filter((s) => s.dataKey !== dataKey)
         .map((s) => s.dataKey);
       const currentlyHidden = hiddenSeries;
@@ -192,7 +194,7 @@ export function VastuChart({
         setHiddenSeries(new Set(allOtherKeys));
       }
     },
-    [series, hiddenSeries, previousHidden],
+    [safeSeries, hiddenSeries, previousHidden],
   );
 
   // ─── Config panel ──────────────────────────────────────────────────────────
@@ -256,7 +258,7 @@ export function VastuChart({
 
   // ─── Empty state ──────────────────────────────────────────────────────────
 
-  if (data.length === 0) {
+  if (safeData.length === 0) {
     return (
       <div
         className={`${classes.root}${className ? ` ${className}` : ''}`}
@@ -278,7 +280,7 @@ export function VastuChart({
   // ─── Layout ───────────────────────────────────────────────────────────────
 
   const isSparkline = type === 'sparkline';
-  const showLegend = effectiveConfig.showLegend && !isSparkline && series.length > 0;
+  const showLegend = effectiveConfig.showLegend && !isSparkline && safeSeries.length > 0;
   const legendPosition = effectiveConfig.legendPosition;
   const isLegendVertical = legendPosition === 'left' || legendPosition === 'right';
 
@@ -295,7 +297,7 @@ export function VastuChart({
       {/* ─── Legend top ─────────────────────────────────────────────────────── */}
       {showLegend && legendPosition === 'top' && (
         <ChartLegend
-          series={series}
+          series={safeSeries}
           resolvedColors={resolvedColors}
           hiddenSeries={hiddenSeries}
           position="top"
@@ -314,7 +316,7 @@ export function VastuChart({
         {/* Legend left — inside flex container so it participates in horizontal layout */}
         {showLegend && legendPosition === 'left' && (
           <ChartLegend
-            series={series}
+            series={safeSeries}
             resolvedColors={resolvedColors}
             hiddenSeries={hiddenSeries}
             position="left"
@@ -327,9 +329,9 @@ export function VastuChart({
           <ResponsiveContainer width="100%" height="100%">
             <ChartRenderer
               type={type}
-              data={data}
+              data={safeData}
               visibleSeries={visibleSeries}
-              allSeries={series}
+              allSeries={safeSeries}
               hiddenSeries={hiddenSeries}
               resolvedColors={resolvedColors}
               effectiveConfig={effectiveConfig}
@@ -367,7 +369,7 @@ export function VastuChart({
         {/* Legend right */}
         {showLegend && legendPosition === 'right' && (
           <ChartLegend
-            series={series}
+            series={safeSeries}
             resolvedColors={resolvedColors}
             hiddenSeries={hiddenSeries}
             position="right"
@@ -380,7 +382,7 @@ export function VastuChart({
       {/* ─── Legend bottom ──────────────────────────────────────────────────── */}
       {showLegend && legendPosition === 'bottom' && (
         <ChartLegend
-          series={series}
+          series={safeSeries}
           resolvedColors={resolvedColors}
           hiddenSeries={hiddenSeries}
           position="bottom"

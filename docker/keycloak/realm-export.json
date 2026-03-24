@@ -72,10 +72,12 @@
       "clientAuthenticatorType": "client-secret",
       "secret": "dev-secret",
       "redirectUris": [
-        "http://localhost:3000/*"
+        "http://localhost:3000/*",
+        "http://localhost:3001/*"
       ],
       "webOrigins": [
-        "http://localhost:3000"
+        "http://localhost:3000",
+        "http://localhost:3001"
       ],
       "notBefore": 0,
       "bearerOnly": false,
@@ -366,5 +368,52 @@
   },
   "clientPolicies": {
     "policies": []
-  }
+  },
+  "users": [
+    {
+      "username": "admin@vastu.dev",
+      "email": "admin@vastu.dev",
+      "emailVerified": true,
+      "enabled": true,
+      "firstName": "Admin",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin1234",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "editor@vastu.dev",
+      "email": "editor@vastu.dev",
+      "emailVerified": true,
+      "enabled": true,
+      "firstName": "Editor",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "editor1234",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "viewer@vastu.dev",
+      "email": "viewer@vastu.dev",
+      "emailVerified": true,
+      "enabled": true,
+      "firstName": "Viewer",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "viewer1234",
+          "temporary": false
+        }
+      ]
+    }
+  ]
 }

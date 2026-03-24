@@ -1,0 +1,60 @@
+/**
+ * Vastu toast notification helpers for demo-f1.
+ *
+ * Wraps @mantine/notifications with Vastu design system conventions.
+ */
+
+import React from 'react';
+import { notifications } from '@mantine/notifications';
+import {
+  IconCheck,
+  IconAlertCircle,
+  IconAlertTriangle,
+  IconInfoCircle,
+} from '@tabler/icons-react';
+
+const ICON_SIZE = 20;
+
+export function showSuccess(message: string, title?: string): void {
+  notifications.show({
+    title,
+    message,
+    color: 'green',
+    icon: React.createElement(IconCheck, { size: ICON_SIZE }),
+    autoClose: 5000,
+    style: { '--notification-color': 'var(--v-status-success)' } as React.CSSProperties,
+  });
+}
+
+export function showError(message: string, title?: string): void {
+  notifications.show({
+    title,
+    message,
+    color: 'red',
+    icon: React.createElement(IconAlertCircle, { size: ICON_SIZE }),
+    autoClose: false,
+    style: { '--notification-color': 'var(--v-status-error)' } as React.CSSProperties,
+  });
+}
+
+export function showWarning(message: string, title?: string): void {
+  notifications.show({
+    title,
+    message,
+    color: 'yellow',
+    icon: React.createElement(IconAlertTriangle, { size: ICON_SIZE }),
+    autoClose: 8000,
+    style: { '--notification-color': 'var(--v-accent-tertiary)' } as React.CSSProperties,
+  });
+}
+
+export function showInfo(message: string, title?: string): void {
+  notifications.show({
+    title,
+    message,
+    color: 'blue',
+    icon: React.createElement(IconInfoCircle, { size: ICON_SIZE }),
+    autoClose: 5000,
+    style: { '--notification-color': 'var(--v-accent-primary)' } as React.CSSProperties,
+  });
+}

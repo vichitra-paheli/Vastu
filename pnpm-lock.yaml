@@ -38,6 +38,15 @@ importers:
 
   apps/demo-f1:
     dependencies:
+      '@auth/prisma-adapter':
+        specifier: ^2.7.4
+        version: 2.11.1(@prisma/client@5.22.0(prisma@5.22.0))
+      '@casl/ability':
+        specifier: ^6.7.3
+        version: 6.8.0
+      '@casl/prisma':
+        specifier: ^1.4.2
+        version: 1.6.1(@casl/ability@6.8.0)(@prisma/client@5.22.0(prisma@5.22.0))
       '@mantine/core':
         specifier: ^7.14.3
         version: 7.17.8(@mantine/hooks@7.17.8(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -68,6 +77,12 @@ importers:
       next:
         specifier: ^14.2.18
         version: 14.2.35(@babel/core@7.29.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      next-auth:
+        specifier: ^5.0.0-beta.25
+        version: 5.0.0-beta.30(next@14.2.35(@babel/core@7.29.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
+      next-intl:
+        specifier: ^4.8.3
+        version: 4.8.3(next@14.2.35(@babel/core@7.29.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
       react:
         specifier: ^18.3.1
         version: 18.3.1
