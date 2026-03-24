@@ -2,7 +2,11 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "module": "ESNext",
     "moduleResolution": "bundler",
     "jsx": "preserve",
@@ -14,15 +18,37 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"],
-      "@vastu/shared": ["../../packages/shared/src/index.ts"],
-      "@vastu/shared/*": ["../../packages/shared/src/*"],
-      "@vastu/shell": ["../../packages/shell/src/index.ts"],
-      "@vastu/shell/*": ["../../packages/shell/src/*"],
-      "@vastu/workspace": ["../../packages/workspace/src/index.ts"],
-      "@vastu/workspace/*": ["../../packages/workspace/src/*"]
-    }
+      "@/*": [
+        "./src/*"
+      ],
+      "@vastu/shared": [
+        "../../packages/shared/src/index.ts"
+      ],
+      "@vastu/shared/*": [
+        "../../packages/shared/src/*"
+      ],
+      "@vastu/shell": [
+        "../../packages/shell/src/index.ts"
+      ],
+      "@vastu/shell/*": [
+        "../../packages/shell/src/*"
+      ],
+      "@vastu/workspace": [
+        "../../packages/workspace/src/index.ts"
+      ],
+      "@vastu/workspace/*": [
+        "../../packages/workspace/src/*"
+      ]
+    },
+    "allowJs": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
