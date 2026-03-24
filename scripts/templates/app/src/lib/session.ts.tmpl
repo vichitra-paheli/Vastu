@@ -1,0 +1,58 @@
+/**
+ * Session helpers for server components and API routes in {{APP_NAME}}.
+ *
+ * Usage:
+ *   const session = await getSession();
+ *   const { session, ability } = await getSessionWithAbility();
+ *   const session = await requireSession();
+ *   const { session, ability } = await requireSessionWithAbility();
+ */
+
+import { createMongoAbility } from '@casl/ability';
+import type { RawRuleOf } from '@casl/ability';
+import { auth } from './auth';
+import type { AppAbility } from '@vastu/shared/permissions';
+
+/**
+ * Returns the current session or null if the user is not authenticated.
+ */
+export async function getSession() {
+  const session = await auth();
+  if (!session?.user) return null;
+  return session;
+}
+
+/**
+ * Returns the session and a reconstructed CASL AppAbility.
+ */
+export async function getSessionWithAbility() {
+  const session = await getSession();
+  if (!session) return { session: null, ability: null };
+
+  const ability = createMongoAbility(
+    session.user.permissions as RawRuleOf<AppAbility>[],
+  ) as AppAbility;
+  return { session, ability };
+}
+
+/**
+ * Returns the current session or throws an Error('Unauthorized').
+ */
+export async function requireSession() {
+  const session = await getSession();
+  if (!session) {
+    throw new Error('Unauthorized');
+  }
+  return session;
+}
+
+/**
+ * Returns the session and CASL ability, or throws an Error('Unauthorized').
+ */
+export async function requireSessionWithAbility() {
+  const { session, ability } = await getSessionWithAbility();
+  if (!session || !ability) {
+    throw new Error('Unauthorized');
+  }
+  return { session, ability };
+}

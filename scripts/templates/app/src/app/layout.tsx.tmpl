@@ -1,15 +1,15 @@
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
+import '@/theme/vastu.tokens.css';
 
 import { ColorSchemeScript, MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getMessages } from 'next-intl/server';
 
-export const metadata: Metadata = {
-  title: '{{APP_NAME}}',
-  description: '{{APP_NAME}} — built on Vastu',
-};
+import { vastuTheme } from '@/theme';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -25,17 +25,31 @@ const jetbrainsMono = JetBrains_Mono({
   display: 'swap',
 });
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export const metadata: Metadata = {
+  title: '{{APP_NAME}}',
+  description: '{{APP_NAME}} — built on Vastu',
+};
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const [locale, messages] = await Promise.all([getLocale(), getMessages()]);
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         <ColorSchemeScript defaultColorScheme="auto" />
       </head>
-      <body className={`${inter.variable} ${jetbrainsMono.variable}`}>
-        <MantineProvider defaultColorScheme="auto">
-          <Notifications />
-          {children}
-        </MantineProvider>
+      <body
+        className={`${inter.variable} ${jetbrainsMono.variable}`}
+        style={{
+          fontFamily: 'var(--font-inter), var(--v-font-sans)',
+        }}
+      >
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <MantineProvider theme={vastuTheme} defaultColorScheme="auto">
+            <Notifications position="bottom-right" limit={3} />
+            {children}
+          </MantineProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

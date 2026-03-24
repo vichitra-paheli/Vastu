@@ -1,0 +1,23 @@
+/**
+ * i18n — Synchronous t() wrapper for {{APP_NAME}}.
+ *
+ * Provides a synchronous `t(key)` function backed by the flat dot-notation
+ * message catalog in messages/en.json.
+ *
+ * Safe to call anywhere — in generateMetadata(), server components,
+ * client components, validation schemas, and form helpers.
+ */
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const translations = require('../../messages/en.json') as Record<string, string>;
+
+/**
+ * Translate a key to its English string.
+ * Returns the key itself when no translation is registered.
+ */
+export function t(key: string): string {
+  if (process.env.NODE_ENV !== 'production' && translations[key] === undefined) {
+    console.warn(`[i18n] Missing translation key: "${key}"`);
+  }
+  return translations[key] ?? key;
+}

@@ -176,17 +176,33 @@ Rules for app-name:
 
 Output:
   apps/<app-name>/
-    package.json           depends on @vastu/shell, @vastu/workspace, @vastu/shared
-    next.config.mjs        Next.js config with transpilePackages
-    tsconfig.json          extends root tsconfig
-    prisma/schema.prisma   base schema + domain placeholder section
-    prisma/seed.ts         calls base seed then domain seed
-    src/pages.ts           empty page registrations with example
-    src/formatters.ts      empty formatter registrations with example
-    src/app/layout.tsx     Next.js root layout
-    src/app/page.tsx       redirects to /workspace
-    src/app/workspace/page.tsx  workspace mount point
-    README.md              getting started instructions
+    package.json                               depends on @vastu/shell, @vastu/workspace, @vastu/shared, next-auth, next-intl
+    next.config.mjs                            Next.js config with withNextIntl + transpilePackages
+    tsconfig.json                              extends root tsconfig
+    prisma/schema.prisma                       base schema + domain placeholder section
+    prisma/seed.ts                             calls base seed then domain seed
+    messages/en.json                           full Vastu translation catalog
+    src/i18n.ts                                next-intl request config
+    src/middleware.ts                          route protection middleware
+    src/pages.ts                               empty page registrations with example
+    src/formatters.ts                          empty formatter registrations with example
+    src/lib/auth.ts                            next-auth + Keycloak config
+    src/lib/auth.types.ts                      next-auth type augmentations
+    src/lib/session.ts                         session helpers for server components
+    src/lib/i18n.ts                            synchronous t() wrapper
+    src/lib/notifications.ts                   toast notification helpers
+    src/theme/vastu.theme.ts                   Mantine theme config
+    src/theme/vastu.tokens.css                 CSS custom properties
+    src/theme/index.ts                         theme exports
+    src/app/layout.tsx                         Next.js root layout with i18n + theme
+    src/app/page.tsx                           redirects to /workspace
+    src/app/(auth)/layout.tsx                  centered auth layout
+    src/app/(auth)/login/page.tsx              Keycloak SSO login page
+    src/app/workspace/layout.tsx               workspace layout with auth guard
+    src/app/workspace/page.tsx                 workspace mount point
+    src/app/api/auth/[...nextauth]/route.ts    next-auth route handler
+    src/components/auth/SessionGuard.tsx       session expiry polling component
+    README.md                                  getting started instructions
 `);
     process.exit(0);
   }
