@@ -1,0 +1,59 @@
+/**
+ * next-intl request configuration for {{APP_NAME}}.
+ *
+ * Sets up locale detection and message loading for the current request.
+ * Referenced in next.config.mjs via the createNextIntlPlugin wrapper.
+ */
+
+import { getRequestConfig } from 'next-intl/server';
+import { headers } from 'next/headers';
+
+export const locales = ['en'] as const;
+export const defaultLocale = 'en' as const;
+export type SupportedLocale = (typeof locales)[number];
+
+export default getRequestConfig(async () => {
+  const acceptLanguage = (await headers()).get('Accept-Language') ?? '';
+  const locale = resolveLocale(acceptLanguage);
+
+  let messages: Record<string, string>;
+  try {
+    const mod = (await import(`../messages/${locale}.json`)) as {
+      default: Record<string, string>;
+    };
+    messages = mod.default;
+  } catch {
+    const fallback = (await import(`../messages/${defaultLocale}.json`)) as {
+      default: Record<string, string>;
+    };
+    messages = fallback.default;
+  }
+
+  return { locale, messages };
+});
+
+export function resolveLocale(acceptLanguageHeader: string): SupportedLocale {
+  if (!acceptLanguageHeader.trim()) {
+    return defaultLocale;
+  }
+
+  const tags = acceptLanguageHeader
+    .split(',')
+    .map((entry) => {
+      const [tag, q] = entry.trim().split(';q=');
+      return {
+        tag: (tag ?? '').trim(),
+        quality: q !== undefined ? parseFloat(q) : 1.0,
+      };
+    })
+    .sort((a, b) => b.quality - a.quality);
+
+  for (const { tag } of tags) {
+    const primary = tag.split('-')[0]?.toLowerCase();
+    if (primary && (locales as readonly string[]).includes(primary)) {
+      return primary as SupportedLocale;
+    }
+  }
+
+  return defaultLocale;
+}

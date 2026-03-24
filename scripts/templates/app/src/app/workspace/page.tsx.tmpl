@@ -1,45 +1,18 @@
 import type { Metadata } from 'next';
+import { t } from '@/lib/i18n';
 
 export const metadata: Metadata = {
-  title: 'Workspace — {{APP_NAME}}',
-  description: '{{APP_NAME}} workspace',
+  title: `${t('workspace.title')} — {{APP_NAME}}`,
+  description: t('workspace.description'),
 };
 
 /**
  * Workspace page — /workspace
  *
- * This is the main entry point for the {{APP_NAME}} workspace.
- * The WorkspaceShell component renders the full Dockview-based workspace UI
- * including the sidebar, panels, and page templates.
- *
- * Pages registered in src/pages.ts and formatters in src/formatters.ts
- * are loaded automatically by WorkspaceShell at startup.
- *
- * Uncomment and wire up WorkspaceShell once @vastu/workspace is configured:
- *
- *   import { WorkspaceShell } from '@vastu/workspace';
- *   import '../../../src/pages';      // register domain pages
- *   import '../../../src/formatters'; // register domain formatters
- *
- *   export default function WorkspacePage() {
- *     return <WorkspaceShell />;
- *   }
+ * Protected by middleware (no session → redirect to /login).
+ * Layout is provided by WorkspaceLayout (WorkspaceProviders + WorkspaceShell).
+ * The WorkspaceShell handles all rendering via Dockview panels.
  */
 export default function WorkspacePage() {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
-        fontFamily: 'var(--font-inter, sans-serif)',
-      }}
-    >
-      <div style={{ textAlign: 'center' }}>
-        <h1>{{APP_NAME}}</h1>
-        <p>Workspace ready. Register your pages in <code>src/pages.ts</code>.</p>
-      </div>
-    </div>
-  );
+  return null;
 }
