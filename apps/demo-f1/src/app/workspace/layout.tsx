@@ -16,10 +16,7 @@ import { getSession } from '@/lib/session';
 import { SessionGuard } from '@/components/auth/SessionGuard';
 import { WorkspaceProviders } from '@vastu/workspace';
 import { WorkspaceShell } from '@vastu/workspace';
-
-// Side-effect imports — register F1 pages and formatters before render.
-import '../../pages';
-import '../../formatters';
+import { AppRegistrations } from './AppRegistrations';
 
 export default async function WorkspaceLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
@@ -34,6 +31,7 @@ export default async function WorkspaceLayout({ children }: { children: React.Re
 
   return (
     <WorkspaceProviders>
+      <AppRegistrations />
       <SessionGuard />
       <WorkspaceShell>{children}</WorkspaceShell>
     </WorkspaceProviders>

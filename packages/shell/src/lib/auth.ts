@@ -46,6 +46,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           clientId: process.env.KEYCLOAK_CLIENT_ID!,
           clientSecret: process.env.KEYCLOAK_CLIENT_SECRET!,
           issuer: `${process.env.KEYCLOAK_URL}/realms/${process.env.KEYCLOAK_REALM}`,
+          // Allow linking Keycloak accounts to existing DB users by matching email.
+          // Required because seed creates users in the DB before they sign in via SSO.
+          allowDangerousEmailAccountLinking: true,
         }),
       ]
     : [],

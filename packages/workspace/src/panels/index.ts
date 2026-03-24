@@ -26,31 +26,40 @@ import {
 } from '../templates/Dashboard/DashboardTemplate';
 import { BuilderPanel } from '../components/BuilderPanel';
 import type { PanelProps } from '../types/panel';
+import { getPageById } from '../pages/registry';
 
 export const DATA_EXPLORER_PANEL_TYPE_ID = 'data-explorer';
 export const TABLE_LISTING_PANEL_TYPE_ID = 'table-listing';
 export const FORM_PAGE_PANEL_TYPE_ID = 'form-page';
 export const TIMELINE_ACTIVITY_PANEL_TYPE_ID = 'timeline-activity';
 
+/** Look up page config from the PageRegistry, falling back to a minimal default. */
+function resolvePageConfig(pageId: string) {
+  const page = getPageById(pageId);
+  return page?.config ?? { templateType: 'table-listing' as const };
+}
+
 registerPanel({ id: WELCOME_PANEL_TYPE_ID, title: 'Welcome', component: WelcomePanel });
 registerPanel({ id: DATA_EXPLORER_PANEL_TYPE_ID, title: 'Data Explorer', iconName: 'IconChartBar', component: DataExplorerPanelWrapper });
 
 function TableListingPanelWrapper({ params }: PanelProps) {
   const pageId = typeof params.pageId === 'string' ? params.pageId : 'unknown';
-  const config = { templateType: 'table-listing' as const, fields: [], sections: [], metadata: { summaryStrip: { enabled: false, metrics: [] } } };
+  const config = resolvePageConfig(pageId);
   return React.createElement(TableListingTemplate, { pageId, config });
 }
 registerPanel({ id: TABLE_LISTING_PANEL_TYPE_ID, title: 'Table', iconName: 'IconTable', component: TableListingPanelWrapper });
 
 function MultiTabDetailPanelWrapper({ params }: PanelProps) {
   const pageId = typeof params.pageId === 'string' ? params.pageId : 'unknown';
-  return React.createElement(MultiTabDetailTemplate, { pageId });
+  const config = resolvePageConfig(pageId);
+  return React.createElement(MultiTabDetailTemplate, { pageId, config });
 }
 registerPanel({ id: MULTI_TAB_DETAIL_PANEL_TYPE_ID, title: 'Detail', iconName: 'IconLayout2', component: MultiTabDetailPanelWrapper });
 
 function FormPagePanelWrapper({ params }: PanelProps) {
   const pageId = typeof params.pageId === 'string' ? params.pageId : 'unknown';
-  return React.createElement(FormPageTemplate, { pageId });
+  const config = resolvePageConfig(pageId);
+  return React.createElement(FormPageTemplate, { pageId, config });
 }
 registerPanel({ id: FORM_PAGE_PANEL_TYPE_ID, title: 'Form', iconName: 'IconForms', component: FormPagePanelWrapper });
 
@@ -58,13 +67,15 @@ registerPanel({ id: TIMELINE_ACTIVITY_PANEL_TYPE_ID, title: 'Timeline Activity',
 
 function SummaryDashboardPanelWrapper({ params }: PanelProps) {
   const pageId = typeof params.pageId === 'string' ? params.pageId : 'unknown';
-  return React.createElement(SummaryDashboardTemplate, { pageId, config: { templateType: 'summary-dashboard' } });
+  const config = resolvePageConfig(pageId);
+  return React.createElement(SummaryDashboardTemplate, { pageId, config });
 }
 registerPanel({ id: SUMMARY_DASHBOARD_PANEL_TYPE, title: 'Dashboard', iconName: 'IconLayoutDashboard', component: SummaryDashboardPanelWrapper });
 
 function DashboardPanelWrapper({ params }: PanelProps) {
   const pageId = typeof params.pageId === 'string' ? params.pageId : 'home';
-  return React.createElement(DashboardTemplate, { pageId });
+  const config = resolvePageConfig(pageId);
+  return React.createElement(DashboardTemplate, { pageId, config });
 }
 registerPanel({ id: DASHBOARD_PANEL_TYPE, title: 'Home Dashboard', iconName: 'IconHome', component: DashboardPanelWrapper });
 

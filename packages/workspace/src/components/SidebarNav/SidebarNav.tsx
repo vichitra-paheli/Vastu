@@ -34,12 +34,13 @@ import {
 } from '@tabler/icons-react';
 import type { AppAbility } from '@vastu/shared/permissions';
 import { useSidebarStore } from '../../stores/sidebarStore';
-import { usePanelStore, openPanelByTypeId } from '../../stores/panelStore';
+import { usePanelStore } from '../../stores/panelStore';
+import { getPanel } from '../../panels/registry';
 import { SidebarSection } from './SidebarSection';
 import { SidebarItem } from './SidebarItem';
 import { SidebarSearch } from './SidebarSearch';
 import { SidebarUserAvatar } from './SidebarUserAvatar';
-import { MOCK_PAGES } from './mockPages';
+import { getAllPages } from '../../pages/registry';
 import classes from './SidebarNav.module.css';
 
 /** Map of icon names used in the mock page registry to Tabler icon components. */
@@ -54,7 +55,9 @@ const PAGE_ICONS: Record<string, React.ReactNode> = {
 };
 
 function getPageIcon(iconName: string): React.ReactNode {
-  return PAGE_ICONS[iconName] ?? <IconLayoutDashboard size={16} />;
+  // Support both "LayoutDashboard" and "IconLayoutDashboard" formats.
+  const normalized = iconName.startsWith('Icon') ? iconName.slice(4) : iconName;
+  return PAGE_ICONS[normalized] ?? <IconLayoutDashboard size={16} />;
 }
 
 interface SidebarNavUser {
@@ -106,7 +109,23 @@ export function SidebarNav({ ability, user, t }: SidebarNavProps) {
   const searchQuery = useSidebarStore((s) => s.searchQuery);
   const setSearchQuery = useSidebarStore((s) => s.setSearchQuery);
   const activePanelId = usePanelStore((s) => s.activePanelId);
-  const openPanel = (pageId: string) => openPanelByTypeId(pageId);
+  const openPanelFn = usePanelStore((s) => s.openPanel);
+
+  /** Open a page by looking up its template type and opening that panel. */
+  const openPage = (pageId: string) => {
+    const page = allPages.find((p) => p.id === pageId);
+    if (!page) return;
+
+    // Look up the panel definition for the page's template type.
+    const panelDef = getPanel(page.template);
+    if (!panelDef) {
+      console.warn(`[SidebarNav] No panel registered for template "${page.template}" (page "${pageId}")`);
+      return;
+    }
+
+    // Open the template panel with the page ID as instance ID and pass pageId in params.
+    openPanelFn({ ...panelDef, title: page.name }, pageId);
+  };
 
   const isAdmin = ability.can('manage', 'all');
 
@@ -126,12 +145,15 @@ export function SidebarNav({ ability, user, t }: SidebarNavProps) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
+  // Get pages from the registry (registered via registerPage() side-effects).
+  const allPages = getAllPages();
+
   // Filter pages by search query (case-insensitive).
   const filteredPages = useMemo(() => {
-    if (!searchQuery.trim()) return MOCK_PAGES;
+    if (!searchQuery.trim()) return allPages;
     const q = searchQuery.toLowerCase();
-    return MOCK_PAGES.filter((p) => p.title.toLowerCase().includes(q));
-  }, [searchQuery]);
+    return allPages.filter((p) => p.name.toLowerCase().includes(q));
+  }, [searchQuery, allPages]);
 
   const toggleButton = (
     <button
@@ -245,13 +267,13 @@ export function SidebarNav({ ability, user, t }: SidebarNavProps) {
               <SidebarItem
                 key={page.id}
                 id={page.id}
-                label={page.title}
-                icon={getPageIcon(page.iconName)}
+                label={page.name}
+                icon={getPageIcon(page.icon)}
                 active={activePanelId === page.id}
                 pinned={pinnedPages.includes(page.id)}
                 showPin={true}
                 collapsed={collapsed}
-                onClick={() => openPanel(page.id)}
+                onClick={() => openPage(page.id)}
                 onPinToggle={() => togglePin(page.id)}
               />
             ))
